@@ -1,0 +1,155 @@
+html,body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+#chart-container {
+  overflow-x: auto;
+  position: relative;
+  margin-bottom: -120px;
+  height: 100%;
+}
+.chart-switch {
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    z-index: 1111;
+}
+.jOrgChart {
+    position: relative;
+}
+.jOrgChart .node:hover {
+    background-color: rgba(204,226,255, 0.6);
+    transition: .5s;
+    cursor: default;
+    z-index: 20;
+}
+.jOrgChart .node .content {
+        background: none;
+        color: #005092;
+        line-height: 13px;
+}
+.jOrgChart .edge:hover {
+        color: #5190CA;
+}
+.jOrgChart .edge:hover {
+    cursor: pointer;
+    text-decoration: none;
+}
+.jOrgChart .node .avatar {
+    background: url(../img/blue-user-icon.png) no-repeat 0 0;
+    background-size: 95%;
+}
+
+/* styles of background map */
+.backgroundMap {
+  position: absolute;
+  opacity: 0.3;
+}
+
+.map-stroke {
+  fill: none;
+}
+
+.map-fill {
+  fill: #fff;
+}
+
+.map-land {
+  fill: #90bbfd;
+}
+
+.map-boundary {
+  fill: none;
+  stroke: #fff;
+}
+
+.chart-box {
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+/*    background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%);*/
+    background-size: 10px 10px;
+    border: 1px dashed rgba(0,0,0,0);
+    transition: border .3s;
+    padding: 20px;
+}
+.chart-box:hover {
+    border: 1px dashed #ccc;
+}
+.chart-box:active  {
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+/*==arrow==*/
+/*.glyphicon.glyphicon-chevron-up{
+    -webkit-animation: extend-top .2s;
+    animation: extend-top .2s;
+}
+@-webkit-keyframes extend-top
+{
+    from {top: auto;}
+    to {top: -10px;}
+}
+@keyframes extend-top
+{
+    from {top: auto;}
+    to {top: -10px;}
+}*/
+a.glyphicon {
+    transition: .2s;
+    transform: translate(0,0);
+    -webkit-transition: .2s;
+    -webkit-transform: translate(0,0);
+}
+.glyphicon.glyphicon-chevron-up:hover {
+    transform: translate(0, -5px);
+    -webkit-transform: translate(0, -5px);
+}
+.glyphicon.glyphicon-chevron-down:hover {
+    transform: translate(0, 5px);
+    -webkit-transform: translate(0, 5px);
+}
+.glyphicon.glyphicon-chevron-right:hover {
+    transform: translate(5px, 0);
+    -webkit-transform: translate(5px, 0);
+}
+.glyphicon.glyphicon-chevron-right:hover ~ .glyphicon.glyphicon-chevron-left {
+    transform: translate(-5px, 0);
+    -webkit-transform: translate(-5px, 0);
+}
+.glyphicon.glyphicon-chevron-left:hover {
+    transform: translate(-5px, 0);
+    -webkit-transform: translate(-5px, 0);
+}
+.glyphicon.glyphicon-chevron-left:hover ~ .glyphicon.glyphicon-chevron-right {
+    transform: translate(5px, 0);
+    -webkit-transform: translate(5px, 0);
+}
+.rightEdgeTransitionToRight {
+    transform: translate(5px, 0);
+    -webkit-transform: translate(5px, 0);
+}
+.rightEdgeTransitionToLeft {
+    transform: translate(-5px, 0);
+    -webkit-transform: translate(-5px, 0);
+}
+.mask {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 9999;
+    text-align: center;
+    background-color: #000;
+    opacity: 0.3;
+}
+.mask p {
+    position: absolute;
+    top: 40%;
+    left: 45%;
+    color: #fff;
+    font-size: 24px;
+}
