@@ -157,7 +157,7 @@
 .oc-popupmenu .popover-title {
     font-size: 12px;
 }
-.jOrgChart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
+/*.jOrgChart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
   display: block;
   opacity: 1;
   transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
@@ -176,7 +176,7 @@
     color: #C8C8C8;
     font-size: 15px;
     position: absolute;
-}
+}*/
 .oc-popupmenu-info {
   color: black;
   margin: 0;
