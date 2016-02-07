@@ -365,31 +365,31 @@
 
   // whether the cursor is hovering over the node
   function isInAction($node) {
-    return $node.children('.edge').attr('class').indexOf('glyphicon-') > -1 ? true : false;
+    return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
   }
 
   function switchUpDownArrow($arrow) {
-    $arrow.toggleClass('glyphicon-chevron-up').toggleClass('glyphicon-chevron-down');
+    $arrow.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
   }
 
   function collapseArrow($node) {
     switchLeftRightArrow($node, false);
     $node.children('.topEdge')
-      .removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+      .removeClass('fa-chevron-up').addClass('fa-chevron-down');
     $node.children('.topEdge').data('parentState').visible = true;
   }
 
   function switchLeftRightArrow($node, isExpand) {
     if (isExpand) {
       $node.children('.leftEdge')
-        .removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
+        .removeClass('fa-chevron-right').addClass('fa-chevron-left');
       $node.children('.rightEdge')
-        .removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
+        .removeClass('fa-chevron-left').addClass('fa-chevron-right');
     } else {
       $node.children('.leftEdge')
-        .removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
+        .removeClass('fa-chevron-left').addClass('fa-chevron-right');
       $node.children('.rightEdge')
-        .removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
+        .removeClass('fa-chevron-right').addClass('fa-chevron-left');
     }
   }
 
@@ -416,14 +416,14 @@
       .append($nodeTitle).append($nodeContent);
     // append 4 directions arrows
     if (nodeData.relationship.parent_num > 0) {
-      $nodeDiv.append('<a class="edge topEdge glyphicon"></a>');
+      $nodeDiv.append('<i class="edge topEdge fa"></i>');
     }
     if(nodeData.relationship.sibling_num > 0) {
-      $nodeDiv.append('<a class="edge rightEdge glyphicon"></a>' +
-        '<a class="edge leftEdge glyphicon"></a>');
+      $nodeDiv.append('<i class="edge rightEdge fa"></i>' +
+        '<i class="edge leftEdge fa"></i>');
     }
     if(nodeData.relationship.children_num > 0) {
-      $nodeDiv.append('<a class="edge bottomEdge glyphicon"></a>');
+      $nodeDiv.append('<i class="edge bottomEdge fa"></i>');
     } else {
       $nodeDiv.addClass('oc-leaf');
     }
@@ -444,9 +444,9 @@
             $topEdge.data('parentState', temp);
           }
           if ($topEdge.data('parentState').visible) {
-            $topEdge.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+            $topEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
           } else {
-            $topEdge.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+            $topEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
           }
         }
         if ($bottomEdge.length) {
@@ -455,9 +455,9 @@
             $bottomEdge.data('childrenState', temp);
           }
           if($bottomEdge.data('childrenState').visible) {
-            $bottomEdge.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+            $bottomEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
           } else {
-            $bottomEdge.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+            $bottomEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
           }
         }
         if ($leftEdge.length) {
@@ -473,8 +473,8 @@
           }
         }
       } else {
-        $topEdge.add($bottomEdge).removeClass('glyphicon-chevron-up glyphicon-chevron-down');
-        $rightEdge.add($leftEdge).removeClass('glyphicon-chevron-right glyphicon-chevron-left');
+        $topEdge.add($bottomEdge).removeClass('fa-chevron-up fa-chevron-down');
+        $rightEdge.add($leftEdge).removeClass('fa-chevron-right fa-chevron-left');
       }
     });
 

@@ -54,6 +54,10 @@
   font-size: 15px;
   color: rgba(100, 100, 170, 0.4);
   cursor: default;
+  transition: .2s;
+  transform: translate(0,0);
+  -webkit-transition: .2s;
+  -webkit-transform: translate(0,0);
 }
 .jOrgChart .node .topEdge {
   width: 100%;
@@ -65,20 +69,54 @@
   width: 15px;
   position: absolute;
   top: 40%;
-  right: -5px;
+  right: -4px;
 }
 .jOrgChart .node .bottomEdge {
   width: 100%;
   position: absolute;
   left: 0px;
   top: auto;
-  bottom: -10px;
+  bottom: -4px;
+  text-align: center;
 }
 .jOrgChart .node .leftEdge {
   width: 15px;
   position: absolute;
   top: 40%;
-  left: -5px;
+  left: -4px;
+}
+.jOrgChart .node .edge.fa-chevron-up:hover {
+  transform: translate(0, -4px);
+  -webkit-transform: translate(0, -4px);
+}
+.jOrgChart .node .edge.fa-chevron-down:hover {
+  transform: translate(0, 4px);
+  -webkit-transform: translate(0, 4px);
+}
+.jOrgChart .node .edge.fa-chevron-right:hover {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.jOrgChart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
+.jOrgChart .node .edge.fa-chevron-left:hover {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
+/* the following cod doesn't work */
+.jOrgChart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.rightEdgeTransitionToRight {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.rightEdgeTransitionToLeft {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
 }
 .jOrgChart .node .avatar {
   width: 50px;

@@ -1,8 +1,21 @@
 html,body {
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	padding: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333333;
+}
+
+*, *:before, *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #chart-container {
@@ -97,44 +110,7 @@ html,body {
     from {top: auto;}
     to {top: -10px;}
 }*/
-a.glyphicon {
-    transition: .2s;
-    transform: translate(0,0);
-    -webkit-transition: .2s;
-    -webkit-transform: translate(0,0);
-}
-.glyphicon.glyphicon-chevron-up:hover {
-    transform: translate(0, -5px);
-    -webkit-transform: translate(0, -5px);
-}
-.glyphicon.glyphicon-chevron-down:hover {
-    transform: translate(0, 5px);
-    -webkit-transform: translate(0, 5px);
-}
-.glyphicon.glyphicon-chevron-right:hover {
-    transform: translate(5px, 0);
-    -webkit-transform: translate(5px, 0);
-}
-.glyphicon.glyphicon-chevron-right:hover ~ .glyphicon.glyphicon-chevron-left {
-    transform: translate(-5px, 0);
-    -webkit-transform: translate(-5px, 0);
-}
-.glyphicon.glyphicon-chevron-left:hover {
-    transform: translate(-5px, 0);
-    -webkit-transform: translate(-5px, 0);
-}
-.glyphicon.glyphicon-chevron-left:hover ~ .glyphicon.glyphicon-chevron-right {
-    transform: translate(5px, 0);
-    -webkit-transform: translate(5px, 0);
-}
-.rightEdgeTransitionToRight {
-    transform: translate(5px, 0);
-    -webkit-transform: translate(5px, 0);
-}
-.rightEdgeTransitionToLeft {
-    transform: translate(-5px, 0);
-    -webkit-transform: translate(-5px, 0);
-}
+
 .mask {
     position: absolute;
     top: 0px;
