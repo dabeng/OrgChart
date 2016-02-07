@@ -1,11 +1,26 @@
 .jOrgChart {
   display: inline-block;
+  position: relative;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%);
+  background-size: 10px 10px;
+  border: 1px dashed rgba(0,0,0,0);
+  transition: border .3s;
+  padding: 20px;
+}
+.jOrgChart:hover {
+  border: 1px dashed #449d44;
+}
+.jOrgChart:active  {
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
 }
 
 .jOrgChart table {
@@ -34,30 +49,34 @@
   display: inline-block;
   position: relative;
   margin: 0;
-  padding: 5px 7px 5px 25px;
+  padding: 5px 7px 5px 5px;
   text-align: center;
-  background: url("../img/glyphicons_043_group.png") no-repeat scroll 7px 50%;
-  background-size: 15px;
-  width: 80px;
+  width: 120px;
 }
-.jOrgChart .node.oc-leaf {
-    padding-left: 5px;
-    background: none;
+.jOrgChart .node:hover {
+  background-color: rgba(238, 217, 54, 0.5);
+  transition: .5s;
+  cursor: default;
+  z-index: 20;
 }
 .oc-group.jOrgChart .node {
     width: 150px;
 }
 .jOrgChart .node.focused {
-  background-color: rgba(255, 255, 205, 0.8);
+  background-color: rgba(238, 217, 54, 0.5);
 }
 .jOrgChart .edge {
   font-size: 15px;
-  color: rgba(100, 100, 170, 0.4);
+  color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
   transform: translate(0,0);
   -webkit-transition: .2s;
   -webkit-transform: translate(0,0);
+}
+.jOrgChart .edge:hover {
+  color: #449d44;
+  cursor: pointer;
 }
 .jOrgChart .node .topEdge {
   width: 100%;
@@ -126,6 +145,7 @@
   background: #eee;
 }
 .jOrgChart .node .title {
+  position: relative;
   text-align: center;
   font-size: 12px;
   font-weight: bold;
@@ -134,6 +154,14 @@
   text-overflow: ellipsis;
 /*  white-space: nowrap;
   overflow: hidden;*/
+  background-color: rgba(217, 83, 79, 0.8);
+  color: #fff;
+  border-radius: 4px 4px 0 0; 
+}
+.jOrgChart .node .title .symbol {
+  position: absolute;
+  left: 3px;
+  top: 3px;
 }
 .oc-group.jOrgChart .node .title {
   white-space: normal;
@@ -143,29 +171,31 @@
   width: 100%;
   height: auto;
   font-size: 11px;
+  line-height: 13px;
   padding: 2px;
+  border-radius: 0 0 4px 4px;
   text-align: center;
-  background-color: #35363B;
+  background-color: #eee;
+  color: #333;
   overflow: hidden;
 }
-
 .jOrgChart .down {
-  background-color: #ccc;
+  background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;
   height: 20px;
   width: 2px;
 }
 
 .jOrgChart td.top {
-  border-top: 2px solid #ccc;
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
 .jOrgChart td.left {
-  border-left: 1px solid #ccc;
+  border-left: 1px solid rgba(217, 83, 79, 0.8);
 }
 
 .jOrgChart td.right {
-  border-right: 1px solid #ccc;
+  border-right: 1px solid rgba(217, 83, 79, 0.8);
 }
 
 /* node cell */

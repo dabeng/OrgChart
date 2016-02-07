@@ -19,7 +19,7 @@
     // build the org-chart
     var $chartContainer = $(this);
     var data = opts.data;
-    var $chart = $("<div class='jOrgChart " + opts.chartClass + " chart-box'/>");
+    var $chart = $('<div class="jOrgChart ' + opts.chartClass + '"/>');
     buildNode(data, $chart, 0, opts);
     $chartContainer.append($chart);
 
@@ -423,9 +423,8 @@
         '<i class="edge leftEdge fa"></i>');
     }
     if(nodeData.relationship.children_num > 0) {
+      $nodeDiv.find('.title').prepend('<i class="fa fa-users symbol"></i>')
       $nodeDiv.append('<i class="edge bottomEdge fa"></i>');
-    } else {
-      $nodeDiv.addClass('oc-leaf');
     }
 
     // define hover event handler
