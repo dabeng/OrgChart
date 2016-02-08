@@ -7,7 +7,7 @@
     var datascource = {
       'name': 'Ren Yang',
       'title': 'manager',
-      'relationship': { 'children_num': 6, 'parent_num': 1,'sibling_num': 2 },
+      'relationship': { 'children_num': 6 },
       'children': [
         {'name': 'yugang', 'title': 'engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 5 }},
         {'name': 'haibo', 'title': 'engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 5 }},
@@ -32,6 +32,7 @@
       } else {
         chart.css('left', containerWidth/2 - chart.outerWidth(true)/2);
       }
+      chart.css('top',30);
     }
   });
 
