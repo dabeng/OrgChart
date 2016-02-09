@@ -1,4 +1,4 @@
-.jOrgChart {
+.orgchart {
   display: inline-block;
   position: relative;
   -webkit-touch-callout: none;
@@ -15,19 +15,19 @@
   transition: border .3s;
   padding: 20px;
 }
-.jOrgChart:hover {
+.orgchart:hover {
   border: 1px dashed #449d44;
 }
-.jOrgChart:active  {
+.orgchart:active  {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;
 }
 
-.jOrgChart table {
+.orgchart table {
   border-collapse: separate;
 }
 
-.jOrgChart>table:first-child{
+.orgchart>table:first-child{
   margin: 20px auto;
 }
 
@@ -45,7 +45,7 @@
 }
 
 /* node styling */
-.jOrgChart .node {
+.orgchart .node {
   display: inline-block;
   position: relative;
   margin: 0;
@@ -53,19 +53,19 @@
   text-align: center;
   width: 120px;
 }
-.jOrgChart .node:hover {
+.orgchart .node:hover {
   background-color: rgba(238, 217, 54, 0.5);
   transition: .5s;
   cursor: default;
   z-index: 20;
 }
-.oc-group.jOrgChart .node {
+.oc-group.orgchart .node {
     width: 150px;
 }
-.jOrgChart .node.focused {
+.orgchart .node.focused {
   background-color: rgba(238, 217, 54, 0.5);
 }
-.jOrgChart .edge {
+.orgchart .edge {
   font-size: 15px;
   color: rgba(68, 157, 68, 0.5);
   cursor: default;
@@ -74,23 +74,23 @@
   -webkit-transition: .2s;
   -webkit-transform: translate(0,0);
 }
-.jOrgChart .edge:hover {
+.orgchart .edge:hover {
   color: #449d44;
   cursor: pointer;
 }
-.jOrgChart .node .topEdge {
+.orgchart .node .topEdge {
   width: 100%;
   position: absolute;
   top: -5px;
   left: 0px;
 }
-.jOrgChart .node .rightEdge {
+.orgchart .node .rightEdge {
   width: 15px;
   position: absolute;
   top: 40%;
   right: -4px;
 }
-.jOrgChart .node .bottomEdge {
+.orgchart .node .bottomEdge {
   width: 100%;
   position: absolute;
   left: 0px;
@@ -98,34 +98,34 @@
   bottom: -4px;
   text-align: center;
 }
-.jOrgChart .node .leftEdge {
+.orgchart .node .leftEdge {
   width: 15px;
   position: absolute;
   top: 40%;
   left: -4px;
 }
-.jOrgChart .node .edge.fa-chevron-up:hover {
+.orgchart .node .edge.fa-chevron-up:hover {
   transform: translate(0, -4px);
   -webkit-transform: translate(0, -4px);
 }
-.jOrgChart .node .edge.fa-chevron-down:hover {
+.orgchart .node .edge.fa-chevron-down:hover {
   transform: translate(0, 4px);
   -webkit-transform: translate(0, 4px);
 }
-.jOrgChart .node .edge.fa-chevron-right:hover {
+.orgchart .node .edge.fa-chevron-right:hover {
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
 }
-.jOrgChart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
+.orgchart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
-.jOrgChart .node .edge.fa-chevron-left:hover {
+.orgchart .node .edge.fa-chevron-left:hover {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
 /* the following cod doesn't work */
-.jOrgChart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
+.orgchart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
 }
@@ -137,14 +137,14 @@
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
-.jOrgChart .node .avatar {
+.orgchart .node .avatar {
   width: 50px;
   height: 50px;
   float: left;
   margin: 5px;
   background: #eee;
 }
-.jOrgChart .node .title {
+.orgchart .node .title {
   position: relative;
   text-align: center;
   font-size: 12px;
@@ -158,15 +158,15 @@
   color: #fff;
   border-radius: 4px 4px 0 0; 
 }
-.jOrgChart .node .title .symbol {
+.orgchart .node .title .symbol {
   position: absolute;
   left: 3px;
   top: 3px;
 }
-.oc-group.jOrgChart .node .title {
+.oc-group.orgchart .node .title {
   white-space: normal;
 }
-.jOrgChart .node .content {
+.orgchart .node .content {
   position: relative;
   width: 100%;
   height: auto;
@@ -179,27 +179,27 @@
   color: #333;
   overflow: hidden;
 }
-.jOrgChart .down {
+.orgchart .down {
   background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;
   height: 20px;
   width: 2px;
 }
 
-.jOrgChart td.top {
+.orgchart td.top {
   border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
-.jOrgChart td.left {
+.orgchart td.left {
   border-left: 1px solid rgba(217, 83, 79, 0.8);
 }
 
-.jOrgChart td.right {
+.orgchart td.right {
   border-right: 1px solid rgba(217, 83, 79, 0.8);
 }
 
 /* node cell */
-.jOrgChart td {
+.orgchart td {
   text-align: center;
   vertical-align: top;
   padding: 0;
@@ -225,16 +225,16 @@
 .oc-popupmenu .popover-title {
     font-size: 12px;
 }
-/*.jOrgChart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
+/*.orgchart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
   display: block;
   opacity: 1;
   transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
   -webkit-transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
 }
-.jOrgChart span.glyphicon {
+.orgchart span.glyphicon {
     display: none;
 }
-.jOrgChart div.glyphicon {
+.orgchart div.glyphicon {
     transition: opacity .5s;
     visibility: visible;
     opacity: 0;
@@ -277,7 +277,7 @@
   min-height: 18px;
   word-break: normal;
 }
-.jOrgChart .node:hover div.glyphicon {
+.orgchart .node:hover div.glyphicon {
     visibility: visible;
     opacity: 1;
 }
