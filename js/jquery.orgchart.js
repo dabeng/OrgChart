@@ -105,8 +105,7 @@
   // Option defaults
   $.fn.orgchart.defaults = {
     depth: 999,
-    chartClass: '',
-    draggable: false
+    chartClass: ''
   };
 
   // determin whether the parent node of the specified node is visible on current chart view
