@@ -104,7 +104,7 @@
 
   // Option defaults
   $.fn.orgchart.defaults = {
-    depth: -1,
+    depth: 999,
     chartClass: '',
     draggable: false
   };
@@ -771,42 +771,51 @@
     if ($childNodes && $childNodes.length > 0) {
       // recurse until leaves found (-1) or to the level specified
       var $childNodesRow;
-      if (opts.depth == -1 || (level + 1 < opts.depth)) {
-        var $downLineRow = $("<tr/>");
-        var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
-        $downLineRow.append($downLineCell);
+      // if (opts.depth == -1 || (level + 1 < opts.depth)) {
+      var $downLineRow = $("<tr/>");
+      var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
+      $downLineRow.append($downLineCell);
 
-        // draw the connecting line from the parent node to the horizontal line
-        var $downLine = $("<div></div>").addClass("down");
-        $downLineCell.append($downLine);
+      // draw the connecting line from the parent node to the horizontal line
+      var $downLine = $("<div></div>").addClass("down");
+      $downLineCell.append($downLine);
+      if (level + 1 < opts.depth) {
         $tbody.append($downLineRow);
-
-        // draw the horizontal lines
-        var $linesRow = $("<tr/>");
-        $.each($childNodes, function() {
-          var $left = $("<td>&nbsp;</td>").addClass("right top");
-          var $right = $("<td>&nbsp;</td>").addClass("left top");
-          $linesRow.append($left).append($right);
-        });
-
-        // horizontal line shouldn't extend beyond the first and last child branches
-        $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
-
-        $tbody.append($linesRow);
-        $childNodesRow = $("<tr/>");
-        $.each($childNodes, function() {
-          var $td = $("<td class='node-container'/>");
-          $td.attr("colspan", 2);
-          // recurse through children lists and items
-          if (callback) {
-            buildNode(this, $td, level + 1, opts, callback);
-          } else {
-            buildNode(this, $td, level + 1, opts);
-          }
-          $childNodesRow.append($td);
-        });
-
+      } else {
+        $tbody.append($downLineRow.hide());
       }
+
+      // draw the horizontal lines
+      var $linesRow = $("<tr/>");
+      $.each($childNodes, function() {
+        var $left = $("<td>&nbsp;</td>").addClass("right top");
+        var $right = $("<td>&nbsp;</td>").addClass("left top");
+        $linesRow.append($left).append($right);
+      });
+
+      // horizontal line shouldn't extend beyond the first and last child branches
+      $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
+      if (level + 1 < opts.depth) {
+        $tbody.append($linesRow);
+      } else {
+        $tbody.append($linesRow.hide());
+      }
+      $childNodesRow = $("<tr/>");
+      $.each($childNodes, function() {
+        var $td = $("<td class='node-container'/>");
+        $td.attr("colspan", 2);
+        // recurse through children lists and items
+        if (callback) {
+          buildNode(this, $td, level + 1, opts, callback);
+        } else {
+          buildNode(this, $td, level + 1, opts);
+        }
+        if (level + 1 < opts.depth) {
+          $childNodesRow.append($td);
+        } else {
+          $childNodesRow.append($td).hide();
+        }
+      });
       $tbody.append($childNodesRow);
     }
 
