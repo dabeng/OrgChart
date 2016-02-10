@@ -1,18 +1,33 @@
-.jOrgChart {
+.orgchart {
   display: inline-block;
+  position: relative;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+  background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%);
+  background-size: 10px 10px;
+  border: 1px dashed rgba(0,0,0,0);
+  transition: border .3s;
+  padding: 20px;
+}
+.orgchart:hover {
+  border: 1px dashed #449d44;
+}
+.orgchart:active  {
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
 }
 
-.jOrgChart table {
+.orgchart table {
   border-collapse: separate;
 }
 
-.jOrgChart>table:first-child{
+.orgchart>table:first-child{
   margin: 20px auto;
 }
 
@@ -30,64 +45,107 @@
 }
 
 /* node styling */
-.jOrgChart .node {
+.orgchart .node {
   display: inline-block;
   position: relative;
   margin: 0;
-  padding: 5px 7px 5px 25px;
+  padding: 5px 7px 5px 5px;
   text-align: center;
-  background: url("../img/glyphicons_043_group.png") no-repeat scroll 7px 50%;
-  background-size: 15px;
-  width: 80px;
+  width: 120px;
 }
-.jOrgChart .node.oc-leaf {
-    padding-left: 5px;
-    background: none;
+.orgchart .node:hover {
+  background-color: rgba(238, 217, 54, 0.5);
+  transition: .5s;
+  cursor: default;
+  z-index: 20;
 }
-.oc-group.jOrgChart .node {
+.oc-group.orgchart .node {
     width: 150px;
 }
-.jOrgChart .node.focused {
-  background-color: rgba(255, 255, 205, 0.8);
+.orgchart .node.focused {
+  background-color: rgba(238, 217, 54, 0.5);
 }
-.jOrgChart .edge {
+.orgchart .edge {
   font-size: 15px;
-  color: rgba(100, 100, 170, 0.4);
+  color: rgba(68, 157, 68, 0.5);
   cursor: default;
+  transition: .2s;
+  transform: translate(0,0);
+  -webkit-transition: .2s;
+  -webkit-transform: translate(0,0);
 }
-.jOrgChart .node .topEdge {
+.orgchart .edge:hover {
+  color: #449d44;
+  cursor: pointer;
+}
+.orgchart .node .topEdge {
   width: 100%;
   position: absolute;
   top: -5px;
   left: 0px;
 }
-.jOrgChart .node .rightEdge {
+.orgchart .node .rightEdge {
   width: 15px;
   position: absolute;
   top: 40%;
-  right: -5px;
+  right: -4px;
 }
-.jOrgChart .node .bottomEdge {
+.orgchart .node .bottomEdge {
   width: 100%;
   position: absolute;
   left: 0px;
   top: auto;
-  bottom: -10px;
+  bottom: -4px;
+  text-align: center;
 }
-.jOrgChart .node .leftEdge {
+.orgchart .node .leftEdge {
   width: 15px;
   position: absolute;
   top: 40%;
-  left: -5px;
+  left: -4px;
 }
-.jOrgChart .node .avatar {
+.orgchart .node .edge.fa-chevron-up:hover {
+  transform: translate(0, -4px);
+  -webkit-transform: translate(0, -4px);
+}
+.orgchart .node .edge.fa-chevron-down:hover {
+  transform: translate(0, 4px);
+  -webkit-transform: translate(0, 4px);
+}
+.orgchart .node .edge.fa-chevron-right:hover {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.orgchart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
+.orgchart .node .edge.fa-chevron-left:hover {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
+/* the following cod doesn't work */
+.orgchart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.rightEdgeTransitionToRight {
+  transform: translate(4px, 0);
+  -webkit-transform: translate(4px, 0);
+}
+.rightEdgeTransitionToLeft {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
+.orgchart .node .avatar {
   width: 50px;
   height: 50px;
   float: left;
   margin: 5px;
   background: #eee;
 }
-.jOrgChart .node .title {
+.orgchart .node .title {
+  position: relative;
   text-align: center;
   font-size: 12px;
   font-weight: bold;
@@ -96,42 +154,52 @@
   text-overflow: ellipsis;
 /*  white-space: nowrap;
   overflow: hidden;*/
+  background-color: rgba(217, 83, 79, 0.8);
+  color: #fff;
+  border-radius: 4px 4px 0 0; 
 }
-.oc-group.jOrgChart .node .title {
+.orgchart .node .title .symbol {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+}
+.oc-group.orgchart .node .title {
   white-space: normal;
 }
-.jOrgChart .node .content {
+.orgchart .node .content {
   position: relative;
   width: 100%;
   height: auto;
   font-size: 11px;
+  line-height: 13px;
   padding: 2px;
+  border-radius: 0 0 4px 4px;
   text-align: center;
-  background-color: #35363B;
+  background-color: #eee;
+  color: #333;
   overflow: hidden;
 }
-
-.jOrgChart .down {
-  background-color: #ccc;
+.orgchart .down {
+  background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;
   height: 20px;
   width: 2px;
 }
 
-.jOrgChart td.top {
-  border-top: 2px solid #ccc;
+.orgchart td.top {
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
-.jOrgChart td.left {
-  border-left: 1px solid #ccc;
+.orgchart td.left {
+  border-left: 1px solid rgba(217, 83, 79, 0.8);
 }
 
-.jOrgChart td.right {
-  border-right: 1px solid #ccc;
+.orgchart td.right {
+  border-right: 1px solid rgba(217, 83, 79, 0.8);
 }
 
 /* node cell */
-.jOrgChart td {
+.orgchart td {
   text-align: center;
   vertical-align: top;
   padding: 0;
@@ -157,16 +225,16 @@
 .oc-popupmenu .popover-title {
     font-size: 12px;
 }
-.jOrgChart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
+/*.orgchart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
   display: block;
   opacity: 1;
   transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
   -webkit-transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
 }
-.jOrgChart span.glyphicon {
+.orgchart span.glyphicon {
     display: none;
 }
-.jOrgChart div.glyphicon {
+.orgchart div.glyphicon {
     transition: opacity .5s;
     visibility: visible;
     opacity: 0;
@@ -176,7 +244,7 @@
     color: #C8C8C8;
     font-size: 15px;
     position: absolute;
-}
+}*/
 .oc-popupmenu-info {
   color: black;
   margin: 0;
@@ -209,7 +277,7 @@
   min-height: 18px;
   word-break: normal;
 }
-.jOrgChart .node:hover div.glyphicon {
+.orgchart .node:hover div.glyphicon {
     visibility: visible;
     opacity: 1;
 }
