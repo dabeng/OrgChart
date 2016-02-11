@@ -103,10 +103,7 @@
   };
 
   // Option defaults
-  $.fn.orgchart.defaults = {
-    depth: 999,
-    chartClass: ''
-  };
+  $.fn.orgchart.defaults = { depth: 999, chartClass: '' };
 
   // determin whether the parent node of the specified node is visible on current chart view
   function getParentState($node) {

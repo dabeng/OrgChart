@@ -33,7 +33,7 @@
  $('#chart-container').orgchart({
     'data' : datascource,
     'depth': 2,
-    'chartClass': 'oc-employee',
+    // 'chartClass': 'oc-employee',
     'nodeTitle': ['name'],
     'nodeContent': ['title'],
     'create': function() {
