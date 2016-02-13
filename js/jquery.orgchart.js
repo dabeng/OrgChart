@@ -321,16 +321,17 @@
     }
 
     $arrow.hide();
-    $node.spin({'color': '#0071BD'});
+    // $node.spin({'color': '#0071BD'});
+    $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
     $node.children().not('.spinner').css('opacity', 0.2);
-    var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-      .find('.oc-btn.export');
-    $exportButton.spin({
-      'color': '#fff',
-      'radius': $exportButton.innerHeight()/6,
-      'length': $exportButton.innerHeight()/6,
-      'lines': 9
-    });
+    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
+    //   .find('.oc-btn.export');
+    // $exportButton.spin({
+    //   'color': '#fff',
+    //   'radius': $exportButton.innerHeight()/6,
+    //   'length': $exportButton.innerHeight()/6,
+    //   'lines': 9
+    // });
     $chart.data('inAjax', true);
     return true;
   }
@@ -339,11 +340,12 @@
   function endLoadingStatus($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
     $arrow.show();
-    $node.spin(false);
+    // $node.spin(false);
+    $node.find('.spinner').remove();
     $node.children().removeAttr('style');
-    var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-      .find('.oc-btn.export');
-    $exportButton.spin(false);
+    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
+    //   .find('.oc-btn.export');
+    // $exportButton.spin(false);
     $chart.data('inAjax', false);
   }
 
