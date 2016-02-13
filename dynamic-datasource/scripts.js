@@ -4,7 +4,7 @@
 
   function mockJqueryAjax() {
     $.mockjax({
-      url: '/orgchart/children/1',
+      url: '/orgchart/children/3',
       contentType: 'application/json',
       responseText: {'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
     });
@@ -13,13 +13,14 @@
   $(function() {
 
     var datascource = {
+      'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
       'id': '1',
       'relationship': { 'children_num': 8 },
       'children': [
-        { 'name': 'Bo Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 7 }},
+        { 'id': '2', 'name': 'Bo Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
+        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 7 }},
         { 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
         { 'name': 'Yu Li', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
         { 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
