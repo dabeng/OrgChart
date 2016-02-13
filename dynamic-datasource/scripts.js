@@ -4,7 +4,7 @@
 
   function mockJqueryAjax() {
     $.mockjax({
-      url: '/orgchart/children/3',
+      url: 'http://dabeng.github.io/orgchart/children/3/',
       contentType: 'application/json',
       responseText: {'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
     });
@@ -16,7 +16,6 @@
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
-      'id': '1',
       'relationship': { 'children_num': 8 },
       'children': [
         { 'id': '2', 'name': 'Bo Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
