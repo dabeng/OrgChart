@@ -41,6 +41,7 @@
     // 'chartClass': 'oc-employee',
     'nodeTitle': ['name'],
     'nodeContent': ['title'],
+    'nodeID': 'id',
     'create': function() {
       var chartContainer = $('#chart-container');
       var chart = chartContainer.find('.orgchart');
