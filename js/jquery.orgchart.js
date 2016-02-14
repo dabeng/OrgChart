@@ -854,7 +854,7 @@
       $downLineRow.append($downLineCell);
 
       // draw the connecting line from the parent node to the horizontal line
-      $downLine = $("<div></div>").addClass("down");
+      var $downLine = $("<div></div>").addClass("down");
       $downLineCell.append($downLine);
       if (isChildNode) {
         $tbody.append($downLineRow);

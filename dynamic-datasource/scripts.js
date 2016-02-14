@@ -3,11 +3,7 @@
 (function($){
 
   function mockJqueryAjax() {
-    $.mockjax({
-      url: 'http://dabeng.github.io/orgchart/children/3/',
-      contentType: 'application/json',
-      responseText: {'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
-    });
+
   }
 
   $(function() {
@@ -34,6 +30,12 @@
       'parent': '/orgchart/parent/',
       'sibling': '/orgchart/sibling/',
       'siblingWithParent': '/orgchart/sibling/with/parent/' };
+
+    $.mockjax({
+      url: '/orgchart/children/3/',
+      contentType: 'application/json',
+      responseText: {'children': [{'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 0 }}]}
+    });
 
  $('#chart-container').orgchart({
     'data' : datascource,
