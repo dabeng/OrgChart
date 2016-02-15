@@ -20,19 +20,19 @@
     var $chartContainer = $(this);
     var data = opts.data;
     var $chart = $('<div class="orgchart ' + opts.chartClass + '"/>');
-    if ($.type(data) === "object") {
+    if ($.type(data) === 'object') {
       buildNode(data, $chart, 0, opts);
     } else {
       $.ajax({
-            "url": data,
-            "dataType": "json"
-          })
-          .done(function(data, textStatus, jqXHR) {
-            buildNode(data, $chart, 0, opts);
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(errorThrown);
-          });
+        'url': data,
+        'dataType': 'json'
+      })
+      .done(function(data, textStatus, jqXHR) {
+        buildNode(data, $chart, 0, opts);
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown);
+      });
     }
     $chartContainer.append($chart);
 
