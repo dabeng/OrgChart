@@ -20,7 +20,20 @@
     var $chartContainer = $(this);
     var data = opts.data;
     var $chart = $('<div class="orgchart ' + opts.chartClass + '"/>');
-    buildNode(data, $chart, 0, opts);
+    if ($.type(data) === "object") {
+      buildNode(data, $chart, 0, opts);
+    } else {
+      $.ajax({
+            "url": data,
+            "dataType": "json"
+          })
+          .done(function(data, textStatus, jqXHR) {
+            buildNode(data, $chart, 0, opts);
+          })
+          .fail(function(jqXHR, textStatus, errorThrown) {
+            console.log(errorThrown);
+          });
+    }
     $chartContainer.append($chart);
 
     // build the chart-panel which includes all control buttons of org-chart
@@ -688,7 +701,7 @@
         // load the new sibling nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         var withParent = !$that.siblings('.topEdge').data('parentState').exist;
-        var url = (withParent) ? opts.ajaxURL.siblingWithParent : opts.ajaxURL.sibling;
+        var url = (withParent) ? opts.ajaxURL.families : opts.ajaxURL.siblings;
         if (startLoadingStatus($that, $node, opts)) {
           $.ajax({
             "url": url + nodeId + "/",
@@ -696,7 +709,7 @@
           })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax') === true) {
-              if (data.children.length !== 0) {
+              if (data.siblings || data.children) {
                 $.when(buildSiblingNode(data, $that.closest('table'), opts))
 　　            .done(function(){
                   currentPosition = $node.offset();
@@ -829,7 +842,7 @@
 
   // build the child nodes of specific node
   function buildChildNode (nodeData, $appendTo, isChildNode, opts, callback) {
-    var $childNodes = nodeData.children;
+    var $childNodes = nodeData.children || nodeData.siblings;
     var $table, $tbody;
     if (isChildNode) {
       $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
@@ -931,7 +944,7 @@
     $downLineRow.append($downLineCell);
 
     // draw the connecting line from the parent node to the horizontal line
-    $downLine = $("<div></div>").addClass("down");
+    var $downLine = $("<div></div>").addClass("down");
     $downLineCell.append($downLine);
     $tbody.append($downLineRow);
 
@@ -966,7 +979,7 @@
   // build the sibling nodes of specific node
   function buildSiblingNode(nodeData, $currentChart, opts) {
     var dtd = $.Deferred();
-    var siblingCount = nodeData.children.length;
+    var siblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
     if ($currentChart.parent().is('td.node-container')) {
