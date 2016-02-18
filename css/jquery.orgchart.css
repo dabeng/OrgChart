@@ -2,6 +2,8 @@
   display: inline-block;
   position: relative;
   top: 30px;
+  min-height: 202px;
+  min-width: 202px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -15,9 +17,10 @@
   padding: 20px;
 }
 
-.orgchart:active  {
-  cursor: -moz-grabbing;
-  cursor: -webkit-grabbing;
+.orgchart>.spinner {
+  font-size: 100px;
+  margin-top: 30px;
+  color: rgba(217, 83, 79, 0.8);
 }
 
 .orgchart table {

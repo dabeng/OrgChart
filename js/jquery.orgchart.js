@@ -25,13 +25,19 @@
     } else {
       $.ajax({
         'url': data,
-        'dataType': 'json'
+        'dataType': 'json',
+        beforeSend: function () {
+          $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
+        }
       })
       .done(function(data, textStatus, jqXHR) {
         buildNode(data, $chart, 0, opts);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(errorThrown);
+      })
+      .always(function() {
+        $chart.children('.spinner').remove();
       });
     }
     $chartContainer.append($chart);
