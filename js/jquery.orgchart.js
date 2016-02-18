@@ -78,41 +78,9 @@
     );
     $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
 
-    $chart.on('mousedown mouseup mousemove mouseleave', '.node',function(event) {
-      event.stopPropagation();
-    });
-    $chart.on('mousedown', function(event) {
-      var $this = $(this);
-      $this.data('offset', {
-        'x': event.pageX - $this.offset().left,
-        'y': event.pageY - $this.offset().top
-      });
-      var handlers = {
-        mousemove : function(event){
-          var $this = $(this);
-          var $container = $this.parent();
-          var pbmLeft = parseFloat($container.css('padding-left')) + parseFloat($container.css('border-left'))
-            + parseFloat($container.css('margin-left'));
-          var pbmTop = parseFloat($container.css('padding-top')) + parseFloat($container.css('border-top'))
-            + parseFloat($container.css('margin-top'));
-          $this.css({
-            'left': event.pageX - $this.data('offset').x - pbmLeft,
-            'top': event.pageY - $this.data('offset').y - pbmTop
-          });
-        },
-        mouseup : function(){
-          $(this).off(handlers);   
-        },
-        mouseleave: function() {
-          $(this).off(handlers);
-        }
-      };
-      $this.on(handlers);
-    });
-
-    if (opts.create) {
-      opts.create();
-    }
+    // if (opts.create) {
+    //   opts.create();
+    // }
   };
 
   // Option defaults
@@ -362,18 +330,6 @@
     $chart.data('inAjax', false);
   }
 
-  // adjust the org-chart's position after user expanded/collapsed nodes
-  function adjustPosition($node, originalPosition, currentPosition) {
-    var chartWrapper = $node.closest('div.orgchart');
-    var wrapperOffset = chartWrapper.offset();
-    var topOffset = currentPosition.top - originalPosition.top;
-    var leftOffset = currentPosition.left - originalPosition.left;
-    $node.closest('div.orgchart').offset({
-      'top': wrapperOffset.top - topOffset,
-      'left': wrapperOffset.left - leftOffset
-    });
-  }
-
   // whether the cursor is hovering over the node
   function isInAction($node) {
     return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
@@ -500,8 +456,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var parentState = $that.data('parentState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -514,8 +468,6 @@
           var dtd = $.Deferred();
           $.when(hideAncestorsSiblings($node, dtd))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               parentState.visible = false;
               if ($node.children('.leftEdge').length > 0) {
                 $node.children('.leftEdge').data('siblingsState').visible = false;
@@ -531,8 +483,6 @@
         else {
           $.when(showAncestorsSiblings($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               parentState.visible = true;
               switchUpDownArrow($that);
             })
@@ -553,8 +503,6 @@
               if (!$.isEmptyObject(data)) {
                 $.when(buildParentNode(data, $that.closest('table'), opts))
 　　              .done(function(){
-                    currentPosition = $node.offset();
-                    adjustPosition($node, originalPosition, currentPosition);
                     parentState.visible = true;
                     if (isInAction($node)) {
                       switchUpDownArrow($that);
@@ -582,8 +530,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = $that.data('childrenState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -595,8 +541,6 @@
         if (childrenState.visible) {
           $.when(hideDescendants($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               childrenState.visible = false;
               if (isInAction($node)) {
                 switchUpDownArrow($that);
@@ -607,8 +551,6 @@
         else {
           $.when(showDescendants($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               childrenState.visible = true;
               switchUpDownArrow($that);
             })
@@ -635,8 +577,6 @@
                   }
                 }))
 　　            .done(function(){
-                  currentPosition = $node.offset();
-                  adjustPosition($node, originalPosition, currentPosition);
                   childrenState.visible = true;
                   if (isInAction($node)) {
                     switchUpDownArrow($that);
@@ -662,8 +602,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var siblingsState = $that.data('siblingsState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -676,8 +614,6 @@
           $.when(hideSiblings($node, true))
 　　        .done(function(){
               setTimeout(function() {
-                currentPosition = $node.offset();
-                adjustPosition($node, originalPosition, currentPosition);
                 $node.closest('.orgchart').css('opacity', '');// hack for firefox
                 siblingsState.visible = false;
                 if (isInAction($node)) {
@@ -690,8 +626,6 @@
         else {
           $.when(showSiblings($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               siblingsState.visible = true;
               collapseArrow($node);
             })
@@ -712,8 +646,6 @@
               if (data.siblings || data.children) {
                 $.when(buildSiblingNode(data, $that.closest('table'), opts))
 　　            .done(function(){
-                  currentPosition = $node.offset();
-                  adjustPosition($node, originalPosition, currentPosition);
                   siblingsState.visible = true;
                   if (isInAction($node)) {
                     collapseArrow($node);

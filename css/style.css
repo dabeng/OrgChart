@@ -23,6 +23,7 @@ body {
   position: relative;
   margin-bottom: -120px;
   height: 100%;
+  text-align: center;
 }
 .chart-switch {
     position: absolute;

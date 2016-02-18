@@ -1,23 +1,20 @@
 .orgchart {
   display: inline-block;
   position: relative;
+  top: 30px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
   background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%);
   background-size: 10px 10px;
   border: 1px dashed rgba(0,0,0,0);
   transition: border .3s;
   padding: 20px;
 }
-.orgchart:hover {
-  border: 1px dashed #449d44;
-}
+
 .orgchart:active  {
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing;

@@ -35,18 +35,7 @@
     'depth': 2,
     // 'chartClass': 'oc-employee',
     'nodeTitle': ['name'],
-    'nodeContent': ['title'],
-    'create': function() {
-      var chartContainer = $('#chart-container');
-      var chart = chartContainer.find('.orgchart');
-      var containerWidth = chartContainer.width();
-      if (chartContainer[0].scrollWidth > containerWidth) {
-        chartContainer.scrollLeft(chartContainer[0].scrollWidth/2 - containerWidth/2);
-      } else {
-        chart.css('left', containerWidth/2 - chart.outerWidth(true)/2);
-      }
-      chart.css('top',30);
-    }
+    'nodeContent': ['title']
   });
 
   });
