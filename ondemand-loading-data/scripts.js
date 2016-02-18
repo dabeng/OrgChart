@@ -25,6 +25,7 @@
     $.mockjax({
       url: '/orgchart/children/3/',
       contentType: 'application/json',
+      responseTime: 2000,
       responseText: { 'children': [
         { 'id': '4', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
         { 'id': '5', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
@@ -34,12 +35,14 @@
     $.mockjax({
       url: '/orgchart/parent/1/',
       contentType: 'application/json',
+      responseTime: 2000,
       responseText: { 'id': '6','name': 'Lao Lao', 'title': 'general manager', 'relationship': { 'children_num': 8 }}
     });
 
     $.mockjax({
       url: '/orgchart/siblings/1/',
       contentType: 'application/json',
+      responseTime: 2000,
       responseText: { 'siblings': [
         { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
         { 'id': '8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
@@ -54,6 +57,7 @@
     $.mockjax({
       url: '/orgchart/families/1/',
       contentType: 'application/json',
+      responseTime: 2000,
       responseText: {
         'id': '6',
         'name': 'Lao Lao',

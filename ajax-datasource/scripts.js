@@ -6,7 +6,7 @@
 
     $.mockjax({
       url: '/orgchart/initdata',
-      responseTime: 5000,
+      responseTime: 1000,
       contentType: 'application/json',
       responseText: {
         'id': '1',
