@@ -55,8 +55,10 @@
 }
 .orgchart .node>.spinner {
   position: absolute;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  vertical-align: middle;
   font-size: 17px;
-  top: 17px;
   color: rgba(68, 157, 68, 0.8);
 }
 .orgchart .node:hover {
@@ -73,6 +75,7 @@
 }
 .orgchart .edge {
   font-size: 15px;
+  position: absolute;
   color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
@@ -86,19 +89,16 @@
 }
 .orgchart .node .topEdge {
   width: 100%;
-  position: absolute;
   top: -5px;
   left: 0px;
 }
 .orgchart .node .rightEdge {
   width: 15px;
-  position: absolute;
   top: 40%;
   right: -4px;
 }
 .orgchart .node .bottomEdge {
   width: 100%;
-  position: absolute;
   left: 0px;
   top: auto;
   bottom: -4px;
@@ -106,7 +106,6 @@
 }
 .orgchart .node .leftEdge {
   width: 15px;
-  position: absolute;
   top: 40%;
   left: -4px;
 }
