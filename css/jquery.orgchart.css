@@ -78,10 +78,8 @@
   text-align: center;
   font-size: 12px;
   font-weight: bold;
-  /*min-height: 30px;*/
   height: 20px;
   line-height: 20px;
-  /*padding-top: calc(50% - 6px);*/
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
