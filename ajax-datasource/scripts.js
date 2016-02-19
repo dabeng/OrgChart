@@ -39,8 +39,8 @@
  $('#chart-container').orgchart({
     'data' : '/orgchart/initdata',
     'depth': 2,
-    'nodeTitle': ['name'],
-    'nodeContent': ['title']
+    'nodeTitle': 'name',
+    'nodeContent': 'title'
   });
 
   });

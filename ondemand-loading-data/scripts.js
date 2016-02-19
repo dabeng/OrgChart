@@ -77,9 +77,8 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'ajaxURL': ajaxURLs,
-      // 'chartClass': 'oc-employee',
-      'nodeTitle': ['name'],
-      'nodeContent': ['title'],
+      'nodeTitle': 'name',
+      'nodeContent': 'title',
       'nodeID': 'id',
       'create': function() {
         var chartContainer = $('#chart-container');

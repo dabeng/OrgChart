@@ -379,14 +379,10 @@
   // create node
   function createNode(nodeData, opts) {
     // construct the content of node
-    var isEmployee = opts.chartClass.indexOf('employee') > -1 ? true : false;
-    var $nodeTitle = $('<div class="title">')
-      .text(readProperty(nodeData, opts.nodeTitle));
-    var $nodeContent = $('<div class="content">');
-    $nodeContent.text(readProperty(nodeData, opts.nodeContent));
     var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeID]})
       .addClass('node')
-      .append($nodeTitle).append($nodeContent);
+      .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
+      .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
     if (nodeData.relationship.parent_num > 0) {
       $nodeDiv.append('<i class="edge topEdge fa"></i>');

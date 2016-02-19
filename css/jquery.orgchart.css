@@ -49,7 +49,7 @@
   display: inline-block;
   position: relative;
   margin: 0;
-  padding: 5px 7px 5px 5px;
+  padding: 5px;
   text-align: center;
   width: 120px;
 }
@@ -94,7 +94,7 @@
 }
 .orgchart .node .rightEdge {
   width: 15px;
-  top: 40%;
+  top: calc(50% - 8px);
   right: -4px;
 }
 .orgchart .node .bottomEdge {
@@ -106,7 +106,7 @@
 }
 .orgchart .node .leftEdge {
   width: 15px;
-  top: 40%;
+  top: calc(50% - 8px);
   left: -4px;
 }
 .orgchart .node .edge.fa-chevron-up:hover {
@@ -154,7 +154,9 @@
   text-align: center;
   font-size: 12px;
   font-weight: bold;
+  min-height: 30px;
   max-height: 37px;
+  /*padding-top: calc(50% - 6px);*/
   overflow: hidden;
   text-overflow: ellipsis;
 /*  white-space: nowrap;
