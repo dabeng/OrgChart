@@ -73,6 +73,42 @@
 .orgchart .node.focused {
   background-color: rgba(238, 217, 54, 0.5);
 }
+.orgchart .node .title {
+  position: relative;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  /*min-height: 30px;*/
+  height: 20px;
+  line-height: 20px;
+  /*padding-top: calc(50% - 6px);*/
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: rgba(217, 83, 79, 0.8);
+  color: #fff;
+  border-radius: 4px 4px 0 0; 
+}
+.orgchart .node .title .symbol {
+  float: left;
+  margin-top: 4px;
+  margin-left: 2px;
+}
+.oc-group.orgchart .node .title {
+  white-space: normal;
+}
+.orgchart .node .content {
+  position: relative;
+  width: 100%;
+  font-size: 10px;
+  line-height: 13px;
+  padding: 2px;
+  border-radius: 0 0 4px 4px;
+  text-align: center;
+  background-color: #eee;
+  color: #333;
+  overflow: hidden;
+}
 .orgchart .edge {
   font-size: 15px;
   position: absolute;
@@ -149,43 +185,7 @@
   margin: 5px;
   background: #eee;
 }
-.orgchart .node .title {
-  position: relative;
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-  min-height: 30px;
-  max-height: 37px;
-  /*padding-top: calc(50% - 6px);*/
-  overflow: hidden;
-  text-overflow: ellipsis;
-/*  white-space: nowrap;
-  overflow: hidden;*/
-  background-color: rgba(217, 83, 79, 0.8);
-  color: #fff;
-  border-radius: 4px 4px 0 0; 
-}
-.orgchart .node .title .symbol {
-  position: absolute;
-  left: 3px;
-  top: 3px;
-}
-.oc-group.orgchart .node .title {
-  white-space: normal;
-}
-.orgchart .node .content {
-  position: relative;
-  width: 100%;
-  height: auto;
-  font-size: 11px;
-  line-height: 13px;
-  padding: 2px;
-  border-radius: 0 0 4px 4px;
-  text-align: center;
-  background-color: #eee;
-  color: #333;
-  overflow: hidden;
-}
+
 .orgchart .down {
   background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;

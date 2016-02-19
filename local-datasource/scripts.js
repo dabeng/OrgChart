@@ -5,12 +5,12 @@
   $(function() {
 
     var datascource = {
-      'name': 'Lao Lao',
-      'title': 'general manager',
+      'name': 'Lao LaoAAAAAAAAA',
+      'title': 'general managerAAAAAAAAAAAAAAAAAAAAAAAAAA',
       'relationship': { 'children_num': 8 },
       'children': [
-        {'name': 'Bo Miao', 'title': 'department engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 7 },
+        {'name': 'Bo Miao', 'title': 'engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
+        { 'name': 'Su MiaoBBBBBBBBBBBBBBBBBBBBBBBBBB', 'title': 'department managerBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 7 },
           'children': [
             {'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
             {'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 1 },
@@ -34,7 +34,7 @@
     'data' : datascource,
     'depth': 2,
     'nodeTitle': 'name',
-    // 'nodeContent': 'title'
+    'nodeContent': 'title'
   });
 
   });
