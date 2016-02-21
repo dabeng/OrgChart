@@ -308,7 +308,6 @@
     }
 
     $arrow.hide();
-    // $node.spin({'color': '#0071BD'});
     $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
     $node.children().not('.spinner').css('opacity', 0.2);
     // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
@@ -364,16 +363,6 @@
       $node.children('.rightEdge')
         .removeClass('fa-chevron-right').addClass('fa-chevron-left');
     }
-  }
-
-  // read property value frome the predefined data structure of node provided by hlin
-  function readProperty(obj, keyArray) {
-    if (!!!obj) {
-      return '';
-    } else if (keyArray.length === 1) {
-      return obj[keyArray[0]];
-    }
-    return readProperty(obj[keyArray[0]], keyArray.slice(1));
   }
 
   // create node

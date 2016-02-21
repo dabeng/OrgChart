@@ -51,7 +51,7 @@
   margin: 0;
   padding: 5px;
   text-align: center;
-  width: 120px;
+  width: 130px;
 }
 .orgchart .node>.spinner {
   position: absolute;
@@ -66,9 +66,6 @@
   transition: .5s;
   cursor: default;
   z-index: 20;
-}
-.oc-group.orgchart .node {
-    width: 150px;
 }
 .orgchart .node.focused {
   background-color: rgba(238, 217, 54, 0.5);
@@ -92,9 +89,6 @@
   margin-top: 4px;
   margin-left: 2px;
 }
-.oc-group.orgchart .node .title {
-  white-space: normal;
-}
 .orgchart .node .content {
   position: relative;
   width: 100%;
@@ -107,7 +101,7 @@
   color: #333;
   overflow: hidden;
 }
-.orgchart .edge {
+.orgchart .node .edge {
   font-size: 15px;
   position: absolute;
   color: rgba(68, 157, 68, 0.5);
@@ -210,7 +204,7 @@
   padding: 0;
 }
 
-.oc-popupmenu {
+/*.oc-popupmenu {
   max-width: 360px;
   top: -65px;
   left: auto;
@@ -229,28 +223,36 @@
 }
 .oc-popupmenu .popover-title {
     font-size: 12px;
-}
-/*.orgchart div.glyphicon:hover .oc-popupmenu, .oc-popupmenu:hover {
+}*/
+/*.orgchart .second-menu-icon:hover + .second-menu .oc-popupmenu, .oc-popupmenu:hover {
   display: block;
   opacity: 1;
   transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
   -webkit-transition: opacity 1s 0 ease-in-out, height 0s 1s ease, width 0s 1s ease;
-}
-.orgchart span.glyphicon {
-    display: none;
-}
-.orgchart div.glyphicon {
+}*/
+.orgchart .second-menu-icon {
     transition: opacity .5s;
-    visibility: visible;
     opacity: 0;
     right: -5px;
     top: -5px;
     z-index: 1;
-    color: #C8C8C8;
+    color: rgba(68, 157, 68, 0.5);
     font-size: 15px;
     position: absolute;
-}*/
-.oc-popupmenu-info {
+}
+.orgchart .second-menu-icon:hover {
+  color: #449d44;
+}
+.orgchart .node:hover .second-menu-icon {
+  opacity: 1;
+}
+.orgchart .node .second-menu {
+  display: none;
+}
+.orgchart .second-menu-icon:hover + .second-menu {
+  display: block;
+}
+/*.oc-popupmenu-info {
   color: black;
   margin: 0;
   position: relative;
@@ -281,11 +283,7 @@
   padding-left: 108px;
   min-height: 18px;
   word-break: normal;
-}
-.orgchart .node:hover div.glyphicon {
-    visibility: visible;
-    opacity: 1;
-}
+}*/
 .chart-map {
     display: none;
 }
