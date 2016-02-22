@@ -82,11 +82,8 @@
     var $panel = $('<div>',
       {'class': 'oc-panel' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '')}
     );
-    $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
+    // $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
 
-    // if (opts.create) {
-    //   opts.create();
-    // }
   };
 
   // Option defaults
