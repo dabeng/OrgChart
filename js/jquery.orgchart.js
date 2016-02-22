@@ -368,7 +368,7 @@
   // create node
   function createNode(nodeData, opts) {
     // construct the content of node
-    var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeID]})
+    var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeId]})
       .addClass('node')
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');

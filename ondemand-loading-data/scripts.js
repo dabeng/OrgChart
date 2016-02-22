@@ -79,7 +79,7 @@
       'ajaxURL': ajaxURLs,
       'nodeTitle': 'name',
       'nodeContent': 'title',
-      'nodeID': 'id',
+      'nodeId': 'id',
       'create': function() {
         var chartContainer = $('#chart-container');
         var chart = chartContainer.find('.orgchart');

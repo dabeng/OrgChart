@@ -32,11 +32,6 @@ body {
     z-index: 1111;
 }
 
-.orgchart .node .avatar {
-    background: url(../img/blue-user-icon.png) no-repeat 0 0;
-    background-size: 95%;
-}
-
 /* styles of background map */
 .backgroundMap {
   position: absolute;
@@ -59,21 +54,6 @@ body {
   fill: none;
   stroke: #fff;
 }
-/*==arrow==*/
-/*.glyphicon.glyphicon-chevron-up{
-    -webkit-animation: extend-top .2s;
-    animation: extend-top .2s;
-}
-@-webkit-keyframes extend-top
-{
-    from {top: auto;}
-    to {top: -10px;}
-}
-@keyframes extend-top
-{
-    from {top: auto;}
-    to {top: -10px;}
-}*/
 
 .mask {
     position: absolute;
