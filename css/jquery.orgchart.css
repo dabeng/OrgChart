@@ -10,7 +10,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.06) 10%, rgba(0, 0, 0, 0) 10%);
+  background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
   background-size: 10px 10px;
   border: 1px dashed rgba(0,0,0,0);
   transition: border .3s;
@@ -55,10 +55,10 @@
 }
 .orgchart .node>.spinner {
   position: absolute;
-  top: calc(50% - 8px);
-  left: calc(50% - 8px);
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
   vertical-align: middle;
-  font-size: 17px;
+  font-size: 30px;
   color: rgba(68, 157, 68, 0.8);
 }
 .orgchart .node:hover {
