@@ -46,7 +46,12 @@
       // }
 
       // append 2nd menu including detailed info of node
-      var nodePrompt = '<i class="fa fa-info-circle second-menu-icon"></i>';
+      var nodePrompt = $('<i>', {
+        'class': 'fa fa-info-circle second-menu-icon',
+        click: function() {
+          $(this).siblings('.second-menu').toggle();
+        }
+      });
       // var secondMenu =
       //   '<div class="second-menu">' +
       //     '<div class="popover right oc-popupmenu">' +

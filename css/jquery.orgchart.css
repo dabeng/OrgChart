@@ -92,7 +92,7 @@
 .orgchart .node .content {
   position: relative;
   width: 100%;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 13px;
   padding: 2px;
   border-radius: 0 0 4px 4px;
@@ -235,9 +235,9 @@
     opacity: 0;
     right: -5px;
     top: -5px;
-    z-index: 1;
+    z-index: 2;
     color: rgba(68, 157, 68, 0.5);
-    font-size: 15px;
+    font-size: 18px;
     position: absolute;
 }
 .orgchart .second-menu-icon:hover {
@@ -248,10 +248,17 @@
 }
 .orgchart .node .second-menu {
   display: none;
+  position: absolute;
+  top: 0;
+  right: -100px;
+  height: 100px;
+  width: 100px;
+  background-color: #ccc;
+  z-index: 1;
 }
-.orgchart .second-menu-icon:hover + .second-menu {
+/*.orgchart .second-menu-icon:hover + .second-menu {
   display: block;
-}
+}*/
 /*.oc-popupmenu-info {
   color: black;
   margin: 0;
