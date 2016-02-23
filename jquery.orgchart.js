@@ -20,7 +20,26 @@
     var $chartContainer = $(this);
     var data = opts.data;
     var $chart = $('<div class="orgchart ' + opts.chartClass + '"/>');
-    buildNode(data, $chart, 0, opts);
+    if ($.type(data) === 'object') {
+      buildNode(data, $chart, 0, opts);
+    } else {
+      $.ajax({
+        'url': data,
+        'dataType': 'json',
+        beforeSend: function () {
+          $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
+        }
+      })
+      .done(function(data, textStatus, jqXHR) {
+        buildNode(data, $chart, 0, opts);
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown);
+      })
+      .always(function() {
+        $chart.children('.spinner').remove();
+      });
+    }
     $chartContainer.append($chart);
 
     // build the chart-panel which includes all control buttons of org-chart
@@ -63,51 +82,12 @@
     var $panel = $('<div>',
       {'class': 'oc-panel' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '')}
     );
-    $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
+    // $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
 
-    $chart.on('mousedown mouseup mousemove mouseleave', '.node',function(event) {
-      event.stopPropagation();
-    });
-    $chart.on('mousedown', function(event) {
-      var $this = $(this);
-      $this.data('offset', {
-        'x': event.pageX - $this.offset().left,
-        'y': event.pageY - $this.offset().top
-      });
-      var handlers = {
-        mousemove : function(event){
-          var $this = $(this);
-          var $container = $this.parent();
-          var pbmLeft = parseFloat($container.css('padding-left')) + parseFloat($container.css('border-left'))
-            + parseFloat($container.css('margin-left'));
-          var pbmTop = parseFloat($container.css('padding-top')) + parseFloat($container.css('border-top'))
-            + parseFloat($container.css('margin-top'));
-          $this.css({
-            'left': event.pageX - $this.data('offset').x - pbmLeft,
-            'top': event.pageY - $this.data('offset').y - pbmTop
-          });
-        },
-        mouseup : function(){
-          $(this).off(handlers);   
-        },
-        mouseleave: function() {
-          $(this).off(handlers);
-        }
-      };
-      $this.on(handlers);
-    });
-
-    if (opts.create) {
-      opts.create();
-    }
   };
 
   // Option defaults
-  $.fn.orgchart.defaults = {
-    depth: 999,
-    chartClass: '',
-    draggable: false
-  };
+  $.fn.orgchart.defaults = { depth: 999, chartClass: '' };
 
   // determin whether the parent node of the specified node is visible on current chart view
   function getParentState($node) {
@@ -325,16 +305,16 @@
     }
 
     $arrow.hide();
-    $node.spin({'color': '#0071BD'});
+    $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
     $node.children().not('.spinner').css('opacity', 0.2);
-    var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-      .find('.oc-btn.export');
-    $exportButton.spin({
-      'color': '#fff',
-      'radius': $exportButton.innerHeight()/6,
-      'length': $exportButton.innerHeight()/6,
-      'lines': 9
-    });
+    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
+    //   .find('.oc-btn.export');
+    // $exportButton.spin({
+    //   'color': '#fff',
+    //   'radius': $exportButton.innerHeight()/6,
+    //   'length': $exportButton.innerHeight()/6,
+    //   'lines': 9
+    // });
     $chart.data('inAjax', true);
     return true;
   }
@@ -343,24 +323,13 @@
   function endLoadingStatus($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
     $arrow.show();
-    $node.spin(false);
+    // $node.spin(false);
+    $node.find('.spinner').remove();
     $node.children().removeAttr('style');
-    var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-      .find('.oc-btn.export');
-    $exportButton.spin(false);
+    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
+    //   .find('.oc-btn.export');
+    // $exportButton.spin(false);
     $chart.data('inAjax', false);
-  }
-
-  // adjust the org-chart's position after user expanded/collapsed nodes
-  function adjustPosition($node, originalPosition, currentPosition) {
-    var chartWrapper = $node.closest('div.orgchart');
-    var wrapperOffset = chartWrapper.offset();
-    var topOffset = currentPosition.top - originalPosition.top;
-    var leftOffset = currentPosition.left - originalPosition.left;
-    $node.closest('div.orgchart').offset({
-      'top': wrapperOffset.top - topOffset,
-      'left': wrapperOffset.left - leftOffset
-    });
   }
 
   // whether the cursor is hovering over the node
@@ -393,27 +362,13 @@
     }
   }
 
-  // read property value frome the predefined data structure of node provided by hlin
-  function readProperty(obj, keyArray) {
-    if (!!!obj) {
-      return '';
-    } else if (keyArray.length === 1) {
-      return obj[keyArray[0]];
-    }
-    return readProperty(obj[keyArray[0]], keyArray.slice(1));
-  }
-
   // create node
   function createNode(nodeData, opts) {
     // construct the content of node
-    var isEmployee = opts.chartClass.indexOf('employee') > -1 ? true : false;
-    var $nodeTitle = $('<div class="title">')
-      .text(readProperty(nodeData, opts.nodeTitle));
-    var $nodeContent = $('<div class="content">');
-    $nodeContent.text(readProperty(nodeData, opts.nodeContent));
-    var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeID]})
+    var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeId]})
       .addClass('node')
-      .append($nodeTitle).append($nodeContent);
+      .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
+      .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
     if (nodeData.relationship.parent_num > 0) {
       $nodeDiv.append('<i class="edge topEdge fa"></i>');
@@ -489,8 +444,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var parentState = $that.data('parentState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -503,8 +456,6 @@
           var dtd = $.Deferred();
           $.when(hideAncestorsSiblings($node, dtd))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               parentState.visible = false;
               if ($node.children('.leftEdge').length > 0) {
                 $node.children('.leftEdge').data('siblingsState').visible = false;
@@ -520,8 +471,6 @@
         else {
           $.when(showAncestorsSiblings($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               parentState.visible = true;
               switchUpDownArrow($that);
             })
@@ -542,8 +491,6 @@
               if (!$.isEmptyObject(data)) {
                 $.when(buildParentNode(data, $that.closest('table'), opts))
 　　              .done(function(){
-                    currentPosition = $node.offset();
-                    adjustPosition($node, originalPosition, currentPosition);
                     parentState.visible = true;
                     if (isInAction($node)) {
                       switchUpDownArrow($that);
@@ -571,8 +518,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = $that.data('childrenState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -584,8 +529,6 @@
         if (childrenState.visible) {
           $.when(hideDescendants($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               childrenState.visible = false;
               if (isInAction($node)) {
                 switchUpDownArrow($that);
@@ -596,8 +539,6 @@
         else {
           $.when(showDescendants($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               childrenState.visible = true;
               switchUpDownArrow($that);
             })
@@ -624,8 +565,6 @@
                   }
                 }))
 　　            .done(function(){
-                  currentPosition = $node.offset();
-                  adjustPosition($node, originalPosition, currentPosition);
                   childrenState.visible = true;
                   if (isInAction($node)) {
                     switchUpDownArrow($that);
@@ -651,8 +590,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var siblingsState = $that.data('siblingsState');
-      var originalPosition = $node.offset();
-      var currentPosition;
       if ($node.children('.spinner').length > 0) {
         return false;
       }
@@ -665,8 +602,6 @@
           $.when(hideSiblings($node, true))
 　　        .done(function(){
               setTimeout(function() {
-                currentPosition = $node.offset();
-                adjustPosition($node, originalPosition, currentPosition);
                 $node.closest('.orgchart').css('opacity', '');// hack for firefox
                 siblingsState.visible = false;
                 if (isInAction($node)) {
@@ -679,8 +614,6 @@
         else {
           $.when(showSiblings($node))
 　　        .done(function(){
-              currentPosition = $node.offset();
-              adjustPosition($node, originalPosition, currentPosition);
               siblingsState.visible = true;
               collapseArrow($node);
             })
@@ -690,7 +623,7 @@
         // load the new sibling nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         var withParent = !$that.siblings('.topEdge').data('parentState').exist;
-        var url = (withParent) ? opts.ajaxURL.siblingWithParent : opts.ajaxURL.sibling;
+        var url = (withParent) ? opts.ajaxURL.families : opts.ajaxURL.siblings;
         if (startLoadingStatus($that, $node, opts)) {
           $.ajax({
             "url": url + nodeId + "/",
@@ -698,11 +631,9 @@
           })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax') === true) {
-              if (data.children.length !== 0) {
+              if (data.siblings || data.children) {
                 $.when(buildSiblingNode(data, $that.closest('table'), opts))
 　　            .done(function(){
-                  currentPosition = $node.offset();
-                  adjustPosition($node, originalPosition, currentPosition);
                   siblingsState.visible = true;
                   if (isInAction($node)) {
                     collapseArrow($node);
@@ -831,7 +762,7 @@
 
   // build the child nodes of specific node
   function buildChildNode (nodeData, $appendTo, isChildNode, opts, callback) {
-    var $childNodes = nodeData.children;
+    var $childNodes = nodeData.children || nodeData.siblings;
     var $table, $tbody;
     if (isChildNode) {
       $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
@@ -856,7 +787,7 @@
       $downLineRow.append($downLineCell);
 
       // draw the connecting line from the parent node to the horizontal line
-      $downLine = $("<div></div>").addClass("down");
+      var $downLine = $("<div></div>").addClass("down");
       $downLineCell.append($downLine);
       if (isChildNode) {
         $tbody.append($downLineRow);
@@ -933,7 +864,7 @@
     $downLineRow.append($downLineCell);
 
     // draw the connecting line from the parent node to the horizontal line
-    $downLine = $("<div></div>").addClass("down");
+    var $downLine = $("<div></div>").addClass("down");
     $downLineCell.append($downLine);
     $tbody.append($downLineRow);
 
@@ -968,7 +899,7 @@
   // build the sibling nodes of specific node
   function buildSiblingNode(nodeData, $currentChart, opts) {
     var dtd = $.Deferred();
-    var siblingCount = nodeData.children.length;
+    var siblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
     if ($currentChart.parent().is('td.node-container')) {
