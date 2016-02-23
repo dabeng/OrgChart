@@ -6,3 +6,5 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 - Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I don't think "drag and drop" functinality is necessary for organization chart plugin, because in real life, there is no such unsecure demand that allowing users to change company's organization chart randomly with manual mode. We all konw the importance and seriousness of a organization chart for a company. Due to all these stuff, I choose to create a new repo.
 
 ## Demo
+- Basic Example
+![local datasource](http://dabeng.github.io/OrgChart/local-datasource)
