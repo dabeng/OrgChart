@@ -7,4 +7,4 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 
 ## Demo
 - Basic Example
-![local datasource](http://dabeng.github.io/OrgChart/local-datasource)
+![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
