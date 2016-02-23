@@ -7,6 +7,24 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 
 ## Demo
 - [local datasource](http://dabeng.github.io/OrgChart/local-datasource/)
+```js
+var datascource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'relationship': { 'children_num': 3 },
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 2 }},
+        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 2 },
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
+            { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }
+            }
+          ]
+        },
+        { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 2 }}
+      ]
+    };
+```
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
 - [ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/)
