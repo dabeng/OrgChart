@@ -35,10 +35,67 @@ $('#chart-container').orgchart({
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
 - [ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/)
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : '/orgchart/initdata',
+  'depth': 2,
+  'nodeTitle': 'name',
+  'nodeContent': 'title'
+});
+```
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
 
 - [on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/)
+```js
+// sample of core source code
+var datascource = {
+  'id': '1',
+  'name': 'Su Miao',
+  'title': 'department manager',
+  'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 2 },
+  'children': [
+    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
+    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 1 }}
+  ]
+};
+
+var ajaxURLs = {
+  'children': '/orgchart/children/',
+  'parent': '/orgchart/parent/',
+  'siblings': '/orgchart/siblings/',
+  'families': '/orgchart/families/' 
+};
+
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'ajaxURL': ajaxURLs,
+  'nodeTitle': 'name',
+  'nodeContent': 'title',
+  'nodeId': 'id'
+});
+```
 ![on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/recorder.gif)
 
 - [option--createNode](http://dabeng.github.io/OrgChart/option-createNode/)
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'depth': 2,
+  'nodeTitle': 'name',
+  'nodeContent': 'title',
+  'nodeID': 'id',
+  'createNode': function($node, data) {
+    var nodePrompt = $('<i>', {
+      'class': 'fa fa-info-circle second-menu-icon',
+      click: function() {
+        $(this).siblings('.second-menu').toggle();
+      }
+    });
+    var secondMenu = '<div class="second-menu"><img class="avatar" src="../img/avatar/' + data.id + '.jpg"></div>';
+    $node.append(nodePrompt).append(secondMenu);
+  }
+});
+```
 ![option--createNode](http://dabeng.github.io/OrgChart/option-createNode/recorder.gif)
