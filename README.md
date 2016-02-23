@@ -8,3 +8,12 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 ## Demo
 - [local datasource](http://dabeng.github.io/OrgChart/local-datasource/)
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
+
+- [ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/)
+![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
+
+- [on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/)
+![on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/recorder.gif)
+
+- [option--createNode](http://dabeng.github.io/OrgChart/option-createNode/)
+![option--createNode](http://dabeng.github.io/OrgChart/option-createNode/recorder.gif)
