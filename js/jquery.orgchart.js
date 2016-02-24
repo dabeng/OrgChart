@@ -3,7 +3,8 @@
 (function($) {
 
   $.fn.orgchart = function(options) {
-    var opts = $.extend({ depth: 999, chartClass: '' }, options);
+    var defaultOptions = { depth: 999, chartClass: '' };
+    var opts = $.extend(defaultOptions, options);
 
     switch (options) {
       case 'buildNode':
@@ -17,7 +18,7 @@
     }
 
     // build the org-chart
-    var $chartContainer = $(this);
+    var $chartContainer = this;
     var data = opts.data;
     var $chart = $('<div class="orgchart ' + opts.chartClass + '"/>');
     if ($.type(data) === 'object') {
@@ -83,7 +84,7 @@
       {'class': 'oc-panel' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '')}
     );
     // $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
-
+    return $chartContainer;
   };
 
   // determin whether the parent node of the specified node is visible on current chart view
