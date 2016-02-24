@@ -29,6 +29,7 @@ body {
   border-radius: 5px;
   overflow: auto;
   text-align: center;
+  background-color: #eee;
 }
 .chart-switch {
     position: absolute;

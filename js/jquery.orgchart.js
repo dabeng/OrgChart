@@ -3,7 +3,7 @@
 (function($) {
 
   $.fn.orgchart = function(options) {
-    var defaultOptions = { depth: 999, chartClass: '' };
+    var defaultOptions = { depth: 999, chartClass: '', exportButton: true };
     var opts = $.extend(defaultOptions, options);
 
     switch (options) {
@@ -44,8 +44,8 @@
     $chartContainer.append($chart);
 
     // build the chart-panel which includes all control buttons of org-chart
-    var $snapshotBtn = $('<a>',
-      {'class': 'export',
+    var $exportBtn = $('<a>',
+      {'class': 'btn-export',
         'text': 'Export',
         'click': function() {
           if ($(this).children('.spinner').length > 0) {
@@ -63,27 +63,22 @@
             html2canvas($orgchart[0], {
                 'onrendered': function(canvas) {
                   $chartContainer.find('.mask').remove();
-                  $chartContainer.siblings('.chart-preview' + (opts.chartClass !== '' ? '.' + opts.chartClass : ''))
-                    .attr('href', canvas.toDataURL()).addClass('preview-show');
+                  $chartContainer.children('.btn-download' + (opts.chartClass !== '' ? '.' + opts.chartClass : ''))
+                    .attr('href', canvas.toDataURL())[0].click();
               }
             });
 
         }
       }
     );
-    var $previewBtn = $('<a>', {
-      'class': 'chart-preview' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
-      'text': 'Preview the picture',
-      'target': '_blank',
-        'click': function() {
-          $(this).removeClass('preview-show');
-        }
+    var $downloadBtn = $('<a>', {
+      'class': 'btn-download' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
+      'download': 'OrgChart.png',
       }
     );
-    var $panel = $('<div>',
-      {'class': 'oc-panel' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '')}
-    );
-    // $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
+    if (opts.exportButton) {
+      $chartContainer.append($exportBtn).append($downloadBtn);
+    }
     return $chartContainer;
   };
 
