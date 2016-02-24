@@ -1,7 +1,6 @@
 .orgchart {
   display: inline-block;
-  position: relative;
-  top: 30px;
+  margin-top: 30px;
   min-height: 202px;
   min-width: 202px;
   -webkit-touch-callout: none;
@@ -95,9 +94,10 @@
   font-size: 11px;
   line-height: 13px;
   padding: 2px;
+  border: 1px solid rgba(217, 83, 79, 0.8);
   border-radius: 0 0 4px 4px;
   text-align: center;
-  background-color: #eee;
+  background-color: #fff;
   color: #333;
   overflow: hidden;
 }

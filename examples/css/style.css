@@ -10,6 +10,7 @@ body {
   font-size: 14px;
   line-height: 1.428571429;
   color: #333333;
+  text-align: center;
 }
 
 *, *:before, *:after {
@@ -19,10 +20,14 @@ body {
 }
 
 #chart-container {
-  overflow-x: auto;
   position: relative;
-  margin-bottom: -120px;
-  height: 100%;
+  display: inline-block;
+  top: 10px;
+  height: 500px;
+  width: calc(100% - 20px);
+  border: 2px dashed #aaa;
+  border-radius: 5px;
+  overflow: auto;
   text-align: center;
 }
 .chart-switch {
