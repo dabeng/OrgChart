@@ -38,14 +38,14 @@
       'nodeContent': 'title',
       'nodeID': 'id',
       'createNode': function($node, data) {
-        var nodePrompt = $('<i>', {
+        var secondMenuIcon = $('<i>', {
           'class': 'fa fa-info-circle second-menu-icon',
           click: function() {
             $(this).siblings('.second-menu').toggle();
           }
         });
         var secondMenu = '<div class="second-menu"><img class="avatar" src="../img/avatar/' + data.id + '.jpg"></div>';
-        $node.append(nodePrompt).append(secondMenu);
+        $node.append(secondMenuIcon).append(secondMenu);
       }
     });
 
