@@ -3,7 +3,7 @@
 (function($) {
 
   $.fn.orgchart = function(options) {
-    var opts = $.extend({}, $.fn.orgchart.defaults, options);
+    var opts = $.extend({ depth: 999, chartClass: '' }, options);
 
     switch (options) {
       case 'buildNode':
@@ -85,9 +85,6 @@
     // $chartContainer.after($panel.append($snapshotBtn)).after($previewBtn);
 
   };
-
-  // Option defaults
-  $.fn.orgchart.defaults = { depth: 999, chartClass: '' };
 
   // determin whether the parent node of the specified node is visible on current chart view
   function getParentState($node) {
