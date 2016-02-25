@@ -30,12 +30,13 @@
       ]
     };
 
-    $('#chart-container').orgchart({'chartClass': 'QQQ',
+    $('#chart-container').orgchart({
       'data' : datascource,
       'depth': 2,
       'nodeTitle': 'name',
       'nodeContent': 'title',
-      'exportButton': true
+      'exportButton': true,
+      'exportFilename': 'MyOrgChart'
     });
 
   });
