@@ -26,7 +26,14 @@
     // build the org-chart
     var $chartContainer = this;
     var data = opts.data;
-    var $chart = $('<div class="orgchart ' + opts.chartClass + '"/>');
+    var $chart = $('<div>',{
+      'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
+      'click': function(event) {
+        if (!$(event.target).closest('.node').length) {
+          $chart.find('.node.focused').removeClass('focused');
+        }
+      }
+    });
     if ($.type(data) === 'object') {
       buildNode(data, $chart, 0, opts);
     } else {

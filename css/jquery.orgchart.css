@@ -242,7 +242,7 @@
   opacity: 0.3;
 }
 
-.orgchart~.btn-export:hover,.orgchart~.btn-export:focus,.orgchart~.btn-export:active  {
+.oc-export-btn:hover,.oc-export-btn:focus,.oc-export-btn:active  {
   background-color: #449d44;
   border-color: #347a34;
 }
