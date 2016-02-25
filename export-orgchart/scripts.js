@@ -30,7 +30,7 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    $('#chart-container').orgchart({'chartClass': 'QQQ',
       'data' : datascource,
       'depth': 2,
       'nodeTitle': 'name',

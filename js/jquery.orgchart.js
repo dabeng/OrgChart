@@ -52,27 +52,28 @@
     // append the export button
     if (opts.exportButton) {
       var $exportBtn = $('<button>', {
-        'class': 'btn-export',
+        'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
         'click': function() {
           if ($(this).children('.spinner').length > 0) {
             return false;
           }
-          var $mask = $chart.siblings('.mask');
+          var $mask = $chartContainer.find('.mask');
           if (!$mask.length) {
-            $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin"></i></div>');
+            $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
           } else {
             $mask.removeClass('hidden');
           }
           html2canvas($chart[0], {
             'onrendered': function(canvas) {
-              $chart.siblings('.mask').addClass('hidden')
-                .siblings('.btn-download').attr('href', canvas.toDataURL())[0].click();
+              $chartContainer.find('.mask').addClass('hidden')
+                .end().find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
             }
           });
         }
       });
-      var downloadBtn = '<a class="btn-download" download="' + opts.exportFilename + '.png"></a>';
+      var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
+        + ' download="' + opts.exportFilename + '.png"></a>';
       $chartContainer.append($exportBtn).append(downloadBtn);
     }
 
@@ -297,15 +298,8 @@
     $arrow.hide();
     $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
     $node.children().not('.spinner').css('opacity', 0.2);
-    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-    //   .find('.oc-btn.export');
-    // $exportButton.spin({
-    //   'color': '#fff',
-    //   'radius': $exportButton.innerHeight()/6,
-    //   'length': $exportButton.innerHeight()/6,
-    //   'lines': 9
-    // });
     $chart.data('inAjax', true);
+    $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', true);
     return true;
   }
 
@@ -313,13 +307,10 @@
   function endLoadingStatus($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
     $arrow.show();
-    // $node.spin(false);
     $node.find('.spinner').remove();
     $node.children().removeAttr('style');
-    // var $exportButton = $('.oc-panel' + (options.chartClass !== '' ? '.' + options.chartClass : ''))
-    //   .find('.oc-btn.export');
-    // $exportButton.spin(false);
     $chart.data('inAjax', false);
+    $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', false);
   }
 
   // whether the cursor is hovering over the node

@@ -182,33 +182,32 @@
   background: #eee;
 }
 
-.orgchart .down {
+.orgchart>table td {
+  text-align: center;
+  vertical-align: top;
+  padding: 0;
+}
+
+.orgchart>table td.top {
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart>table td.right {
+  border-right: 1px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart>table td.left {
+  border-left: 1px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart>table td>.down {
   background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;
   height: 20px;
   width: 2px;
 }
 
-.orgchart td.top {
-  border-top: 2px solid rgba(217, 83, 79, 0.8);
-}
-
-.orgchart td.left {
-  border-left: 1px solid rgba(217, 83, 79, 0.8);
-}
-
-.orgchart td.right {
-  border-right: 1px solid rgba(217, 83, 79, 0.8);
-}
-
-/* node cell */
-.orgchart td {
-  text-align: center;
-  vertical-align: top;
-  padding: 0;
-}
-
-.orgchart ~ .btn-export {
+.oc-export-btn {
   display: inline-block;
   position: absolute;
   right: 5px;
@@ -235,36 +234,37 @@
   border-radius: 4px;
 }
 
+.oc-export-btn[disabled] {
+  cursor: not-allowed;
+  filter: alpha(opacity=30);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  opacity: 0.3;
+}
+
 .orgchart~.btn-export:hover,.orgchart~.btn-export:focus,.orgchart~.btn-export:active  {
   background-color: #449d44;
   border-color: #347a34;
 }
 
+.orgchart~.mask {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  z-index: 999;
+  text-align: center;
+  background-color: rgba(0,0,0,0.3);
+}
+.orgchart~.mask .spinner {
+  position: absolute;
+  top: calc(50% - 54px);
+  left: calc(50% - 54px);
+  color: rgba(255,255,255,0.8);
+  font-size: 108px;
+}
+
 .chart-map {
     display: none;
-}
-.chart-preview {
-    visibility: hidden;
-    position: absolute;
-    left: 40%;
-    top: -80px;
-    padding: 10px 50px;
-    background: rgba(0,0,0,0.6);
-    transition: .3s;
-    color: #fff;
-}
-.chart-preview:hover {
-    color: #fff;
-}
-.chart-preview:before {
-    position: absolute;
-    left: 50%;
-    top: -20px;
-    content: '';
-    border: 10px solid transparent;
-    border-bottom: 10px solid rgba(0,0,0,0.6);
-}
-.preview-show {
-    top: 50px;
-    visibility: visible;
 }
