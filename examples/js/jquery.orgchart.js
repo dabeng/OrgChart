@@ -358,14 +358,14 @@
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
-    if (nodeData.relationship.parent_num > 0) {
+    if (Number(nodeData.relationship.substr(0,1))) {
       $nodeDiv.append('<i class="edge topEdge fa"></i>');
     }
-    if(nodeData.relationship.sibling_num > 0) {
+    if(Number(nodeData.relationship.substr(1,1))) {
       $nodeDiv.append('<i class="edge rightEdge fa"></i>' +
         '<i class="edge leftEdge fa"></i>');
     }
-    if(nodeData.relationship.children_num > 0) {
+    if(Number(nodeData.relationship.substr(2,1))) {
       $nodeDiv.find('.title').prepend('<i class="fa fa-users symbol"></i>')
       $nodeDiv.append('<i class="edge bottomEdge fa"></i>');
     }
