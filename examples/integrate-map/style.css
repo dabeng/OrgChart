@@ -1,0 +1,13 @@
+#chart-container {
+  position: absolute;
+  top: 10px;
+  left:40px;
+  height: 300px;
+  width: calc(100% - 80px);
+  z-index: 1;
+  border-color: #fff;
+}
+
+.orgchart {
+  background: rgba(255,255,255,0.75);	
+}

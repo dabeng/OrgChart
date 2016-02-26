@@ -4,7 +4,6 @@
 
 .orgchart {
   display: inline-block;
-  margin-top: 30px;
   min-height: 202px;
   min-width: 202px;
   -webkit-touch-callout: none;
