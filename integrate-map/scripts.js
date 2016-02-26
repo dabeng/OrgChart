@@ -20,8 +20,9 @@
         target: 'pageBody',
         view: new ol.View({
           center: ol.proj.transform(
-              [-122.416667, 37.783333], 'EPSG:4326', 'EPSG:3857'),
-          zoom: 12
+              // [-122.416667, 37.783333], 'EPSG:4326', 'EPSG:3857'),
+            [-87.65, 41.883333], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 10
         })
       });
 
@@ -33,17 +34,7 @@
       'relationship': '001',
       'children': [
         { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
-          'children': [
-            { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
-              'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
-              ]
-            }
-          ]
-        },
+        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111' },
         { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
         { 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
         { 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
@@ -55,9 +46,13 @@
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'depth': 2,
       'nodeTitle': 'name',
-      'nodeContent': 'title'
+      'nodeContent': 'title',
+      'createNode': function($node, data) {
+        $node.on('click', function() {
+          map.getView().setCenter(ol.proj.transform([-122.416667, 37.783333], 'EPSG:4326', 'EPSG:3857'));
+        });
+      }
     });
 
   });
