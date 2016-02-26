@@ -100,7 +100,7 @@ $('#chart-container').orgchart({
 ```
 ![option--createNode](http://dabeng.github.io/OrgChart/option-createNode/recorder.gif)
 
-- **[I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchar/)**
+- **[I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchart/)**
   Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canvas).
 ```js
 // sample of core source code
