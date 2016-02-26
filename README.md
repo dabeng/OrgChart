@@ -87,15 +87,28 @@ $('#chart-container').orgchart({
   'nodeContent': 'title',
   'nodeID': 'id',
   'createNode': function($node, data) {
-    var nodePrompt = $('<i>', {
+    var secondMenuIcon = $('<i>', {
       'class': 'fa fa-info-circle second-menu-icon',
       click: function() {
         $(this).siblings('.second-menu').toggle();
       }
     });
     var secondMenu = '<div class="second-menu"><img class="avatar" src="../img/avatar/' + data.id + '.jpg"></div>';
-    $node.append(nodePrompt).append(secondMenu);
+    $node.append(secondMenuIcon).append(secondMenu);
   }
 });
 ```
 ![option--createNode](http://dabeng.github.io/OrgChart/option-createNode/recorder.gif)
+
+- **[I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchar/)**
+```js
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'depth': 2,
+      'nodeTitle': 'name',
+      'nodeContent': 'title',
+      'exportButton': true,
+      'exportFilename': 'MyOrgChart'
+    });
+``` 
+![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
