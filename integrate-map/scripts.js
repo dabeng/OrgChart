@@ -25,7 +25,7 @@
         })
       });
 
-    $('body').prepend(map.a);
+    $('body').prepend(map.getViewport());
 
     var datascource = {
       'name': 'Lao Lao',
