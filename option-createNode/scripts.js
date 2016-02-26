@@ -8,26 +8,26 @@
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
-      'relationship': { 'children_num': 8 },
+      'relationship': '001',
       'children': [
-        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 7 },
+        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
           'children': [
-            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
-            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 1 },
+            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
               'children': [
-                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
-                { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
+                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
+                { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
               ]
             }
           ]
         },
-        { 'id': '8', 'name': 'Yu Jie', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '9', 'name': 'Yu Li', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '10', 'name': 'Hong Miao', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '11', 'name': 'Yu Wei', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '12', 'name': 'Chun Miao', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }},
-        { 'id': '13', 'name': 'Yu Tie', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 7 }}
+        { 'id': '8', 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '9', 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '10', 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '11', 'name': 'Yu Wei', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '12', 'name': 'Chun Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'id': '13', 'name': 'Yu Tie', 'title': 'department manager', 'relationship': '110' }
       ]
     };
 
