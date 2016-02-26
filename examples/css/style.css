@@ -30,12 +30,6 @@ body {
   overflow: auto;
   text-align: center;
 }
-.chart-switch {
-    position: absolute;
-    top: 60px;
-    right: 30px;
-    z-index: 1111;
-}
 
 /* styles of background map */
 .backgroundMap {
@@ -58,23 +52,4 @@ body {
 .map-boundary {
   fill: none;
   stroke: #fff;
-}
-
-.mask {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
-    z-index: 9999;
-    text-align: center;
-    background-color: #000;
-    opacity: 0.3;
-}
-.mask p {
-    position: absolute;
-    top: 40%;
-    left: 45%;
-    color: #fff;
-    font-size: 24px;
 }
