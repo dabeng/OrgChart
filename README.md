@@ -102,13 +102,13 @@ $('#chart-container').orgchart({
 
 - **[I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchar/)**
 ```js
-    $('#chart-container').orgchart({
-      'data' : datascource,
-      'depth': 2,
-      'nodeTitle': 'name',
-      'nodeContent': 'title',
-      'exportButton': true,
-      'exportFilename': 'MyOrgChart'
-    });
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'depth': 2,
+  'nodeTitle': 'name',
+  'nodeContent': 'title',
+  'exportButton': true,
+  'exportFilename': 'MyOrgChart'
+});
 ``` 
 ![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
