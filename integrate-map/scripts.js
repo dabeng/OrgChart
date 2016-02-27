@@ -35,11 +35,11 @@
       'position': [-87.6297980, 41.8781140],
       'children': [
         { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'relationship': '110', 'position': [-83.0457540, 42.3314270]},
-        // { 'name': 'Su Miao', 'title': 'R & D Dept.', 'relationship': '110', 'position': [-81.6943610, 41.4993200]},
-        // { 'name': 'Yu Jie', 'title': 'Product Dept.', 'relationship': '110', 'position': [-71.0588800, 42.3600820]},
+        { 'name': 'Su Miao', 'title': 'R & D Dept.', 'relationship': '110', 'position': [-81.6943610, 41.4993200]},
+        { 'name': 'Yu Jie', 'title': 'Product Dept.', 'relationship': '110', 'position': [-71.0588800, 42.3600820]},
         { 'name': 'Yu Li', 'title': 'Legal Dept.', 'relationship': '110', 'position': [-74.0059410, 40.7127840]},
-        // { 'name': 'Hong Miao', 'title': 'Finance Dept.', 'relationship': '110', 'position': [-80.8431270, 35.2270870]},
-        // { 'name': 'Yu Wei', 'title': 'Security Dept.', 'relationship': '110', 'position': [-81.6556510, 30.3321840]},
+        { 'name': 'Hong Miao', 'title': 'Finance Dept.', 'relationship': '110', 'position': [-80.8431270, 35.2270870]},
+        { 'name': 'Yu Wei', 'title': 'Security Dept.', 'relationship': '110', 'position': [-81.6556510, 30.3321840]},
         { 'name': 'Chun Miao', 'title': 'HR Dept. ', 'relationship': '110', 'position': [-81.3792360, 28.5383350]},
         { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'relationship': '110', 'position': [-80.1917900, 25.7616800] }
       ]
