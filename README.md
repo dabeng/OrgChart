@@ -210,5 +210,14 @@ $('#chart-container').orgchart({
     <tr>
       <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
     </tr>
+    <tr>
+      <td>exportButton</td><td>boolean</td><td>no</td><td>false</td><td>It enable the export button for orgchart.</td>
+    </tr>
+    <tr>
+      <td>exportFilename</td><td>string</td><td>no</td><td>"Orgchart"</td><td>It's filename when you export current orgchart as a picture.</td>
+    </tr>
+    <tr>
+      <td>chartClass</td><td>string</td><td>no</td><td></td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
+    </tr>
   </tbody>
 </table>
