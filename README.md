@@ -192,5 +192,8 @@ $('#chart-container').orgchart({
     <tr>
       <td>id</td><td>string</td><td>no</td><td></td><td>unique identifier of every node of orgchar</td>
     </tr>
+    <tr>
+      <td>name</td><td>string</td><td>yes</td><td></td><td>text content used as title section of orgchar node</td>
+    </tr>
   </tbody>
 </table>
