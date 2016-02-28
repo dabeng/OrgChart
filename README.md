@@ -193,7 +193,7 @@ $('#chart-container').orgchart({
       <td>data</td><td>json or string</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families. As their names imply, different propety indicates different URL to which the ajax request is sent.</td>
+      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety indicates the URL to which ajax request for different nodes is sent.</td>
     </tr>
     <tr>
       <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
@@ -208,7 +208,7 @@ $('#chart-container').orgchart({
       <td>nodeId</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
     </tr>
     <tr>
-      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource for single node.</td>
+      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
     </tr>
   </tbody>
 </table>
