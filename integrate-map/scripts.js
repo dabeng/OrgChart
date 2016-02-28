@@ -5,26 +5,26 @@
   $(function() {
 
     var map = new ol.Map({
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.Stamen({
-              layer: 'watercolor'
-            }),
-            preload: 2
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.Stamen({
+            layer: 'watercolor'
           }),
-          new ol.layer.Tile({
-            source: new ol.source.Stamen({
-              layer: 'terrain-labels'
-            }),
-            preload: 1
-          })
-        ],
-        target: 'pageBody',
-        view: new ol.View({
-          center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
-          zoom: 10
+          preload: 4
+        }),
+        new ol.layer.Tile({
+          source: new ol.source.Stamen({
+            layer: 'terrain-labels'
+          }),
+          preload: 1
         })
-      });
+      ],
+      target: 'pageBody',
+      view: new ol.View({
+        center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 10
+      })
+    });
 
     $('body').prepend(map.getViewport());
 
