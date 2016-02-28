@@ -185,7 +185,12 @@ $('#chart-container').orgchart({
 
 ## Options
 <table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
     <tr>
-        <td>Foo</td>
+      <td>id</td><td>string</td><td>no</td><td></td><td>unique identifier of every node of orgchar</td>
     </tr>
+  </tbody>
 </table>
