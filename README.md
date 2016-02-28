@@ -190,10 +190,13 @@ $('#chart-container').orgchart({
   </thead>
   <tbody>
     <tr>
-      <td>id</td><td>string</td><td>no</td><td></td><td>unique identifier of every node of orgchar</td>
+      <td>data</td><td>json</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart.</td>
     </tr>
     <tr>
-      <td>name</td><td>string</td><td>yes</td><td></td><td>text content used as title section of orgchar node</td>
+      <td>depth</td><td>positive integer</td><td>yes</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+    </tr>
+    <tr>
+      <td>nodeTitle</td><td>string</td><td>yes</td><td></td><td>text content used as title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle propery.</td>
     </tr>
   </tbody>
 </table>
