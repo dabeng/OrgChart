@@ -115,3 +115,70 @@ $('#chart-container').orgchart({
 });
 ``` 
 ![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
+
+- **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
+
+Here, we fall back on [OpenLayers](https://github.com/openlayers/ol3). It's the most aewsome open-source js library for Web GIS you sholdn't miss.
+```js
+// sample of core source code
+var map = new ol.Map({
+  layers: [
+    new ol.layer.Tile({
+      source: new ol.source.Stamen({
+        layer: 'watercolor'
+      }),
+      preload: 4
+    }),
+    new ol.layer.Tile({
+      source: new ol.source.Stamen({
+        layer: 'terrain-labels'
+      }),
+      preload: 1
+    })
+  ],
+  target: 'pageBody',
+  view: new ol.View({
+    center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
+    zoom: 10
+  })
+});
+$('body').prepend(map.getViewport());
+
+var datascource = {
+  'name': 'Lao Lao',
+  'title': 'President Office',
+  'relationship': '001',
+  'position': [-87.6297980, 41.8781140],
+  'children': [
+    { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'relationship': '110', 'position': [-83.0457540, 42.3314270]},
+    { 'name': 'Yu Jie', 'title': 'Product Dept.', 'relationship': '110', 'position': [-71.0588800, 42.3600820]},
+    { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'relationship': '110', 'position': [-80.1917900, 25.7616800] }
+  ]
+};
+
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'nodeTitle': 'name',
+  'nodeContent': 'title',
+  'createNode': function($node, data) {
+    $node.on('click', function() {
+      var view = map.getView();
+      var duration = 2000;
+      var start = +new Date();
+      var pan = ol.animation.pan({
+        duration: duration,
+        source:  view.getCenter(),
+        start: start
+      });
+      var bounce = ol.animation.bounce({
+        duration: duration,
+        resolution: 4 * view.getResolution(),
+        start: start
+      });
+      map.beforeRender(pan, bounce);
+      view.setCenter(ol.proj.transform(data.position, 'EPSG:4326', 'EPSG:3857'));
+    });
+  }
+});
+``` 
+![export orgchart](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
