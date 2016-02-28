@@ -190,13 +190,25 @@ $('#chart-container').orgchart({
   </thead>
   <tbody>
     <tr>
-      <td>data</td><td>json</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart.</td>
+      <td>data</td><td>json or string</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>depth</td><td>positive integer</td><td>yes</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families. As their names imply, different propety indicates different URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>nodeTitle</td><td>string</td><td>yes</td><td></td><td>text content used as title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle propery.</td>
+      <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+    </tr>
+    <tr>
+      <td>nodeTitle</td><td>string</td><td>yes</td><td></td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
+    </tr>
+    <tr>
+      <td>nodeContent</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as text content of content section of orgchart node.</td>
+    </tr>
+    <tr>
+      <td>nodeId</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
+    </tr>
+    <tr>
+      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource for single node.</td>
     </tr>
   </tbody>
 </table>
