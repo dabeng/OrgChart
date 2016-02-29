@@ -184,7 +184,32 @@ $('#chart-container').orgchart({
 ``` 
 ![export orgchart](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
 
-## Options
+## Usage
+
+### Instantiation Statement
+$('#chartCOntainerId').orgchart(options);
+
+### Structure of Datasource
+```js
+{
+  'nodeTitlePro': 'Lao Lao',
+  'nodeContentPro': 'general manager',
+  'relationship': ‘001’, // The property implies that whether this node has parent node, siblings nodes or children nodes. "relationship" is just default name you can override.
+  'children': [ // The property stands for nested nodes. "children" is just default name you can override.
+    { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': ‘110’ },
+    { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': ‘111’,
+      'children': [
+        { 'nodeTitlePro': 'Tie Hua', 'nodeContentPro': 'senior engineer', 'relationship': ‘110’ },
+        { 'nodeTitlePro': 'Hei Hei', 'nodeContentPro': 'senior engineer', 'relationship': ‘110’ }
+      ]
+    },
+    { 'nodeTitlePro': 'Yu Jie', 'nodeContentPro': 'department manager', 'relationship': ‘110’ }
+  ],
+  'otherPro': anyValue
+};
+``` 
+
+### Options
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
