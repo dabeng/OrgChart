@@ -13,16 +13,16 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 var datascource = {
   'name': 'Lao Lao',
   'title': 'general manager',
-  'relationship': ‘001’,
+  'relationship': '001',
   'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': ‘110’ },
-    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': ‘111’,
+    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
+    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
       'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': ‘110’ },
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': ‘110’ }
+        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '110' }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': ‘110’ }
+    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' }
   ]
 };
     
@@ -54,10 +54,10 @@ var datascource = {
   'id': '1',
   'name': 'Su Miao',
   'title': 'department manager',
-  'relationship': ‘111’,
+  'relationship': '111',
   'children': [
-    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': ‘110’ },
-    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': ‘111’ }
+    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
   ]
 };
 
@@ -200,14 +200,14 @@ $('#chartContainerId').orgchart(options);
   // Scond character stands for wether current node has siblings nodes;
   // Third character stands for wether current node has children node.
   'children': [ // The property stands for nested nodes. "children" is just default name you can override.
-    { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': ‘110’ },
-    { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': ‘111’,
+    { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': '110' },
+    { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': '111',
       'children': [
-        { 'nodeTitlePro': 'Tie Hua', 'nodeContentPro': 'senior engineer', 'relationship': ‘110’ },
-        { 'nodeTitlePro': 'Hei Hei', 'nodeContentPro': 'senior engineer', 'relationship': ‘110’ }
+        { 'nodeTitlePro': 'Tie Hua', 'nodeContentPro': 'senior engineer', 'relationship': '110' },
+        { 'nodeTitlePro': 'Hei Hei', 'nodeContentPro': 'senior engineer', 'relationship': '110' }
       ]
     },
-    { 'nodeTitlePro': 'Yu Jie', 'nodeContentPro': 'department manager', 'relationship': ‘110’ }
+    { 'nodeTitlePro': 'Yu Jie', 'nodeContentPro': 'department manager', 'relationship': '110' }
   ],
   'otherPro': anyValue
 };
