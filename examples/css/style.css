@@ -23,7 +23,7 @@ body {
   position: relative;
   display: inline-block;
   top: 10px;
-  height: 500px;
+  height: 420px;
   width: calc(100% - 20px);
   border: 2px dashed #aaa;
   border-radius: 5px;

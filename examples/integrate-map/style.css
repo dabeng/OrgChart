@@ -2,10 +2,11 @@
   position: absolute;
   top: 10px;
   left:40px;
-  height: 300px;
+  height: auto;
+  max-height: 330px;
   width: calc(100% - 80px);
   z-index: 1;
-  border-color: #fff;
+  border-color: rgba(217, 83, 79, 0.9);
 }
 
 .orgchart {
