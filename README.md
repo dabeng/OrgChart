@@ -194,7 +194,11 @@ $('#chartCOntainerId').orgchart(options);
 {
   'nodeTitlePro': 'Lao Lao',
   'nodeContentPro': 'general manager',
-  'relationship': ‘001’, // The property implies that whether this node has parent node, siblings nodes or children nodes. "relationship" is just default name you can override.
+  'relationship': relationshipValue, // The property implies that whether this node has parent node, siblings nodes or children nodes. "relationship" is just default name you can override.
+  // relationshipValue is a string composed of three "0/1" identifier.
+  // First character stands for wether current node has parent node;
+  // Scond character stands for wether current node has siblings nodes;
+  // Third character stands for wether current node has children node.
   'children': [ // The property stands for nested nodes. "children" is just default name you can override.
     { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': ‘110’ },
     { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': ‘111’,
