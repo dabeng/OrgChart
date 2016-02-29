@@ -187,7 +187,7 @@ $('#chart-container').orgchart({
 ## Usage
 
 ### Instantiation Statement
-$('#chartCOntainerId').orgchart(options);
+$('#chartContainerId').orgchart(options);
 
 ### Structure of Datasource
 ```js
