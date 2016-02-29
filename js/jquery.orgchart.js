@@ -4,6 +4,8 @@
 
   $.fn.orgchart = function(options) {
     var defaultOptions = {
+      nodeRelationship: 'relationship',
+      nodeChildren: 'children',
       depth: 999,
       chartClass: '',
       exportButton: false,
@@ -358,14 +360,14 @@
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
-    if (Number(nodeData.relationship.substr(0,1))) {
+    if (Number(nodeData[opts.nodeRelationship].substr(0,1))) {
       $nodeDiv.append('<i class="edge topEdge fa"></i>');
     }
-    if(Number(nodeData.relationship.substr(1,1))) {
+    if(Number(nodeData[opts.nodeRelationship].substr(1,1))) {
       $nodeDiv.append('<i class="edge rightEdge fa"></i>' +
         '<i class="edge leftEdge fa"></i>');
     }
-    if(Number(nodeData.relationship.substr(2,1))) {
+    if(Number(nodeData[opts.nodeRelationship].substr(2,1))) {
       $nodeDiv.find('.title').prepend('<i class="fa fa-users symbol"></i>')
       $nodeDiv.append('<i class="edge bottomEdge fa"></i>');
     }
@@ -678,7 +680,7 @@
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
     var $nodeCell = $("<td/>").addClass("node-cell").attr("colspan", 2);
-    var $childNodes = nodeData.children;
+    var $childNodes = nodeData[opts.nodeChildren];
     if ($childNodes && $childNodes.length > 1) {
       $nodeCell.attr("colspan", $childNodes.length * 2);
     }
