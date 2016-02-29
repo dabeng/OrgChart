@@ -13,16 +13,16 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 var datascource = {
   'name': 'Lao Lao',
   'title': 'general manager',
-  'relationship': { 'children_num': 3 },
+  'relationship': ‘001’,
   'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 2 }},
-    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 2 },
+    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': ‘110’ },
+    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': ‘111’,
       'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }}
+        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': ‘110’ },
+        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': ‘110’ }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 2 }}
+    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': ‘110’ }
   ]
 };
     
@@ -54,10 +54,10 @@ var datascource = {
   'id': '1',
   'name': 'Su Miao',
   'title': 'department manager',
-  'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 2 },
+  'relationship': ‘111’,
   'children': [
-    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': { 'children_num': 0, 'parent_num': 1,'sibling_num': 1 }},
-    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': { 'children_num': 2, 'parent_num': 1,'sibling_num': 1 }}
+    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': ‘110’ },
+    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': ‘111’ }
   ]
 };
 
