@@ -214,42 +214,6 @@ $('#chartContainerId').orgchart(options);
 ``` 
 
 ### Options
-
-<style>
-table {
-  font-family: 'Arial';
-  margin: 25px auto;
-  border-collapse: collapse;
-  border: 1px solid #eee;
-  border-bottom: 2px solid #d9534f;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
-}
-table tr:hover {
-  background: #f4f4f4;
-}
-table tr:hover td {
-  color: #555;
-}
-table th, table td {
-  color: #999;
-  border: 1px solid #eee;
-  border-collapse: collapse;
-}
-table th {
-  padding: 12px 35px;
-  background: #d9534f;
-  color: #fff;
-  text-transform: uppercase;
-  font-size: 14px;
-}
-table td {
-  padding: 5px 10px;
-  font-size: 12px;
-}
-table th.last {
-  border-right: none;
-}
-</style>
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
