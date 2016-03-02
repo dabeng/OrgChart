@@ -33,19 +33,6 @@
   margin: 20px auto;
 }
 
-.oc-panel {
-  position: absolute;
-  left: 30px;
-  top: 60px;
-  z-index: 100;
-  padding: 5px;
-}
-
-.oc-btn {
-  margin: 2px 10px;
-  position: relative;
-}
-
 /* node styling */
 .orgchart .node {
   display: inline-block;
@@ -118,27 +105,42 @@
   color: #449d44;
   cursor: pointer;
 }
-.orgchart .node .topEdge {
-  width: 100%;
-  top: -5px;
-  left: 0px;
+.orgchart .node .verticalEdge {
+  width: calc(100% - 10px);
+  width: -webkit-calc(100% - 10px);
+  width: -moz-calc(100% - 10px);
+  left: 5px;
 }
-.orgchart .node .rightEdge {
-  width: 15px;
-  top: calc(50% - 8px);
-  right: -4px;
+.orgchart .node .topEdge {
+  top: -4px;
 }
 .orgchart .node .bottomEdge {
-  width: 100%;
-  left: 0px;
-  top: auto;
   bottom: -4px;
-  text-align: center;
+}
+.orgchart .node .horizontalEdge {
+  width: 15px;
+  height: calc(100% - 10px);
+  height: -webkit-calc(100% - 10px);
+  height: -moz-calc(100% - 10px);
+  top: 5px;
+}
+.orgchart .node .rightEdge {
+  right: -4px;
 }
 .orgchart .node .leftEdge {
-  width: 15px;
-  top: calc(50% - 8px);
   left: -4px;
+}
+.orgchart .node .horizontalEdge::before {
+  position: absolute;
+  top: calc(50% - 7px);
+  top: -webkit-calc(50% - 7px);
+  top: -moz-calc(50% - 7px);
+}
+.orgchart .node .rightEdge::before {
+  right: 3px;
+}
+.orgchart .node .leftEdge::before {
+  left: 3px;
 }
 .orgchart .node .edge.fa-chevron-up:hover {
   transform: translate(0, -4px);
@@ -160,7 +162,7 @@
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
-/* the following cod doesn't work */
+/* the following code doesn't work */
 .orgchart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
@@ -172,13 +174,6 @@
 .rightEdgeTransitionToLeft {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
-}
-.orgchart .node .avatar {
-  width: 50px;
-  height: 50px;
-  float: left;
-  margin: 5px;
-  background: #eee;
 }
 
 .orgchart>table td {
@@ -262,8 +257,4 @@
   left: calc(50% - 54px);
   color: rgba(255,255,255,0.8);
   font-size: 108px;
-}
-
-.chart-map {
-    display: none;
 }
