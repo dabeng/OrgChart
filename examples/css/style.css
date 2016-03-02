@@ -30,26 +30,3 @@ body {
   overflow: auto;
   text-align: center;
 }
-
-/* styles of background map */
-.backgroundMap {
-  position: absolute;
-  opacity: 0.3;
-}
-
-.map-stroke {
-  fill: none;
-}
-
-.map-fill {
-  fill: #fff;
-}
-
-.map-land {
-  fill: #90bbfd;
-}
-
-.map-boundary {
-  fill: none;
-  stroke: #fff;
-}

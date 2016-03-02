@@ -361,15 +361,15 @@
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
     if (Number(nodeData[opts.nodeRelationship].substr(0,1))) {
-      $nodeDiv.append('<i class="edge topEdge fa"></i>');
+      $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
     }
     if(Number(nodeData[opts.nodeRelationship].substr(1,1))) {
-      $nodeDiv.append('<i class="edge rightEdge fa"></i>' +
-        '<i class="edge leftEdge fa"></i>');
+      $nodeDiv.append('<i class="edge horizontalEdge rightEdge fa"></i>' +
+        '<i class="edge horizontalEdge leftEdge fa"></i>');
     }
     if(Number(nodeData[opts.nodeRelationship].substr(2,1))) {
       $nodeDiv.find('.title').prepend('<i class="fa fa-users symbol"></i>')
-      $nodeDiv.append('<i class="edge bottomEdge fa"></i>');
+      $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>');
     }
 
     // define hover event handler
