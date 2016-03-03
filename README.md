@@ -260,3 +260,8 @@ $('#chartContainerId').orgchart(options);
   </tbody>
 </table>
 
+## Browser Compatibility
+- Chrome 19+
+- Firefox 4+
+- Safari 6+
+- Opera 15+
