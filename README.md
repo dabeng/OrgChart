@@ -264,4 +264,4 @@ $('#chartContainerId').orgchart(options);
 - Chrome 19+
 - Firefox 4+
 - Safari 6+
-- Opera 12+
+- Opera 15+
