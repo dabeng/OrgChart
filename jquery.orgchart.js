@@ -1,6 +1,24 @@
-'use strict';
+/*
+ * jQuery OrgChart Plugin
+ * https://github.com/dabeng/OrgChart
+ *
+ * Demos of jQuery OrgChart Plugin
+ * http://dabeng.github.io/OrgChart/local-datasource/
+ * http://dabeng.github.io/OrgChart/ajax-datasource/
+ * http://dabeng.github.io/OrgChart/ondemand-loading-data/
+ * http://dabeng.github.io/OrgChart/option-createNode/
+ * http://dabeng.github.io/OrgChart/export-orgchart/
+ * http://dabeng.github.io/OrgChart/integrate-map/
+ *
+ * Copyright 2016, dabeng
+ * http://dabeng.github.io/
+ *
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/MIT
+ */
 
 (function($) {
+  'use strict';
 
   $.fn.orgchart = function(options) {
     var defaultOptions = {
@@ -649,21 +667,19 @@
         }
       }
     });
-    // remedy the defect of css transformation - right arrow can not be translated like left one
-    $nodeDiv.children('.leftEdge').hover(
-      function() {
+    // remedy the defect of css selector -- there is not "previous sibling" selector
+    $nodeDiv.children('.leftEdge').on('mouseenter mouseleave', function(event) {
+      if (event.type === 'mouseenter') {
         var $rightEdge = $(this).siblings('.rightEdge');
         if (!getSiblingsState($(this)).visible) {
-          $rightEdge.addClass('rightEdgeTransitionToRight');
+          $rightEdge.addClass('rightEdgeMoveRight');
         } else {
-          $rightEdge.addClass('rightEdgeTransitionToLeft');
+          $rightEdge.addClass('rightEdgeMoveLeft');
         }
-      },
-      function() {
-        $(this).siblings('.rightEdge')
-          .removeClass('rightEdgeTransitionToRight rightEdgeTransitionToLeft');
+      } else {
+        $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
       }
-    );
+    });
 
     // allow user to append dom modification after finishing node create of orgchart 
     if (opts.createNode) {

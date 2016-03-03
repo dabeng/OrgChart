@@ -1,3 +1,22 @@
+/*
+ * jQuery OrgChart Plugin
+ * https://github.com/dabeng/OrgChart
+ *
+ * Demos of jQuery OrgChart Plugin
+ * http://dabeng.github.io/OrgChart/local-datasource/
+ * http://dabeng.github.io/OrgChart/ajax-datasource/
+ * http://dabeng.github.io/OrgChart/ondemand-loading-data/
+ * http://dabeng.github.io/OrgChart/option-createNode/
+ * http://dabeng.github.io/OrgChart/export-orgchart/
+ * http://dabeng.github.io/OrgChart/integrate-map/
+ *
+ * Copyright 2016, dabeng
+ * http://dabeng.github.io/
+ *
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/MIT
+ */
+
 .hidden {
   display: none;
 }
@@ -97,9 +116,7 @@
   color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
-  transform: translate(0,0);
   -webkit-transition: .2s;
-  -webkit-transform: translate(0,0);
 }
 .orgchart .edge:hover {
   color: #449d44;
@@ -154,24 +171,23 @@
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
 }
-.orgchart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
-  transform: translate(-4px, 0);
-  -webkit-transform: translate(-4px, 0);
-}
 .orgchart .node .edge.fa-chevron-left:hover {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
-/* the following code doesn't work */
+.orgchart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
+  transform: translate(-4px, 0);
+  -webkit-transform: translate(-4px, 0);
+}
 .orgchart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
 }
-.rightEdgeTransitionToRight {
+.rightEdgeMoveRight {
   transform: translate(4px, 0);
   -webkit-transform: translate(4px, 0);
 }
-.rightEdgeTransitionToLeft {
+.rightEdgeMoveLeft {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
 }
