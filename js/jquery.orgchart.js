@@ -690,8 +690,8 @@
   }
   // recursively build the tree
   function buildNode (nodeData, $appendTo, level, opts, callback) {
-    var $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
-    var $tbody = $("<tbody/>");
+    var $table = $('<table>');
+    var $tbody = $('<tbody>');
 
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
