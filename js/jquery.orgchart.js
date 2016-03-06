@@ -31,9 +31,6 @@
       'parentNodeSymbol': 'fa-users'
     };
 
-    var opts = $.extend(defaultOptions, options);
-    this.data('orgchart', { 'options' : opts });
-
     switch (options) {
       case 'buildNode':
         return buildNode.apply(this, Array.prototype.splice.call(arguments, 1));
@@ -43,6 +40,9 @@
         return buildParentNode.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'buildSiblingNode':
         return buildSiblingNode.apply(this, Array.prototype.splice.call(arguments, 1));
+      default: // initiation time
+        var opts = $.extend(defaultOptions, options);
+        this.data('orgchart', { 'options' : opts });
     }
 
     // build the org-chart
@@ -500,7 +500,7 @@
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax') === true) {
               if (!$.isEmptyObject(data)) {
-                $.when(buildParentNode(data, $that.closest('table'), opts))
+                $.when(buildParentNode.call($that.closest('.orgchart').parent(), data, opts))
 　　              .done(function(){
                     parentState.visible = true;
                     if (isInAction($node)) {
@@ -853,44 +853,45 @@
   }
 
   // build the parent node of specific node
-  function buildParentNode(nodeData, $currentChart, opts) {
+  function buildParentNode(nodeData, opts) {
     var dtd = $.Deferred();
-    var $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
-    var $tbody = $('<tbody/>');
+    var $table = $('<table>');
+    var $tbody = $('<tbody>');
 
     // Construct the node
-    var $nodeRow = $("<tr/>").addClass("node-cells");
-    var $nodeCell = $("<td/>").addClass("node-cell").attr("colspan", 2);
+    var $nodeRow = $('<tr class="node-cells">');
+    var $nodeCell = $('<td class="node-cell" colspan="2">');
     var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
     $nodeCell.append($nodeDiv);
     $nodeRow.append($nodeCell);
     $tbody.append($nodeRow);
 
     // recurse until leaves found (-1) or to the level specified
-    var $downLineRow = $("<tr/>");
-    var $downLineCell = $("<td/>").attr("colspan", 2);
+    var $downLineRow = $('<tr>');
+    var $downLineCell = $('<td colspan="2">');
     $downLineRow.append($downLineCell);
 
     // draw the connecting line from the parent node to the horizontal line
-    var $downLine = $("<div></div>").addClass("down");
+    var $downLine = $('<div class="down">');
     $downLineCell.append($downLine);
     $tbody.append($downLineRow);
 
 
     // Draw the horizontal lines
-    var $linesRow = $("<tr/>");
-    var $left = $("<td>&nbsp;</td>").addClass("right top");
-    var $right = $("<td>&nbsp;</td>").addClass("left top");
+    var $linesRow = $('<tr>');
+    var $left = $('<td class="right top">&nbsp;</td>');
+    var $right = $('<td class="left top">&nbsp;</td>');
     $linesRow.append($left).append($right);
 
     // horizontal line shouldn't extend beyond the first and last child branches
     $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
     $tbody.append($linesRow);
 
-    $currentChart.closest('div.orgchart')
-      .prepend($table.append($tbody)).find('tbody:first')
-      .append($('<tr/>').append($('<td class="node-container" colspan="2" />')
-        .append($currentChart)));
+    var oc = this.children('.orgchart');
+    oc.prepend($table.append($tbody)).find('tbody:first')
+      .append($('<tr>').append($('<td class="node-container" colspan="2">')));
+    oc.find('tbody:first').children('tr:last').children()
+      .append(oc.children('table').last());
 
     dtd.resolve();
     return dtd.promise();
