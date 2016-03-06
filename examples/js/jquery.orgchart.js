@@ -27,7 +27,8 @@
       depth: 999,
       chartClass: '',
       exportButton: false,
-      exportFilename: 'OrgChart'
+      exportFilename: 'OrgChart',
+      'parentNodeSymbol': 'fa-users'
     };
 
     var opts = $.extend(defaultOptions, options);
@@ -386,7 +387,7 @@
         '<i class="edge horizontalEdge leftEdge fa"></i>');
     }
     if(Number(nodeData[opts.nodeRelationship].substr(2,1))) {
-      $nodeDiv.find('.title').prepend('<i class="fa fa-users symbol"></i>')
+      $nodeDiv.find('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>')
       $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>');
     }
 
@@ -563,11 +564,10 @@
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax') === true) {
               if (data.children.length !== 0) {
-                var siblingCount = data.children.length;
                 var dtd = $.Deferred();
-                var childCount = 0;
+                var count = 0;
                 $.when(buildChildNode(data, $that.closest('tbody'), false, opts, function() {
-                  if (++childCount === siblingCount + 1) {
+                  if (++count === data.children.length + 1) {
                     dtd.resolve();
                     return dtd.promise();
                   }
@@ -690,8 +690,8 @@
   }
   // recursively build the tree
   function buildNode (nodeData, $appendTo, level, opts, callback) {
-    var $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
-    var $tbody = $("<tbody/>");
+    var $table = $('<table>');
+    var $tbody = $('<tbody>');
 
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
@@ -714,7 +714,7 @@
       $downLineRow.append($downLineCell);
 
       // draw the connecting line from the parent node to the horizontal line
-      var $downLine = $("<div></div>").addClass("down");
+      var $downLine = $('<div class="down"></div>');
       $downLineCell.append($downLine);
       if (level + 1 < opts.depth) {
         $tbody.append($downLineRow);
@@ -723,10 +723,10 @@
       }
 
       // draw the horizontal lines
-      var $linesRow = $("<tr/>");
+      var $linesRow = $('<tr>');
       $.each($childNodes, function() {
-        var $left = $("<td>&nbsp;</td>").addClass("right top");
-        var $right = $("<td>&nbsp;</td>").addClass("left top");
+        var $left = $('<td class="right top">&nbsp;</td>');
+        var $right = $('<td class="left top">&nbsp;</td>');
         $linesRow.append($left).append($right);
       });
 
@@ -737,9 +737,9 @@
       } else {
         $tbody.append($linesRow.hide());
       }
-      $childNodesRow = $("<tr/>");
+      $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
-        var $td = $("<td class='node-container'/>");
+        var $td = $('<td class="node-container"/>');
         $td.attr("colspan", 2);
         // recurse through children lists and items
         if (callback) {
@@ -771,12 +771,12 @@
     var $childNodes = nodeData.children || nodeData.siblings;
     var $table, $tbody;
     if (isChildNode) {
-      $table = $("<table cellpadding='0' cellspacing='0' border='0'/>");
-      $tbody = $('<tbody/>');
+      $table = $('<table>');
+      $tbody = $('<tbody>');
 
       // create the node
-      var $nodeRow = $("<tr/>").addClass("node-cells");
-      var $nodeCell = $("<td/>").addClass("node-cell").attr("colspan", 2);
+      var $nodeRow = $('<tr class="node-cells">');
+      var $nodeCell = $('<td class="node-cell" colspan="2">');
       var $nodeDiv = createNode(nodeData, opts);
       $nodeCell.append($nodeDiv);
       $nodeRow.append($nodeCell);
@@ -793,7 +793,7 @@
       $downLineRow.append($downLineCell);
 
       // draw the connecting line from the parent node to the horizontal line
-      var $downLine = $("<div></div>").addClass("down");
+      var $downLine = $('<div class="down">');
       $downLineCell.append($downLine);
       if (isChildNode) {
         $tbody.append($downLineRow);
@@ -804,8 +804,8 @@
       // Draw the horizontal lines
       var $linesRow = $("<tr/>");
       $.each($childNodes, function() {
-        var $left = $("<td>&nbsp;</td>").addClass("right top");
-        var $right = $("<td>&nbsp;</td>").addClass("left top");
+        var $left = $('<td class="right top">&nbsp;</td>');
+        var $right = $('<td class="left top">&nbsp;</td>');
         $linesRow.append($left).append($right);
       });
 

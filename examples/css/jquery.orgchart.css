@@ -45,11 +45,36 @@
 }
 
 .orgchart table {
-  border-collapse: separate;
+ border-spacing:0;
 }
 
 .orgchart>table:first-child{
   margin: 20px auto;
+}
+
+.orgchart td {
+  text-align: center;
+  vertical-align: top;
+  padding: 0;
+}
+
+.orgchart td.top {
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart td.right {
+  border-right: 1px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart td.left {
+  border-left: 1px solid rgba(217, 83, 79, 0.8);
+}
+
+.orgchart td>.down {
+  background-color: rgba(217, 83, 79, 0.8);
+  margin: 0px auto;
+  height: 20px;
+  width: 2px;
 }
 
 /* node styling */
@@ -190,31 +215,6 @@
 .rightEdgeMoveLeft {
   transform: translate(-4px, 0);
   -webkit-transform: translate(-4px, 0);
-}
-
-.orgchart>table td {
-  text-align: center;
-  vertical-align: top;
-  padding: 0;
-}
-
-.orgchart>table td.top {
-  border-top: 2px solid rgba(217, 83, 79, 0.8);
-}
-
-.orgchart>table td.right {
-  border-right: 1px solid rgba(217, 83, 79, 0.8);
-}
-
-.orgchart>table td.left {
-  border-left: 1px solid rgba(217, 83, 79, 0.8);
-}
-
-.orgchart>table td>.down {
-  background-color: rgba(217, 83, 79, 0.8);
-  margin: 0px auto;
-  height: 20px;
-  width: 2px;
 }
 
 .oc-export-btn {
