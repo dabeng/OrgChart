@@ -32,6 +32,7 @@
     };
 
     var opts = $.extend(defaultOptions, options);
+    this.data('orgchart', { 'options' : opts });
 
     switch (options) {
       case 'buildNode':
@@ -374,19 +375,20 @@
   // create node
   function createNode(nodeData, opts) {
     // construct the content of node
-    var $nodeDiv = $('<div>', {'id': nodeData[opts.nodeId]})
+    var $nodeDiv = $('<div>', { 'id': nodeData[opts.nodeId] })
       .addClass('node')
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
-    if (Number(nodeData[opts.nodeRelationship].substr(0,1))) {
+    var flags = nodeData[opts.nodeRelationship];
+    if (Number(flags.substr(0,1))) {
       $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
     }
-    if(Number(nodeData[opts.nodeRelationship].substr(1,1))) {
+    if(Number(flags.substr(1,1))) {
       $nodeDiv.append('<i class="edge horizontalEdge rightEdge fa"></i>' +
         '<i class="edge horizontalEdge leftEdge fa"></i>');
     }
-    if(Number(nodeData[opts.nodeRelationship].substr(2,1))) {
+    if(Number(flags.substr(2,1))) {
       $nodeDiv.find('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>')
       $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>');
     }
@@ -859,7 +861,7 @@
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
     var $nodeCell = $("<td/>").addClass("node-cell").attr("colspan", 2);
-    var $nodeDiv = createNode(nodeData, opts);
+    var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
     $nodeCell.append($nodeDiv);
     $nodeRow.append($nodeCell);
     $tbody.append($nodeRow);
