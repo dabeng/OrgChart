@@ -22,8 +22,7 @@
       'parentNodeSymbol': 'fa-th-large',
       'createNode': function($node, data) {
         $node.on('click', function() {
-          $('#selected-node').val(data.name)
-            .data('nodechart', $node.closest('table'));
+          $('#selected-node').val(data.name).data('node', $node);
         });
       }
     });
@@ -39,18 +38,30 @@
 
     $('#btn-add-node').on('click', function() {
       var rootnodeVal = $('.edit-panel.second').find('.new-node').val().trim();
-      var nodeChart = $('#selected-node').data('nodechart');
+      var $node = $('#selected-node').data('node');
       if (!rootnodeVal.length) {
         alert('Please input value for new node');
         return;
       }
-      if (!nodeChart) {
-        alert('Please select one node in orgchart first');
+      if (!$node) {
+        alert('Please select one node in orgchart');
         return;
       }
-      $('#chart-container').orgchart('buildSiblingNode', {
-        'siblings':[{ 'name': rootnodeVal, 'relationship': '110' }]
-      }, nodeChart);
+      var nodeType = $('input[name="node-type"]:checked');
+      if (!nodeType.length) {
+        alert('Please select a node type');
+        return;
+      }
+      if (nodeType.val() === 'siblings') {
+        $('#chart-container').orgchart('addSiblings', $node, {
+          'siblings': [{ 'name': rootnodeVal, 'relationship': '110' }]
+        });
+      } else {
+        var hasChild = $node.parent().attr('colspan') > 2 ? true : false;
+        $('#chart-container').orgchart('addChildren', $node, {
+          'children': [{ 'name': rootnodeVal, 'relationship': '1' + (hasChild ? 1 : 0) + '0' }]
+        });
+      }
     });
 
   });
