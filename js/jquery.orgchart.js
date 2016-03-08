@@ -568,7 +568,7 @@
               if (data.children.length !== 0) {
                 var dtd = $.Deferred();
                 var count = 0;
-                $.when(buildChildNode(data, $that.closest('tbody'), false, opts, function() {
+                $.when(buildChildNode(data, $that.closest('table'), false, opts, function() {
                   if (++count === data.children.length + 1) {
                     dtd.resolve();
                     return dtd.promise();
@@ -693,7 +693,6 @@
   // recursively build the tree
   function buildNode (nodeData, $appendTo, level, opts, callback) {
     var $table = $('<table>');
-    var $tbody = $('<tbody>');
 
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
@@ -705,12 +704,11 @@
     var $nodeDiv = createNode(nodeData, opts);
     $nodeCell.append($nodeDiv);
     $nodeRow.append($nodeCell);
-    $tbody.append($nodeRow);
+    $table.append($nodeRow);
 
     if ($childNodes && $childNodes.length > 0) {
-      // recurse until leaves found (-1) or to the level specified
+      // recurse until leaves found or to the level specified
       var $childNodesRow;
-      // if (opts.depth == -1 || (level + 1 < opts.depth)) {
       var $downLineRow = $("<tr/>");
       var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
       $downLineRow.append($downLineCell);
@@ -719,9 +717,9 @@
       var $downLine = $('<div class="down"></div>');
       $downLineCell.append($downLine);
       if (level + 1 < opts.depth) {
-        $tbody.append($downLineRow);
+        $table.append($downLineRow);
       } else {
-        $tbody.append($downLineRow.hide());
+        $table.append($downLineRow.hide());
       }
 
       // draw the horizontal lines
@@ -735,9 +733,9 @@
       // horizontal line shouldn't extend beyond the first and last child branches
       $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
       if (level + 1 < opts.depth) {
-        $tbody.append($linesRow);
+        $table.append($linesRow);
       } else {
-        $tbody.append($linesRow.hide());
+        $table.append($linesRow.hide());
       }
       $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
@@ -755,10 +753,9 @@
           $childNodesRow.append($td).hide();
         }
       });
-      $tbody.append($childNodesRow);
+      $table.append($childNodesRow);
     }
 
-    $table.append($tbody);
     $appendTo.append($table);
 
     // fire up callback every time of building up a node
@@ -771,10 +768,9 @@
   // build the child nodes of specific node
   function buildChildNode (nodeData, $appendTo, isChildNode, opts, callback) {
     var $childNodes = nodeData.children || nodeData.siblings;
-    var $table, $tbody;
+    var $table;
     if (isChildNode) {
       $table = $('<table>');
-      $tbody = $('<tbody>');
 
       // create the node
       var $nodeRow = $('<tr class="node-cells">');
@@ -782,29 +778,28 @@
       var $nodeDiv = createNode(nodeData, opts);
       $nodeCell.append($nodeDiv);
       $nodeRow.append($nodeCell);
-      $tbody.append($nodeRow);
+      $table.append($nodeRow);
     } else {
-      $appendTo.children('tr:first').children('td:first')
-        .attr('colspan', $childNodes.length * 2);
+      $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
     }
 
     if ($childNodes && $childNodes.length > 0) {
       // recurse until leaves found (-1) or to the level specified
-      var $downLineRow = $("<tr/>");
-      var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
+      var $downLineRow = $('<tr>');
+      var $downLineCell = $('<td>').attr("colspan", $childNodes.length * 2);
       $downLineRow.append($downLineCell);
 
       // draw the connecting line from the parent node to the horizontal line
       var $downLine = $('<div class="down">');
       $downLineCell.append($downLine);
       if (isChildNode) {
-        $tbody.append($downLineRow);
+        $table.append($downLineRow);
       } else {
         $appendTo.append($downLineRow);
       }
 
       // Draw the horizontal lines
-      var $linesRow = $("<tr/>");
+      var $linesRow = $('<tr>');
       $.each($childNodes, function() {
         var $left = $('<td class="right top">&nbsp;</td>');
         var $right = $('<td class="left top">&nbsp;</td>');
@@ -815,12 +810,12 @@
       $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
 
       if (isChildNode) {
-        $tbody.append($linesRow);
+        $table.append($linesRow);
       } else {
         $appendTo.append($linesRow);
       }
 
-      var $childNodesRow = $("<tr/>");
+      var $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
         var $td = $("<td class='node-container'/>");
         $td.attr("colspan", 2);
@@ -834,14 +829,13 @@
       });
 
       if (isChildNode) {
-        $tbody.append($childNodesRow);
+        $table.append($childNodesRow);
       } else {
         $appendTo.append($childNodesRow);
       }
     }
 
     if (isChildNode) {
-      $table.append($tbody);
       $appendTo.append($table);
     }
 
@@ -856,7 +850,6 @@
   function buildParentNode(nodeData, opts) {
     var dtd = $.Deferred();
     var $table = $('<table>');
-    var $tbody = $('<tbody>');
 
     // Construct the node
     var $nodeRow = $('<tr class="node-cells">');
@@ -864,7 +857,7 @@
     var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
     $nodeCell.append($nodeDiv);
     $nodeRow.append($nodeCell);
-    $tbody.append($nodeRow);
+    $table.append($nodeRow);
 
     // recurse until leaves found (-1) or to the level specified
     var $downLineRow = $('<tr>');
@@ -874,7 +867,7 @@
     // draw the connecting line from the parent node to the horizontal line
     var $downLine = $('<div class="down">');
     $downLineCell.append($downLine);
-    $tbody.append($downLineRow);
+    $table.append($downLineRow);
 
 
     // Draw the horizontal lines
@@ -885,12 +878,12 @@
 
     // horizontal line shouldn't extend beyond the first and last child branches
     $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
-    $tbody.append($linesRow);
+    $table.append($linesRow);
 
     var oc = this.children('.orgchart');
-    oc.prepend($table.append($tbody)).find('tbody:first')
-      .append($('<tr>').append($('<td class="node-container" colspan="2">')));
-    oc.find('tbody:first').children('tr:last').children()
+    oc.prepend($table).children('table:first')
+      .append($('<tr>').append($('<td class="node-container" colspan="2">')))
+      .children().children('tr:last').children()
       .append(oc.children('table').last());
 
     dtd.resolve();
@@ -906,34 +899,34 @@
   }
 
   // build the sibling nodes of specific node
-  function buildSiblingNode(nodeData, $currentChart, opts) {
+  function buildSiblingNode(nodeData, $nodeChart, opts) {
     var dtd = $.Deferred();
     var siblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
-    if ($currentChart.parent().is('td.node-container')) {
-      var $parent = $currentChart.closest('tr').prevAll('tr:last');
+    if ($nodeChart.parent().is('td.node-container')) {
+      var $parent = $nodeChart.closest('tr').prevAll('tr:last');
       if ($parent.is(':hidden')) {
         $parent.show();
       }
-      $currentChart.closest('tr').prevAll('tr:lt(2)').remove();
+      $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
-      buildChildNode(nodeData, $currentChart.closest('tbody'), false, opts, function() {
+      buildChildNode(nodeData, $nodeChart.parent().closest('table'), false, opts, function() {
         if (++childCount === siblingCount + 1) {
-          subsequentProcess($currentChart.closest('tbody').children('tr:last').children('td')
-            .eq(insertPostion).after($currentChart.closest('td').unwrap()), siblingCount);
+          subsequentProcess($nodeChart.parent().closest('table').children().children('tr:last').children('td')
+            .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount);
           dtd.resolve();
           return dtd.promise();
         }
       });
     } else { // build the sibling nodes and parent node for the specific ndoe
       var nodeCount = 0;
-      buildNode(nodeData, $currentChart.closest('div.orgchart'), 0, opts,
+      buildNode(nodeData, $nodeChart.closest('div.orgchart'), 0, opts,
         function() {
           if (++nodeCount === siblingCount + 1) {
-            subsequentProcess($currentChart.next().children('tbody:first').children('tr:last')
-              .children('td').eq(insertPostion).after($('<td class="node-container" colspan="2" />')
-              .append($currentChart)), siblingCount);
+            subsequentProcess($nodeChart.next().children().children('tr:last')
+              .children().eq(insertPostion).after($('<td class="node-container" colspan="2">')
+              .append($nodeChart)), siblingCount);
             dtd.resolve();
             return dtd.promise();
         }
