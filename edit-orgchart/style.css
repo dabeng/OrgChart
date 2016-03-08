@@ -1,11 +1,26 @@
 #chart-container {
   background-color: #eee;
+  height: 300px;
 }
 .orgchart {
   background: #fff;
 }
 
-#edit-panel {
+.orgchart .node {
+  width: 180px;
+}
+
+.orgchart .node .title {
+  font-size: 24px;
+  height: 30px;
+  padding-top: 4px;
+}
+
+.orgchart .node .title .symbol {
+  margin-top: 1px; 
+}
+
+.edit-panel {
   position: relative;
   left: 10px;
   width: calc(100% - 20px);
@@ -13,11 +28,25 @@
   float: left;
   margin-top: 10px;
   padding: 10px;
-  background-color: #449d44;
   color: #fff;
+  font-size: 24px;
 }
 
-#edit-panel label {
+.edit-panel input {
+  font-size: 24px;
+  width: 180px;
+}
+
+.edit-panel.first {
+  background-color: #337ab7;
+  margin-top: 15px;
+}
+
+.edit-panel.second {
+  background-color: #449d44;
+}
+
+.edit-panel label {
   font-weight: bold;
 }
 
@@ -25,14 +54,13 @@
   margin-right: 20px;
 }
 
-#edit-panel button {
+.edit-panel button {
   color: #333;
   background-color: #fff;
   display: inline-block;
   padding: 6px 12px;
   margin-bottom: 0;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 24px;
   line-height: 1.42857143;
   text-align: center;
   white-space: nowrap;
@@ -49,9 +77,9 @@
   border-radius: 4px;
 }
 
-#edit-panel button:hover,#edit-panel button:focus,#edit-panel button:active {
-  color: #398439;
-  border-color: #0f0;
+.edit-panel button:hover,.edit-panel button:focus,.edit-panel button:active {
+  border-color: #eea236;
+  box-shadow:  0 0 10px #eea236;
 }
 
 #new-nodelist {
@@ -67,9 +95,9 @@
 }
 
 #node-type-panel input[type='radio'] {
-  display:inline-block;
-  height:20px;
-  width: 20px;
+  display: inline-block;
+  height: 28px;
+  width: 28px;
 }
 
 #node-type-panel input[type='radio']+label {

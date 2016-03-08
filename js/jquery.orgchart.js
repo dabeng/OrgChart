@@ -36,8 +36,8 @@
         return buildNode.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'buildChildNode':
         return buildChildNode.apply(this, Array.prototype.splice.call(arguments, 1));
-      case 'buildParentNode':
-        return buildParentNode.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'addParent':
+        return addParent.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'buildSiblingNode':
         return buildSiblingNode.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
@@ -500,14 +500,17 @@
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax') === true) {
               if (!$.isEmptyObject(data)) {
-                $.when(buildParentNode.call($that.closest('.orgchart').parent(), data, opts))
-　　              .done(function(){
-                    parentState.visible = true;
-                    if (isInAction($node)) {
-                      switchUpDownArrow($that);
-                    }
-                  })
-　　              .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
+//                 $.when(buildParentNode.call($that.closest('.orgchart').parent(), data, opts))
+// 　　              .done(function(){
+//                     parentState.visible = true;
+//                     if (isInAction($node)) {
+//                       switchUpDownArrow($that);
+//                     }
+//                   })
+// 　　              .fail(function(){
+//                   console.log('failed to adjust the position of org-chart!');
+//                 });
+                addParent($node, data, opts);
               }
               parentState.exist = true;
             }
@@ -854,6 +857,7 @@
     // Construct the node
     var $nodeRow = $('<tr class="node-cells">');
     var $nodeCell = $('<td class="node-cell" colspan="2">');
+    nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
     var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
     $nodeCell.append($nodeDiv);
     $nodeRow.append($nodeCell);
@@ -890,6 +894,21 @@
     return dtd.promise();
   }
 
+  // exposed method
+  function addParent($node, data, opts) {
+    $.when(buildParentNode.call($node.closest('.orgchart').parent(), data, opts))
+　　    .done(function(){
+        var topArrow = $node.children('.topEdge');
+          topArrow.data('parentState').visible = true;
+          if (isInAction($node)) {
+            switchUpDownArrow(topArrow);
+          }
+        })
+　　    .fail(function(){
+        console.log('failed to adjust the position of org-chart!');
+      });
+  }
+
   // subsequent processing of build sibling nodes
   function subsequentProcess($target, siblingCount) {
     $target.parent().prevAll('tr:gt(0)').children('td')
@@ -901,6 +920,7 @@
   // build the sibling nodes of specific node
   function buildSiblingNode(nodeData, $nodeChart, opts) {
     var dtd = $.Deferred();
+    var opts = opts || this.data('orgchart').options;
     var siblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
