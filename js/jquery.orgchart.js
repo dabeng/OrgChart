@@ -916,10 +916,10 @@
   }
 
   // subsequent processing of build sibling nodes
-  function subsequentProcess($target, siblingCount) {
-    $target.parent().prevAll('tr:gt(0)').children('td')
-      .attr('colspan', (siblingCount + 1) * 2)
-      .end().next().children('td').eq(0)
+  function complementLine($oneSibling, siblingCount) {
+    $oneSibling.parent().prevAll('tr:gt(0)').children()
+      .attr('colspan', siblingCount * 2)
+      .end().next().children(':first')
       .after($('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>'));
   }
 
@@ -927,7 +927,9 @@
   function buildSiblingNode($nodeChart, nodeData, opts) {
     var dtd = $.Deferred();
     var opts = opts || this.data('orgchart').options;
-    var siblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
+    var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
+    var existingSibligCount = $nodeChart.parent().is('.node-container') ? $nodeChart.closest('tr').children().length : 1;
+    var siblingCount = existingSibligCount + newSiblingCount;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
     if ($nodeChart.parent().is('td.node-container')) {
@@ -937,10 +939,16 @@
       }
       $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
-      buildChildNode($nodeChart.parent().closest('table'), nodeData, false, opts, function() {
-        if (++childCount === siblingCount + 1) {
-          subsequentProcess($nodeChart.parent().closest('table').children().children('tr:last').children('td')
+      buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, false, opts, function() {
+        if (++childCount === newSiblingCount + 1) {
+          if (existingSibligCount > 1) {
+            complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td:first')
+              .before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount);
+          } else {
+            complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td')
             .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount);
+          }
+
           dtd.resolve();
           return dtd.promise();
         }
@@ -949,8 +957,8 @@
       var nodeCount = 0;
       buildNode(nodeData, $nodeChart.closest('div.orgchart'), 0, opts,
         function() {
-          if (++nodeCount === siblingCount + 1) {
-            subsequentProcess($nodeChart.next().children().children('tr:last')
+          if (++nodeCount === siblingCount) {
+            complementLine($nodeChart.next().children().children('tr:last')
               .children().eq(insertPostion).after($('<td class="node-container" colspan="2">')
               .append($nodeChart)), siblingCount);
             dtd.resolve();
