@@ -847,7 +847,7 @@
 　　  .done(function(){
         $node.children('.bottomEdge').data('childrenState', { 'exist': true, 'visible': true });
         if (isInAction($node)) {
-          switchUpDownArrow($that);
+          switchUpDownArrow($node.children('.bottomEdge'));
         }
       })
 　　  .fail(function(){
@@ -916,11 +916,15 @@
   }
 
   // subsequent processing of build sibling nodes
-  function complementLine($oneSibling, siblingCount) {
+  function complementLine($oneSibling, siblingCount, existingSibligCount) {
+    var lines = '';
+    for (var i = 0; i < existingSibligCount; i++) {
+      lines += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+    }
     $oneSibling.parent().prevAll('tr:gt(0)').children()
       .attr('colspan', siblingCount * 2)
       .end().next().children(':first')
-      .after($('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>'));
+      .after($(lines));
   }
 
   // build the sibling nodes of specific node
@@ -943,10 +947,10 @@
         if (++childCount === newSiblingCount + 1) {
           if (existingSibligCount > 1) {
             complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td:first')
-              .before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount);
+              .before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount, existingSibligCount);
           } else {
             complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td')
-            .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount);
+            .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
           }
 
           dtd.resolve();
@@ -960,7 +964,7 @@
           if (++nodeCount === siblingCount) {
             complementLine($nodeChart.next().children().children('tr:last')
               .children().eq(insertPostion).after($('<td class="node-container" colspan="2">')
-              .append($nodeChart)), siblingCount);
+              .append($nodeChart)), siblingCount, 1);
             dtd.resolve();
             return dtd.promise();
         }
