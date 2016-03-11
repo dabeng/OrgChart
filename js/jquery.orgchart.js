@@ -153,7 +153,7 @@
   // recursively hide the ancestor node and sibling nodes of the specified node
   function hideAncestorsSiblings($node, dtd) {
     var $nodeContainer = $node.closest('table').parent();
-    if ($nodeContainer.parent().siblings('.node-cells').find('.spinner').length > 0) {
+    if ($nodeContainer.parent().siblings('.node-cells').find('.spinner').length) {
       $node.closest('div.orgchart').data('inAjax', false);
     }
     // firstly, hide the sibling nodes
@@ -208,7 +208,7 @@
   // recursively hide the descendant nodes of the specified node
   function hideDescendants($node) {
     var dtd = $.Deferred();
-    if ($node.closest('tr').siblings(':last').find('.spinner').length > 0) {
+    if ($node.closest('tr').siblings(':last').find('.spinner').length) {
       $node.closest('div.orgchart').data('inAjax', false);
     }
     var $links = $node.closest('tr').siblings(':lt(2)');
@@ -275,7 +275,7 @@
   function hideSiblings($node, justSiblings) {
     var dtd = $.Deferred();
     var $nodeContainer = $node.closest('table').parent();
-    if ($nodeContainer.siblings().find('.spinner').length > 0) {
+    if ($nodeContainer.siblings().find('.spinner').length) {
       $node.closest('div.orgchart').data('inAjax', false);
     }
     var nodeOffset = $node.outerWidth();
@@ -455,7 +455,7 @@
       var $that = $(this);
       var $node = $that.parent();
       var parentState = $that.data('parentState');
-      if ($node.children('.spinner').length > 0) {
+      if ($node.children('.spinner').length) {
         return false;
       }
       if (parentState.exist) {
@@ -468,7 +468,7 @@
           $.when(hideAncestorsSiblings($node, dtd))
 　　        .done(function(){
               parentState.visible = false;
-              if ($node.children('.leftEdge').length > 0) {
+              if ($node.children('.leftEdge').length) {
                 $node.children('.leftEdge').data('siblingsState').visible = false;
                 $node.children('.rightEdge').data('siblingsState').visible = false;
               }
@@ -498,7 +498,7 @@
             "dataType": "json"
           })
           .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('div.orgchart').data('inAjax') === true) {
+            if ($node.closest('div.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
                 addParent($node, data, opts);
               }
@@ -522,7 +522,7 @@
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = $that.data('childrenState');
-      if ($node.children('.spinner').length > 0) {
+      if ($node.children('.spinner').length) {
         return false;
       }
       if (childrenState.exist) {
@@ -557,7 +557,7 @@
             "dataType": "json"
           })
           .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('div.orgchart').data('inAjax') === true) {
+            if ($node.closest('div.orgchart').data('inAjax')) {
               if (data.children.length !== 0) {
 //                 var dtd = $.Deferred();
 //                 var count = 0;
@@ -636,7 +636,7 @@
             "dataType": "json"
           })
           .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('div.orgchart').data('inAjax') === true) {
+            if ($node.closest('div.orgchart').data('inAjax')) {
               if (data.siblings || data.children) {
                 addSiblings($node, data, opts);
               }
@@ -685,7 +685,7 @@
 
     // Construct the node
     var $nodeRow = $("<tr/>").addClass("node-cells");
-    var $nodeCell = $("<td/>").addClass("node-cell").attr("colspan", 2);
+    var $nodeCell = $("<td/>").attr("colspan", 2);
     var $childNodes = nodeData[opts.nodeChildren];
     if ($childNodes && $childNodes.length > 1) {
       $nodeCell.attr("colspan", $childNodes.length * 2);
@@ -763,7 +763,7 @@
 
       // create the node
       var $nodeRow = $('<tr class="node-cells">');
-      var $nodeCell = $('<td class="node-cell" colspan="2">');
+      var $nodeCell = $('<td>');
       var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
       $nodeCell.append($nodeDiv);
       $nodeRow.append($nodeCell);
@@ -862,7 +862,7 @@
 
     // Construct the node
     var $nodeRow = $('<tr class="node-cells">');
-    var $nodeCell = $('<td class="node-cell" colspan="2">');
+    var $nodeCell = $('<td colspan="2">');
     nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
     var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
     $nodeCell.append($nodeDiv);
