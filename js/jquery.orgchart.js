@@ -152,8 +152,7 @@
 
   // recursively hide the ancestor node and sibling nodes of the specified node
   function hideAncestorsSiblings($node, dtd) {
-    var $nodeContainer = $node.closest('table').parent();
-    if ($nodeContainer.parent().siblings('.node-cells').find('.spinner').length) {
+    if ($node.closest('table').closest('tr').siblings(':first').find('.spinner').length) {
       $node.closest('div.orgchart').data('inAjax', false);
     }
     // firstly, hide the sibling nodes
@@ -161,7 +160,7 @@
       hideSiblings($node, false);
     }
     // hide the links
-    var $temp = $nodeContainer.parent().siblings();
+    var $temp = $node.closest('table').closest('tr').siblings();
     var $links = $temp.slice(1);
     $links.css('visibility', 'hidden');
     // secondly, hide the superior nodes with animation
@@ -179,7 +178,7 @@
       });
     }
     // if the current node has the parent node, hide it recursively
-    if ($parent.length > 0 && grandfatherVisible) {
+    if ($parent.length && grandfatherVisible) {
       hideAncestorsSiblings($parent, dtd);
     }
 
@@ -684,8 +683,8 @@
     var $table = $('<table>');
 
     // Construct the node
-    var $nodeRow = $("<tr/>").addClass("node-cells");
-    var $nodeCell = $("<td/>").attr("colspan", 2);
+    var $nodeRow = $('<tr>');
+    var $nodeCell = $('<td colspan="2">');
     var $childNodes = nodeData[opts.nodeChildren];
     if ($childNodes && $childNodes.length > 1) {
       $nodeCell.attr("colspan", $childNodes.length * 2);
@@ -698,7 +697,7 @@
     if ($childNodes && $childNodes.length > 0) {
       // recurse until leaves found or to the level specified
       var $childNodesRow;
-      var $downLineRow = $("<tr/>");
+      var $downLineRow = $('<tr>');
       var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
       $downLineRow.append($downLineCell);
 
@@ -762,7 +761,7 @@
       $table = $('<table>');
 
       // create the node
-      var $nodeRow = $('<tr class="node-cells">');
+      var $nodeRow = $('<tr>');
       var $nodeCell = $('<td>');
       var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
       $nodeCell.append($nodeDiv);
@@ -861,7 +860,7 @@
     var $table = $('<table>');
 
     // Construct the node
-    var $nodeRow = $('<tr class="node-cells">');
+    var $nodeRow = $('<tr>');
     var $nodeCell = $('<td colspan="2">');
     nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
     var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
