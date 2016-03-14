@@ -739,52 +739,28 @@
   // build the child nodes of specific node
   function buildChildNode ($appendTo, nodeData, opts, callback) {
     var $childNodes = nodeData.children || nodeData.siblings;
-    var $table;
     if (Object.keys(nodeData).length > 1) {
-      $table = $('<table>');
-
       // create the node
-      var $nodeRow = $('<tr>');
-      var $nodeCell = $('<td>');
       var $nodeDiv = createNode(nodeData, opts ? opts : this.data('orgchart').options);
-      $nodeCell.append($nodeDiv);
-      $nodeRow.append($nodeCell);
-      $table.append($nodeRow);
+      $appendTo.append($nodeDiv.wrap('<table><tr><td></td></tr></table>'));
     } else {
+      // change the parent node's colspan attribute
       $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
-    }
-
-    if ($childNodes && $childNodes.length > 0) {
-      // recurse until leaves found (-1) or to the level specified
+      // draw the connecting line close to parent node
       var $downLineRow = $('<tr>');
       var $downLineCell = $('<td>').attr("colspan", $childNodes.length * 2);
       $downLineRow.append($downLineCell);
-
-      // draw the connecting line from the parent node to the horizontal line
       var $downLine = $('<div class="down">');
       $downLineCell.append($downLine);
-      if (Object.keys(nodeData).length > 1) {
-        $table.append($downLineRow);
-      } else {
-        $appendTo.append($downLineRow);
+      $appendTo.append($downLineRow);
+
+      // draw the lines close to children nodes
+      var linesRow = '<tr><td class="right">&nbsp;</td>';
+      for (var i=1; i<$childNodes.length; i++) {
+        linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
       }
-
-      // Draw the horizontal lines
-      var $linesRow = $('<tr>');
-      $.each($childNodes, function() {
-        var $left = $('<td class="right top">&nbsp;</td>');
-        var $right = $('<td class="left top">&nbsp;</td>');
-        $linesRow.append($left).append($right);
-      });
-
-      // horizontal line shouldn't extend beyond the first and last child branches
-      $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
-
-      if (Object.keys(nodeData).length > 1) {
-        $table.append($linesRow);
-      } else {
-        $appendTo.append($linesRow);
-      }
+      linesRow += '<td class="left">&nbsp;</td></tr>';
+      $appendTo.append(linesRow);
 
       var $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
@@ -799,15 +775,7 @@
         $childNodesRow.append($td);
       });
 
-      if (Object.keys(nodeData).length > 1) {
-        $table.append($childNodesRow);
-      } else {
-        $appendTo.append($childNodesRow);
-      }
-    }
-
-    if (Object.keys(nodeData).length > 1) {
-      $appendTo.append($table);
+      $appendTo.append($childNodesRow);
     }
 
     // fire up callback every time of building up a node
