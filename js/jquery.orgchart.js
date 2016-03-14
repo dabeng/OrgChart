@@ -747,12 +747,7 @@
       // change the parent node's colspan attribute
       $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
       // draw the connecting line close to parent node
-      var $downLineRow = $('<tr>');
-      var $downLineCell = $('<td>').attr("colspan", $childNodes.length * 2);
-      $downLineRow.append($downLineCell);
-      var $downLine = $('<div class="down">');
-      $downLineCell.append($downLine);
-      $appendTo.append($downLineRow);
+      $appendTo.append('<tr><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
 
       // draw the lines close to children nodes
       var linesRow = '<tr><td class="right">&nbsp;</td>';
