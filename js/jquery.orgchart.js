@@ -557,24 +557,7 @@
           })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax')) {
-              if (data.children.length !== 0) {
-//                 var dtd = $.Deferred();
-//                 var count = 0;
-//                 $.when(buildChildNode($that.closest('table'), data, false, opts, function() {
-//                   if (++count === data.children.length + 1) {
-//                     dtd.resolve();
-//                     return dtd.promise();
-//                   }
-//                 }))
-// 　　            .done(function(){
-//                   childrenState.visible = true;
-//                   if (isInAction($node)) {
-//                     switchUpDownArrow($that);
-//                   }
-//                 })
-// 　　            .fail(function(){
-//                   console.log('failed to adjust the position of org-chart!');
-//                 });
+              if (data.children.length) {
                 addChildren($node, data, false, opts);
               }
               childrenState.exist = true;
@@ -754,10 +737,10 @@
   }
 
   // build the child nodes of specific node
-  function buildChildNode ($appendTo, nodeData, isChildNode, opts, callback) {
+  function buildChildNode ($appendTo, nodeData, opts, callback) {
     var $childNodes = nodeData.children || nodeData.siblings;
     var $table;
-    if (isChildNode) {
+    if (Object.keys(nodeData).length > 1) {
       $table = $('<table>');
 
       // create the node
@@ -780,7 +763,7 @@
       // draw the connecting line from the parent node to the horizontal line
       var $downLine = $('<div class="down">');
       $downLineCell.append($downLine);
-      if (isChildNode) {
+      if (Object.keys(nodeData).length > 1) {
         $table.append($downLineRow);
       } else {
         $appendTo.append($downLineRow);
@@ -797,7 +780,7 @@
       // horizontal line shouldn't extend beyond the first and last child branches
       $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
 
-      if (isChildNode) {
+      if (Object.keys(nodeData).length > 1) {
         $table.append($linesRow);
       } else {
         $appendTo.append($linesRow);
@@ -809,21 +792,21 @@
         $td.attr("colspan", 2);
         // recurse through children lists and items
         if (callback) {
-          buildChildNode.call($appendTo.closest('.orgchart').parent(), $td, this, true, opts, callback);
+          buildChildNode.call($appendTo.closest('.orgchart').parent(), $td, this, opts, callback);
         } else {
-          buildChildNode.call($appendTo.closest('.orgchart').parent(), $td, this, true, opts);
+          buildChildNode.call($appendTo.closest('.orgchart').parent(), $td, this, opts);
         }
         $childNodesRow.append($td);
       });
 
-      if (isChildNode) {
+      if (Object.keys(nodeData).length > 1) {
         $table.append($childNodesRow);
       } else {
         $appendTo.append($childNodesRow);
       }
     }
 
-    if (isChildNode) {
+    if (Object.keys(nodeData).length > 1) {
       $appendTo.append($table);
     }
 
@@ -834,10 +817,10 @@
 
   }
   // exposed method
-  function addChildren($node, data, isChildNode, opts) {
+  function addChildren($node, data, opts) {
     var dtd = $.Deferred();
     var count = 0;
-    $.when(buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, false, opts, function() {
+    $.when(buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
         if (++count === data.children.length + 1) {
           dtd.resolve();
           return dtd.promise();
@@ -942,7 +925,7 @@
       }
       $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
-      buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, false, opts, function() {
+      buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, opts, function() {
         if (++childCount === newSiblingCount + 1) {
           if (existingSibligCount > 1) {
             complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td:first')
