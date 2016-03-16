@@ -111,9 +111,6 @@
 
   // determin whether the parent node of the specified node is visible on current chart view
   function getParentState($node) {
-    if ($node.children('.spinner').length > 0) {
-      return {};
-    }
     var $parent = $node.closest('table').parent();
     if ($parent.is('td')) {
       if ($parent.closest('tr').siblings().is(':visible')) {
@@ -124,9 +121,6 @@
     return {"exist": false, "visible": false};
   }
   function getChildrenState($node) {
-    if ($node.children('.spinner').length > 0) {
-      return {};
-    }
     var $children = $node.closest('tr').siblings();
     if ($children.length > 0) {
       if ($children.is(':visible')) {
@@ -137,9 +131,6 @@
     return {"exist": false, "visible": false};
   }
   function getSiblingsState($node) {
-    if ($node.children('.spinner').length > 0) {
-      return {};
-    }
     var $siblings = $node.closest('table').parent('td').siblings();
     if ($siblings.length > 0) {
       if ($siblings.is(':visible')) {
@@ -167,7 +158,7 @@
     var nodeOffset = $links.eq(0).outerHeight() + $links.eq(1).outerHeight();
     var $parent = $temp.eq(0).find('div.node');
     var grandfatherVisible = getParentState($parent).visible;
-    if ($parent.length > 0 && $parent.is(':visible')) {
+    if ($parent.length && $parent.is(':visible')) {
       $parent.animate({'opacity': 0, 'top': +nodeOffset}, 300, function() {
         $parent.removeAttr('style');
         $links.removeAttr('style');
@@ -504,12 +495,12 @@
               }
               parentState.exist = true;
             }
-            // terminate the loading status
-            endLoadingStatus($that, $node, opts);
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(errorThrown);
+            console.log('Failed to get parent node data');
             parentState.exist = true;
+          })
+          .always(function() {
             // terminate the loading status
             endLoadingStatus($that, $node, opts);
           });
@@ -560,19 +551,21 @@
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (data.children.length) {
                 $.when(addChildren($node, data, false, opts))
-                  .done(function() {
-                    childrenState.exist = true;
-                    endLoadingStatus($that, $node, opts);
-                  })
-                  .fail(function() {
-                    console.log('Failed to add children nodes');
-                  });
+                .done(function() {
+                  childrenState.exist = true;
+                  endLoadingStatus($that, $node, opts);
+                })
+                .fail(function() {
+                  console.log('Failed to add children nodes');
+                });
               }
             }
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(errorThrown);
+            console.log('Failed to get children nodes data');
             childrenState.exist = true;
+          })
+          .always(function() {
             endLoadingStatus($that, $node, opts);
           });
         }
@@ -636,11 +629,12 @@
                 $that.siblings('.leftEdge').data('siblingsState', {'exist': true, 'visible': true});
               }
             }
-            endLoadingStatus($that, $node, opts);
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(errorThrown);
+            console.log('Failed to get sibling nodes data');
             siblingsState.exist = true;
+          })
+          .always(function() {
             endLoadingStatus($that, $node, opts);
           });
         }
