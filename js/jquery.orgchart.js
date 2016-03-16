@@ -109,31 +109,18 @@
     return $chartContainer;
   };
 
-  // determin whether the parent node of the specified node is visible on current chart view
-  function getParentState($node) {
-    var $parent = $node.closest('table').parent();
-    if ($parent.is('td')) {
-      if ($parent.closest('tr').siblings().is(':visible')) {
-        return {"exist": true, "visible": true};
-      }
-      return {"exist": true, "visible": false};
+  // detect the exist/display state of related node
+  function getNodeState($node, relation) {
+    var $target = {};
+    if (relation === 'parent') {
+      $target = $node.closest('table').parent().closest('tr').siblings();
+    } else if (relation === 'children') {
+      $target = $node.closest('tr').siblings();
+    } else {
+      $target = $node.closest('table').parent().siblings();
     }
-    return {"exist": false, "visible": false};
-  }
-  function getChildrenState($node) {
-    var $children = $node.closest('tr').siblings();
-    if ($children.length > 0) {
-      if ($children.is(':visible')) {
-        return {"exist": true, "visible": true};
-      }
-      return {"exist": true, "visible": false};
-    }
-    return {"exist": false, "visible": false};
-  }
-  function getSiblingsState($node) {
-    var $siblings = $node.closest('table').parent('td').siblings();
-    if ($siblings.length > 0) {
-      if ($siblings.is(':visible')) {
+    if ($target.length) {
+      if ($target.is(':visible')) {
         return {"exist": true, "visible": true};
       }
       return {"exist": true, "visible": false};
@@ -147,7 +134,7 @@
       $node.closest('div.orgchart').data('inAjax', false);
     }
     // firstly, hide the sibling nodes
-    if (getSiblingsState($node).visible) {
+    if (getNodeState($node, 'siblings').visible) {
       hideSiblings($node, false);
     }
     // hide the links
@@ -157,7 +144,7 @@
     // secondly, hide the superior nodes with animation
     var nodeOffset = $links.eq(0).outerHeight() + $links.eq(1).outerHeight();
     var $parent = $temp.eq(0).find('div.node');
-    var grandfatherVisible = getParentState($parent).visible;
+    var grandfatherVisible = getNodeState($parent, 'parent').visible;
     if ($parent.length && $parent.is(':visible')) {
       $parent.animate({'opacity': 0, 'top': +nodeOffset}, 300, function() {
         $parent.removeAttr('style');
@@ -395,7 +382,7 @@
       var temp;
       if (event.type === 'mouseenter') {
         if ($topEdge.length) {
-          temp = getParentState($node);
+          temp = getNodeState($node, 'parent');
           if (!$.isEmptyObject(temp)) {
             $topEdge.data('parentState', temp);
           }
@@ -406,7 +393,7 @@
           }
         }
         if ($bottomEdge.length) {
-          temp = getChildrenState($node);
+          temp = getNodeState($node, 'children');
           if (!$.isEmptyObject(temp)) {
             $bottomEdge.data('childrenState', temp);
           }
@@ -417,7 +404,7 @@
           }
         }
         if ($leftEdge.length) {
-          temp = getSiblingsState($node);
+          temp = getNodeState($node, 'siblings');
           if (!$.isEmptyObject(temp)) {
             $rightEdge.data('siblingsState', temp);
             $leftEdge.data('siblingsState', temp);
@@ -644,7 +631,7 @@
     $nodeDiv.children('.leftEdge').on('mouseenter mouseleave', function(event) {
       if (event.type === 'mouseenter') {
         var $rightEdge = $(this).siblings('.rightEdge');
-        if (!getSiblingsState($(this)).visible) {
+        if (!getNodeState($(this), 'siblings').visible) {
           $rightEdge.addClass('rightEdgeMoveRight');
         } else {
           $rightEdge.addClass('rightEdgeMoveLeft');
