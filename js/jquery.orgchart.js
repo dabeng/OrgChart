@@ -751,49 +751,33 @@
   function buildChildNode ($appendTo, nodeData, opts, callback) {
     var that = this;
     var $childNodes = nodeData.children || nodeData.siblings;
-    // if (Object.keys(nodeData).length > 1) {
-      // create the node
-      // $.when(createNode(nodeData, opts ? opts : this.data('orgchart').options))
-      //   .done(function($nodeDiv) {
-      //     $appendTo.append($nodeDiv.wrap('<table><tr><td></td></tr></table>'));
-      //     callback();
-      //   })
-      //   .fail(function() {
-      //     console.log('Failed to create node');
-      //   });
-      
-    // } else {
-      // change the parent node's colspan attribute
-      $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
-      // draw the connecting line close to parent node
-      $appendTo.append('<tr><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
+    // change the parent node's colspan attribute
+    $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
+    // draw the connecting line close to parent node
+    $appendTo.append('<tr><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
+    // draw the lines close to children nodes
+    var linesRow = '<tr><td class="right">&nbsp;</td>';
+    for (var i=1; i<$childNodes.length; i++) {
+      linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+    }
+    linesRow += '<td class="left">&nbsp;</td></tr>';
+    $appendTo.append(linesRow);
 
-      // draw the lines close to children nodes
-      var linesRow = '<tr><td class="right">&nbsp;</td>';
-      for (var i=1; i<$childNodes.length; i++) {
-        linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
-      }
-      linesRow += '<td class="left">&nbsp;</td></tr>';
-      $appendTo.append(linesRow);
-
-      var $childNodesRow = $('<tr>');
-      $.each($childNodes, function() {
-        var $td = $("<td class='node-container'/>");
-        $td.attr("colspan", 2);
-        // buildChildNode.call($appendTo.closest('.orgchart').parent(), $td, this, opts, callback);
-        $.when(createNode(this, opts ? opts : that.data('orgchart').options))
-          .done(function($nodeDiv) {
-            $td.append($nodeDiv.wrap('<table><tr><td></td></tr></table>'));
-            $childNodesRow.append($td);
-            callback();
-          })
-          .fail(function() {
-            console.log('Failed to create node');
-          });
-      });
-      $appendTo.append($childNodesRow);
-    // }
-
+    var $childNodesRow = $('<tr>');
+    $.each($childNodes, function() {
+      var $td = $("<td class='node-container'/>");
+      $td.attr("colspan", 2);
+      $.when(createNode(this, opts ? opts : that.data('orgchart').options))
+        .done(function($nodeDiv) {
+          $td.append($nodeDiv.wrap('<table><tr><td></td></tr></table>').closest('table'));
+          $childNodesRow.append($td);
+          callback();
+        })
+        .fail(function() {
+          console.log('Failed to create node');
+        });
+    });
+    $appendTo.append($childNodesRow);
   }
   // exposed method
   function addChildren($node, data, opts) {
@@ -820,24 +804,21 @@
   function buildParentNode(nodeData, opts, callback) {
     var that = this;
     var $table = $('<table>');
-
-    // var $nodeRow = $('<tr>');
-    // var $nodeCell = $('<td colspan="2">');
     nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
 
     $.when(createNode(nodeData, opts ? opts : this.data('orgchart').options))
       .done(function($nodeDiv) {
-        $table.append($nodeDiv.wrap('<tr><td colspan="2"></td></tr>'));
+        $table.append($nodeDiv.wrap('<tr><td colspan="2"></td></tr>').closest('tr'));
         $table.append('<tr><td colspan="2"><div class="down"></div></td></tr>');
         var linesRow = '<td class="right">&nbsp;</td><td class="left">&nbsp;</td>';
         $table.append('<tr>' + linesRow + '</tr>');
         var oc = that.children('.orgchart');
         oc.prepend($table)
-          // .children('table:first')
-          // .append('<tr><td class="node-container" colspan="2"></td></tr>')
-          // .children().children('tr:last').children()
-          // .append(oc.children('table').last());
-            callback();
+          .children('table:first')
+          .append('<tr><td class="node-container" colspan="2"></td></tr>')
+          .children().children('tr:last').children()
+          .append(oc.children('table').last());
+        callback();
       })
       .fail(function() {
         console.log('Failed to create parent node');
