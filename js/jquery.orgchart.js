@@ -764,6 +764,7 @@
     $appendTo.append(linesRow);
 
     var $childNodesRow = $('<tr>');
+    $appendTo.append($childNodesRow);
     $.each($childNodes, function() {
       var $td = $("<td class='node-container'/>");
       $td.attr("colspan", 2);
@@ -777,7 +778,6 @@
           console.log('Failed to create node');
         });
     });
-    $appendTo.append($childNodesRow);
   }
   // exposed method
   function addChildren($node, data, opts) {
@@ -865,7 +865,7 @@
       $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
       buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, opts, function() {
-        if (++childCount === newSiblingCount + 1) {
+        if (++childCount === newSiblingCount) {
           if (existingSibligCount > 1) {
             complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td:first')
               .before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount, existingSibligCount);
