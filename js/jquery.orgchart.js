@@ -702,8 +702,7 @@
       }
       $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
-        var $td = $('<td class="node-container"/>');
-        $td.attr("colspan", 2);
+        var $td = $('<td colspan="2">');
         // recurse through children lists and items
         if (callback) {
           buildNode(this, $td, level + 1, opts, callback);
@@ -747,8 +746,7 @@
     var $childNodesRow = $('<tr>');
     $appendTo.append($childNodesRow);
     $.each($childNodes, function() {
-      var $td = $("<td class='node-container'/>");
-      $td.attr("colspan", 2);
+      var $td = $('<td colspan="2">');
       $.when(createNode(this, opts ? opts : that.data('orgchart').options))
         .done(function($nodeDiv) {
           $td.append($nodeDiv.wrap('<table><tr><td></td></tr></table>').closest('table'));
@@ -796,7 +794,7 @@
         var oc = that.children('.orgchart');
         oc.prepend($table)
           .children('table:first')
-          .append('<tr><td class="node-container" colspan="2"></td></tr>')
+          .append('<tr><td colspan="2"></td></tr>')
           .children().children('tr:last').children()
           .append(oc.children('table').last());
         callback();
@@ -834,11 +832,11 @@
     var dtd = $.Deferred();
     var opts = opts || this.data('orgchart').options;
     var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
-    var existingSibligCount = $nodeChart.parent().is('.node-container') ? $nodeChart.closest('tr').children().length : 1;
+    var existingSibligCount = $nodeChart.parent().is('td') ? $nodeChart.closest('tr').children().length : 1;
     var siblingCount = existingSibligCount + newSiblingCount;
     var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
     // just build the sibling nodes for the specific node
-    if ($nodeChart.parent().is('td.node-container')) {
+    if ($nodeChart.parent().is('td')) {
       var $parent = $nodeChart.closest('tr').prevAll('tr:last');
       if ($parent.is(':hidden')) {
         $parent.show();
@@ -865,7 +863,7 @@
         function() {
           if (++nodeCount === siblingCount) {
             complementLine($nodeChart.next().children().children('tr:last')
-              .children().eq(insertPostion).after($('<td class="node-container" colspan="2">')
+              .children().eq(insertPostion).after($('<td colspan="2">')
               .append($nodeChart)), siblingCount, 1);
             dtd.resolve();
             return dtd.promise();
