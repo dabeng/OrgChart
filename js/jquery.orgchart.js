@@ -676,16 +676,15 @@
       var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
       $downLineRow.append($downLineCell);
 
-      // draw the connecting line from the parent node to the horizontal line
+      // draw the line close to parent node
       var $downLine = $('<div class="down"></div>');
       $downLineCell.append($downLine);
-      if (level + 1 < opts.depth) {
-        $table.append($downLineRow);
-      } else {
-        $table.append($downLineRow.hide());
+      $table.append($downLineRow);
+      if (level + 1 >= opts.depth) {
+        $downLineRow.hide();
       }
 
-      // draw the horizontal lines
+      // draw the lines close to children nodes
       var $linesRow = $('<tr>');
       $.each($childNodes, function() {
         var $left = $('<td class="right top">&nbsp;</td>');
