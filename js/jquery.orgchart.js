@@ -208,7 +208,7 @@
   function showDescendants($node) {
     var dtd = $.Deferred();
     // firstly, just show the only one inferior level of the child nodes
-    var $temp = $node.closest('tr').siblings().show();
+    var $temp = $node.closest('tr').siblings().removeClass('hidden');
     dtd.resolve();
     // secondly, display the child nodes with animation
     var isLeaf = $temp.eq(2).children('td').length > 1 ? true : false;
@@ -222,7 +222,7 @@
     });
     // lastly, remember to hide all the inferior nodes of child nodes of current node
     $children.each(function(index, child){
-      $(child).closest('tr').siblings().hide();
+      $(child).closest('tr').siblings().addClass('hidden');
     });
 
     return dtd.promise();
@@ -651,7 +651,6 @@
   // recursively build the tree
   function buildNode (nodeData, $appendTo, level, opts, callback) {
     var $table = $('<table>');
-
     // Construct the node
     var $nodeRow = $('<tr>');
     var $nodeCell = $('<td colspan="2">');
@@ -669,37 +668,20 @@
         console.log('Failed to creat node')
       });
 
-    if ($childNodes && $childNodes.length > 0) {
-      // recurse until leaves found or to the level specified
-      var $childNodesRow;
-      var $downLineRow = $('<tr>');
-      var $downLineCell = $("<td/>").attr("colspan", $childNodes.length * 2);
-      $downLineRow.append($downLineCell);
-
+    if ($childNodes && $childNodes.length) {
+      var isHidden = level + 1 >= opts.depth ? ' class="hidden"' : '';
       // draw the line close to parent node
-      var $downLine = $('<div class="down"></div>');
-      $downLineCell.append($downLine);
-      $table.append($downLineRow);
-      if (level + 1 >= opts.depth) {
-        $downLineRow.hide();
-      }
+      $table.append('<tr' + isHidden + '><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
 
       // draw the lines close to children nodes
-      var $linesRow = $('<tr>');
-      $.each($childNodes, function() {
-        var $left = $('<td class="right top">&nbsp;</td>');
-        var $right = $('<td class="left top">&nbsp;</td>');
-        $linesRow.append($left).append($right);
-      });
-
-      // horizontal line shouldn't extend beyond the first and last child branches
-      $linesRow.find("td:first").removeClass("top").end().find("td:last").removeClass("top");
-      if (level + 1 < opts.depth) {
-        $table.append($linesRow);
-      } else {
-        $table.append($linesRow.hide());
+      var linesRow = '<tr' + isHidden + '><td class="right">&nbsp;</td>';
+      for (var i=1; i<$childNodes.length; i++) {
+        linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
       }
-      $childNodesRow = $('<tr>');
+      linesRow += '<td class="left">&nbsp;</td></tr>';
+      $table.append(linesRow);
+
+      var $childNodesRow = $('<tr>');
       $.each($childNodes, function() {
         var $td = $('<td colspan="2">');
         // recurse through children lists and items
@@ -711,7 +693,7 @@
         if (level + 1 < opts.depth) {
           $childNodesRow.append($td);
         } else {
-          $childNodesRow.append($td).hide();
+          $childNodesRow.append($td).addClass('hidden');
         }
       });
       $table.append($childNodesRow);
