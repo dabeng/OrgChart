@@ -537,7 +537,7 @@
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (data.children.length) {
-                $.when(addChildren($node, data, false, opts))
+                $.when(addChildren($node, data, opts))
                 .done(function() {
                   childrenState.exist = true;
                   endLoadingStatus($that, $node, opts);
@@ -650,23 +650,29 @@
   }
   // recursively build the tree
   function buildHierarchy ($appendTo, nodeData, level, opts, callback) {
-    var $table = $('<table>');
-    $appendTo.append($table);
+    var $table;
     // Construct the node
     var $childNodes = nodeData[opts.nodeChildren];
     var hasChildren = $childNodes ? $childNodes.length : false;
-    $.when(createNode(nodeData, opts))
-    .done(function($nodeDiv) {
-      $table.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
-      if (callback) {
-        callback();
-      }
-    })
-    .fail(function() {
-      console.log('Failed to creat node')
-    });
+    if (Object.keys(nodeData).length > 1) { // if nodeData has nested structure
+      $table = $('<table>');
+      $appendTo.append($table);
+      $.when(createNode(nodeData, opts))
+      .done(function($nodeDiv) {
+        $table.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+        if (callback) {
+          callback();
+        }
+      })
+      .fail(function() {
+        console.log('Failed to creat node')
+      });
+    }
     // Construct the inferior nodes and connectiong lines
     if (hasChildren) {
+      if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
+        $table = $appendTo;
+      }
       var isHidden = level + 1 >= opts.depth ? ' class="hidden"' : '';
       // draw the line close to parent node
       $table.append('<tr' + isHidden + '><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
@@ -690,34 +696,9 @@
 
   // build the child nodes of specific node
   function buildChildNode ($appendTo, nodeData, opts, callback) {
-    var that = this;
-    var $childNodes = nodeData.children || nodeData.siblings;
-    // change the parent node's colspan attribute
-    $appendTo.find('td:first').attr('colspan', $childNodes.length * 2);
-    // draw the connecting line close to parent node
-    $appendTo.append('<tr><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
-    // draw the lines close to children nodes
-    var linesRow = '<tr><td class="right">&nbsp;</td>';
-    for (var i=1; i<$childNodes.length; i++) {
-      linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
-    }
-    linesRow += '<td class="left">&nbsp;</td></tr>';
-    $appendTo.append(linesRow);
-
-    var $childNodesRow = $('<tr>');
-    $appendTo.append($childNodesRow);
-    $.each($childNodes, function() {
-      var $td = $('<td colspan="2">');
-      $.when(createNode(this, opts ? opts : that.data('orgchart').options))
-        .done(function($nodeDiv) {
-          $td.append($nodeDiv.wrap('<table><tr><td></td></tr></table>').closest('table'));
-          $childNodesRow.append($td);
-          callback();
-        })
-        .fail(function() {
-          console.log('Failed to create node');
-        });
-    });
+    var data = nodeData.children || nodeData.siblings;
+    $appendTo.find('td:first').attr('colspan', data.length * 2);
+    buildHierarchy($appendTo, { 'children': data }, 0, opts, callback);
   }
   // exposed method
   function addChildren($node, data, opts) {
