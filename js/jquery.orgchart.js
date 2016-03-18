@@ -32,8 +32,8 @@
     };
 
     switch (options) {
-      case 'buildNode':
-        return buildNode.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'buildHierarchy':
+        return buildHierarchy.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'addChildren':
         return addChildren.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'addParent':
@@ -57,7 +57,7 @@
       }
     });
     if ($.type(data) === 'object') {
-      buildNode(data, $chart, 0, opts);
+      buildHierarchy(data, $chart, 0, opts);
     } else {
       $.ajax({
         'url': data,
@@ -67,7 +67,7 @@
         }
       })
       .done(function(data, textStatus, jqXHR) {
-        buildNode(data, $chart, 0, opts);
+        buildHierarchy(data, $chart, 0, opts);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(errorThrown);
@@ -649,8 +649,9 @@
     return dtd.promise();
   }
   // recursively build the tree
-  function buildNode (nodeData, $appendTo, level, opts, callback) {
+  function buildHierarchy (nodeData, $appendTo, level, opts, callback) {
     var $table = $('<table>');
+    $appendTo.append($table);
     // Construct the node
     var $nodeRow = $('<tr>');
     var $nodeCell = $('<td colspan="2">');
@@ -659,20 +660,21 @@
       $nodeCell.attr("colspan", $childNodes.length * 2);
     }
     $.when(createNode(nodeData, opts))
-      .done(function($nodeDiv) {
-        $nodeCell.append($nodeDiv);
-        $nodeRow.append($nodeCell);
-        $table.append($nodeRow);
-      })
-      .fail(function() {
-        console.log('Failed to creat node')
-      });
-
+    .done(function($nodeDiv) {
+      $nodeCell.append($nodeDiv);
+      $nodeRow.append($nodeCell);
+      $table.append($nodeRow);
+      if (callback) {
+        callback();
+      }
+    })
+    .fail(function() {
+      console.log('Failed to creat node')
+    });
     if ($childNodes && $childNodes.length) {
       var isHidden = level + 1 >= opts.depth ? ' class="hidden"' : '';
       // draw the line close to parent node
       $table.append('<tr' + isHidden + '><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
-
       // draw the lines close to children nodes
       var linesRow = '<tr' + isHidden + '><td class="right">&nbsp;</td>';
       for (var i=1; i<$childNodes.length; i++) {
@@ -682,30 +684,18 @@
       $table.append(linesRow);
 
       var $childNodesRow = $('<tr>');
+      $table.append($childNodesRow);
       $.each($childNodes, function() {
         var $td = $('<td colspan="2">');
-        // recurse through children lists and items
-        if (callback) {
-          buildNode(this, $td, level + 1, opts, callback);
-        } else {
-          buildNode(this, $td, level + 1, opts);
-        }
+        // recurse through children nodes
+        buildHierarchy(this, $td, level + 1, opts, callback);
         if (level + 1 < opts.depth) {
           $childNodesRow.append($td);
         } else {
           $childNodesRow.append($td).addClass('hidden');
         }
       });
-      $table.append($childNodesRow);
     }
-
-    $appendTo.append($table);
-
-    // fire up callback every time of building up a node
-    if (callback) {
-      callback();
-    }
-
   }
 
   // build the child nodes of specific node
@@ -840,7 +830,7 @@
       });
     } else { // build the sibling nodes and parent node for the specific ndoe
       var nodeCount = 0;
-      buildNode(nodeData, $nodeChart.closest('div.orgchart'), 0, opts,
+      buildHierarchy(nodeData, $nodeChart.closest('div.orgchart'), 0, opts,
         function() {
           if (++nodeCount === siblingCount) {
             complementLine($nodeChart.next().children().children('tr:last')
