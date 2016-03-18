@@ -149,7 +149,7 @@
       $parent.animate({'opacity': 0, 'top': +nodeOffset}, 300, function() {
         $parent.removeAttr('style');
         $links.removeAttr('style');
-        $temp.hide();
+        $temp.addClass('hidden');
         if ($parent.closest('table').parent().is('.orgchart') || !grandfatherVisible) {
           dtd.resolve();
         }
@@ -167,10 +167,10 @@
   function showAncestorsSiblings($node) {
     var dtd = $.Deferred();
     // just show only one superior level
-    var $temp = $node.closest('table').closest('tr').siblings().show();
+    var $temp = $node.closest('table').closest('tr').siblings().removeClass('hidden');
 
     // just show only one link
-    $temp.eq(2).children().slice(1, $temp.eq(2).children().length - 1).hide();
+    $temp.eq(2).children().slice(1, $temp.eq(2).children().length - 1).addClass('hidden');
     dtd.resolve();
     // show the the only parent node with animation
     $temp.eq(0).find('div.node')
@@ -197,7 +197,7 @@
     )
     .done(function() {
       $links.removeAttr('style');
-      $node.closest('tr').siblings().hide();
+      $node.closest('tr').siblings().addClass('hidden');
       dtd.resolve();
     });
 
@@ -235,7 +235,7 @@
           .animate({'opacity': 0, 'left': offset}, 300)
       )
       .done(function() {
-        $siblings.hide();
+        $siblings.addClass('hidden');
         if (justSiblings) {
           $siblings.closest('.orgchart').css('opacity', 0);// hack for firefox
         }
@@ -260,7 +260,7 @@
     var $upperLink = $nodeContainer.parent().prev().prev();
     $upperLink.css('visibility', 'hidden')
     var $temp = $nodeContainer.parent().prev().children();
-    $temp.slice(1, $temp.length -1).hide();
+    $temp.slice(1, $temp.length -1).addClass('hidden');
     $temp.eq(0).css('visibility', 'hidden');
     $temp.eq($temp.length - 1).css('visibility', 'hidden');
     // secondly, hide the sibling nodes with animation simultaneously
@@ -274,18 +274,18 @@
   function showSiblings($node) {
     var dtd = $.Deferred();
     // firstly, show the sibling td tags
-    var $siblings = $node.closest('table').parent().siblings().show();
+    var $siblings = $node.closest('table').parent().siblings().removeClass('hidden');
     // secondly, show the links
     var $parent = $node.closest('table').closest('tr').siblings();
     var $lowerLinks = $parent.eq(2).children();
-    $lowerLinks.slice(1, $lowerLinks.length -1).show();
+    $lowerLinks.slice(1, $lowerLinks.length -1).removeClass('hidden');
     // thirdly, do some cleaning stuff
     if ($node.children('.topEdge').data('parentState').visible) {
       $siblings.each(function(index, sibling){
-        $(sibling).find('div.node').closest('tr').siblings().hide();
+        $(sibling).find('div.node').closest('tr').siblings().addClass('hidden');
       });
     } else {
-      $parent.show();
+      $parent.removeClass('hidden');
     }
     dtd.resolve();
     // lastly, show the sibling nodes with animation
@@ -301,7 +301,7 @@
       return false;
     }
 
-    $arrow.hide();
+    $arrow.addClass('hidden');
     $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
     $node.children().not('.spinner').css('opacity', 0.2);
     $chart.data('inAjax', true);
@@ -312,7 +312,7 @@
   // terminate loading status for requesting new nodes
   function endLoadingStatus($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
-    $arrow.show();
+    $arrow.removeClass('hidden');
     $node.find('.spinner').remove();
     $node.children().removeAttr('style');
     $chart.data('inAjax', false);
@@ -820,7 +820,7 @@
     if ($nodeChart.parent().is('td')) {
       var $parent = $nodeChart.closest('tr').prevAll('tr:last');
       if ($parent.is(':hidden')) {
-        $parent.show();
+        $parent.removeClass('hidden');
       }
       $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
