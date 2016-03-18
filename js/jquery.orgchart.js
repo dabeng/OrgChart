@@ -847,16 +847,18 @@
   function addSiblings($node, data, opts) {
     $.when(buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts))
 　　  .done(function(){
+      if (!$node.children('.leftEdge').length) {
         $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i>')
           .siblings('.bottomEdge').after('<i class="edge horizontalEdge leftEdge fa"></i>');
-        $node.children('.rightEdge, .leftEdge').data('siblingsState',{ 'exist': true, 'visible': true });
-        if (isInAction($node)) {
-          collapseArrow($node);
-        }
-      })
+      }
+      $node.children('.rightEdge, .leftEdge').data('siblingsState',{ 'exist': true, 'visible': true });
+      if (isInAction($node)) {
+        collapseArrow($node);
+      }
+    })
 　　  .fail(function(){
-        console.log('failed to adjust the position of org-chart!');
-      });
+      console.log('failed to adjust the position of org-chart!');
+    });
   }
 
 })(jQuery);
