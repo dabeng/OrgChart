@@ -402,9 +402,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var parentState = getNodeState($node, 'parent');
-      if ($node.children('.spinner').length) {
-        return false;
-      }
       if (parentState.exist) {
         if ($node.closest('table').closest('tr').siblings(':first').find('.node').is(':animated')) {
           return ;
@@ -461,9 +458,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = getNodeState($node, 'children');
-      if ($node.children('.spinner').length) {
-        return false;
-      }
       if (childrenState.exist) {
         if ($node.closest('tr').siblings(':last').find('div.node').is(':animated')) {
           return ;
@@ -521,9 +515,6 @@
       var $that = $(this);
       var $node = $that.parent();
       var siblingsState = getNodeState($node, 'siblings');
-      if ($node.children('.spinner').length) {
-        return false;
-      }
       if (siblingsState.exist) {
         if ($node.closest('table').parent().siblings().find('div.node').is(':animated')) {
           return ;
