@@ -320,16 +320,16 @@
     return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
   }
 
-  function switchUpDownArrow($arrow) {
+  function switchVerticalArrow($arrow) {
     $arrow.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
   }
 
   function collapseArrow($node) {
-    switchLeftRightArrow($node, false);
+    switchHorizontalArrow($node, false);
     $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
   }
 
-  function switchLeftRightArrow($node, isExpand) {
+  function switchHorizontalArrow($node, isExpand) {
     $node.children('.leftEdge').toggleClass('fa-chevron-right', !isExpand).toggleClass('fa-chevron-left', isExpand);
     $node.children('.rightEdge').toggleClass('fa-chevron-left', !isExpand).toggleClass('fa-chevron-right', isExpand);
   }
@@ -372,7 +372,7 @@
           $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
         }
         if ($leftEdge.length) {
-          switchLeftRightArrow($node, !getNodeState($node, 'siblings').visible);
+          switchHorizontalArrow($node, !getNodeState($node, 'siblings').visible);
         }
       } else {
         $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
@@ -400,8 +400,8 @@
           $.when(hideAncestorsSiblings($node, dtd))
 　　        .done(function(){
               if (isInAction($node)) {
-                switchUpDownArrow($that);
-                switchLeftRightArrow($node, true);
+                switchVerticalArrow($that);
+                switchHorizontalArrow($node, true);
               }
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
@@ -409,7 +409,7 @@
         else {
           $.when(showAncestorsSiblings($node))
 　　        .done(function(){
-              switchUpDownArrow($that);
+              switchVerticalArrow($that);
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
         }
@@ -452,7 +452,7 @@
           $.when(hideDescendants($node))
 　　        .done(function(){
               if (isInAction($node)) {
-                switchUpDownArrow($that);
+                switchVerticalArrow($that);
               }
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
@@ -460,7 +460,7 @@
         else {
           $.when(showDescendants($node))
 　　        .done(function(){
-              switchUpDownArrow($that);
+              switchVerticalArrow($that);
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
         }
@@ -502,7 +502,7 @@
               setTimeout(function() {
                 $node.closest('.orgchart').css('opacity', '');// hack for firefox
                 if (isInAction($node)) {
-                  switchLeftRightArrow($node, true);
+                  switchHorizontalArrow($node, true);
                 }
               }, 0);
             })
@@ -611,22 +611,14 @@
   }
   // exposed method
   function addChildren($node, data, opts) {
-    var dtd = $.Deferred();
     var count = 0;
-    $.when(buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
-        if (++count === data.children.length + 1) {
-          dtd.resolve();
-        }
-      }))
-　　  .done(function(){
+    buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
+      if (++count === data.children.length) {
         if (isInAction($node)) {
-          switchUpDownArrow($node.children('.bottomEdge'));
+          switchVerticalArrow($node.children('.bottomEdge'));
         }
-      })
-　　  .fail(function(){
-        console.log('failed to add children nodes');
-      });
-    return dtd.promise();
+      }
+    });
   }
 
   // build the parent node of specific node
@@ -660,7 +652,7 @@
       }
       $node.children('.topEdge').data('parentState', { 'exist': true, 'visible': true });
       if (isInAction($node)) {
-        switchUpDownArrow($node.children('.topEdge'));
+        switchVerticalArrow($node.children('.topEdge'));
       }
     });
   }
@@ -671,15 +663,12 @@
     for (var i = 0; i < existingSibligCount; i++) {
       lines += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
     }
-    $oneSibling.parent().prevAll('tr:gt(0)').children()
-      .attr('colspan', siblingCount * 2)
-      .end().next().children(':first')
-      .after($(lines));
+    $oneSibling.parent().prevAll('tr:gt(0)').children().attr('colspan', siblingCount * 2)
+      .end().next().children(':first').after(lines);
   }
 
   // build the sibling nodes of specific node
-  function buildSiblingNode($nodeChart, nodeData, opts) {
-    var dtd = $.Deferred();
+  function buildSiblingNode($nodeChart, nodeData, opts, callback) {
     var opts = opts || this.data('orgchart').options;
     var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var existingSibligCount = $nodeChart.parent().is('td') ? $nodeChart.closest('tr').children().length : 1;
@@ -702,8 +691,7 @@
             complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td')
             .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
           }
-
-          dtd.resolve();
+          callback();
         }
       });
     } else { // build the sibling nodes and parent node for the specific ndoe
@@ -714,27 +702,22 @@
             complementLine($nodeChart.next().children().children('tr:last')
               .children().eq(insertPostion).after($('<td colspan="2">')
               .append($nodeChart)), siblingCount, 1);
-            dtd.resolve();
+
+            callback();
         }
       });
     }
-    return dtd.promise();
   }
 
   function addSiblings($node, data, opts) {
-    $.when(buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts))
-　　.done(function(){
+    buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
       if (!$node.children('.leftEdge').length) {
         $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i>')
           .siblings('.bottomEdge').after('<i class="edge horizontalEdge leftEdge fa"></i>');
       }
-      $node.children('.rightEdge, .leftEdge').data('siblingsState',{ 'exist': true, 'visible': true });
       if (isInAction($node)) {
         collapseArrow($node);
       }
-    })
-　　.fail(function(){
-      console.log('failed to adjust the position of org-chart!');
     });
   }
 
