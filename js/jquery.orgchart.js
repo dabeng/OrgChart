@@ -61,7 +61,6 @@
     } else {
       $.ajax({
         'url': data,
-        'dataType': 'json',
         'beforeSend': function () {
           $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
         }
@@ -292,7 +291,7 @@
   }
 
   // start up loading status for requesting new nodes
-  function startLoadingStatus($arrow, $node, options) {
+  function startLoading($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
     if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
       return false;
@@ -307,7 +306,7 @@
   }
 
   // terminate loading status for requesting new nodes
-  function endLoadingStatus($arrow, $node, options) {
+  function endLoading($arrow, $node, options) {
     var $chart = $node.closest('div.orgchart');
     $arrow.removeClass('hidden');
     $node.find('.spinner').remove();
@@ -418,12 +417,9 @@
         // load the new parent node of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         // start up loading status
-        if (startLoadingStatus($that, $node, opts)) {
+        if (startLoading($that, $node, opts)) {
         // load new nodes
-          $.ajax({
-            "url": opts.ajaxURL.parent + nodeId + "/",
-            "dataType": "json"
-          })
+          $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
@@ -436,7 +432,7 @@
           })
           .always(function() {
             // terminate the loading status
-            endLoadingStatus($that, $node, opts);
+            endLoading($that, $node, opts);
           });
         }
       }
@@ -471,21 +467,12 @@
       } else {
         // load the new children nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
-        if (startLoadingStatus($that, $node, opts)) {
-          $.ajax({
-            "url": opts.ajaxURL.children + nodeId + "/",
-            "dataType": "json"
-          })
+        if (startLoading($that, $node, opts)) {
+          $.ajax({ 'url': opts.ajaxURL.children + nodeId + '/' })
           .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('div.orgchart').data('inAjax')) {
+            if ($node.closest('.orgchart').data('inAjax')) {
               if (data.children.length) {
-                $.when(addChildren($node, data, opts))
-                .done(function() {
-                  endLoadingStatus($that, $node, opts);
-                })
-                .fail(function() {
-                  console.log('Failed to add children nodes');
-                });
+                addChildren($node, data, opts);
               }
             }
           })
@@ -493,7 +480,7 @@
             console.log('Failed to get children nodes data');
           })
           .always(function() {
-            endLoadingStatus($that, $node, opts);
+            endLoading($that, $node, opts);
           });
         }
       }
@@ -532,11 +519,8 @@
         // load the new sibling nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         var url = (getNodeState($node, 'parent').exist) ? opts.ajaxURL.siblings : opts.ajaxURL.families;
-        if (startLoadingStatus($that, $node, opts)) {
-          $.ajax({
-            "url": url + nodeId + "/",
-            "dataType": "json"
-          })
+        if (startLoading($that, $node, opts)) {
+          $.ajax({ 'url': url + nodeId + '/' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.siblings || data.children) {
@@ -548,7 +532,7 @@
             console.log('Failed to get sibling nodes data');
           })
           .always(function() {
-            endLoadingStatus($that, $node, opts);
+            endLoading($that, $node, opts);
           });
         }
       }
@@ -632,11 +616,9 @@
     $.when(buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
         if (++count === data.children.length + 1) {
           dtd.resolve();
-          return dtd.promise();
         }
       }))
 　　  .done(function(){
-        $node.children('.bottomEdge').data('childrenState', { 'exist': true, 'visible': true });
         if (isInAction($node)) {
           switchUpDownArrow($node.children('.bottomEdge'));
         }
@@ -644,6 +626,7 @@
 　　  .fail(function(){
         console.log('failed to add children nodes');
       });
+    return dtd.promise();
   }
 
   // build the parent node of specific node
@@ -721,7 +704,6 @@
           }
 
           dtd.resolve();
-          return dtd.promise();
         }
       });
     } else { // build the sibling nodes and parent node for the specific ndoe
@@ -733,15 +715,15 @@
               .children().eq(insertPostion).after($('<td colspan="2">')
               .append($nodeChart)), siblingCount, 1);
             dtd.resolve();
-            return dtd.promise();
         }
       });
     }
+    return dtd.promise();
   }
 
   function addSiblings($node, data, opts) {
     $.when(buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts))
-　　  .done(function(){
+　　.done(function(){
       if (!$node.children('.leftEdge').length) {
         $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i>')
           .siblings('.bottomEdge').after('<i class="edge horizontalEdge leftEdge fa"></i>');
@@ -751,7 +733,7 @@
         collapseArrow($node);
       }
     })
-　　  .fail(function(){
+　　.fail(function(){
       console.log('failed to adjust the position of org-chart!');
     });
   }
