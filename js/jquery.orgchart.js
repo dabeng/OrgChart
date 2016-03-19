@@ -331,13 +331,8 @@
   }
 
   function switchLeftRightArrow($node, isExpand) {
-    if (isExpand) {
-      $node.children('.leftEdge').removeClass('fa-chevron-right').addClass('fa-chevron-left');
-      $node.children('.rightEdge').removeClass('fa-chevron-left').addClass('fa-chevron-right');
-    } else {
-      $node.children('.leftEdge').removeClass('fa-chevron-left').addClass('fa-chevron-right');
-      $node.children('.rightEdge').removeClass('fa-chevron-right').addClass('fa-chevron-left');
-    }
+    $node.children('.leftEdge').toggleClass('fa-chevron-right', !isExpand).toggleClass('fa-chevron-left', isExpand);
+    $node.children('.rightEdge').toggleClass('fa-chevron-left', !isExpand).toggleClass('fa-chevron-right', isExpand);
   }
 
   // create node
@@ -363,25 +358,19 @@
     }
 
     $nodeDiv.on('mouseenter mouseleave', function(event) {
-      var $node = $(this);
+      var $node = $(this), flag = false;
       var $topEdge = $node.children('.topEdge');
       var $rightEdge = $node.children('.rightEdge');
       var $bottomEdge = $node.children('.bottomEdge');
       var $leftEdge = $node.children('.leftEdge');
       if (event.type === 'mouseenter') {
         if ($topEdge.length) {
-          if (getNodeState($node, 'parent').visible) {
-            $topEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-          } else {
-            $topEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-          }
+          flag = getNodeState($node, 'parent').visible;
+          $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
         }
         if ($bottomEdge.length) {
-          if (getNodeState($node, 'children').visible) {
-            $bottomEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
-          } else {
-            $bottomEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
-          }
+          flag = getNodeState($node, 'children').visible;
+          $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
         }
         if ($leftEdge.length) {
           switchLeftRightArrow($node, !getNodeState($node, 'siblings').visible);
