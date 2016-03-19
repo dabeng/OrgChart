@@ -22,12 +22,12 @@
 
   $.fn.orgchart = function(options) {
     var defaultOptions = {
-      nodeRelationship: 'relationship',
-      nodeChildren: 'children',
-      depth: 999,
-      chartClass: '',
-      exportButton: false,
-      exportFilename: 'OrgChart',
+      'nodeRelationship': 'relationship',
+      'nodeChildren': 'children',
+      'depth': 999,
+      'chartClass': '',
+      'exportButton': false,
+      'exportFilename': 'OrgChart',
       'parentNodeSymbol': 'fa-users'
     };
 
@@ -384,15 +384,10 @@
           }
         }
         if ($leftEdge.length) {
-          if (getNodeState($node, 'siblings').visible) {
-            switchLeftRightArrow($node, false);
-          } else {
-            switchLeftRightArrow($node, true);
-          }
+          switchLeftRightArrow($node, !getNodeState($node, 'siblings').visible);
         }
       } else {
-        $topEdge.add($bottomEdge).removeClass('fa-chevron-up fa-chevron-down');
-        $rightEdge.add($leftEdge).removeClass('fa-chevron-right fa-chevron-left');
+        $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
       }
     });
 
@@ -411,7 +406,7 @@
         return false;
       }
       if (parentState.exist) {
-        if ($node.closest('table').closest('tr').siblings(':first').find('div.node').is(':animated')) {
+        if ($node.closest('table').closest('tr').siblings(':first').find('.node').is(':animated')) {
           return ;
         }
         // hide the ancestor nodes and sibling nodes of the specified node
@@ -591,7 +586,6 @@
         $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
       }
     });
-
     // allow user to append dom modification after finishing node create of orgchart 
     if (opts.createNode) {
       opts.createNode($nodeDiv, nodeData);
@@ -763,7 +757,6 @@
         }
       });
     }
-
   }
 
   function addSiblings($node, data, opts) {
