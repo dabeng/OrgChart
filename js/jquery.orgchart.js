@@ -48,7 +48,7 @@
     // build the org-chart
     var $chartContainer = this;
     var data = opts.data;
-    var $chart = $('<div>',{
+    var $chart = $('<div>', {
       'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
       'click': function(event) {
         if (!$(event.target).closest('.node').length) {
@@ -84,7 +84,7 @@
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
         'click': function() {
-          if ($(this).children('.spinner').length > 0) {
+          if ($(this).children('.spinner').length) {
             return false;
           }
           var $mask = $chartContainer.find('.mask');
@@ -226,7 +226,7 @@
   }
 
   function attachAnimationToSiblings(justSiblings, $siblings, offset, dtd) {
-    if ($siblings.length > 0) {
+    if ($siblings.length) {
       $.when(
         $siblings.find('div.node')
           .animate({'opacity': 0, 'left': offset}, 300)
@@ -277,7 +277,7 @@
     var $lowerLinks = $parent.eq(2).children();
     $lowerLinks.slice(1, $lowerLinks.length -1).removeClass('hidden');
     // thirdly, do some cleaning stuff
-    if ($node.children('.topEdge').data('parentState').visible) {
+    if (getNodeState($node, 'parent').visible) {
       $siblings.each(function(index, sibling){
         $(sibling).find('div.node').closest('tr').siblings().addClass('hidden');
       });
@@ -328,7 +328,6 @@
   function collapseArrow($node) {
     switchLeftRightArrow($node, false);
     $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-    $node.children('.topEdge').data('parentState').visible = true;
   }
 
   function switchLeftRightArrow($node, isExpand) {
@@ -359,49 +358,33 @@
         '<i class="edge horizontalEdge leftEdge fa"></i>');
     }
     if(Number(flags.substr(2,1))) {
-      $nodeDiv.find('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>')
-      $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>');
+      $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+        .children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
     }
 
-    // define hover event handler
     $nodeDiv.on('mouseenter mouseleave', function(event) {
       var $node = $(this);
-      var $edge = $node.children('.edge');
       var $topEdge = $node.children('.topEdge');
       var $rightEdge = $node.children('.rightEdge');
       var $bottomEdge = $node.children('.bottomEdge');
       var $leftEdge = $node.children('.leftEdge');
-      var temp;
       if (event.type === 'mouseenter') {
         if ($topEdge.length) {
-          temp = getNodeState($node, 'parent');
-          if (!$.isEmptyObject(temp)) {
-            $topEdge.data('parentState', temp);
-          }
-          if ($topEdge.data('parentState').visible) {
+          if (getNodeState($node, 'parent').visible) {
             $topEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
           } else {
             $topEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
           }
         }
         if ($bottomEdge.length) {
-          temp = getNodeState($node, 'children');
-          if (!$.isEmptyObject(temp)) {
-            $bottomEdge.data('childrenState', temp);
-          }
-          if($bottomEdge.data('childrenState').visible) {
+          if (getNodeState($node, 'children').visible) {
             $bottomEdge.removeClass('fa-chevron-down').addClass('fa-chevron-up');
           } else {
             $bottomEdge.removeClass('fa-chevron-up').addClass('fa-chevron-down');
           }
         }
         if ($leftEdge.length) {
-          temp = getNodeState($node, 'siblings');
-          if (!$.isEmptyObject(temp)) {
-            $rightEdge.data('siblingsState', temp);
-            $leftEdge.data('siblingsState', temp);
-          }
-          if($leftEdge.data('siblingsState').visible) {
+          if (getNodeState($node, 'siblings').visible) {
             switchLeftRightArrow($node, false);
           } else {
             switchLeftRightArrow($node, true);
@@ -415,16 +398,15 @@
 
     // define click event handler
     $nodeDiv.on('click', function(event) {
-      var $node = $(this);
-      $node.closest('.orgchart').find('.focused').removeClass('focused');
-      $node.addClass('focused');
+      $(this).closest('.orgchart').find('.focused').removeClass('focused');
+      $(this).addClass('focused');
     });
 
     // define click event handler for the top edge
     $nodeDiv.on('click', '.topEdge', function(event) {
       var $that = $(this);
       var $node = $that.parent();
-      var parentState = $that.data('parentState');
+      var parentState = getNodeState($node, 'parent');
       if ($node.children('.spinner').length) {
         return false;
       }
@@ -437,11 +419,6 @@
           var dtd = $.Deferred();
           $.when(hideAncestorsSiblings($node, dtd))
 　　        .done(function(){
-              parentState.visible = false;
-              if ($node.children('.leftEdge').length) {
-                $node.children('.leftEdge').data('siblingsState').visible = false;
-                $node.children('.rightEdge').data('siblingsState').visible = false;
-              }
               if (isInAction($node)) {
                 switchUpDownArrow($that);
                 switchLeftRightArrow($node, true);
@@ -452,7 +429,6 @@
         else {
           $.when(showAncestorsSiblings($node))
 　　        .done(function(){
-              parentState.visible = true;
               switchUpDownArrow($that);
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
@@ -472,12 +448,10 @@
               if (!$.isEmptyObject(data)) {
                 addParent($node, data, opts);
               }
-              parentState.exist = true;
             }
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
             console.log('Failed to get parent node data');
-            parentState.exist = true;
           })
           .always(function() {
             // terminate the loading status
@@ -491,7 +465,7 @@
     $nodeDiv.children('.bottomEdge').on('click', function(event) {
       var $that = $(this);
       var $node = $that.parent();
-      var childrenState = $that.data('childrenState');
+      var childrenState = getNodeState($node, 'children');
       if ($node.children('.spinner').length) {
         return false;
       }
@@ -503,7 +477,6 @@
         if (childrenState.visible) {
           $.when(hideDescendants($node))
 　　        .done(function(){
-              childrenState.visible = false;
               if (isInAction($node)) {
                 switchUpDownArrow($that);
               }
@@ -513,7 +486,6 @@
         else {
           $.when(showDescendants($node))
 　　        .done(function(){
-              childrenState.visible = true;
               switchUpDownArrow($that);
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
@@ -531,7 +503,6 @@
               if (data.children.length) {
                 $.when(addChildren($node, data, opts))
                 .done(function() {
-                  childrenState.exist = true;
                   endLoadingStatus($that, $node, opts);
                 })
                 .fail(function() {
@@ -542,7 +513,6 @@
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
             console.log('Failed to get children nodes data');
-            childrenState.exist = true;
           })
           .always(function() {
             endLoadingStatus($that, $node, opts);
@@ -555,7 +525,7 @@
     $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
       var $that = $(this);
       var $node = $that.parent();
-      var siblingsState = $that.data('siblingsState');
+      var siblingsState = getNodeState($node, 'siblings');
       if ($node.children('.spinner').length) {
         return false;
       }
@@ -569,7 +539,6 @@
 　　        .done(function(){
               setTimeout(function() {
                 $node.closest('.orgchart').css('opacity', '');// hack for firefox
-                siblingsState.visible = false;
                 if (isInAction($node)) {
                   switchLeftRightArrow($node, true);
                 }
@@ -580,7 +549,6 @@
         else {
           $.when(showSiblings($node))
 　　        .done(function(){
-              siblingsState.visible = true;
               collapseArrow($node);
             })
 　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
@@ -588,30 +556,21 @@
       } else {
         // load the new sibling nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
-        var withParent = !$that.siblings('.topEdge').data('parentState').exist;
-        var url = (withParent) ? opts.ajaxURL.families : opts.ajaxURL.siblings;
+        var url = (getNodeState($node, 'parent').exist) ? opts.ajaxURL.siblings : opts.ajaxURL.families;
         if (startLoadingStatus($that, $node, opts)) {
           $.ajax({
             "url": url + nodeId + "/",
             "dataType": "json"
           })
           .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('div.orgchart').data('inAjax')) {
+            if ($node.closest('.orgchart').data('inAjax')) {
               if (data.siblings || data.children) {
                 addSiblings($node, data, opts);
-              }
-              $node.children('.topEdge').data('parentState').exist = true;
-              siblingsState.exist = true;
-              if ($that.is('.leftEdge')) {
-                $that.siblings('.rightEdge').data('siblingsState', {'exist': true, 'visible': true});
-              } else {
-                $that.siblings('.leftEdge').data('siblingsState', {'exist': true, 'visible': true});
               }
             }
           })
           .fail(function(jqXHR, textStatus, errorThrown) {
             console.log('Failed to get sibling nodes data');
-            siblingsState.exist = true;
           })
           .always(function() {
             endLoadingStatus($that, $node, opts);
