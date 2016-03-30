@@ -112,7 +112,7 @@
   function getNodeState($node, relation) {
     var $target = {};
     if (relation === 'parent') {
-      $target = $node.closest('table').parent().closest('tr').siblings();
+      $target = $node.closest('table').closest('tr').siblings(':first').find('.node');
     } else if (relation === 'children') {
       $target = $node.closest('tr').siblings();
     } else {
@@ -128,171 +128,133 @@
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
-  function hideAncestorsSiblings($node, dtd) {
+  function hideAncestorsSiblings($node) {
     var $temp = $node.closest('table').closest('tr').siblings();
     if ($temp.eq(0).find('.spinner').length) {
       $node.closest('.orgchart').data('inAjax', false);
     }
     // hide the sibling nodes
     if (getNodeState($node, 'siblings').visible) {
-      hideSiblings($node, false);
+      hideSiblings($node);
     }
     // hide the lines
     var $lines = $temp.slice(1);
     $lines.css('visibility', 'hidden');
-    // hide the superior nodes with animation
-    var nodeOffset = $lines.eq(0).outerHeight() + $lines.eq(1).outerHeight();
+    // hide the superior nodes with transition
     var $parent = $temp.eq(0).find('.node');
     var grandfatherVisible = getNodeState($parent, 'parent').visible;
     if ($parent.length && $parent.is(':visible')) {
-      $parent.animate({ 'opacity': 0, 'top': +nodeOffset }, 300, function() {
-        $parent.removeAttr('style');
+      $parent.addClass('slide slide-down').one('transitionend', function() {
+        $parent.removeClass('slide');
         $lines.removeAttr('style');
         $temp.addClass('hidden');
-        if ($parent.closest('table').parent().is('.orgchart') || !grandfatherVisible) {
-          dtd.resolve();
-        }
       });
     }
     // if the current node has the parent node, hide it recursively
     if ($parent.length && grandfatherVisible) {
-      hideAncestorsSiblings($parent, dtd);
+      hideAncestorsSiblings($parent);
     }
-
-    return dtd.promise();
   }
 
   // show the parent node of the specified node
-  function showAncestorsSiblings($node) {
-    var dtd = $.Deferred();
+  function showParent($node) {
     // just show only one superior level
     var $temp = $node.closest('table').closest('tr').siblings().removeClass('hidden');
-    // just show only one link
-    $temp.eq(2).children().slice(1, $temp.eq(2).children().length - 1).addClass('hidden');
-    dtd.resolve();
-    // show the the only parent node with animation
-    $temp.eq(0).find('div.node').animate({'opacity': 1, 'top': 0}, 300, function() {
-      $(this).removeAttr('style');
+    // just show only one line
+    $temp.eq(2).children().slice(1, -1).addClass('hidden');
+    // show parent node with animation
+    var parent = $temp.eq(0).find('.node')[0];
+    repaint(parent);
+    $(parent).addClass('slide').removeClass('slide-down').one('transitionend', function() {
+      $(parent).removeClass('slide');
+      if (isInAction($node)) {
+        switchVerticalArrow($node.children('.topEdge'));
+      }
     });
-
-    return dtd.promise();
   }
 
   // recursively hide the descendant nodes of the specified node
   function hideDescendants($node) {
-    var dtd = $.Deferred();
-    if ($node.closest('tr').siblings(':last').find('.spinner').length) {
-      $node.closest('div.orgchart').data('inAjax', false);
+    var $temp = $node.closest('tr').siblings();
+    if ($temp.last().find('.spinner').length) {
+      $node.closest('.orgchart').data('inAjax', false);
     }
-    var $links = $node.closest('tr').siblings(':lt(2)');
-    $links.css('visibility', 'hidden');
-    var nodeOffset = $links.eq(0).outerHeight() + $links.eq(1).outerHeight();
-    $.when(
-      $node.closest('tr').siblings(':last').find('div.node')
-      .animate({'opacity': 0, 'top': -nodeOffset}, 300)
-    )
-    .done(function() {
-      $links.removeAttr('style');
-      $node.closest('tr').siblings().addClass('hidden');
-      dtd.resolve();
+    var $visibleNodes = $temp.last().find('.node:visible');
+    var $lines = $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
+    $visibleNodes.addClass('slide slide-up').eq(0).one('transitionend', function() {
+      $visibleNodes.removeClass('slide');
+      $lines.removeAttr('style').addClass('hidden').siblings('.nodes').addClass('hidden');
+      if (isInAction($node)) {
+        switchVerticalArrow($node.children('.bottomEdge'));
+      }
     });
-
-    return dtd.promise();
   }
 
   // show the children nodes of the specified node
   function showDescendants($node) {
-    var dtd = $.Deferred();
-    // firstly, just show the only one inferior level of the child nodes
-    var $temp = $node.closest('tr').siblings().removeClass('hidden');
-    dtd.resolve();
-    // secondly, display the child nodes with animation
-    var isLeaf = $temp.eq(2).children('td').length > 1 ? true : false;
-    var $children = isLeaf ? $temp.eq(2).find('div.node') :
-      $temp.eq(2).find('tr:first').find('div.node');
-    $.when(
-       $children.animate({'opacity': 1, 'top': 0}, 300)
-     )
-    .done(function() {
-      $children.removeAttr('style');
+    var $descendants = $node.closest('tr').siblings().removeClass('hidden')
+      .eq(2).children().find('tr:first').find('.node:visible');
+    // the two following statements are used to enforce browser to repaint
+    repaint($descendants.get(0));
+    $descendants.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
+      $descendants.removeClass('slide');
+      if (isInAction($node)) {
+        switchVerticalArrow($node.children('.bottomEdge'));
+      }
     });
-    // lastly, remember to hide all the inferior nodes of child nodes of current node
-    $children.each(function(index, child){
-      $(child).closest('tr').siblings().addClass('hidden');
-    });
-
-    return dtd.promise();
-  }
-
-  function attachAnimationToSiblings(justSiblings, $siblings, offset, dtd) {
-    if ($siblings.length) {
-      $.when(
-        $siblings.find('div.node')
-          .animate({'opacity': 0, 'left': offset}, 300)
-      )
-      .done(function() {
-        $siblings.addClass('hidden');
-        if (justSiblings) {
-          $siblings.closest('.orgchart').css('opacity', 0);// hack for firefox
-        }
-        $siblings.parent().prev().prev().removeAttr('style');
-        var $temp = $siblings.parent().prev().children();
-        $temp.eq(0).removeAttr('style');
-        $temp.eq($temp.length - 1).removeAttr('style');
-        dtd.resolve();
-      });
-    }
   }
 
   // hide the sibling nodes of the specified node
-  function hideSiblings($node, justSiblings) {
-    var dtd = $.Deferred();
+  function hideSiblings($node) {
     var $nodeContainer = $node.closest('table').parent();
     if ($nodeContainer.siblings().find('.spinner').length) {
-      $node.closest('div.orgchart').data('inAjax', false);
+      $node.closest('.orgchart').data('inAjax', false);
     }
-    var nodeOffset = $node.outerWidth();
-    // firstly, hide the links but take up space
-    var $upperLink = $nodeContainer.parent().prev().prev();
-    $upperLink.css('visibility', 'hidden')
-    var $temp = $nodeContainer.parent().prev().children();
-    $temp.slice(1, $temp.length -1).addClass('hidden');
-    $temp.eq(0).css('visibility', 'hidden');
-    $temp.eq($temp.length - 1).css('visibility', 'hidden');
-    // secondly, hide the sibling nodes with animation simultaneously
-    attachAnimationToSiblings(justSiblings, $nodeContainer.prevAll(), +nodeOffset, dtd);
-    attachAnimationToSiblings(justSiblings, $nodeContainer.nextAll(), -nodeOffset, dtd);
-
-    return dtd.promise();
+    $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
+    $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+    var $animatedNodes = $nodeContainer.siblings().find('.slide');
+    var $lines = $animatedNodes.closest('.nodes').prevAll('.lines').css('visibility', 'hidden');
+    $animatedNodes.eq(0).one('transitionend', function() {
+      $lines.removeAttr('style');
+      $nodeContainer.closest('.nodes').prev().children().slice(1, -1).addClass('hidden');
+      $animatedNodes.removeClass('slide');
+      $nodeContainer.siblings().find('.node:visible:gt(0)').removeClass('slide-left slide-right').addClass('slide-up');
+      $nodeContainer.siblings().find('.lines, .nodes').addClass('hidden');
+      $nodeContainer.siblings().addClass('hidden');
+      if (isInAction($node)) {
+        switchHorizontalArrow($node, true);
+      }
+    });
   }
 
   // show the sibling nodes of the specified node
   function showSiblings($node) {
-    var dtd = $.Deferred();
     // firstly, show the sibling td tags
     var $siblings = $node.closest('table').parent().siblings().removeClass('hidden');
-    // secondly, show the links
-    var $parent = $node.closest('table').closest('tr').siblings();
-    var $lowerLinks = $parent.eq(2).children();
-    $lowerLinks.slice(1, $lowerLinks.length -1).removeClass('hidden');
+    // secondly, show the lines
+    var $upperLevel = $node.closest('table').closest('tr').siblings();
+    $upperLevel.eq(2).children().slice(1, -1).removeClass('hidden');
     // thirdly, do some cleaning stuff
-    if (getNodeState($node, 'parent').visible) {
-      $siblings.each(function(index, sibling){
-        $(sibling).find('div.node').closest('tr').siblings().addClass('hidden');
+    if (!getNodeState($node, 'parent').visible) {
+      $upperLevel.removeClass('hidden');
+      var parent = $upperLevel.find('.node')[0];
+      repaint(parent);
+      $(parent).addClass('slide').removeClass('slide-down').one('transitionend', function() {
+        $(this).removeClass('slide');
       });
-    } else {
-      $parent.removeClass('hidden');
     }
-    dtd.resolve();
     // lastly, show the sibling nodes with animation
-    $siblings.find('div.node').animate({'opacity': 1, 'left': 0}, 300);
-
-    return dtd.promise();
+    $siblings.find('.node:visible').addClass('slide').removeClass('slide-left slide-right').eq(0).one('transitionend', function() {
+      $siblings.find('.node:visible').removeClass('slide');
+      if (isInAction($node)) {
+        collapseArrow($node);
+      }
+    });
   }
 
   // start up loading status for requesting new nodes
   function startLoading($arrow, $node, options) {
-    var $chart = $node.closest('div.orgchart');
+    var $chart = $node.closest('.orgchart');
     if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
       return false;
     }
@@ -334,12 +296,16 @@
     $node.children('.rightEdge').toggleClass('fa-chevron-left', !isExpand).toggleClass('fa-chevron-right', isExpand);
   }
 
+  function repaint(node) {
+    node.style.offsetWidth = node.offsetWidth;
+  }
+
   // create node
-  function createNode(nodeData, opts) {
+  function createNode(nodeData, level, opts) {
     var dtd = $.Deferred();
     // construct the content of node
     var $nodeDiv = $('<div>', { 'id': nodeData[opts.nodeId] })
-      .addClass('node')
+      .addClass('node' + (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
     // append 4 directions arrows
@@ -391,27 +357,19 @@
       var $node = $that.parent();
       var parentState = getNodeState($node, 'parent');
       if (parentState.exist) {
-        if ($node.closest('table').closest('tr').siblings(':first').find('.node').is(':animated')) {
-          return ;
-        }
+        var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
+        if ($parent.is('.slide')) { return; }
         // hide the ancestor nodes and sibling nodes of the specified node
         if (parentState.visible) {
-          var dtd = $.Deferred();
-          $.when(hideAncestorsSiblings($node, dtd))
-　　        .done(function(){
-              if (isInAction($node)) {
-                switchVerticalArrow($that);
-                switchHorizontalArrow($node, true);
-              }
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
-        } // show the ancestors and siblings
-        else {
-          $.when(showAncestorsSiblings($node))
-　　        .done(function(){
+          hideAncestorsSiblings($node);
+          $parent.one('transitionend', function() {
+            if (isInAction($node)) {
               switchVerticalArrow($that);
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
+              switchHorizontalArrow($node, true);
+            }
+          });
+        } else { // show the ancestors and siblings
+          showParent($node);
         }
       } else {
         // load the new parent node of the specified node by ajax request
@@ -420,20 +378,15 @@
         if (startLoading($that, $node, opts)) {
         // load new nodes
           $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/' })
-          .done(function(data, textStatus, jqXHR) {
+          .done(function(data) {
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
                 addParent($node, data, opts);
               }
             }
           })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('Failed to get parent node data');
-          })
-          .always(function() {
-            // terminate the loading status
-            endLoading($that, $node, opts);
-          });
+          .fail(function() { console.log('Failed to get parent node data'); })
+          .always(function() { endLoading($that, $node, opts); });
         }
       }
     });
@@ -444,25 +397,13 @@
       var $node = $that.parent();
       var childrenState = getNodeState($node, 'children');
       if (childrenState.exist) {
-        if ($node.closest('tr').siblings(':last').find('div.node').is(':animated')) {
-          return ;
-        }
+        var $children = $node.closest('tr').siblings(':last');
+        if ($children.find('.node:visible').is('.slide')) { return; }
         // hide the descendant nodes of the specified node
         if (childrenState.visible) {
-          $.when(hideDescendants($node))
-　　        .done(function(){
-              if (isInAction($node)) {
-                switchVerticalArrow($that);
-              }
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
-        } // show the descendants
-        else {
-          $.when(showDescendants($node))
-　　        .done(function(){
-              switchVerticalArrow($that);
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
+          hideDescendants($node);
+        } else { // show the descendants
+          showDescendants($node);
         }
       } else {
         // load the new children nodes of the specified node by ajax request
@@ -472,7 +413,7 @@
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.children.length) {
-                addChildren($node, data, opts);
+                addChildren($node, data, $.extend({}, opts, { depth: 0 }));
               }
             }
           })
@@ -492,28 +433,12 @@
       var $node = $that.parent();
       var siblingsState = getNodeState($node, 'siblings');
       if (siblingsState.exist) {
-        if ($node.closest('table').parent().siblings().find('div.node').is(':animated')) {
-          return ;
-        }
-        // hide the sibling nodes of the specified node
-        if (siblingsState.visible) {
-          $.when(hideSiblings($node, true))
-　　        .done(function(){
-              setTimeout(function() {
-                $node.closest('.orgchart').css('opacity', '');// hack for firefox
-                if (isInAction($node)) {
-                  switchHorizontalArrow($node, true);
-                }
-              }, 0);
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
-        } // show the siblings
-        else {
-          $.when(showSiblings($node))
-　　        .done(function(){
-              collapseArrow($node);
-            })
-　　        .fail(function(){ console.log('failed to adjust the position of org-chart!'); });
+        var $siblings = $node.closest('table').parent().siblings();
+        if ($siblings.find('.node:visible').is('.slide')) { return; }
+        if (siblingsState.visible) { // hide the sibling nodes of the specified node
+          hideSiblings($node);
+        } else { // show the siblings
+          showSiblings($node);
         }
       } else {
         // load the new sibling nodes of the specified node by ajax request
@@ -566,7 +491,7 @@
     if (Object.keys(nodeData).length > 1) { // if nodeData has nested structure
       $table = $('<table>');
       $appendTo.append($table);
-      $.when(createNode(nodeData, opts))
+      $.when(createNode(nodeData, level, opts))
       .done(function($nodeDiv) {
         $table.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
         if (callback) {
@@ -582,18 +507,18 @@
       if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
         $table = $appendTo;
       }
-      var isHidden = level + 1 >= opts.depth ? ' class="hidden"' : '';
+      var isHidden = level + 1 >= opts.depth ? ' hidden' : '';
       // draw the line close to parent node
-      $table.append('<tr' + isHidden + '><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
+      $table.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
       // draw the lines close to children nodes
-      var linesRow = '<tr' + isHidden + '><td class="right">&nbsp;</td>';
+      var linesRow = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
       for (var i=1; i<$childNodes.length; i++) {
         linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
       }
       linesRow += '<td class="left">&nbsp;</td></tr>';
       $table.append(linesRow);
       // recurse through children nodes
-      var $childNodesRow = $('<tr' + isHidden + '>');
+      var $childNodesRow = $('<tr class="nodes' + isHidden + '">');
       $table.append($childNodesRow);
       $.each($childNodes, function() {
         var $td = $('<td colspan="2">');
@@ -614,9 +539,7 @@
     var count = 0;
     buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
       if (++count === data.children.length) {
-        if (isInAction($node)) {
-          switchVerticalArrow($node.children('.bottomEdge'));
-        }
+        showDescendants($node);
       }
     });
   }
@@ -626,16 +549,15 @@
     var that = this;
     var $table = $('<table>');
     nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
-
-    $.when(createNode(nodeData, opts ? opts : this.data('orgchart').options))
+    $.when(createNode(nodeData, 0, opts ? opts : this.data('orgchart').options))
       .done(function($nodeDiv) {
-        $table.append($nodeDiv.wrap('<tr><td colspan="2"></td></tr>').closest('tr'));
-        $table.append('<tr><td colspan="2"><div class="down"></div></td></tr>');
+        $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
+        $table.append('<tr class="lines hidden"><td colspan="2"><div class="down"></div></td></tr>');
         var linesRow = '<td class="right">&nbsp;</td><td class="left">&nbsp;</td>';
-        $table.append('<tr>' + linesRow + '</tr>');
+        $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
         var oc = that.children('.orgchart');
         oc.prepend($table)
-          .children('table:first').append('<tr><td colspan="2"></td></tr>')
+          .children('table:first').append('<tr class="nodes"><td colspan="2"></td></tr>')
           .children().children('tr:last').children().append(oc.children('table').last());
         callback();
       })
@@ -650,10 +572,7 @@
       if (!$node.children('.topEdge').length) {
         $node.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
       }
-      $node.children('.topEdge').data('parentState', { 'exist': true, 'visible': true });
-      if (isInAction($node)) {
-        switchVerticalArrow($node.children('.topEdge'));
-      }
+      showParent($node);
     });
   }
 
@@ -684,26 +603,30 @@
       var childCount = 0;
       buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, opts, function() {
         if (++childCount === newSiblingCount) {
+          var $siblingTds = $nodeChart.parent().closest('table').children().children('tr:last').children('td');
           if (existingSibligCount > 1) {
-            complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td:first')
-              .before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount, existingSibligCount);
+            complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount, existingSibligCount);
           } else {
-            complementLine($nodeChart.parent().closest('table').children().children('tr:last').children('td')
-            .eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
+            complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
+            $siblingTds.not(':eq(' + insertPostion + 1 + ')').addClass('hidden')
+              .slice(0, insertPostion).find('.node').addClass('slide-right')
+              .end().end().slice(insertPostion).find('.node').addClass('slide-left');
           }
           callback();
         }
       });
     } else { // build the sibling nodes and parent node for the specific ndoe
       var nodeCount = 0;
-      buildHierarchy($nodeChart.closest('div.orgchart'), nodeData, 0, opts,
-        function() {
-          if (++nodeCount === siblingCount) {
-            complementLine($nodeChart.next().children().children('tr:last')
-              .children().eq(insertPostion).after($('<td colspan="2">')
-              .append($nodeChart)), siblingCount, 1);
-
-            callback();
+      buildHierarchy($nodeChart.closest('.orgchart'), nodeData, 0, opts, function() {
+        if (++nodeCount === siblingCount) {
+          complementLine($nodeChart.next().children().children('tr:last')
+            .children().eq(insertPostion).after($('<td colspan="2">')
+            .append($nodeChart)), siblingCount, 1);
+          $nodeChart.closest('tr').siblings().eq(0).addClass('hidden').find('.node').addClass('slide-down');
+          $nodeChart.parent().siblings().addClass('hidden')
+            .slice(0, insertPostion).find('.node').addClass('slide-right')
+            .end().end().slice(insertPostion).find('.node').addClass('slide-left');
+          callback();
         }
       });
     }
@@ -715,9 +638,7 @@
         $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i>')
           .siblings('.bottomEdge').after('<i class="edge horizontalEdge leftEdge fa"></i>');
       }
-      if (isInAction($node)) {
-        collapseArrow($node);
-      }
+      showSiblings($node);
     });
   }
 
