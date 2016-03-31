@@ -596,9 +596,6 @@
     // just build the sibling nodes for the specific node
     if ($nodeChart.parent().is('td')) {
       var $parent = $nodeChart.closest('tr').prevAll('tr:last');
-      if ($parent.is(':hidden')) {
-        $parent.removeClass('hidden');
-      }
       $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
       var childCount = 0;
       buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, opts, function() {
@@ -606,6 +603,7 @@
           var $siblingTds = $nodeChart.parent().closest('table').children().children('tr:last').children('td');
           if (existingSibligCount > 1) {
             complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().andSelf().unwrap()), siblingCount, existingSibligCount);
+            $siblingTds.addClass('hidden').find('.node').addClass('slide-left');
           } else {
             complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
             $siblingTds.not(':eq(' + insertPostion + 1 + ')').addClass('hidden')

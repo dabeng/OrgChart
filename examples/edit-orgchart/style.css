@@ -6,13 +6,9 @@
   background: #fff;
 }
 
-.orgchart .node {
-  width: 180px;
-}
-
 .orgchart .node .title {
-  font-size: 24px;
-  height: 30px;
+/*  font-size: 24px;
+  height: 30px;*/
   padding-top: 4px;
 }
 
@@ -29,12 +25,6 @@
   margin-top: 10px;
   padding: 10px;
   color: #fff;
-  font-size: 24px;
-}
-
-.edit-panel input {
-  font-size: 24px;
-  width: 180px;
 }
 
 .edit-panel.first {
@@ -50,7 +40,7 @@
   font-weight: bold;
 }
 
-#selected-node, .new-node {
+#selected-node, #btn-remove-input {
   margin-right: 20px;
 }
 
@@ -60,7 +50,6 @@
   display: inline-block;
   padding: 6px 12px;
   margin-bottom: 0;
-  font-size: 24px;
   line-height: 1.42857143;
   text-align: center;
   white-space: nowrap;
@@ -85,8 +74,22 @@
 #new-nodelist {
   display: inline-block;
   list-style:none;
-  margin: 0;
+  margin-top: -2px;
   padding: 0;
+  vertical-align: text-top;
+}
+
+#new-nodelist>* {
+  padding-bottom: 4px;
+}
+
+.btn-inputs {
+  font-size: 24px;
+  vertical-align: sub;
+}
+
+.btn-inputs:hover {
+  text-shadow: 0 0 4px #fff;
 }
 
 #node-type-panel {
@@ -96,14 +99,15 @@
 
 #node-type-panel input[type='radio'] {
   display: inline-block;
-  height: 28px;
-  width: 28px;
+  height: 24px;
+  width: 24px;
+  vertical-align: sub;
 }
 
 #node-type-panel input[type='radio']+label {
   vertical-align: super;
 }
 
-#btn-add-node {
+#btn-add-nodes {
   margin-left: 20px;
 }
