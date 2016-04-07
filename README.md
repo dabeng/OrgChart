@@ -248,6 +248,7 @@ $('#btn-delete-nodes').on('click', function() {
   $('#selected-node').data('node', null);
 });
 ```
+![edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/recorder.gif)
 
 ## Usage
 
