@@ -182,7 +182,72 @@ $('#chart-container').orgchart({
   }
 });
 ``` 
-![export orgchart](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
+![integrate map](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
+
+- **[I wanna edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)**
+
+With the help of exposed core methods of orgchart plugin, we can finish this task easily.
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'nodeTitle': 'name',
+  'exportButton': true,
+  'exportFilename': 'SportsChart',
+  'parentNodeSymbol': 'fa-th-large',
+  'createNode': function($node, data) {
+    $node.on('click', function(event) {
+      if (!$(event.target).is('.edge')) {
+        $('#selected-node').val(data.name).data('node', $node);
+      }
+    });
+  }
+})
+.on('click', '.orgchart', function(event) {
+  if (!$(event.target).closest('.node').length) {
+    $('#selected-node').val('');
+  }
+});
+
+$('#btn-add-nodes').on('click', function() {
+  var nodeVals = [];
+  $('#new-nodelist').find('.new-node').each(function(index, item) {
+    var validVal = item.value.trim();
+    if (validVal.length) {
+      nodeVals.push(validVal);
+    }
+  });
+  var $node = $('#selected-node').data('node');
+  var nodeType = $('input[name="node-type"]:checked');
+  if (nodeType.val() === 'parent') {
+    $('#chart-container').orgchart('addParent', $('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
+  } else if (nodeType.val() === 'siblings') {
+    $('#chart-container').orgchart('addSiblings', $node,
+      { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+    });
+  } else {
+    var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
+    if (!hasChild) {
+      var rel = nodeVals.length > 1 ? '110' : '100';
+      $('#chart-container').orgchart('addChildren', $node, {
+          'children': nodeVals.map(function(item) {
+            return { 'name': item, 'relationship': rel };
+          })
+        }, $.extend({}, $('#chart-container').data('orgchart').options, { depth: 0 }));
+    } else {
+      $('#chart-container').orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
+        { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+      });
+    }
+  }
+});
+
+$('#btn-delete-nodes').on('click', function() {
+  var $node = $('#selected-node').data('node');
+  $('#chart-container').orgchart('removeNodes', $node);
+  $('#selected-node').data('node', null);
+});
+```
 
 ## Usage
 
