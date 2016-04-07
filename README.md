@@ -186,7 +186,7 @@ $('#chart-container').orgchart({
 
 - **[I wanna edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)**
 
-With the help of exposed core methods of orgchart plugin, we can finish this task easily.
+With the help of exposed core methods(addParent(), addSiblings(), addChildren(), removeNodes()) of orgchart plugin, we can finish this task easily.
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
