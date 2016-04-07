@@ -6,17 +6,26 @@
   background: #fff;
 }
 
+.orgchart.view-state .edge {
+  display: none;
+}
+
+.orgchart .node {
+  width: 150px;
+}
+
 .orgchart .node .title {
-/*  font-size: 24px;
-  height: 30px;*/
-  padding-top: 4px;
+/*  font-size: 22px;
+  height: 30px;
+  padding-top: 4px;*/
 }
 
 .orgchart .node .title .symbol {
   margin-top: 1px; 
 }
 
-.edit-panel {
+#edit-panel {
+  /*font-size: 16px;*/
   position: relative;
   left: 10px;
   width: calc(100% - 20px);
@@ -25,26 +34,36 @@
   margin-top: 10px;
   padding: 10px;
   color: #fff;
-}
-
-.edit-panel.first {
-  background-color: #337ab7;
-  margin-top: 15px;
-}
-
-.edit-panel.second {
   background-color: #449d44;
 }
 
-.edit-panel label {
+#edit-panel .btn-inputs {
+  font-size: 24px;
+}
+
+#edit-panel input[type='text'] {
+/*  font-size: 16px;
+  width: 150px;*/
+}
+
+#edit-panel.view-state>:not(#chart-state-panel) {
+  display: none;
+}
+
+#edit-panel label {
   font-weight: bold;
 }
 
-#selected-node, #btn-remove-input {
+#edit-panel.edit-parent-node .selected-node-group{
+  display: none;
+}
+
+#chart-state-panel, #selected-node, #btn-remove-input {
   margin-right: 20px;
 }
 
-.edit-panel button {
+#edit-panel button {
+  /*font-size: 16px;*/
   color: #333;
   background-color: #fff;
   display: inline-block;
@@ -66,7 +85,11 @@
   border-radius: 4px;
 }
 
-.edit-panel button:hover,.edit-panel button:focus,.edit-panel button:active {
+#edit-panel.edit-parent-node button:not(#btn-add-nodes) {
+  display: none;
+}
+
+#edit-panel button:hover,.edit-panel button:focus,.edit-panel button:active {
   border-color: #eea236;
   box-shadow:  0 0 10px #eea236;
 }
@@ -84,28 +107,26 @@
 }
 
 .btn-inputs {
-  font-size: 24px;
   vertical-align: sub;
+}
+
+#edit-panel.edit-parent-node .btn-inputs {
+  display: none;
 }
 
 .btn-inputs:hover {
   text-shadow: 0 0 4px #fff;
 }
 
-#node-type-panel {
-  position: relative;
-  top: 5px;
-}
-
-#node-type-panel input[type='radio'] {
+.radio-panel input[type='radio'] {
   display: inline-block;
   height: 24px;
   width: 24px;
-  vertical-align: sub;
+  vertical-align: top;
 }
 
-#node-type-panel input[type='radio']+label {
-  vertical-align: super;
+#edit-panel.view-state .radio-panel input[type='radio']+label {
+  vertical-align: -webkit-baseline-middle;
 }
 
 #btn-add-nodes {

@@ -40,6 +40,8 @@
         return addParent.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'addSiblings':
         return addSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'removeNodes':
+        return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
         this.data('orgchart', { 'options' : opts });
@@ -244,7 +246,7 @@
       });
     }
     // lastly, show the sibling nodes with animation
-    $siblings.find('.node:visible').addClass('slide').removeClass('slide-left slide-right').eq(0).one('transitionend', function() {
+    $siblings.find('.node:visible').addClass('slide').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
       $siblings.find('.node:visible').removeClass('slide');
       if (isInAction($node)) {
         collapseArrow($node);
@@ -392,7 +394,7 @@
     });
 
     // bind click event handler for the bottom edge
-    $nodeDiv.children('.bottomEdge').on('click', function(event) {
+    $nodeDiv.on('click', '.bottomEdge', function(event) {
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = getNodeState($node, 'children');
@@ -405,8 +407,7 @@
         } else { // show the descendants
           showDescendants($node);
         }
-      } else {
-        // load the new children nodes of the specified node by ajax request
+      } else { // load the new children nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         if (startLoading($that, $node, opts)) {
           $.ajax({ 'url': opts.ajaxURL.children + nodeId + '/' })
@@ -530,6 +531,7 @@
 
   // build the child nodes of specific node
   function buildChildNode ($appendTo, nodeData, opts, callback) {
+    var opts = opts || this.data('orgchart').options;
     var data = nodeData.children || nodeData.siblings;
     $appendTo.find('td:first').attr('colspan', data.length * 2);
     buildHierarchy($appendTo, { 'children': data }, 0, opts, callback);
@@ -539,6 +541,12 @@
     var count = 0;
     buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
       if (++count === data.children.length) {
+        if (!$node.children('.bottomEdge').length) {
+          $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
+        }
+        if (!$node.children('.symbol').length) {
+          $node.children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
+        }
         showDescendants($node);
       }
     });
@@ -633,11 +641,26 @@
   function addSiblings($node, data, opts) {
     buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
       if (!$node.children('.leftEdge').length) {
-        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i>')
-          .siblings('.bottomEdge').after('<i class="edge horizontalEdge leftEdge fa"></i>');
+        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
       }
       showSiblings($node);
     });
+  }
+
+  function removeNodes($node) {
+    var $parent = $node.closest('table').parent();
+    var $sibs = $parent.parent().siblings();
+    if ($parent.is('td')) {
+      if (getNodeState($node, 'siblings').exist) {
+        $sibs.eq(2).children('.top:lt(2)').remove();
+        $sibs.eq(':lt(2)').children().attr('colspan', $sibs.eq(2).children().length);
+        $parent.remove();
+      } else {
+        $sibs.eq(0).children().attr('colspan', 2).end().siblings().remove();
+      }
+    } else {
+      $parent.add($parent.siblings()).remove();
+    }
   }
 
 })(jQuery);

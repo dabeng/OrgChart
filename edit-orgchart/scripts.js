@@ -21,8 +21,10 @@
       'exportFilename': 'SportsChart',
       'parentNodeSymbol': 'fa-th-large',
       'createNode': function($node, data) {
-        $node.on('click', function() {
-          $('#selected-node').val(data.name).data('node', $node);
+        $node.on('click', function(event) {
+          if (!$(event.target).is('.edge')) {
+            $('#selected-node').val(data.name).data('node', $node);
+          }
         });
       }
     })
@@ -32,13 +34,25 @@
       }
     });
 
-    $('#btn-add-rootnode').on('click', function() {
-      var rootnodeVal = $('.edit-panel.first').find('.new-node').val().trim();
-      if (!rootnodeVal.length) {
-        alert('Please input value for parent node');
-        return;
+    $('input[name="chart-state"]').on('click', function() {
+      $('#edit-panel, .orgchart').toggleClass('view-state');
+      if ($(this).val() === 'edit') {
+        $('.orgchart').find('tr').removeClass('hidden')
+          .find('td').removeClass('hidden')
+          .find('.node').removeClass('slide-up slide-down slide-right slide-left');
+      } else {
+        $('#btn-reset').trigger('click');
       }
-      $('#chart-container').orgchart('addParent', $('#chart-container').find('.node:first'), { 'name': rootnodeVal });
+    });
+
+    $('input[name="node-type"]').on('click', function() {
+      var $this = $(this);
+      if ($this.val() === 'parent') {
+        $('#edit-panel').addClass('edit-parent-node');
+        $('#new-nodelist').children(':gt(0)').remove();
+      } else {
+        $('#edit-panel').removeClass('edit-parent-node');
+      }
     });
 
     $('#btn-add-input').on('click', function() {
@@ -65,25 +79,46 @@
         alert('Please input value for new node');
         return;
       }
-      if (!$node) {
+      var nodeType = $('input[name="node-type"]:checked');
+      if (nodeType.val() !== 'parent' && !$node) {
         alert('Please select one node in orgchart');
         return;
       }
-      var nodeType = $('input[name="node-type"]:checked');
       if (!nodeType.length) {
         alert('Please select a node type');
         return;
       }
-      if (nodeType.val() === 'siblings') {
-        $('#chart-container').orgchart('addSiblings', $node, {
-          'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+      if (nodeType.val() === 'parent') {
+        $('#chart-container').orgchart('addParent', $('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
+      } else if (nodeType.val() === 'siblings') {
+        $('#chart-container').orgchart('addSiblings', $node,
+          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
         });
       } else {
-        var hasChild = $node.parent().attr('colspan') > 2 ? true : false;
-        $('#chart-container').orgchart('addChildren', $node, {
-          'children': [{ 'name': nodeVals, 'relationship': '1' + (hasChild ? 1 : 0) + '0' }]
-        });
+        var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
+        if (!hasChild) {
+          var rel = nodeVals.length > 1 ? '110' : '100';
+          $('#chart-container').orgchart('addChildren', $node, {
+              'children': nodeVals.map(function(item) {
+                return { 'name': item, 'relationship': rel };
+              })
+            }, $.extend({}, $('#chart-container').data('orgchart').options, { depth: 0 }));
+        } else {
+          $('#chart-container').orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
+            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+          });
+        }
       }
+    });
+
+    $('#btn-delete-nodes').on('click', function() {
+      var $node = $('#selected-node').data('node');
+      if (!$node) {
+        alert('Please select one node in orgchart');
+        return;
+      }
+      $('#chart-container').orgchart('removeNodes', $node);
+      $('#selected-node').data('node', null);
     });
 
     $('#btn-reset').on('click', function() {
