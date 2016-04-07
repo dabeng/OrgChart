@@ -16,21 +16,21 @@
 </head>
 <body>
   <div id="chart-container"></div>
-  <div class="edit-panel first">
-    <label for="rd-parent">parent node(root node):</label>
-    <input type="text" class="new-node">
-    <button type="button" id="btn-add-rootnode">Add</button>
-  </div>
-  <div class="edit-panel second">
-    <label>selected node:</label>
-    <input type="text" id="selected-node" disabled="true">
+  <div id="edit-panel" class="view-state">
+    <span id="chart-state-panel" class="radio-panel">
+      <input type="radio" name="chart-state" id="rd-view" value="view" checked="true"><label for="rd-view">View</label>
+      <input type="radio" name="chart-state" id="rd-edit" value="edit"><label for="rd-edit">Edit</label>
+    </span>
+    <label class="selected-node-group">selected node:</label>
+    <input type="text" id="selected-node" class="selected-node-group">
     <label>new node:</label>
     <ul id="new-nodelist">
       <li><input type="text" class="new-node"></li>
     </ul>
     <i class="fa fa-plus-circle btn-inputs" id="btn-add-input"></i>
     <i class="fa fa-minus-circle btn-inputs" id="btn-remove-input"></i>
-    <span id="node-type-panel">
+    <span id="node-type-panel" class="radio-panel">
+      <input type="radio" name="node-type" id="rd-parent" value="parent"><label for="rd-parent">Parent(root)</label>
       <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>
       <input type="radio" name="node-type" id="rd-sibling" value="siblings"><label for="rd-sibling">Sibling</label>
     </span>
