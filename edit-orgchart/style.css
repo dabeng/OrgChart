@@ -14,18 +14,11 @@
   width: 150px;
 }
 
-.orgchart .node .title {
-/*  font-size: 22px;
-  height: 30px;
-  padding-top: 4px;*/
-}
-
 .orgchart .node .title .symbol {
   margin-top: 1px; 
 }
 
 #edit-panel {
-  /*font-size: 16px;*/
   position: relative;
   left: 10px;
   width: calc(100% - 20px);
@@ -39,11 +32,6 @@
 
 #edit-panel .btn-inputs {
   font-size: 24px;
-}
-
-#edit-panel input[type='text'] {
-/*  font-size: 16px;
-  width: 150px;*/
 }
 
 #edit-panel.view-state>:not(#chart-state-panel) {
@@ -63,7 +51,6 @@
 }
 
 #edit-panel button {
-  /*font-size: 16px;*/
   color: #333;
   background-color: #fff;
   display: inline-block;
