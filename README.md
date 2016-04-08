@@ -327,6 +327,7 @@ $('#chartContainerId').orgchart(options);
 </table>
 
 ### Methods
+I'm sure that you can grasp the key points of the methods below after you try out demo -- [edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/).
 ##### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
 ##### .orgchart('addParent', data, opts)
