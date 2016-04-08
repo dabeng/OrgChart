@@ -383,7 +383,7 @@
           .done(function(data) {
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
-                addParent($node, data, opts);
+                addParent.call($node.closest('.orgchart').parent(), data, opts);
               }
             }
           })
@@ -544,7 +544,7 @@
         if (!$node.children('.bottomEdge').length) {
           $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
         }
-        if (!$node.children('.symbol').length) {
+        if (!$node.find('.symbol').length) {
           $node.children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
         }
         showDescendants($node);
@@ -575,12 +575,13 @@
   }
 
   // exposed method
-  function addParent($node, data, opts) {
-    buildParentNode.call($node.closest('.orgchart').parent(), data, opts, function() {
-      if (!$node.children('.topEdge').length) {
-        $node.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
+  function addParent(data, opts) {
+    var $currentRoot = this.find('.node:first');
+    buildParentNode.call(this, data, opts, function() {
+      if (!$currentRoot.children('.topEdge').length) {
+        $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
       }
-      showParent($node);
+      showParent($currentRoot);
     });
   }
 
