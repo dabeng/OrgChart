@@ -329,10 +329,48 @@ $('#chartContainerId').orgchart(options);
 ### Methods
 #### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
-#### .orgchart('addParent')
+#### .orgchart('addParent', $node, data, opts)
+<table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
 #### .orgchart('addSiblings')
+<table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
 #### .orgchart('addChildren'）
+<table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
 #### .orgchart('removeNodes'）
+<table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
 
 ## Browser Compatibility
 - Chrome 19+
