@@ -89,7 +89,7 @@
         return;
       }
       if (nodeType.val() === 'parent') {
-        $('#chart-container').orgchart('addParent', $('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
+        $('#chart-container').orgchart('addParent', { 'name': nodeVals[0] });
       } else if (nodeType.val() === 'siblings') {
         $('#chart-container').orgchart('addSiblings', $node,
           { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
