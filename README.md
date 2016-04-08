@@ -327,48 +327,47 @@ $('#chartContainerId').orgchart(options);
 </table>
 
 ### Methods
-#### $container.orgchart(options)
+##### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
-#### .orgchart('addParent', $node, data, opts)
+##### .orgchart('addParent', data, opts)
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building root node</td></tr>
+    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
-#### .orgchart('addSiblings')
+##### .orgchart('addSiblings', $node, data, opts)
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add sibling nodes based on this node</td></tr>
+    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building sibling nodes</td></tr>
+    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
-#### .orgchart('addChildren'）
+##### .orgchart('addChildren', $node, data, opts）
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>data</td><td></td><td></td><td></td><td></td></tr>
-    <tr><td>opts</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add child nodes based on this node</td></tr>
+    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building child nodes</td></tr>
+    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
-#### .orgchart('removeNodes'）
+##### .orgchart('removeNodes', $node）
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>node to be removed</td></tr>
   </tbody>
 </table>
 
