@@ -328,10 +328,11 @@ $('#chartContainerId').orgchart(options);
 
 ### Methods
 #### $container.orgchart(options)
-Embeds an organization chart in designated container. Accepts an optional options object.
+Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
 #### .orgchart('addParent')
 #### .orgchart('addSiblings')
 #### .orgchart('addChildren'）
+#### .orgchart('removeNodes'）
 
 ## Browser Compatibility
 - Chrome 19+
