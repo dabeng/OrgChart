@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Organization Chart Plugin</title>
+
+  <link rel="icon" type="image/x-icon" href="../img/logo.ico">
+  <link rel="stylesheet" href="../css/font-awesome.min.css">
+  <link rel="stylesheet" href="../css/jquery.orgchart.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="ul-data">
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'relationship': '001',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
+              ]
+            }
+          ]
+        },
+        { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Yu Wei', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Chun Miao', 'title': 'department manager', 'relationship': '110' },
+        { 'name': 'Yu Tie', 'title': 'department manager', 'relationship': '110' }
+      ]
+  </div>
+  <div id="chart-container"></div>
+  <div class="home-link">
+    <a href="https://github.com/dabeng/OrgChart" >More orgcharts</a>
+    <i class="fa fa-star"></i>
+  </div>
+  <script type="text/javascript" src="../js/jquery.min.js"></script>
+  <script type="text/javascript" src="../js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="scripts.js"></script>
+  </body>
+</html>
