@@ -331,6 +331,7 @@ I'm sure that you can grasp the key points of the methods below after you try ou
 ##### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
 ##### .orgchart('addParent', data, opts)
+Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
@@ -341,6 +342,7 @@ Embeds an organization chart in designated container. Accepts an options object 
   </tbody>
 </table>
 ##### .orgchart('addSiblings', $node, data, opts)
+Adds sibling nodes for designated node.
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
@@ -352,6 +354,7 @@ Embeds an organization chart in designated container. Accepts an options object 
   </tbody>
 </table>
 ##### .orgchart('addChildren', $node, data, opts）
+Adds child nodes for designed node.
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
@@ -363,6 +366,7 @@ Embeds an organization chart in designated container. Accepts an options object 
   </tbody>
 </table>
 ##### .orgchart('removeNodes', $node）
+Removes the designated node and its descedant nodes.
 <table>
   <thead>
     <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
