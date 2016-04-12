@@ -20,19 +20,12 @@
               ]
             }
           ]
-        },
-        { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Wei', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Chun Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Tie', 'title': 'department manager', 'relationship': '110' }
+        }
       ]
     };
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'depth': 2,
       'nodeTitle': 'name',
       'nodeContent': 'title'
     });

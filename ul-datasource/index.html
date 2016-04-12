@@ -14,31 +14,24 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="ul-data">
-      'name': 'Lao Lao',
-      'title': 'general manager',
-      'relationship': '001',
-      'children': [
-        { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
-          'children': [
-            { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
-              'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
-              ]
-            }
-          ]
-        },
-        { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Wei', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Chun Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Yu Tie', 'title': 'department manager', 'relationship': '110' }
-      ]
-  </div>
+  <ul id="ul-data">
+    <li>Lao Lao
+      <ul>
+        <li>Bo Miao</li>
+        <li>Su Miao
+          <ul>
+            <li>Tie Hua</li>
+            <li>Hei Hei
+              <ul>
+                <li>Pang Pang</li>
+                <li>Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
   <div id="chart-container"></div>
   <div class="home-link">
     <a href="https://github.com/dabeng/OrgChart" >More orgcharts</a>

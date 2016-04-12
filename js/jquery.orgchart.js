@@ -59,7 +59,14 @@
       }
     });
     if ($.type(data) === 'object') {
-      buildHierarchy($chart, data, 0, opts);
+      if (data is $) {
+        $.when(extractDatasource(data))
+        .done()
+        .faile();
+        buildHierarchy($chart, data, 0, opts);
+      } else {
+        buildHierarchy($chart, data, 0, opts);
+      }
     } else {
       $.ajax({
         'url': data,
@@ -109,6 +116,23 @@
 
     return $chartContainer;
   };
+
+  function extractDatasource($list) {
+    var dtd = $.Deferred();
+    var data = {};
+    var total = $list.find('li').length;
+    if ($list.children().length) {
+    $list.children().each(function(index, item) {
+      data.push({
+        'name': $(item).contents().eq(0).text().trim() 
+      });
+      if (data.length === total) {
+        dtd.resolve(data);
+      }
+    });
+    }
+    return dtd.promise();
+  }
 
   // detect the exist/display state of related node
   function getNodeState($node, relation) {

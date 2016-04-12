@@ -1,8 +1,13 @@
 #ul-data {
   display: inline-block;
-  width: 45%;
+  margin-left: 10%;
+  width: 30%;
+  margin-right: 6%;
 }
 #chart-container {
   display: inline-block;
-  width: 45%;
+  width: 50%;
+}
+#ul-data li {
+  font-size: 36px;
 }
