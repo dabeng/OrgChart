@@ -4,31 +4,40 @@
 
   $(function() {
 
-    var datascource = {
-      'name': 'Lao Lao',
-      'title': 'general manager',
-      'relationship': '001',
-      'children': [
-        { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-        { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
-          'children': [
-            { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
-              'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
-              ]
-            }
-          ]
-        }
-      ]
-    };
-
+ var extractDatasource = function($li, data, total, count, callback) {
+    if ($.isEmptyObject(data)) {
+      data.name = $li.contents().eq(0).text().trim();
+      data.relationship= '001';
+    } else {
+      // if (data.children) {
+        data.children.push({ 'name': $li.contents().eq(0).text().trim(),
+          'relationship': '1' +( $li.siblings().length ? 1: 0) + ($li.children().length ? 1 : 0) });
+      // } else {
+      //   data.children = [{ 'name': $li.contents().eq(0).text().trim(),
+      //     'relationship': '1' + ($li.siblings().length ? 1: 0) + ($li.children().length ? 1 : 0) }];
+      // }
+    }
+    count++;
+    if (count === total) {
+      callback();
+    }
+    if ($li.children().length) {
+      $li.children().children().each(function(index, item) {
+        data.children = [];
+        // if ($(item).children().length) {
+        extractDatasource($(item), data, total, count+index, callback);
+      });
+    }
+  }
+var conversed = {};
+extractDatasource($('#ul-data').children(), conversed, $('#ul-data').find('li').length, 0, function() {
     $('#chart-container').orgchart({
-      'data' : datascource,
-      'nodeTitle': 'name',
-      'nodeContent': 'title'
+      'data' : conversed,
+      'nodeTitle': 'name'
     });
+});
+
+
 
   });
 
