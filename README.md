@@ -9,7 +9,7 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 ## Demo
 - **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**
 ```html
-<!-- wrap the text node with <a href="#"> , <span>, blabla is also OK  -->
+<!-- wrap the text node with <a href="#"> , <span>, blabla is also OK. Note:text node must immediately follow the <li> tag, with no intervening characters of any kind.  -->
 <ul id="ul-data">
   <li>Lao Lao
     <ul>
@@ -31,8 +31,7 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 ```
 ```js
 $('#chart-container').orgchart({
-  'data' : $('#ul-data'),
-  'nodeTitle': 'name'
+  'data' : $('#ul-data')
 });
 ```
 ![ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/snapshot.png)
@@ -333,7 +332,7 @@ $('#chartContainerId').orgchart(options);
       <td>nodeChildren</td><td>string</td><td>no</td><td>"children"</td><td>It sets one property of datasource as children nodes collection.</td>
     </tr>
     <tr>
-      <td>nodeTitle</td><td>string</td><td>yes</td><td></td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
+      <td>nodeTitle</td><td>string</td><td>no</td><td>name</td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
     </tr>
     <tr>
       <td>nodeContent</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as text content of content section of orgchart node.</td>
