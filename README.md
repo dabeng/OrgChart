@@ -7,6 +7,36 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 - Font Awesome provides us with administration icon, second level menu icon and loading spinner.
 
 ## Demo
+- **[using <ul> datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**
+```html
+<!-- wrap the text node with <a href="#"> , <span>, blabla is also OK  -->
+<ul id="ul-data">
+  <li>Lao Lao
+    <ul>
+      <li>Bo Miao</li>
+      <li>Su Miao
+        <ul>
+          <li>Tie Hua</li>
+          <li>Hei Hei
+            <ul>
+              <li>Pang Pang</li>
+              <li>Xiang Xiang</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+```
+```js
+$('#chart-container').orgchart({
+  'data' : $('#ul-data'),
+  'nodeTitle': 'name'
+});
+```
+![ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/snapshot.png)
+
 - **[using local datasource](http://dabeng.github.io/OrgChart/local-datasource/)**
 ```js
 // sample of core source code
