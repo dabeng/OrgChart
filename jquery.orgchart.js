@@ -59,7 +59,7 @@
       }
     });
     if ($.type(data) === 'object') {
-      buildHierarchy($chart, data, 0, opts);
+      buildHierarchy($chart, data instanceof $ ? buildJsonDS(data.children()) : data, 0, opts);
     } else {
       $.ajax({
         'url': data,
@@ -109,6 +109,18 @@
 
     return $chartContainer;
   };
+
+  function buildJsonDS($li) {
+    var subObj = {
+      'name': $li.contents().eq(0).text().trim(),
+      'relationship': '1' +( $li.siblings().length ? 1: 0) + ($li.children().length ? 1 : 0)
+    };
+    $li.children('ul').children().each(function() {
+      if (!subObj.children) { subObj.children = []; }
+      subObj.children.push(buildJsonDS($(this)));
+    });
+    return subObj;
+  }
 
   // detect the exist/display state of related node
   function getNodeState($node, relation) {
