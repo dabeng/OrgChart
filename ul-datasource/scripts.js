@@ -5,8 +5,7 @@
   $(function() {
 
     $('#chart-container').orgchart({
-      'data' : $('#ul-data'),
-      'nodeTitle': 'name'
+      'data' : $('#ul-data')
     });
 
   });
