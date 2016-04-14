@@ -1,4 +1,6 @@
 #ul-data {
+  position: relative;
+  top: -60px;
   display: inline-block;
   margin-left: 10%;
   width: 30%;
@@ -9,5 +11,5 @@
   width: 50%;
 }
 #ul-data li {
-  font-size: 36px;
+  font-size: 32px;
 }
