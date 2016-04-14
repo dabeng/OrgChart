@@ -113,7 +113,7 @@
   function buildJsonDS($li) {
     var subObj = {
       'name': $li.contents().eq(0).text().trim(),
-      'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings().length ? 1: 0) + ($li.children().length ? 1 : 0)
+      'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('li').length ? 1 : 0)
     };
     $li.children('ul').children().each(function() {
       if (!subObj.children) { subObj.children = []; }
