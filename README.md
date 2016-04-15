@@ -311,7 +311,7 @@ $('#btn-export-hier').on('click', function() {
   $(this).after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
 });
 ```
-![get hierarchy](http://dabeng.github.io/OrgChart/edit-orgchart/snapshot.png)
+![get hierarchy](http://dabeng.github.io/OrgChart/get-hierarchy/snapshot.png)
 
 ## Usage
 
