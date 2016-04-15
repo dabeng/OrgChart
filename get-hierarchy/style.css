@@ -1,0 +1,50 @@
+
+#chart-container {
+  display: inline-block;
+  width: 50%;
+  margin-left: 10px;
+}
+
+pre {
+  display: inline-block;
+  vertical-align: top;
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.home-link {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: block;
+  width: 100%;
+  text-align: right;
+}
+
+#btn-export-hier {
+  display: inline-block;
+  position: relative;
+  top: -200px;
+  left: 10px;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #fff;
+  background-color: #5cb85c;
+  border: 1px solid transparent;
+  border-color: #4cae4c;
+  border-radius: 4px;
+}
