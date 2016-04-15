@@ -23,6 +23,7 @@
   $.fn.orgchart = function(options) {
     var defaultOptions = {
       'nodeTitle': 'name',
+      'nodeId': 'id',
       'nodeRelationship': 'relationship',
       'nodeChildren': 'children',
       'depth': 999,
@@ -43,6 +44,12 @@
         return addSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'removeNodes':
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'getHierarchy': {
+        if (!$(this).find('.node:first')[0].id) {
+          return 'Error: Nodes of orghcart to be exported must have id attribute!';
+        }
+        return getHierarchy.apply(this, [$(this)]);
+      }
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
         this.data('orgchart', { 'options' : opts });
@@ -116,9 +123,22 @@
       'name': $li.contents().eq(0).text().trim(),
       'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('ul').length ? 1 : 0)
     };
+    if ($li[0].id) {
+      subObj.id = $li[0].id;
+    }
     $li.children('ul').children().each(function() {
       if (!subObj.children) { subObj.children = []; }
       subObj.children.push(buildJsonDS($(this)));
+    });
+    return subObj;
+  }
+
+  function getHierarchy($orgchart) {
+    var $tr = $orgchart.find('tr:first');
+    var subObj = { 'id': $tr.find('.node')[0].id };
+    $tr.siblings(':last').children().each(function() {
+      if (!subObj.children) { subObj.children = []; }
+      subObj.children.push(getHierarchy($(this)));
     });
     return subObj;
   }
