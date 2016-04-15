@@ -280,9 +280,10 @@ $('#btn-delete-nodes').on('click', function() {
 ![edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/recorder.gif)
 
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
+
 That's where getHierarchy() comes in.
 ```html
-<ul id="ul-data" class="hidden">
+<ul id="ul-data">
   <li id="1">Lao Lao
     <ul>
       <li id="2">Bo Miao</li>
