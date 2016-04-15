@@ -439,6 +439,8 @@ Removes the designated node and its descedant nodes.
     <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>node to be removed</td></tr>
   </tbody>
 </table>
+##### .orgchart('getHierarchy'）
+This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new statte of orghcart. 
 
 ## Browser Compatibility
 - Chrome 19+
