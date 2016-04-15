@@ -279,6 +279,40 @@ $('#btn-delete-nodes').on('click', function() {
 ```
 ![edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/recorder.gif)
 
+- **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
+That's where getHierarchy() comes in.
+```html
+<ul id="ul-data" class="hidden">
+  <li id="1">Lao Lao
+    <ul>
+      <li id="2">Bo Miao</li>
+      <li id="3">Su Miao
+        <ul>
+          <li id="4">Tie Hua</li>
+          <li id="5">Hei Hei
+            <ul>
+              <li id="6">Pang Pang</li>
+              <li id="7">Xiang Xiang</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+```
+```js
+$('#chart-container').orgchart({
+  'data' : $('#ul-data')
+});
+
+$('#btn-export-hier').on('click', function() {
+  var hierarchy = $('#chart-container').orgchart('getHierarchy');
+  $(this).after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+});
+```
+![get hierarchy](http://dabeng.github.io/OrgChart/edit-orgchart/snapshot.png)
+
 ## Usage
 
 ### Instantiation Statement
@@ -338,7 +372,7 @@ $('#chartContainerId').orgchart(options);
       <td>nodeContent</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as text content of content section of orgchart node.</td>
     </tr>
     <tr>
-      <td>nodeId</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
+      <td>nodeId</td><td>string</td><td>no</td><td>id</td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
     </tr>
     <tr>
       <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
