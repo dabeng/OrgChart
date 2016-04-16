@@ -24,7 +24,6 @@
     var defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
-      'nodeRelationship': 'relationship',
       'nodeChildren': 'children',
       'depth': 999,
       'chartClass': '',
@@ -67,7 +66,11 @@
       }
     });
     if ($.type(data) === 'object') {
-      buildHierarchy($chart, data instanceof $ ? buildJsonDS(data.children()) : data, 0, opts);
+      if (data instanceof $) { // ul datasource
+        buildHierarchy($chart, buildJsonDS(data.children()), 0, opts);
+      } else { // local json datasource
+        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
+      }
     } else {
       $.ajax({
         'url': data,
@@ -76,7 +79,7 @@
         }
       })
       .done(function(data, textStatus, jqXHR) {
-        buildHierarchy($chart, data, 0, opts);
+        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(errorThrown);
@@ -131,6 +134,16 @@
       subObj.children.push(buildJsonDS($(this)));
     });
     return subObj;
+  }
+
+  function attachRel(data, flags) {
+    data.relationship = flags + (data.children ? 1 : 0);
+    if (data.children) {
+    data.children.forEach(function(item) {
+      attachRel(item, '1' + (data.children.length > 1 ? 1 :0));
+    });
+    }
+    return data;
   }
 
   function getHierarchy($orgchart) {
@@ -343,8 +356,8 @@
       .addClass('node' + (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
-    // append 4 directions arrows
-    var flags = nodeData[opts.nodeRelationship];
+    // append 4 direction arrows
+    var flags = nodeData.relationship;
     if (Number(flags.substr(0,1))) {
       $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
     }
@@ -589,7 +602,7 @@
   function buildParentNode(nodeData, opts, callback) {
     var that = this;
     var $table = $('<table>');
-    nodeData[(opts && opts.nodeRelationship) ? opts.nodeRelationship : 'relationship'] = '001';
+    nodeData.relationship = '001';
     $.when(createNode(nodeData, 0, opts ? opts : this.data('orgchart').options))
       .done(function($nodeDiv) {
         $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));

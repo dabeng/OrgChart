@@ -11,26 +11,25 @@
       responseText: {
         'name': 'Lao Lao',
         'title': 'general manager',
-        'relationship': '001',
         'children': [
-          { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
+          { 'name': 'Bo Miao', 'title': 'department manager' },
+          { 'name': 'Su Miao', 'title': 'department manager',
             'children': [
-              { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-              { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111',
+              { 'name': 'Tie Hua', 'title': 'senior engineer' },
+              { 'name': 'Hei Hei', 'title': 'senior engineer',
                 'children': [
-                  { 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
-                  { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110' }
+                  { 'name': 'Pang Pang', 'title': 'engineer' },
+                  { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
                 ]
               }
             ]
           },
-          { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Yu Li', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Hong Miao', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Yu Wei', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Chun Miao', 'title': 'department manager', 'relationship': '110' },
-          { 'name': 'Yu Tie', 'title': 'department manager', 'relationship': '110' }
+          { 'name': 'Yu Jie', 'title': 'department manager' },
+          { 'name': 'Yu Li', 'title': 'department manager' },
+          { 'name': 'Hong Miao', 'title': 'department manager' },
+          { 'name': 'Yu Wei', 'title': 'department manager' },
+          { 'name': 'Chun Miao', 'title': 'department manager' },
+          { 'name': 'Yu Tie', 'title': 'department manager' }
         ]
       }
     });
