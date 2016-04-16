@@ -42,16 +42,15 @@ $('#chart-container').orgchart({
 var datascource = {
   'name': 'Lao Lao',
   'title': 'general manager',
-  'relationship': '001',
   'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
+    { 'name': 'Bo Miao', 'title': 'department manager' },
+    { 'name': 'Su Miao', 'title': 'department manager',
       'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '110' }
+        { 'name': 'Tie Hua', 'title': 'senior engineer' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer' }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' }
+    { 'name': 'Yu Jie', 'title': 'department manager' }
   ]
 };
     
@@ -77,6 +76,7 @@ $('#chart-container').orgchart({
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
 
 - **[I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)**
+Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
 ```js
 // sample of core source code
 var datascource = {
@@ -177,12 +177,11 @@ $('body').prepend(map.getViewport());
 var datascource = {
   'name': 'Lao Lao',
   'title': 'President Office',
-  'relationship': '001',
   'position': [-87.6297980, 41.8781140],
   'children': [
-    { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'relationship': '110', 'position': [-83.0457540, 42.3314270]},
-    { 'name': 'Yu Jie', 'title': 'Product Dept.', 'relationship': '110', 'position': [-71.0588800, 42.3600820]},
-    { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'relationship': '110', 'position': [-80.1917900, 25.7616800] }
+    { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'position': [-83.0457540, 42.3314270]},
+    { 'name': 'Yu Jie', 'title': 'Product Dept.', 'position': [-71.0588800, 42.3600820]},
+    { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'position': [-80.1917900, 25.7616800] }
   ]
 };
 
@@ -326,7 +325,9 @@ $('#chartContainerId').orgchart(options);
 {
   'nodeTitlePro': 'Lao Lao',
   'nodeContentPro': 'general manager',
-  'relationship': relationshipValue, // The property implies that whether this node has parent node, siblings nodes or children nodes. "relationship" is just default name you can override.
+  'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
+  // you should use json datsource (local or remote) and set this property.
+  // This property implies that whether this node has parent node, siblings nodes or children nodes. 
   // relationshipValue is a string composed of three "0/1" identifier.
   // First character stands for wether current node has parent node;
   // Scond character stands for wether current node has siblings nodes;
@@ -359,9 +360,6 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
-    </tr>
-    <tr>
-      <td>nodeRelationship</td><td>string</td><td>no</td><td>"relationship"</td><td>It sets one property of datasource as a identifier which implies whether current node has parent node, siblings nodes or children nodes.</td>
     </tr>
     <tr>
       <td>nodeChildren</td><td>string</td><td>no</td><td>"children"</td><td>It sets one property of datasource as children nodes collection.</td>
