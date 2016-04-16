@@ -76,6 +76,7 @@ $('#chart-container').orgchart({
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
 
 - **[I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)**
+
 Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
 ```js
 // sample of core source code
