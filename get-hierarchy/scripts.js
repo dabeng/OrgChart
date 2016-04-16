@@ -4,8 +4,6 @@
 
   $(function() {
 
-
-
     $('#chart-container').orgchart({
       'data' : $('#ul-data')
     });
