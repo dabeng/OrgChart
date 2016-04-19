@@ -550,12 +550,17 @@
         event.preventDefault();
         var $parent = $(this);
         var $orgchart = $parent.closest('.orgchart');
-        if (!$parent.closest('tr').siblings().length) {
-          $parent.closest('tr')
+        if (!$parent.closest('tr').siblings().length) { // if the drop zone is a leaf node
+          $parent.closest('tr').children().attr('colspan', 2).end()
             .after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
-            + '<tr class="lines"><td class="right"></td><td class="left"></td></tr>'
+            + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
             .siblings(':last').append($orgchart.data('dragged').closest('table').parent());
+        } else {
+          $parent.parent().attr('colspan', 2 + parseInt($parent.parent().attr('colspan')))
+          .parent().next().children().attr('colspan', 2 + parseInt($parent.parent().attr('colspan')))
+          .end().siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
+          .end().next().append($orgchart.data('dragged').closest('table').parent());
         }
       });
     }

@@ -8,7 +8,9 @@
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
-        { 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'name': 'Bo Miao', 'title': 'department manager',
+          'children': [{ 'name': 'Li Xin', 'title': 'senior' }]
+        },
         { 'name': 'Su Miao', 'title': 'department manager',
           'children': [
             { 'name': 'Tie Hua', 'title': 'senior engineer' },
