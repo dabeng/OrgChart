@@ -29,7 +29,8 @@
       'chartClass': '',
       'exportButton': false,
       'exportFilename': 'OrgChart',
-      'parentNodeSymbol': 'fa-users'
+      'parentNodeSymbol': 'fa-users',
+      'draggable': false
     };
 
     switch (options) {
@@ -352,7 +353,7 @@
   function createNode(nodeData, level, opts) {
     var dtd = $.Deferred();
     // construct the content of node
-    var $nodeDiv = $('<div>', { 'id': nodeData[opts.nodeId] })
+    var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + '>', { 'id': nodeData[opts.nodeId] })
       .addClass('node' + (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
@@ -522,6 +523,42 @@
         $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
       }
     });
+    if (opts.draggable) {
+      $nodeDiv.on('dragstart', function() {
+        var $dragged = $(this);
+        var $draggedZone = $dragged.closest('table').find('.node');
+        $dragged.closest('.orgchart')
+          .data('dragged', $dragged)
+          .find('.node').each(function(index, node) {
+            if ($draggedZone.index(node) === -1) {
+              $(node).addClass('allowedDrop');
+            }
+          });
+      })
+      .on('dragover', function(event) {
+        event.preventDefault();
+        var $dropZone = $(this);
+        var $dragged = $dropZone.closest('.orgchart').data('dragged');
+        if ($dragged.closest('table').find('.node').index($dropZone) > -1) {
+          event.originalEvent.dataTransfer.dropEffect = 'none';
+        }
+      })
+      .on('dragend', function(event) {
+        $(this).closest('.orgchart').find('.allowedDrop').removeClass('allowedDrop');
+      })
+      .on('drop', function(event) {
+        event.preventDefault();
+        var $parent = $(this);
+        var $orgchart = $parent.closest('.orgchart');
+        if (!$parent.closest('tr').siblings().length) {
+          $parent.closest('tr')
+            .after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
+            + '<tr class="lines"><td class="right"></td><td class="left"></td></tr>'
+            + '<tr class="nodes"></tr>')
+            .siblings(':last').append($orgchart.data('dragged').closest('table').parent());
+        }
+      });
+    }
     // allow user to append dom modification after finishing node create of orgchart 
     if (opts.createNode) {
       opts.createNode($nodeDiv, nodeData);

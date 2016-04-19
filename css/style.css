@@ -22,6 +22,7 @@ body {
   position: relative;
   display: inline-block;
   top: 10px;
+  left: 10px;
   height: 420px;
   width: calc(100% - 20px);
   border: 2px dashed #aaa;
