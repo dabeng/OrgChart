@@ -562,12 +562,14 @@
 
         } else {
           $temp.eq(0).children().removeAttr('colspan')
-            .end().siblings().remove();
+            .find('.bottomEdge').remove()
+            .end().end().siblings().remove();
         }
         // secondly, deal with the hierarchy of drop zone
         if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
-          $dropZone.closest('tr').children().attr('colspan', 2).end()
-            .after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
+          $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+            .parent().attr('colspan', 2)
+            .parent().after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
             + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
             .siblings(':last').append($orgchart.data('dragged').closest('table').parent());
