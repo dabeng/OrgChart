@@ -548,20 +548,38 @@
       })
       .on('drop', function(event) {
         event.preventDefault();
-        var $parent = $(this);
-        var $orgchart = $parent.closest('.orgchart');
-        if (!$parent.closest('tr').siblings().length) { // if the drop zone is a leaf node
-          $parent.closest('tr').children().attr('colspan', 2).end()
+        var $dropZone = $(this);
+        var $orgchart = $dropZone.closest('.orgchart');
+        $orgchart.find('.allowedDrop').removeClass('allowedDrop');
+        // firstly, deal with the hierarchy of dragged node
+        var $dragged = $orgchart.data('dragged');
+        var $temp = $dragged.closest('.nodes').siblings();
+        var dragColspan = parseInt($temp.eq(0).children().attr('colspan'));
+        if (dragColspan > 2) {
+          $temp.eq(0).children().attr('colspan', dragColspan - 2)
+            .end().next().children().attr('colspan', dragColspan - 2)
+            .end().next().children().slice(1, 3).remove();
+
+        } else {
+          $temp.eq(0).children().removeAttr('colspan')
+            .end().siblings().remove();
+        }
+        // secondly, deal with the hierarchy of drop zone
+        if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
+          $dropZone.closest('tr').children().attr('colspan', 2).end()
             .after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
             + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
             .siblings(':last').append($orgchart.data('dragged').closest('table').parent());
         } else {
-          $parent.parent().attr('colspan', 2 + parseInt($parent.parent().attr('colspan')))
-          .parent().next().children().attr('colspan', 2 + parseInt($parent.parent().attr('colspan')))
-          .end().siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
-          .end().next().append($orgchart.data('dragged').closest('table').parent());
+          var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+          $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+          $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
+            .end().next().append($orgchart.data('dragged').closest('table').parent());
         }
+
+
+
       });
     }
     // allow user to append dom modification after finishing node create of orgchart 
