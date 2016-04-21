@@ -547,25 +547,11 @@
         $(this).closest('.orgchart').find('.allowedDrop').removeClass('allowedDrop');
       })
       .on('drop', function(event) {
-        event.preventDefault();
         var $dropZone = $(this);
         var $orgchart = $dropZone.closest('.orgchart');
         $orgchart.find('.allowedDrop').removeClass('allowedDrop');
-        // firstly, deal with the hierarchy of dragged node
-        var $dragged = $orgchart.data('dragged');
-        var $temp = $dragged.closest('.nodes').siblings();
-        var dragColspan = parseInt($temp.eq(0).children().attr('colspan'));
-        if (dragColspan > 2) {
-          $temp.eq(0).children().attr('colspan', dragColspan - 2)
-            .end().next().children().attr('colspan', dragColspan - 2)
-            .end().next().children().slice(1, 3).remove();
-
-        } else {
-          $temp.eq(0).children().removeAttr('colspan')
-            .find('.bottomEdge').remove()
-            .end().end().siblings().remove();
-        }
-        // secondly, deal with the hierarchy of drop zone
+        var $dragZone = $orgchart.data('dragged').closest('.nodes').siblings().eq(0).children();
+        // firstly, deal with the hierarchy of drop zone
         if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
           $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
             .parent().attr('colspan', 2)
@@ -579,9 +565,18 @@
           $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
             .end().next().append($orgchart.data('dragged').closest('table').parent());
         }
+        // secondly, deal with the hierarchy of dragged node
+        var dragColspan = parseInt($dragZone.attr('colspan'));
+        if (dragColspan > 2) {
+          $dragZone.attr('colspan', dragColspan - 2)
+            .end().next().children().attr('colspan', dragColspan - 2)
+            .end().next().children().slice(1, 3).remove();
 
-
-
+        } else {
+          $dragZone.removeAttr('colspan')
+            .find('.bottomEdge').remove()
+            .end().end().siblings().remove();
+        }
       });
     }
     // allow user to append dom modification after finishing node create of orgchart 
