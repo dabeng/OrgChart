@@ -558,12 +558,12 @@
             .parent().after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
             + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
-            .siblings(':last').append($orgchart.data('dragged').closest('table').parent());
+            .siblings(':last').append($orgchart.data('dragged').find('.horizontalEdge').remove().end().closest('table').parent());
         } else {
           var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
           $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
           $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
-            .end().next().append($orgchart.data('dragged').closest('table').parent());
+            .end().next().append($orgchart.data('dragged').append('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>').closest('table').parent());
         }
         // secondly, deal with the hierarchy of dragged node
         var dragColspan = parseInt($dragZone.attr('colspan'));
