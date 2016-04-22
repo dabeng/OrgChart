@@ -561,17 +561,25 @@
             .siblings(':last').append($orgchart.data('dragged').find('.horizontalEdge').remove().end().closest('table').parent());
         } else {
           var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+          var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
           $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
           $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
-            .end().next().append($orgchart.data('dragged').append('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>').closest('table').parent());
+            .end().next().append($orgchart.data('dragged').append(horizontalEdges).closest('table').parent());
+          var $dropSibs = $orgchart.data('dragged').closest('table').parent().siblings().find('.node:first');
+          if ($dropSibs.length === 1) {
+            $dropSibs.append(horizontalEdges);
+          }
         }
         // secondly, deal with the hierarchy of dragged node
         var dragColspan = parseInt($dragZone.attr('colspan'));
         if (dragColspan > 2) {
           $dragZone.attr('colspan', dragColspan - 2)
-            .end().next().children().attr('colspan', dragColspan - 2)
+            .parent().next().children().attr('colspan', dragColspan - 2)
             .end().next().children().slice(1, 3).remove();
-
+          var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
+          if ($dragSibs.length ===1) {
+            $dragSibs.find('.horizontalEdge').remove();
+          }
         } else {
           $dragZone.removeAttr('colspan')
             .find('.bottomEdge').remove()
