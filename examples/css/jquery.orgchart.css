@@ -82,7 +82,8 @@
   display: inline-block;
   position: relative;
   margin: 0;
-  padding: 5px;
+  padding: 3px;
+  border: 2px dashed transparent;
   text-align: center;
   width: 130px;
 }
@@ -102,6 +103,9 @@
 }
 .orgchart .node.focused {
   background-color: rgba(238, 217, 54, 0.5);
+}
+.orgchart .node.allowedDrop {
+  border-color: rgba(68, 157, 68, 0.9);
 }
 .orgchart .node .title {
   position: relative;

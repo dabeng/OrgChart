@@ -29,7 +29,8 @@
       'chartClass': '',
       'exportButton': false,
       'exportFilename': 'OrgChart',
-      'parentNodeSymbol': 'fa-users'
+      'parentNodeSymbol': 'fa-users',
+      'draggable': false
     };
 
     switch (options) {
@@ -352,7 +353,7 @@
   function createNode(nodeData, level, opts) {
     var dtd = $.Deferred();
     // construct the content of node
-    var $nodeDiv = $('<div>', { 'id': nodeData[opts.nodeId] })
+    var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + '>', { 'id': nodeData[opts.nodeId] })
       .addClass('node' + (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
@@ -522,6 +523,70 @@
         $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
       }
     });
+    if (opts.draggable) {
+      $nodeDiv.on('dragstart', function() {
+        var $dragged = $(this);
+        var $draggedZone = $dragged.closest('table').find('.node');
+        $dragged.closest('.orgchart')
+          .data('dragged', $dragged)
+          .find('.node').each(function(index, node) {
+            if ($draggedZone.index(node) === -1) {
+              $(node).addClass('allowedDrop');
+            }
+          });
+      })
+      .on('dragover', function(event) {
+        event.preventDefault();
+        var $dropZone = $(this);
+        var $dragged = $dropZone.closest('.orgchart').data('dragged');
+        if ($dragged.closest('table').find('.node').index($dropZone) > -1) {
+          event.originalEvent.dataTransfer.dropEffect = 'none';
+        }
+      })
+      .on('dragend', function(event) {
+        $(this).closest('.orgchart').find('.allowedDrop').removeClass('allowedDrop');
+      })
+      .on('drop', function(event) {
+        var $dropZone = $(this);
+        var $orgchart = $dropZone.closest('.orgchart');
+        $orgchart.find('.allowedDrop').removeClass('allowedDrop');
+        var $dragZone = $orgchart.data('dragged').closest('.nodes').siblings().eq(0).children();
+        // firstly, deal with the hierarchy of drop zone
+        if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
+          $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+            .parent().attr('colspan', 2)
+            .parent().after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
+            + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
+            + '<tr class="nodes"></tr>')
+            .siblings(':last').append($orgchart.data('dragged').find('.horizontalEdge').remove().end().closest('table').parent());
+        } else {
+          var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+          var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
+          $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+          $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
+            .end().next().append($orgchart.data('dragged').append(horizontalEdges).closest('table').parent());
+          var $dropSibs = $orgchart.data('dragged').closest('table').parent().siblings().find('.node:first');
+          if ($dropSibs.length === 1) {
+            $dropSibs.append(horizontalEdges);
+          }
+        }
+        // secondly, deal with the hierarchy of dragged node
+        var dragColspan = parseInt($dragZone.attr('colspan'));
+        if (dragColspan > 2) {
+          $dragZone.attr('colspan', dragColspan - 2)
+            .parent().next().children().attr('colspan', dragColspan - 2)
+            .end().next().children().slice(1, 3).remove();
+          var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
+          if ($dragSibs.length ===1) {
+            $dragSibs.find('.horizontalEdge').remove();
+          }
+        } else {
+          $dragZone.removeAttr('colspan')
+            .find('.bottomEdge').remove()
+            .end().end().siblings().remove();
+        }
+      });
+    }
     // allow user to append dom modification after finishing node create of orgchart 
     if (opts.createNode) {
       opts.createNode($nodeDiv, nodeData);
