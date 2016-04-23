@@ -390,6 +390,9 @@ $('#chartContainerId').orgchart(options);
     <tr>
       <td>chartClass</td><td>string</td><td>no</td><td></td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
     </tr>
+    <tr>
+      <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option</td>
+    </tr>
   </tbody>
 </table>
 
