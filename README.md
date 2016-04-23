@@ -283,6 +283,8 @@ $('#btn-delete-nodes').on('click', function() {
 
 Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true.
 
+![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
+
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
 
 That's where getHierarchy() comes in.
