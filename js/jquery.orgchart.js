@@ -30,7 +30,8 @@
       'exportButton': false,
       'exportFilename': 'OrgChart',
       'parentNodeSymbol': 'fa-users',
-      'draggable': false
+      'draggable': false,
+      'orientation': ''
     };
 
     switch (options) {
@@ -59,7 +60,7 @@
     var $chartContainer = this;
     var data = opts.data;
     var $chart = $('<div>', {
-      'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
+      'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + (opts.orientation !== '' ? ' ' + opts.orientation : ''),
       'click': function(event) {
         if (!$(event.target).closest('.node').length) {
           $chart.find('.node.focused').removeClass('focused');

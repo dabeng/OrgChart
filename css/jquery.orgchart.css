@@ -87,6 +87,10 @@
   text-align: center;
   width: 130px;
 }
+.orgchart.horizontal-align .node {
+  width: auto;
+  height: 130px;
+}
 .orgchart .node>.spinner {
   position: absolute;
   top: calc(50% - 15px);
@@ -121,6 +125,10 @@
   color: #fff;
   border-radius: 4px 4px 0 0; 
 }
+.orgchart.horizontal-align .node .title {
+  width: 20px;
+  height: 130px;
+}
 .orgchart .node .title .symbol {
   float: left;
   margin-top: 4px;
@@ -138,6 +146,10 @@
   background-color: #fff;
   color: #333;
   overflow: hidden;
+}
+.orgchart.horizontal-align .node .content {
+  width: auto;
+  height: 130px;
 }
 .orgchart .node .edge {
   font-size: 15px;
