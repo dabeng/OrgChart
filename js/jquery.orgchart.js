@@ -769,7 +769,9 @@
         $sibs.eq(':lt(2)').children().attr('colspan', $sibs.eq(2).children().length);
         $parent.remove();
       } else {
-        $sibs.eq(0).children().attr('colspan', 2).end().siblings().remove();
+        $sibs.eq(0).children().removeAttr('colspan')
+          .find('.bottomEdge').remove()
+          .end().end().siblings().remove();
       }
     } else {
       $parent.add($parent.siblings()).remove();
