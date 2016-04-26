@@ -283,6 +283,8 @@ $('#btn-delete-nodes').on('click', function() {
 
 Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true.
 
+![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
+
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
 
 That's where getHierarchy() comes in.
@@ -389,6 +391,9 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>chartClass</td><td>string</td><td>no</td><td></td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
+    </tr>
+    <tr>
+      <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option</td>
     </tr>
   </tbody>
 </table>
