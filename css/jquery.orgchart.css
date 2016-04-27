@@ -38,6 +38,10 @@
   padding: 20px;
 }
 
+.orgchart.horizontal-align {
+  transform: rotate(180deg);
+}
+
 .orgchart>.spinner {
   font-size: 100px;
   margin-top: 30px;
@@ -88,8 +92,8 @@
   width: 130px;
 }
 .orgchart.horizontal-align .node {
-  width: auto;
-  height: 130px;
+ /* width: auto;
+  height: 130px;*/
 }
 .orgchart .node>.spinner {
   position: absolute;
@@ -126,8 +130,8 @@
   border-radius: 4px 4px 0 0; 
 }
 .orgchart.horizontal-align .node .title {
-  width: 20px;
-  height: 130px;
+  transform: rotate(-180deg);
+  transform-origin: center bottom;
 }
 .orgchart .node .title .symbol {
   float: left;
@@ -148,8 +152,8 @@
   overflow: hidden;
 }
 .orgchart.horizontal-align .node .content {
-  width: auto;
-  height: 130px;
+  transform: rotate(180deg);
+  transform-origin: center top;
 }
 .orgchart .node .edge {
   font-size: 15px;
