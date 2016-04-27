@@ -525,7 +525,8 @@
       }
     });
     if (opts.draggable) {
-      $nodeDiv.on('dragstart', function() {
+      $nodeDiv.on('dragstart', function(event) {
+        event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
         var $dragged = $(this);
         var $draggedZone = $dragged.closest('table').find('.node');
         $dragged.closest('.orgchart')
@@ -550,8 +551,9 @@
       .on('drop', function(event) {
         var $dropZone = $(this);
         var $orgchart = $dropZone.closest('.orgchart');
+        var $dragged = $orgchart.data('dragged');
         $orgchart.find('.allowedDrop').removeClass('allowedDrop');
-        var $dragZone = $orgchart.data('dragged').closest('.nodes').siblings().eq(0).children();
+        var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
         // firstly, deal with the hierarchy of drop zone
         if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
           $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
@@ -559,14 +561,17 @@
             .parent().after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
             + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
-            .siblings(':last').append($orgchart.data('dragged').find('.horizontalEdge').remove().end().closest('table').parent());
+            .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
         } else {
           var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
           var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
           $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+          if (!$dragged.find('.horizontalEdge').length) {
+            $dragged.append(horizontalEdges);
+          }
           $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
-            .end().next().append($orgchart.data('dragged').append(horizontalEdges).closest('table').parent());
-          var $dropSibs = $orgchart.data('dragged').closest('table').parent().siblings().find('.node:first');
+            .end().next().append($dragged.closest('table').parent());
+          var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
           if ($dropSibs.length === 1) {
             $dropSibs.append(horizontalEdges);
           }
