@@ -32,7 +32,7 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
-      'orientation': 'horizontal-align'
+      'direction': 'b2t'
     });
 
   });

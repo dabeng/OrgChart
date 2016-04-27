@@ -38,7 +38,7 @@
   padding: 20px;
 }
 
-.orgchart.horizontal-align {
+.orgchart.b2t {
   transform: rotate(180deg);
 }
 
@@ -91,7 +91,7 @@
   text-align: center;
   width: 130px;
 }
-.orgchart.horizontal-align .node {
+.orgchart.b2t .node {
  /* width: auto;
   height: 130px;*/
 }
@@ -129,7 +129,7 @@
   color: #fff;
   border-radius: 4px 4px 0 0; 
 }
-.orgchart.horizontal-align .node .title {
+.orgchart.b2t .node .title {
   transform: rotate(-180deg);
   transform-origin: center bottom;
 }
@@ -151,7 +151,7 @@
   color: #333;
   overflow: hidden;
 }
-.orgchart.horizontal-align .node .content {
+.orgchart.b2t .node .content {
   transform: rotate(180deg);
   transform-origin: center top;
 }
