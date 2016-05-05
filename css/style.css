@@ -12,19 +12,13 @@ body {
   color: #333333;
 }
 
-*, *:before, *:after {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
 #chart-container {
   position: relative;
   display: inline-block;
   top: 10px;
   left: 10px;
   height: 420px;
-  width: calc(100% - 20px);
+  width: calc(100% - 24px);
   border: 2px dashed #aaa;
   border-radius: 5px;
   overflow: auto;

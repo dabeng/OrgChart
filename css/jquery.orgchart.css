@@ -38,8 +38,19 @@
   padding: 20px;
 }
 
+.orgchart *, .orgchart *:before, .orgchart *:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 .orgchart.b2t {
   transform: rotate(180deg);
+}
+
+.orgchart.l2r {
+  transform: rotate(-90deg);
+  /*transform-origin: left top;*/
 }
 
 .orgchart>.spinner {
@@ -95,6 +106,10 @@
  /* width: auto;
   height: 130px;*/
 }
+.orgchart.l2r .node {
+  width: 50px;
+  height: 130px;
+}
 .orgchart .node>.spinner {
   position: absolute;
   top: calc(50% - 15px);
@@ -116,7 +131,6 @@
   border-color: rgba(68, 157, 68, 0.9);
 }
 .orgchart .node .title {
-  position: relative;
   text-align: center;
   font-size: 12px;
   font-weight: bold;
@@ -133,17 +147,21 @@
   transform: rotate(-180deg);
   transform-origin: center bottom;
 }
+.orgchart.l2r .node .title {
+  transform: rotate(90deg) translate(40px, 40px);
+  transform-origin: bottom center;
+  width: 120px;
+}
 .orgchart .node .title .symbol {
   float: left;
   margin-top: 4px;
   margin-left: 2px;
 }
 .orgchart .node .content {
-  position: relative;
   width: 100%;
+  height: 20px;
   font-size: 11px;
-  line-height: 13px;
-  padding: 2px;
+  line-height: 18px;
   border: 1px solid rgba(217, 83, 79, 0.8);
   border-radius: 0 0 4px 4px;
   text-align: center;
@@ -154,6 +172,11 @@
 .orgchart.b2t .node .content {
   transform: rotate(180deg);
   transform-origin: center top;
+}
+.orgchart.l2r .node .content {
+  transform: rotate(90deg) translate(40px, 40px);
+  transform-origin: top center;
+  width: 120px;
 }
 .orgchart .node .edge {
   font-size: 15px;
@@ -203,38 +226,6 @@
 }
 .orgchart .node .leftEdge::before {
   left: 3px;
-}
-.orgchart .node .edge.fa-chevron-up:hover {
-  transform: translate(0, -4px);
-  -webkit-transform: translate(0, -4px);
-}
-.orgchart .node .edge.fa-chevron-down:hover {
-  transform: translate(0, 4px);
-  -webkit-transform: translate(0, 4px);
-}
-.orgchart .node .edge.fa-chevron-right:hover {
-  transform: translate(4px, 0);
-  -webkit-transform: translate(4px, 0);
-}
-.orgchart .node .edge.fa-chevron-left:hover {
-  transform: translate(-4px, 0);
-  -webkit-transform: translate(-4px, 0);
-}
-.orgchart .node .edge.fa-chevron-right:hover ~ .fa-chevron-left {
-  transform: translate(-4px, 0);
-  -webkit-transform: translate(-4px, 0);
-}
-.orgchart .node .edge.fa-chevron-left:hover ~ .fa-chevron-right {
-  transform: translate(4px, 0);
-  -webkit-transform: translate(4px, 0);
-}
-.rightEdgeMoveRight {
-  transform: translate(4px, 0);
-  -webkit-transform: translate(4px, 0);
-}
-.rightEdgeMoveLeft {
-  transform: translate(-4px, 0);
-  -webkit-transform: translate(-4px, 0);
 }
 
 .oc-export-btn {

@@ -511,19 +511,6 @@
         }
       }
     });
-    // remedy the defect of css selector -- there is not "previous sibling" selector
-    $nodeDiv.children('.leftEdge').on('mouseenter mouseleave', function(event) {
-      if (event.type === 'mouseenter') {
-        var $rightEdge = $(this).siblings('.rightEdge');
-        if (!getNodeState($(this), 'siblings').visible) {
-          $rightEdge.addClass('rightEdgeMoveRight');
-        } else {
-          $rightEdge.addClass('rightEdgeMoveLeft');
-        }
-      } else {
-        $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
-      }
-    });
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
         event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
