@@ -49,8 +49,8 @@
 }
 
 .orgchart.l2r {
-  transform: rotate(-90deg);
-  /*transform-origin: left top;*/
+  transform: rotate(-90deg) rotateY(180deg);
+  transform-origin: left top;
 }
 
 .orgchart>.spinner {
@@ -148,7 +148,7 @@
   transform-origin: center bottom;
 }
 .orgchart.l2r .node .title {
-  transform: rotate(90deg) translate(40px, 40px);
+  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   transform-origin: bottom center;
   width: 120px;
 }
@@ -174,7 +174,7 @@
   transform-origin: center top;
 }
 .orgchart.l2r .node .content {
-  transform: rotate(90deg) translate(40px, 40px);
+  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   transform-origin: top center;
   width: 120px;
 }
@@ -294,17 +294,29 @@
 }
 .slide-down {
   opacity: 0;
-  top: 42px;
+  top: 40px;
+}
+.orgchart.l2r .node.slide-down {
+  top: 130px;
 }
 .slide-up {
   opacity: 0;
-  top: -42px;
+  top: -40px;
+}
+.orgchart.l2r .node.slide-up {
+  top: -130px;
 }
 .slide-right {
   opacity: 0;
   left: 130px;
 }
+.orgchart.l2r .node.slide-right {
+  left: 40px;
+}
 .slide-left {
   opacity: 0;
   left: -130px;
+}
+.orgchart.l2r .node.slide-left {
+  left: -40px;
 }
