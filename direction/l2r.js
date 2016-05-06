@@ -20,14 +20,11 @@
       ]
     };
 
-    var $chart = $('#chart-container').orgchart({
+    $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
       'direction': 'l2r'
-    }).find('.orgchart');
-
-    // $chart.css('transform', $chart.css('transform') + ' translateX(-' + $chart.outerWidth(true) + 'px)');
-    // $chart.css('margin-top', $chart.outerWidth(true));
+    });
 
   });
 

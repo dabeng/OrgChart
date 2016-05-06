@@ -53,6 +53,11 @@
   transform-origin: left top;
 }
 
+.orgchart.r2l {
+  transform: rotate(90deg) rotateY(180deg);
+  transform-origin: right top;
+}
+
 .orgchart>.spinner {
   font-size: 100px;
   margin-top: 30px;
@@ -106,7 +111,7 @@
  /* width: auto;
   height: 130px;*/
 }
-.orgchart.l2r .node {
+.orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
   height: 130px;
 }
@@ -152,6 +157,11 @@
   transform-origin: bottom center;
   width: 120px;
 }
+.orgchart.r2l .node .title {
+  transform: rotate(90deg) translate(40px, 40px) rotateY(-180deg);
+  transform-origin: bottom center;
+  width: 120px;
+}
 .orgchart .node .title .symbol {
   float: left;
   margin-top: 4px;
@@ -175,6 +185,11 @@
 }
 .orgchart.l2r .node .content {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  transform-origin: top center;
+  width: 120px;
+}
+.orgchart.r2l .node .content {
+  transform: rotate(90deg) translate(40px, 40px) rotateY(-180deg);
   transform-origin: top center;
   width: 120px;
 }
