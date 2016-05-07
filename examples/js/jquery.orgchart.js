@@ -30,7 +30,8 @@
       'exportButton': false,
       'exportFilename': 'OrgChart',
       'parentNodeSymbol': 'fa-users',
-      'draggable': false
+      'draggable': false,
+      'direction': 't2b'
     };
 
     switch (options) {
@@ -59,7 +60,7 @@
     var $chartContainer = this;
     var data = opts.data;
     var $chart = $('<div>', {
-      'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
+      'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + (opts.direction !== 't2b' ? ' ' + opts.direction : ''),
       'click': function(event) {
         if (!$(event.target).closest('.node').length) {
           $chart.find('.node.focused').removeClass('focused');
@@ -508,19 +509,6 @@
             endLoading($that, $node, opts);
           });
         }
-      }
-    });
-    // remedy the defect of css selector -- there is not "previous sibling" selector
-    $nodeDiv.children('.leftEdge').on('mouseenter mouseleave', function(event) {
-      if (event.type === 'mouseenter') {
-        var $rightEdge = $(this).siblings('.rightEdge');
-        if (!getNodeState($(this), 'siblings').visible) {
-          $rightEdge.addClass('rightEdgeMoveRight');
-        } else {
-          $rightEdge.addClass('rightEdgeMoveLeft');
-        }
-      } else {
-        $(this).siblings('.rightEdge').removeClass('rightEdgeMoveRight rightEdgeMoveLeft');
       }
     });
     if (opts.draggable) {
