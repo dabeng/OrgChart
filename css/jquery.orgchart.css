@@ -54,8 +54,8 @@
 }
 
 .orgchart.r2l {
-  transform: rotate(90deg) rotateY(180deg);
-  transform-origin: right top;
+  transform: rotate(90deg);
+  transform-origin: left top;
 }
 
 .orgchart>.spinner {
@@ -107,10 +107,7 @@
   text-align: center;
   width: 130px;
 }
-.orgchart.b2t .node {
- /* width: auto;
-  height: 130px;*/
-}
+
 .orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
   height: 130px;
@@ -158,7 +155,7 @@
   width: 120px;
 }
 .orgchart.r2l .node .title {
-  transform: rotate(90deg) translate(40px, 40px) rotateY(-180deg);
+  transform: rotate(-90deg) translate(-40px, -40px);
   transform-origin: bottom center;
   width: 120px;
 }
@@ -189,7 +186,7 @@
   width: 120px;
 }
 .orgchart.r2l .node .content {
-  transform: rotate(90deg) translate(40px, 40px) rotateY(-180deg);
+  transform: rotate(-90deg) translate(-40px, -40px);
   transform-origin: top center;
   width: 120px;
 }
@@ -300,38 +297,38 @@
   color: rgba(255,255,255,0.8);
   font-size: 108px;
 }
-.node {
+.orgchart .node {
   transition: all 0.3s;
   webkit-transition: all 0.3s;
   opacity: 1;
   top: 0;
   left: 0;
 }
-.slide-down {
+.orgchart .slide-down {
   opacity: 0;
   top: 40px;
 }
-.orgchart.l2r .node.slide-down {
+.orgchart.l2r .node.slide-down, .orgchart.r2l .node.slide-down {
   top: 130px;
 }
-.slide-up {
+.orgchart .slide-up {
   opacity: 0;
   top: -40px;
 }
-.orgchart.l2r .node.slide-up {
+.orgchart.l2r .node.slide-up, .orgchart.r2l .node.slide-up {
   top: -130px;
 }
-.slide-right {
+.orgchart .slide-right {
   opacity: 0;
   left: 130px;
 }
-.orgchart.l2r .node.slide-right {
+.orgchart.l2r .node.slide-right, .orgchart.r2l .node.slide-right {
   left: 40px;
 }
-.slide-left {
+.orgchart .slide-left {
   opacity: 0;
   left: -130px;
 }
-.orgchart.l2r .node.slide-left {
+.orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
   left: -40px;
 }
