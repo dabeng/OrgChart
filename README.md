@@ -7,7 +7,7 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 - Font Awesome provides us with administration icon, second level menu icon and loading spinner.
 
 ## Demo
-- **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**(this feature comes from [Tobyee's good idea](https://github.com/dabeng/OrgChart/issues/1))
+- **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 ```html
 <!-- wrap the text node with <a href="#"> , <span>, blabla is also OK. Note:text node must immediately follow the <li> tag, with no intervening characters of any kind.  -->
 <ul id="ul-data">
@@ -63,7 +63,7 @@ $('#chart-container').orgchart({
 ```
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
-- **I wanna align orgchart with different orientation**(this feature comes from [fvlima's good idea](https://github.com/dabeng/OrgChart/issues/5))
+- **I wanna align orgchart with different orientation**(this feature comes from [fvlima's good idea:blush:](https://github.com/dabeng/OrgChart/issues/5))
 
   Top to Bottom -- default direction, as you can see all other examples on this page.
   
