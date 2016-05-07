@@ -65,9 +65,9 @@ $('#chart-container').orgchart({
 
 - **I wanna align orgchart with different orientation**(this feature comes from [fvlima's good idea](https://github.com/dabeng/OrgChart/issues/5))
 
-  top2bottom -- default direction, as you can see all other examples on this page.
+  Top to Bottom -- default direction, as you can see all other examples on this page.
   
-  [bottom2top](http://dabeng.github.io/OrgChart/direction/bottom2top)
+  [Bottom to Top](http://dabeng.github.io/OrgChart/direction/bottom2top)
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
@@ -76,9 +76,9 @@ $('#chart-container').orgchart({
   'direction': 'b2t'
 });
 ```
-![bottom2top](http://dabeng.github.io/OrgChart/direction/b2t.png)
+![Bottom to Top](http://dabeng.github.io/OrgChart/direction/b2t.png)
 
-  [left2right](http://dabeng.github.io/OrgChart/direction/left2right)
+  [Left to Right](http://dabeng.github.io/OrgChart/direction/left2right)
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
@@ -87,9 +87,9 @@ $('#chart-container').orgchart({
   'direction': 'l2r'
 });
 ```
-![left2right](http://dabeng.github.io/OrgChart/direction/l2r.png)
+![Left to Right](http://dabeng.github.io/OrgChart/direction/l2r.png)
 
-  [right2left](http://dabeng.github.io/OrgChart/direction/right2left)
+  [Right to Left](http://dabeng.github.io/OrgChart/direction/right2left)
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
@@ -98,7 +98,7 @@ $('#chart-container').orgchart({
   'direction': 'r2l'
 });
 ```
-![right2left](http://dabeng.github.io/OrgChart/direction/r2l.png)
+![Right to Left](http://dabeng.github.io/OrgChart/direction/r2l.png)
 
 - **[I wanna load datasource through ajax](http://dabeng.github.io/OrgChart/ajax-datasource/)**
 ```js
