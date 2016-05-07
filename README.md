@@ -63,7 +63,7 @@ $('#chart-container').orgchart({
 ```
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
-- **I wanna align orgchart with different orientation**(this feature comes from [fvlima's good idea:blush:](https://github.com/dabeng/OrgChart/issues/5))
+- **I wanna align orgchart with different orientation**(this feature comes from [the good idea of fvlima and badulesia :blush:](https://github.com/dabeng/OrgChart/issues/5))
 
   Top to Bottom -- default direction, as you can see all other examples on this page.
   
