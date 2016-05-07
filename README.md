@@ -64,7 +64,9 @@ $('#chart-container').orgchart({
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
 - **I wanna align orgchart with different orientation**(this feature comes from [fvlima's good idea](https://github.com/dabeng/OrgChart/issues/5))
+
   top2bottom -- default direction, as you can see all other examples on this page.
+  
   [bottom2top](http://dabeng.github.io/OrgChart/direction/bottom2top)
 ```js
 // sample of core source code
