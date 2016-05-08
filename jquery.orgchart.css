@@ -185,6 +185,8 @@
   background-color: #fff;
   color: #333;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .orgchart.b2t .node .content {
