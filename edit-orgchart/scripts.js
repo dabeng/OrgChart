@@ -16,7 +16,6 @@
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'nodeTitle': 'name',
       'exportButton': true,
       'exportFilename': 'SportsChart',
       'parentNodeSymbol': 'fa-th-large',

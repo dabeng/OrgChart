@@ -32,7 +32,6 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'depth': 2,
-      'nodeTitle': 'name',
       'nodeContent': 'title'
     });
 
