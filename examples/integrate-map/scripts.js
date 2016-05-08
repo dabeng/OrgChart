@@ -46,7 +46,6 @@
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'nodeTitle': 'name',
       'nodeContent': 'title',
       'createNode': function($node, data) {
         $node.on('click', function() {

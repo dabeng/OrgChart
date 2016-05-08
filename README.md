@@ -57,7 +57,6 @@ var datascource = {
 $('#chart-container').orgchart({
   'data' : datascource,
   'depth': 2,
-  'nodeTitle': 'name',
   'nodeContent': 'title'
 });
 ```
@@ -106,7 +105,6 @@ $('#chart-container').orgchart({
 $('#chart-container').orgchart({
   'data' : '/orgchart/initdata',
   'depth': 2,
-  'nodeTitle': 'name',
   'nodeContent': 'title'
 });
 ```
@@ -138,7 +136,6 @@ var ajaxURLs = {
 $('#chart-container').orgchart({
   'data' : datascource,
   'ajaxURL': ajaxURLs,
-  'nodeTitle': 'name',
   'nodeContent': 'title',
   'nodeId': 'id'
 });
@@ -151,7 +148,6 @@ $('#chart-container').orgchart({
 $('#chart-container').orgchart({
   'data' : datascource,
   'depth': 2,
-  'nodeTitle': 'name',
   'nodeContent': 'title',
   'nodeID': 'id',
   'createNode': function($node, data) {
@@ -176,7 +172,6 @@ Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canva
 $('#chart-container').orgchart({
   'data' : datascource,
   'depth': 2,
-  'nodeTitle': 'name',
   'nodeContent': 'title',
   'exportButton': true,
   'exportFilename': 'MyOrgChart'
@@ -225,7 +220,6 @@ var datascource = {
 
 $('#chart-container').orgchart({
   'data' : datascource,
-  'nodeTitle': 'name',
   'nodeContent': 'title',
   'createNode': function($node, data) {
     $node.on('click', function() {
@@ -257,7 +251,6 @@ With the help of exposed core methods(addParent(), addSiblings(), addChildren(),
 // sample of core source code
 $('#chart-container').orgchart({
   'data' : datascource,
-  'nodeTitle': 'name',
   'exportButton': true,
   'exportFilename': 'SportsChart',
   'parentNodeSymbol': 'fa-th-large',

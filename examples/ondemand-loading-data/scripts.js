@@ -77,7 +77,6 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'ajaxURL': ajaxURLs,
-      'nodeTitle': 'name',
       'nodeContent': 'title',
       'nodeId': 'id'
     });
