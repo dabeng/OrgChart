@@ -50,7 +50,8 @@ var datascource = {
         { 'name': 'Hei Hei', 'title': 'senior engineer' }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager' }
+    { 'name': 'Hong Miao', 'title': 'department manager' },
+    { 'name': 'Chun Miao', 'title': 'department manager' }
   ]
 };
     
