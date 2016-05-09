@@ -141,7 +141,7 @@ $('#chart-container').orgchart({
   'nodeId': 'id'
 });
 ```
-![on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/recorder.gif)
+![on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/recorder1.gif)
 
 - **[I wanna customize the structure of node](http://dabeng.github.io/OrgChart/option-createNode/)**
 ```js
