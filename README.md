@@ -6,6 +6,14 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 - Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo.
 - Font Awesome provides us with administration icon, second level menu icon and loading spinner.
 
+## Installation
+Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp. 
+### Install with Bower
+```
+# From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies 
+$ bower install orgchart --save
+```
+
 ## Demo
 - **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 ```html
