@@ -1,10 +1,19 @@
 # OrgChart
 With the help of DOM, jQuery and CSS3 transition, we got a simple and direct organization chart plugin. In fact, anytime you want a tree-like hierarchical structure, you can turn to OrgChart.
 
-## Notes
+## Foreword
 - First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg.
 - Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo.
 - Font Awesome provides us with administration icon, second level menu icon and loading spinner.
+
+## Features
+- Supports both local data and remote data (JSON).
+- Smooth expand/collapse effects based on CSS3 transitions.
+- Align the chart in 4 orientations.
+- Allows user to change orgchart structure by drag/drop nodes.
+- Allows user to edit orgchart dynamically and save the final hierarchy as a JSON object.
+- Supports exporting chart as a picture.
+- Supports panning the chart
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp. 
@@ -118,6 +127,17 @@ $('#chart-container').orgchart({
 });
 ```
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
+
+- **[I wanna drag the orgchart in the container div](http://dabeng.github.io/OrgChart/pan-zoom/)**
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'depth': 2,
+  'nodeContent': 'title',
+  'pan': true // key point
+});
+```
 
 - **[I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)**
 
@@ -403,6 +423,9 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
+    </tr>
+    <tr>
+      <td>pan</td><td>boolean</td><td>no</td><td>false</td><td>Users could drag the orgchart by enabling this option.</td>
     </tr>
     <tr>
       <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety indicates the URL to which ajax request for different nodes is sent.</td>
