@@ -32,7 +32,8 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'depth': 2,
-      'nodeContent': 'title'
+      'nodeContent': 'title',
+      'pan': true
     });
 
   });
