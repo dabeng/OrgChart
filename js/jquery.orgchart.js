@@ -122,6 +122,7 @@
     }
 
     if (opts.pan) {
+      $chartContainer.css('overflow', 'hidden');
       $chart.on('mousedown',function(e){
         var $this = $(this);
         if ($(e.target).closest('.node').length) {
@@ -136,7 +137,7 @@
         var startX = e.pageX - lastX;
         var startY = e.pageY - lastY;
 
-        $(document).on('mousemove',function(ev){
+        $(document).on('mousemove',function(ev) {
           var newX = ev.pageX - startX;
           var newY = ev.pageY - startY;
           $this.css('transform','translate(' + newX + 'px, ' + newY + 'px)')
