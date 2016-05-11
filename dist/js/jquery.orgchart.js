@@ -31,7 +31,8 @@
       'exportFilename': 'OrgChart',
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
-      'direction': 't2b'
+      'direction': 't2b',
+      'pan': false
     };
 
     switch (options) {
@@ -118,6 +119,37 @@
       var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
         + ' download="' + opts.exportFilename + '.png"></a>';
       $chartContainer.append($exportBtn).append(downloadBtn);
+    }
+
+    if (opts.pan) {
+      $chartContainer.css('overflow', 'hidden');
+      $chart.on('mousedown',function(e){
+        var $this = $(this);
+        if ($(e.target).closest('.node').length) {
+          $this.data('panning', false);
+          return;
+        } else {
+          $this.css('cursor', 'move').data('panning', true);
+        }
+        var lastPos = $this.data('lastTransform');
+        var lastX = lastPos ? lastPos.x : 0;
+        var lastY = lastPos ? lastPos.y : 0;
+        var startX = e.pageX - lastX;
+        var startY = e.pageY - lastY;
+
+        $(document).on('mousemove',function(ev) {
+          var newX = ev.pageX - startX;
+          var newY = ev.pageY - startY;
+          $this.css('transform','translate(' + newX + 'px, ' + newY + 'px)')
+            .data('lastTransform', { 'x': newX, 'y': newY });
+        });
+      });
+      $(document).on('mouseup',function() {
+        if ($chart.data('panning')) {
+          $chart.css('cursor', 'default');
+          $(this).off('mousemove');
+        }
+      });
     }
 
     return $chartContainer;
