@@ -32,7 +32,8 @@
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
       'direction': 't2b',
-      'pan': false
+      'pan': false,
+      'zoom': false
     };
 
     switch (options) {
@@ -148,6 +149,25 @@
         if ($chart.data('panning')) {
           $chart.css('cursor', 'default');
           $(this).off('mousemove');
+        }
+      });
+    }
+
+    if (opts.zoom) {
+      $chartContainer.on('wheel', function(event) {
+        var lastTransform = $chart.css('transform');
+        var ratio = 1;
+        var delta  = event.originalEvent.deltaY > 0 ? -0.2 : 0.2;
+        var reScale = /scale\(\d+(\.\d)*\)/;
+        if (lastTransform !== 'none') {
+          if (lastTransform.indexOf('scale')> -1) {
+            ratio = parseFloat(lastTransform.match(reScale)[0].slice(6, -1));
+            $chart.css('transform', lastTransform.replace(reScale, 'sacle(' + (ratio + delta) + ')'));
+          } else {
+            $chart.css('transform', lastTransform + ' scale(' + (ratio + delta) + ')');
+          }
+        } else {
+          $chart.css('transform', 'scale(' + (ratio + delta) +')');
         }
       });
     }
