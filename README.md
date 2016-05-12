@@ -520,3 +520,4 @@ This method is designed to get the hierarchy relationships of orgchart for furth
 - Firefox 4+
 - Safari 6+
 - Opera 15+
+- IE 11+
