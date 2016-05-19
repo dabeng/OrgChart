@@ -136,11 +136,9 @@
         var lastY = 0;
         var lastTransform = $this.css('transform');
         if (lastTransform !== 'none') {
-          var temp = lastTransform.match(/-?[\d\.]+/g).map(function(item) {
-            return parseInt(item);
-          });
-          lastX = temp[4];
-          lastY = temp[5];
+          var temp = lastTransform.match(/-?[\d\.]+/g);
+          lastX = parseInt(temp[4]);
+          lastY = parseInt(temp[5]);
         }
         var startX = e.pageX - lastX;
         var startY = e.pageY - lastY;
@@ -171,31 +169,24 @@
       $chart.on('wheel', function(event) {
         event.preventDefault();
         var lastTf = $chart.css('transform');
-        var transOg = $chart.css('transformOrigin').match(/-?(\d+)px/g).map(function(item) {
-          return parseInt(item);
-        });
 
         var delta  = event.originalEvent.deltaY > 0 ? -0.2 : 0.2;
-        if (lastTf == 'none') {
+        if (lastTf === 'none') {
           var offsetX = event.originalEvent.pageX - $chartContainer[0].offsetLeft - $chart[0].offsetLeft;
           var offsetY = event.originalEvent.pageY - $chartContainer[0].offsetTop - $chart[0].offsetTop;
-          var translateX = Math.round(($chart.outerWidth()/2 - offsetX)*delta);
-          var translateY = Math.round(($chart.outerHeight()/2 - offsetY)*delta);
+          var translateX = Math.round(($chart.outerWidth()/2 - offsetX) * delta);
+          var translateY = Math.round(($chart.outerHeight()/2 - offsetY) * delta);
           $chart.css('transform', 'matrix(' + (1 + delta) + ', 0, 0, ' + (1 + delta) +', '+translateX+', '+translateY+')');
         } else {
           var matrix = lastTf.match(/-?[\d\.]+/g).map(function(item) {
-            return parseInt(item);
+            return Number(item);
           });
-
-
-
-          var offsetX = event.originalEvent.pageX - $chartContainer[0].offsetLeft - $chart[0].offsetLeft - matrix[4]*matrix[0];
-          var offsetY = event.originalEvent.pageY - $chartContainer[0].offsetTop - $chart[0].offsetTop - matrix[5]*matrix[0];
-          var translateX = Math.round(($chart.outerWidth() - offsetX*matrix[0])*delta - $chart.outerWidth()*delta/2);
-          var translateY = Math.round(($chart.outerHeight() - offsetY*matrix[0])*delta - $chart.outerHeight()*delta/2);
+          var offsetX = event.originalEvent.pageX - $chartContainer[0].offsetLeft - $chart[0].offsetLeft - matrix[4];
+          var offsetY = event.originalEvent.pageY - $chartContainer[0].offsetTop - $chart[0].offsetTop - matrix[5];
+          var translateX = Math.round(($chart.outerWidth()/2 - offsetX) * delta);
+          var translateY = Math.round(($chart.outerHeight()/2 - offsetY) * delta);
           matrix[4] = matrix[4] + translateX;
           matrix[5] = matrix[5] + translateY;
-
           var newScale = matrix[0] + delta;
           if (newScale < 0.2) {
             matrix[0] = matrix[3] = 0.2;
@@ -204,10 +195,8 @@
           } else {
             matrix[0] = matrix[3] = 10;
           }
-
           $chart.css('transform', 'matrix(' + matrix.join(', ') + ')');
         }
-
       });
     }
 
