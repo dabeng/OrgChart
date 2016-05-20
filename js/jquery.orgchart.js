@@ -181,10 +181,10 @@
           var matrix = lastTf.match(/-?[\d\.]+/g).map(function(item) {
             return Number(item);
           });
-          var offsetX = event.originalEvent.pageX - $chartContainer[0].offsetLeft - $chart[0].offsetLeft - matrix[4] + ($chart.outerWidth()*(1-matrix[0])/matrix[0]);
-          var offsetY = event.originalEvent.pageY - $chartContainer[0].offsetTop - $chart[0].offsetTop - matrix[5]+ ($chart.outerHeight()*(1-matrix[0])/matrix[0]);
-          var translateX = Math.round(($chart.outerWidth()/2 - offsetX) * delta);
-          var translateY = Math.round(($chart.outerHeight()/2 - offsetY) * delta);
+          var offsetX = event.originalEvent.pageX - $chartContainer[0].offsetLeft - ($chart[0].offsetLeft + matrix[4]) + ($chart.outerWidth()*(matrix[0]-1)/2);
+          var offsetY = event.originalEvent.pageY - $chartContainer[0].offsetTop - $chart[0].offsetTop - matrix[5] + ($chart.outerHeight()*(matrix[0]-1)/2);
+          var translateX = Math.round(($chart.outerWidth()*(matrix[0])/2 - offsetX) * delta);
+          var translateY = Math.round(($chart.outerHeight()*(matrix[0])/2 - offsetY) * delta);
           matrix[4] = matrix[4] + translateX;
           matrix[5] = matrix[5] + translateY;
           var newScale = matrix[0] + delta;
