@@ -32,8 +32,7 @@
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
       'direction': 't2b',
-      'pan': false,
-      'zoom': false
+      'panzoom': false
     };
 
     switch (options) {
@@ -122,7 +121,7 @@
       $chartContainer.append($exportBtn).append(downloadBtn);
     }
 
-    if (opts.pan) {
+    if (opts.panzoom) {
       $chartContainer.css('overflow', 'hidden');
       $chart.on('mousedown',function(e){
         var $this = $(this);
@@ -150,10 +149,10 @@
           if (lastTransform === 'none') {
             $this.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
           } else {
-            var matrix = lastTransform.match(/-?[\d\.]+/g);
+            var matrix = lastTransform.split(',');
             matrix[4] = newX;
-            matrix[5] = newY;
-            $this.css('transform', 'matrix(' + matrix.join(', ') + ')');
+            matrix[5] = newY + ')';
+            $this.css('transform', matrix.join(','));
           }
         });
       });
@@ -163,9 +162,6 @@
           $(this).off('mousemove');
         }
       });
-    }
-
-    if (opts.zoom) {
       $chartContainer.on('wheel', function(event) {
         event.preventDefault();
         var lastTf = $chart.css('transform');
