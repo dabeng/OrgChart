@@ -13,7 +13,7 @@ With the help of DOM, jQuery and CSS3 transition, we got a simple and direct org
 - Allows user to change orgchart structure by drag/drop nodes.
 - Allows user to edit orgchart dynamically and save the final hierarchy as a JSON object.
 - Supports exporting chart as a picture.
-- Supports panning the chart
+- Supports pan and zoom
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp. 
@@ -79,6 +79,10 @@ $('#chart-container').orgchart({
 });
 ```
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
+
+- **[I wanna pan&zoom the orgchart](http://dabeng.github.io/OrgChart/pan-zoom/)**
+
+![pan & zoom](http://dabeng.github.io/OrgChart/pan-zoom/recorder.gif)
 
 - **I wanna align orgchart with different orientation**(this feature comes from [the good idea of fvlima and badulesia :blush:](https://github.com/dabeng/OrgChart/issues/5))
 
@@ -422,10 +426,10 @@ $('#chartContainerId').orgchart(options);
       <td>data</td><td>json or string</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
+      <td>panzoom</td><td>boolean</td><td>no</td><td>false</td><td>Users could pan the orgchart by mouse drag&drop, zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
     </tr>
     <tr>
-      <td>pan</td><td>boolean</td><td>no</td><td>false</td><td>Users could drag the orgchart by enabling this option.</td>
+      <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
     </tr>
     <tr>
       <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety indicates the URL to which ajax request for different nodes is sent.</td>
