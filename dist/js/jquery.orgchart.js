@@ -32,7 +32,7 @@
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
       'direction': 't2b',
-      'pan': false
+      'panzoom': false
     };
 
     switch (options) {
@@ -121,7 +121,7 @@
       $chartContainer.append($exportBtn).append(downloadBtn);
     }
 
-    if (opts.pan) {
+    if (opts.panzoom) {
       $chartContainer.css('overflow', 'hidden');
       $chart.on('mousedown',function(e){
         var $this = $(this);
@@ -131,23 +131,63 @@
         } else {
           $this.css('cursor', 'move').data('panning', true);
         }
-        var lastPos = $this.data('lastTransform');
-        var lastX = lastPos ? lastPos.x : 0;
-        var lastY = lastPos ? lastPos.y : 0;
+        var lastX = 0;
+        var lastY = 0;
+        var lastTf = $this.css('transform');
+        if (lastTf !== 'none') {
+          var temp = lastTf.split(',');
+          if (lastTf.indexOf('3d') === -1) {
+            lastX = parseInt(temp[4]);
+            lastY = parseInt(temp[5]);
+          } else {
+            lastX = parseInt(temp[12]);
+            lastY = parseInt(temp[13]);
+          }
+        }
         var startX = e.pageX - lastX;
         var startY = e.pageY - lastY;
 
         $(document).on('mousemove',function(ev) {
           var newX = ev.pageX - startX;
           var newY = ev.pageY - startY;
-          $this.css('transform','translate(' + newX + 'px, ' + newY + 'px)')
-            .data('lastTransform', { 'x': newX, 'y': newY });
+          var lastTf = $this.css('transform');
+          if (lastTf === 'none') {
+            if (lastTf.indexOf('3d') === -1) {
+              $this.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
+            } else {
+              $this.css('transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + newX + ', ' + newY + ', 0, 1)');
+            }
+          } else {
+            var matrix = lastTf.split(',');
+            if (lastTf.indexOf('3d') === -1) {
+              matrix[4] = ' ' + newX;
+              matrix[5] = ' ' + newY + ')';
+            } else {
+              matrix[12] = ' ' + newX;
+              matrix[13] = ' ' + newY;
+            }
+            $this.css('transform', matrix.join(','));
+          }
         });
       });
       $(document).on('mouseup',function() {
         if ($chart.data('panning')) {
           $chart.css('cursor', 'default');
           $(this).off('mousemove');
+        }
+      });
+      $chartContainer.on('wheel', function(event) {
+        event.preventDefault();
+        var lastTf = $chart.css('transform');
+        var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
+        if (lastTf === 'none') {
+          $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
+        } else {
+          if (lastTf.indexOf('3d') === -1) {
+            $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+          } else {
+            $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+          }
         }
       });
     }
