@@ -133,11 +133,16 @@
         }
         var lastX = 0;
         var lastY = 0;
-        var lastTransform = $this.css('transform');
-        if (lastTransform !== 'none') {
-          var temp = lastTransform.match(/-?[\d\.]+/g);
-          lastX = parseInt(temp[4]);
-          lastY = parseInt(temp[5]);
+        var lastTf = $this.css('transform');
+        if (lastTf !== 'none') {
+          var temp = lastTf.split(',');
+          if (lastTf.indexOf('3d') === -1) {
+            lastX = parseInt(temp[4]);
+            lastY = parseInt(temp[5]);
+          } else {
+            lastX = parseInt(temp[12]);
+            lastY = parseInt(temp[13]);
+          }
         }
         var startX = e.pageX - lastX;
         var startY = e.pageY - lastY;
@@ -145,13 +150,22 @@
         $(document).on('mousemove',function(ev) {
           var newX = ev.pageX - startX;
           var newY = ev.pageY - startY;
-          var lastTransform = $this.css('transform');
-          if (lastTransform === 'none') {
-            $this.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
+          var lastTf = $this.css('transform');
+          if (lastTf === 'none') {
+            if (lastTf.indexOf('3d') === -1) {
+              $this.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
+            } else {
+              $this.css('transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + newX + ', ' + newY + ', 0, 1)');
+            }
           } else {
-            var matrix = lastTransform.split(',');
-            matrix[4] = newX;
-            matrix[5] = newY + ')';
+            var matrix = lastTf.split(',');
+            if (lastTf.indexOf('3d') === -1) {
+              matrix[4] = ' ' + newX;
+              matrix[5] = ' ' + newY + ')';
+            } else {
+              matrix[12] = ' ' + newX;
+              matrix[13] = ' ' + newY;
+            }
             $this.css('transform', matrix.join(','));
           }
         });
@@ -165,22 +179,15 @@
       $chartContainer.on('wheel', function(event) {
         event.preventDefault();
         var lastTf = $chart.css('transform');
-        var delta  = event.originalEvent.deltaY > 0 ? -0.2 : 0.2;
+        var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
         if (lastTf === 'none') {
-          $chart.css('transform', 'matrix(' + (1 + delta) + ', 0, 0, ' + (1 + delta) +', 0, 0)');
+          $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
         } else {
-          var matrix = lastTf.match(/-?[\d\.]+/g).map(function(item) {
-            return Number(item);
-          });
-          var newScale = matrix[0] + delta;
-          if (newScale < 0.2) {
-            matrix[0] = matrix[3] = 0.2;
-          } else if (newScale < 10) {
-            matrix[0] = matrix[3] = newScale;
+          if (lastTf.indexOf('3d') === -1) {
+            $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
           } else {
-            matrix[0] = matrix[3] = 10;
+            $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
           }
-          $chart.css('transform', 'matrix(' + matrix.join(', ') + ')');
         }
       });
     }
