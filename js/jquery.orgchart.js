@@ -16,10 +16,15 @@
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
+'use strict';
 
-(function($) {
-  'use strict';
-
+(function(factory) {
+  if (typeof module === 'object' && typeof module.exports === 'object') {
+    factory(require('jquery'), window, document);
+  } else {
+    factory(jQuery, window, document);
+  }
+}(function($, window, document, undefined) {
   $.fn.orgchart = function(options) {
     var defaultOptions = {
       'nodeTitle': 'name',
@@ -842,4 +847,4 @@
     }
   }
 
-})(jQuery);
+}));
