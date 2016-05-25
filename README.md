@@ -20,8 +20,15 @@ Of course, you can directly use the standalone build by including dist/js/jquery
 ### Install with Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies 
-$ bower install orgchart --save
+$ bower install orgchart
 ```
+
+### Install with npm
+```
+# From version 1.0.4 on, users can install orgchart with npm 
+$ npm install orgchart
+```
+require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
 ## Demo
 - **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
