@@ -1,4 +1,4 @@
-# OrgChart
+![OrgChart](http://dabeng.github.io/OrgChart/img/orgchart-heading.png)
 With the help of DOM, jQuery and CSS3 transition, we got a simple and direct organization chart plugin. In fact, anytime you want a tree-like hierarchical structure, you can turn to OrgChart.
 
 ## Foreword
