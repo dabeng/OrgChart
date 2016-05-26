@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Organization Chart Plugin</title>
+
+    <link rel="icon" type="image/x-icon" href="img/logo.ico">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/jquery.orgchart.css">
+    <style type="text/css">
+      html,body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.428571429;
+        color: #333333;
+        background-image: url(img/background.jpg);
+      }
+
+      #headline {
+        background-color: rgba(0,0,0,0.5);
+        text-align: center;
+      }
+
+      .demo-heading {
+        padding: 40px 10px 0px 10px;
+        margin: 0px;
+        font-size: 3em;
+        color: #fff;
+      }
+
+      .demo-container {
+        position: relative;
+        display: inline-block;
+        top: 10px;
+        left: 10px;
+        height: 420px;
+        width: calc(100% - 24px);
+        border: 2px dashed #eee;
+        border-radius: 5px;
+        overflow: auto;
+        text-align: center;
+      }
+
+      .orgchart {
+        background: rgba(0, 0, 0, 0.5); 
+      }
+
+      .orgchart .node .title {
+        background-color: #fff;
+        color: #000; 
+      }
+
+      .orgchart .node .content {
+        border-color: transparent;
+        border-top-color: #333;
+      }
+
+      .orgchart .node:hover {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .orgchart .node.focused {
+        background-color: rgba(255, 255, 255, 0.5);
+      }
+
+      .orgchart .node .edge {
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .orgchart .edge:hover {
+        color: #000;
+      }
+
+      .orgchart td.left, .orgchart td.top, .orgchart td.right {
+        border-color: #fff;
+      }
+
+      .orgchart td>.down {
+        background-color: #fff;
+      }
+
+
+    </style>
+
+</head>
+<body>
+  <div id="headline">
+    <img src="img/orgchart-heading.png">
+  </div>
+  <p class="demo-heading">ul datasource</p>
+  <ul id="ul-data" style="display:none">
+    <li>Lao Lao
+      <ul>
+        <li>Bo Miao</li>
+        <li>Su Miao
+          <ul>
+            <li>Tie Hua</li>
+            <li>Hei Hei
+              <ul>
+                <li>Pang Pang</li>
+                <li>Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <div class="demo-container" id="ul-datasource"></div>
+  <p class="demo-heading">json datasource</p>
+  <div class="demo-container" id="json-datasource"></div>
+  <p class="demo-heading">pan and zoom</p>
+  <div class="demo-container" id="pan-zoom"></div>
+  <p class="demo-heading">Bottom to Top</p>
+  <div class="demo-container" id="bottom-top"></div>
+  <p class="demo-heading">Left to Right</p>
+  <div class="demo-container" id="left-right"></div>
+  <p class="demo-heading">Right to Left</p>
+  <div class="demo-container" id="right-left"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    (function($){
+
+      $(function() {
+
+      $('#ul-datasource').orgchart({
+        'data' : $('#ul-data')
+      });
+
+      var jsonDatascource = {
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'children': [
+          { 'name': 'Bo Miao', 'title': 'department manager' },
+          { 'name': 'Su Miao', 'title': 'department manager',
+            'children': [
+              { 'name': 'Tie Hua', 'title': 'senior engineer' },
+              { 'name': 'Hei Hei', 'title': 'senior engineer',
+                'children': [
+                  { 'name': 'Pang Pang', 'title': 'engineer' },
+                  { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                ]
+              }
+            ]
+          },
+          { 'name': 'Hong Miao', 'title': 'department manager' },
+          { 'name': 'Chun Miao', 'title': 'department manager' }
+        ]
+      };
+      $('#json-datasource').orgchart({
+        'data' : jsonDatascource,
+        'depth': 2,
+        'nodeContent': 'title'
+      });
+
+      $('#pan-zoom').orgchart({
+        'data' : jsonDatascource,
+        'depth': 2,
+        'nodeContent': 'title',
+        'panzoom': true
+      });
+
+      $('#bottom-top').orgchart({
+        'data' : jsonDatascource,
+        'nodeContent': 'title',
+        'direction': 'b2t'
+      });
+
+      $('#left-right').orgchart({
+        'data' : jsonDatascource,
+        'nodeContent': 'title',
+        'direction': 'l2r'
+      });
+
+      $('#right-left').orgchart({
+        'data' : jsonDatascource,
+        'nodeContent': 'title',
+        'direction': 'r2l'
+      });
+
+    });
+
+    })(jQuery);
+  </script>
+  </body>
+</html>
