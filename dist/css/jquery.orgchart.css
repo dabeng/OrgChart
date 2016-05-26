@@ -48,11 +48,13 @@
 }
 
 .orgchart.l2r {
+  position: absolute;
   transform: rotate(-90deg) rotateY(180deg);
   transform-origin: left top;
 }
 
 .orgchart.r2l {
+  position: absolute;
   transform: rotate(90deg);
   transform-origin: left top;
 }
