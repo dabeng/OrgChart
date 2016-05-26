@@ -139,17 +139,6 @@ $('#chart-container').orgchart({
 ```
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
 
-- **[I wanna drag the orgchart in the container div](http://dabeng.github.io/OrgChart/pan-zoom/)**
-```js
-// sample of core source code
-$('#chart-container').orgchart({
-  'data' : datascource,
-  'depth': 2,
-  'nodeContent': 'title',
-  'pan': true // key point
-});
-```
-
 - **[I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)**
 
 Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
