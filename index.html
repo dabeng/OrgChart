@@ -89,6 +89,43 @@
         background-color: #fff;
       }
 
+      .orgchart .second-menu-icon {
+        transition: opacity .5s;
+        opacity: 0;
+        right: -5px;
+        top: -5px;
+        z-index: 2;
+        color: rgba(68, 157, 68, 0.5);
+        font-size: 18px;
+        position: absolute;
+      }
+
+      .orgchart .second-menu-icon:hover {
+        color: #449d44;
+      }
+
+      .orgchart .node:hover .second-menu-icon {
+        opacity: 1;
+      }
+
+      .orgchart .node .second-menu {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: -70px;
+        border-radius: 35px;
+        box-shadow: 0 0 10px 1px #999;
+        background-color: #fff;
+        z-index: 1;
+      }
+
+      .orgchart .node .second-menu .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        float: left;
+        margin: 5px;
+      }
 
     </style>
 
@@ -127,8 +164,15 @@
   <div class="demo-container" id="left-right" style="text-align: left;"></div>
   <p class="demo-heading">Right to Left</p>
   <div class="demo-container" id="right-left" style="text-align: right;"></div>
+  <p class="demo-heading">ajax datasource</p>
+  <div class="demo-container" id="ajax-datasource"></div>
+  <p class="demo-heading">on-demand load data</p>
+  <div class="demo-container" id="ondemand-loaddata"></div>
+  <p class="demo-heading">custom node</p>
+  <div class="demo-container" id="custom-node"></div>
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
     (function($){
@@ -139,7 +183,7 @@
         'data' : $('#ul-data')
       });
 
-      var jsonDatascource = {
+      var jsonDs = {
         'name': 'Lao Lao',
         'title': 'general manager',
         'children': [
@@ -159,35 +203,168 @@
           { 'name': 'Chun Miao', 'title': 'department manager' }
         ]
       };
+
       $('#json-datasource').orgchart({
-        'data' : jsonDatascource,
+        'data' : jsonDs,
         'depth': 2,
         'nodeContent': 'title'
       });
 
       $('#pan-zoom').orgchart({
-        'data' : jsonDatascource,
+        'data' : jsonDs,
         'depth': 2,
         'nodeContent': 'title',
         'panzoom': true
       });
 
       $('#bottom-top').orgchart({
-        'data' : jsonDatascource,
+        'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'b2t'
       });
 
       $('#left-right').orgchart({
-        'data' : jsonDatascource,
+        'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'l2r'
       });
 
       $('#right-left').orgchart({
-        'data' : jsonDatascource,
+        'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'r2l'
+      });
+
+      $.mockjax({
+        url: '/orgchart/initdata',
+        responseTime: 3000,
+        contentType: 'application/json',
+        responseText: {
+          'name': 'Lao Lao',
+          'title': 'general manager',
+          'children': [
+            { 'name': 'Bo Miao', 'title': 'department manager' },
+            { 'name': 'Su Miao', 'title': 'department manager',
+              'children': [
+                { 'name': 'Tie Hua', 'title': 'senior engineer' },
+                { 'name': 'Hei Hei', 'title': 'senior engineer',
+                  'children': [
+                    { 'name': 'Pang Pang', 'title': 'engineer' },
+                    { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                  ]
+                }
+              ]
+            },
+            { 'name': 'Hong Miao', 'title': 'department manager' },
+            { 'name': 'Chun Miao', 'title': 'department manager' }
+          ]
+        }
+      });
+      $('#ajax-datasource').orgchart({
+        'data' : '/orgchart/initdata',
+        'depth': 2,
+        'nodeContent': 'title'
+      });
+
+      $.mockjax({
+        url: '/orgchart/children/3/',
+        contentType: 'application/json',
+        responseTime: 1000,
+        responseText: { 'children': [
+          { 'id': '4', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
+          { 'id': '5', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110'}
+        ]}
+      });
+      $.mockjax({
+        url: '/orgchart/parent/1/',
+        contentType: 'application/json',
+        responseTime: 1000,
+        responseText: { 'id': '6','name': 'Lao Lao', 'title': 'general manager', 'relationship': '001' }
+      });
+      $.mockjax({
+        url: '/orgchart/siblings/1/',
+        contentType: 'application/json',
+        responseTime: 1000,
+        responseText: { 'siblings': [
+          { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+          { 'id': '8', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+          { 'id': '9', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' }
+        ]}
+      });
+      $.mockjax({
+        url: '/orgchart/families/1/',
+        contentType: 'application/json',
+        responseTime: 1000,
+        responseText: {
+          'id': '6',
+          'name': 'Lao Lao',
+          'title': 'general manager',
+          'relationship': '001',
+          'children': [
+          { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+          { 'id': '8', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+          { 'id': '9', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' }
+        ]}
+      });
+      var ondemandDs = {
+        'id': '1',
+        'name': 'Su Miao',
+        'title': 'department manager',
+        'relationship': '111',
+        'children': [
+          { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+          { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
+        ]
+      };
+      var ajaxURLs = {
+        'children': '/orgchart/children/',
+        'parent': '/orgchart/parent/',
+        'siblings': '/orgchart/siblings/',
+        'families': '/orgchart/families/' 
+      };
+      $('#ondemand-loaddata').orgchart({
+        'data' : ondemandDs,
+        'ajaxURL': ajaxURLs,
+        'nodeContent': 'title',
+        'nodeId': 'id'
+      });
+
+      var jsonDs2 = {
+        'id': '1',
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'children': [
+          { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
+          { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+            'children': [
+              { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
+              { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
+                'children': [
+                  { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer' },
+                  { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                ]
+              }
+            ]
+          },
+          { 'id': '8', 'name': 'Hong Miao', 'title': 'department manager' },
+          { 'id': '9', 'name': 'Chun Miao', 'title': 'department manager' },
+        ]
+      };
+      $('#custom-node').orgchart({
+        'data' : jsonDs2,
+        'depth': 2,
+        'nodeContent': 'title',
+        'nodeID': 'id',
+        'createNode': function($node, data) {
+          var secondMenuIcon = $('<i>', {
+            'class': 'fa fa-info-circle second-menu-icon',
+            click: function() {
+              $(this).siblings('.second-menu').toggle();
+            }
+          });
+          var secondMenu = '<div class="second-menu"><img class="avatar" src="img/avatar/' + data.id + '.jpg"></div>';
+          $node.append(secondMenuIcon).append(secondMenu);
+        }
       });
 
     });

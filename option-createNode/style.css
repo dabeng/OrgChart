@@ -1,12 +1,12 @@
 .orgchart .second-menu-icon {
-    transition: opacity .5s;
-    opacity: 0;
-    right: -5px;
-    top: -5px;
-    z-index: 2;
-    color: rgba(68, 157, 68, 0.5);
-    font-size: 18px;
-    position: absolute;
+  transition: opacity .5s;
+  opacity: 0;
+  right: -5px;
+  top: -5px;
+  z-index: 2;
+  color: rgba(68, 157, 68, 0.5);
+  font-size: 18px;
+  position: absolute;
 }
 .orgchart .second-menu-icon:hover {
   color: #449d44;
@@ -28,6 +28,6 @@
   width: 60px;
   height: 60px;
   border-radius: 30px;
-    float: left;
+  float: left;
   margin: 5px;
 }
