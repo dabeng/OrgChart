@@ -51,12 +51,8 @@
         return addSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'removeNodes':
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
-      case 'getHierarchy': {
-        if (!$(this).find('.node:first')[0].id) {
-          return 'Error: Nodes of orghcart to be exported must have id attribute!';
-        }
-        return getHierarchy.apply(this, [$(this)]);
-      }
+      case 'getHierarchy':
+        return getHierarchy.apply(this, [$(this), this.data('orgchart').options]);
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
         this.data('orgchart', { 'options' : opts });
@@ -225,12 +221,21 @@
     return data;
   }
 
-  function getHierarchy($orgchart) {
+  function getHierarchy($orgchart, options) {
     var $tr = $orgchart.find('tr:first');
-    var subObj = { 'id': $tr.find('.node')[0].id };
+
+    var $node       = $tr.find('.node')
+    var nodeContent = options.nodeContent;
+    var subObj      = {};
+
+    subObj.name = $node.find('.title').text();
+
+    $node[0].id && (subObj.id = $node[0].id);
+    nodeContent && (subObj[nodeContent] = $node.find('.content').text());
+
     $tr.siblings(':last').children().each(function() {
       if (!subObj.children) { subObj.children = []; }
-      subObj.children.push(getHierarchy($(this)));
+      subObj.children.push(getHierarchy($(this), options));
     });
     return subObj;
   }
@@ -434,9 +439,10 @@
     var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + '>')
       .addClass('node' + (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
-      .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + nodeData[opts.nodeContent] + '</div>' : '');
+      .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
     // append 4 direction arrows
-    var flags = nodeData.relationship;
+    var flags = nodeData.relationship || '';
+
     if (Number(flags.substr(0,1))) {
       $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
     }
