@@ -55,6 +55,10 @@
         background: rgba(0, 0, 0, 0.5); 
       }
 
+      .orgchart>.spinner {
+        color: rgba(255, 255, 0, 0.75);
+      }
+
       .orgchart .node .title {
         background-color: #fff;
         color: #000; 
@@ -65,12 +69,16 @@
         border-top-color: #333;
       }
 
+      .orgchart .node>.spinner {
+        color: rgba(255, 255, 0, 0.75);
+      }
+
       .orgchart .node:hover {
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(191, 0, 54, 0.5);
       }
 
       .orgchart .node.focused {
-        background-color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(191, 0, 54, 0.5);
       }
 
       .orgchart .node .edge {
@@ -95,13 +103,13 @@
         right: -5px;
         top: -5px;
         z-index: 2;
-        color: rgba(68, 157, 68, 0.5);
+        color: rgba(255, 255, 0, 0.75);
         font-size: 18px;
         position: absolute;
       }
 
       .orgchart .second-menu-icon:hover {
-        color: #449d44;
+        color: #ff0;
       }
 
       .orgchart .node:hover .second-menu-icon {
@@ -114,7 +122,7 @@
         top: 0;
         right: -70px;
         border-radius: 35px;
-        box-shadow: 0 0 10px 1px #999;
+        box-shadow: 0 0 4px 1px #999;
         background-color: #fff;
         z-index: 1;
       }
