@@ -25,10 +25,10 @@
         font-size: 14px;
         line-height: 1.428571429;
         color: #333333;
-        /*background-image: url(img/background.jpg);*/
+        background-image: url(img/background.jpg);
       }
 
-/*      #headline {
+      #headline {
         background-color: rgba(0,0,0,0.5);
         text-align: center;
       }
@@ -72,15 +72,15 @@
       }
 
       .orgchart .node>.spinner {
-        color: rgba(255, 255, 0, 0.75);
+        color: rgba(184, 0, 54, 0.75);
       }
 
       .orgchart .node:hover {
-        background-color: rgba(255, 255, 0, 0.75);
+        background-color: rgba(255, 255, 0, 0.6);
       }
 
       .orgchart .node.focused {
-        background-color: rgba(255, 255, 0, 0.75);
+        background-color: rgba(255, 255, 0, 0.6);
       }
 
       .orgchart .node .edge {
@@ -105,13 +105,13 @@
         right: -5px;
         top: -5px;
         z-index: 2;
-        color: rgba(255, 255, 0, 0.75);
+        color: rgba(184, 0, 100, 0.8);
         font-size: 18px;
         position: absolute;
       }
 
       .orgchart .second-menu-icon:hover {
-        color: #ff0;
+        color: #b80064;
       }
 
       .orgchart .node:hover .second-menu-icon {
@@ -139,26 +139,152 @@
 
       .orgchart~.mask .spinner {
         color: rgba(255, 255, 0, 0.75);
-      }*/
-#chart-container {
-  position: absolute;
-  top: 10px;
-  left:40px;
-  height: auto;
-  max-height: 330px;
-  width: calc(100% - 80px);
-  z-index: 1;
-  border-color: rgba(217, 83, 79, 0.9);
-}
+      }
 
-.orgchart {
-  background: rgba(255,255,255,0.75); 
-}
+      #integrate-map {
+        position:absolute;
+        left: 40px;
+        width: calc(100% - 80px);
+        z-index:100;
+      }
+
+      #integrate-map .orgchart {
+        padding: 0px;
+        min-height: 154px;
+
+      }
+
+      .orgchart>table:first-child {
+        margin: 5px 0;
+      }
+
+      .orgchart.view-state .edge {
+        display: none;
+      }
+
+      #edit-panel {
+        position: relative;
+        left: 10px;
+        width: calc(100% - 40px);
+        border-radius: 4px;
+        float: left;
+        margin-top: 10px;
+        padding: 10px;
+        color: #fff;
+        background-color: #449d44;
+      }
+
+      #edit-panel .btn-inputs {
+        font-size: 24px;
+      }
+
+      #edit-panel.view-state>:not(#chart-state-panel) {
+        display: none;
+      }
+
+      #edit-panel label {
+        font-weight: bold;
+      }
+
+      #edit-panel.edit-parent-node .selected-node-group{
+        display: none;
+      }
+
+      #chart-state-panel, #selected-node, #btn-remove-input {
+        margin-right: 20px;
+      }
+
+      #edit-panel button, #btn-export-hier {
+        color: #333;
+        background-color: #fff;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        line-height: 1.42857143;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-image: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #edit-panel.edit-parent-node button:not(#btn-add-nodes) {
+        display: none;
+      }
+
+      #edit-panel button:hover,.edit-panel button:focus,.edit-panel button:active {
+        border-color: #eea236;
+        box-shadow:  0 0 10px #eea236;
+      }
+
+      #new-nodelist {
+        display: inline-block;
+        list-style:none;
+        margin-top: -2px;
+        padding: 0;
+        vertical-align: text-top;
+      }
+
+      #new-nodelist>* {
+        padding-bottom: 4px;
+      }
+
+      .btn-inputs {
+        vertical-align: sub;
+      }
+
+      #edit-panel.edit-parent-node .btn-inputs {
+        display: none;
+      }
+
+      .btn-inputs:hover {
+        text-shadow: 0 0 4px #fff;
+      }
+
+      .radio-panel input[type='radio'] {
+        display: inline-block;
+        height: 24px;
+        width: 24px;
+        vertical-align: top;
+      }
+
+      #edit-panel.view-state .radio-panel input[type='radio']+label {
+        vertical-align: -webkit-baseline-middle;
+      }
+
+      #btn-add-nodes {
+        margin-left: 20px;
+      }
+
+      #btn-export-hier {
+        vertical-align: top;
+        margin-top: 200px;
+        margin-left: 50px;
+      }
+
+      #btn-export-hier+pre {
+        display: inline-block;
+        vertical-align: top;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: -80px;
+        margin-left: 50px;
+      }
+
     </style>
 
 </head>
 <body id="pageBody">
-  <!--<div id="headline">
+  <div id="headline">
     <img src="img/orgchart-heading.png">
   </div>
   <p class="demo-heading">ul datasource</p>
@@ -200,11 +326,60 @@
   <p class="demo-heading">export chart</p>
   <div class="demo-container" id="export-chart"></div>
   <p class="demo-heading">integrate orgchart with map</p>
-  <div class="demo-container" id="integrate-map"></div>-->
+  <div class="demo-container" id="integrate-map-wrapper">
+    <div id="integrate-map"></div>
+  </div>
+  <p class="demo-heading">chart editing</p>
+  <div class="demo-container" id="chart-edit"></div>
+  <div id="edit-panel" class="view-state">
+    <span id="chart-state-panel" class="radio-panel">
+      <input type="radio" name="chart-state" id="rd-view" value="view" checked="true"><label for="rd-view">View</label>
+      <input type="radio" name="chart-state" id="rd-edit" value="edit"><label for="rd-edit">Edit</label>
+    </span>
+    <label class="selected-node-group">selected node:</label>
+    <input type="text" id="selected-node" class="selected-node-group">
+    <label>new node:</label>
+    <ul id="new-nodelist">
+      <li><input type="text" class="new-node"></li>
+    </ul>
+    <i class="fa fa-plus-circle btn-inputs" id="btn-add-input"></i>
+    <i class="fa fa-minus-circle btn-inputs" id="btn-remove-input"></i>
+    <span id="node-type-panel" class="radio-panel">
+      <input type="radio" name="node-type" id="rd-parent" value="parent"><label for="rd-parent">Parent(root)</label>
+      <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>
+      <input type="radio" name="node-type" id="rd-sibling" value="siblings"><label for="rd-sibling">Sibling</label>
+    </span>
+    <button type="button" id="btn-add-nodes">Add</button>
+    <button type="button" id="btn-delete-nodes">Delete</button>
+    <button type="button" id="btn-reset">Reset</button>
+  </div>
+  <p class="demo-heading">drag and drop</p>
+  <div class="demo-container" id="drag-drop"></div>
+  <p class="demo-heading">get hierarchy</p>
+  <ul id="ul-data2" style="display: none;">
+    <li id="1">Lao Lao
+      <ul>
+        <li id="2">Bo Miao</li>
+        <li id="3">Su Miao
+          <ul>
+            <li id="4">Tie Hua</li>
+            <li id="5">Hei Hei
+              <ul>
+                <li id="6">Pang Pang</li>
+                <li id="7">Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <div class="demo-container" id="get-hierarchy" style="width:600px"></div>
+  <button id="btn-export-hier">Export Hierarchy</button>
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
-  <!--<script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
-  <script type="text/javascript" src="js/html2canvas.min.js"></script>-->
+  <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
+  <script type="text/javascript" src="js/html2canvas.min.js"></script>
   <script type="text/javascript" src="js/ol.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
@@ -212,7 +387,7 @@
 
       $(function() {
 
-      /*var jsonDs = {
+      var jsonDs = {
         'name': 'Lao Lao',
         'title': 'general manager',
         'children': [
@@ -233,41 +408,42 @@
         ]
       };
 
+      /*********************** <ul> datasource **********************/
       $('#ul-datasource').orgchart({
         'data' : $('#ul-data')
       });
-
+      /*********************** local json datasource **********************/
       $('#json-datasource').orgchart({
         'data' : jsonDs,
         'depth': 2,
         'nodeContent': 'title'
       });
-
+      /*********************** pan and zoom **********************/
       $('#pan-zoom').orgchart({
         'data' : jsonDs,
         'depth': 2,
         'nodeContent': 'title',
         'panzoom': true
       });
-
+      /*********************** bottom to top **********************/
       $('#bottom-top').orgchart({
         'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'b2t'
       });
-
+      /*********************** left to right **********************/
       $('#left-right').orgchart({
         'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'l2r'
       });
-
+      /*********************** right to left **********************/
       $('#right-left').orgchart({
         'data' : jsonDs,
         'nodeContent': 'title',
         'direction': 'r2l'
       });
-
+      /*********************** ajax datasource **********************/
       $.mockjax({
         url: '/orgchart/initdata',
         responseTime: 3000,
@@ -298,7 +474,7 @@
         'depth': 2,
         'nodeContent': 'title'
       });
-
+      /*********************** on-demand loading data **********************/
       $.mockjax({
         url: '/orgchart/children/3/',
         contentType: 'application/json',
@@ -361,7 +537,7 @@
         'nodeContent': 'title',
         'nodeId': 'id'
       });
-
+      /*********************** customize the structure of node **********************/
       var jsonDs2 = {
         'id': '1',
         'name': 'Lao Lao',
@@ -399,75 +575,205 @@
           $node.append(secondMenuIcon).append(secondMenu);
         }
       });
-
+      /*********************** export chart as picture **********************/
       $('#export-chart').orgchart({
         'data' : jsonDs,
         'nodeContent': 'title',
         'exportButton': true,
         'exportFilename': 'MyOrgChart'
-      });*/
-
-    var map = new ol.Map({
-      layers: [
-        new ol.layer.Tile({
-          source: new ol.source.Stamen({
-            layer: 'watercolor'
+      });
+      /*********************** integrate chart with map data **********************/
+      var map = new ol.Map({
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.Stamen({
+              layer: 'watercolor'
+            }),
+            preload: 4
           }),
-          preload: 4
-        }),
-        new ol.layer.Tile({
-          source: new ol.source.Stamen({
-            layer: 'terrain-labels'
-          }),
-          preload: 1
+          new ol.layer.Tile({
+            source: new ol.source.Stamen({
+              layer: 'terrain-labels'
+            }),
+            preload: 1
+          })
+        ],
+        target: 'integrate-map-wrapper',
+        view: new ol.View({
+          center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 10
         })
-      ],
-      target: 'pageBody',
-      view: new ol.View({
-        center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
-        zoom: 10
+      });
+      var jsonDs3 = {
+        'name': 'Lao Lao',
+        'title': 'President Office',
+        'position': [-87.6297980, 41.8781140],
+        'children': [
+          { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'position': [-83.0457540, 42.3314270]},
+          { 'name': 'Su Miao', 'title': 'R & D Dept.', 'position': [-81.6943610, 41.4993200]},
+          { 'name': 'Yu Jie', 'title': 'Product Dept.', 'position': [-71.0588800, 42.3600820]},
+          { 'name': 'Yu Li', 'title': 'Legal Dept.', 'position': [-74.0059410, 40.7127840]},
+          { 'name': 'Hong Miao', 'title': 'Finance Dept.', 'position': [-80.8431270, 35.2270870]},
+          { 'name': 'Yu Wei', 'title': 'Security Dept.', 'position': [-81.6556510, 30.3321840]},
+          { 'name': 'Chun Miao', 'title': 'HR Dept. ', 'position': [-81.3792360, 28.5383350]},
+          { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'position': [-80.1917900, 25.7616800] }
+        ]
+      };
+      $('#integrate-map').orgchart({
+        'data' : jsonDs3,
+        'nodeContent': 'title',
+        'createNode': function($node, data) {
+          $node.on('click', function() {
+            var view = map.getView();
+            var duration = 2000;
+            var start = +new Date();
+            var pan = ol.animation.pan({
+              duration: duration,
+              source:  view.getCenter(),
+              start: start
+            });
+            var bounce = ol.animation.bounce({
+              duration: duration,
+              resolution: 4 * view.getResolution(),
+              start: start
+            });
+            map.beforeRender(pan, bounce);
+            view.setCenter(ol.proj.transform(data.position, 'EPSG:4326', 'EPSG:3857'));
+          });
+        }
+      });
+      /*********************** chart editing **********************/
+      var jsonDs4 = {
+        'name': 'Ball game',
+        'relationship': '001',
+        'children': [
+          { 'name': 'Football', 'relationship': '110' },
+          { 'name': 'Basketball', 'relationship': '110' },
+          { 'name': 'Volleyball', 'relationship': '110' }
+        ]
+      };
+      $('#chart-edit').orgchart({
+        'data' : jsonDs4,
+        'exportButton': true,
+        'exportFilename': 'SportsChart',
+        'parentNodeSymbol': 'fa-th-large',
+        'createNode': function($node, data) {
+          $node.on('click', function(event) {
+            if (!$(event.target).is('.edge')) {
+              $('#selected-node').val(data.name).data('node', $node);
+            }
+          });
+        }
       })
-    });
+      .on('click', '.orgchart', function(event) {
+        if (!$(event.target).closest('.node').length) {
+          $('#selected-node').val('');
+        }
+      });
+      $('input[name="chart-state"]').on('click', function() {
+        $('#chart-edit').children('.orgchart').toggleClass('view-state');
+        $('#edit-panel').toggleClass('view-state');
+        if ($(this).val() === 'edit') {
+          $('.orgchart').find('tr').removeClass('hidden')
+            .find('td').removeClass('hidden')
+            .find('.node').removeClass('slide-up slide-down slide-right slide-left');
+        } else {
+          $('#btn-reset').trigger('click');
+        }
+      });
+      $('input[name="node-type"]').on('click', function() {
+        var $this = $(this);
+        if ($this.val() === 'parent') {
+          $('#edit-panel').addClass('edit-parent-node');
+          $('#new-nodelist').children(':gt(0)').remove();
+        } else {
+          $('#edit-panel').removeClass('edit-parent-node');
+        }
+      });
+      $('#btn-add-input').on('click', function() {
+        $('#new-nodelist').append('<li><input type="text" class="new-node"></li>');
+      });
+      $('#btn-remove-input').on('click', function() {
+        var inputs = $('#new-nodelist').children('li');
+        if (inputs.length > 1) {
+          inputs.last().remove();
+        }
+      });
+      $('#btn-add-nodes').on('click', function() {
+        var nodeVals = [];
+        $('#new-nodelist').find('.new-node').each(function(index, item) {
+          var validVal = item.value.trim();
+          if (validVal.length) {
+            nodeVals.push(validVal);
+          }
+        });
+        var $node = $('#selected-node').data('node');
+        if (!nodeVals.length) {
+          alert('Please input value for new node');
+          return;
+        }
+        var nodeType = $('input[name="node-type"]:checked');
+        if (nodeType.val() !== 'parent' && !$node) {
+          alert('Please select one node in orgchart');
+          return;
+        }
+        if (!nodeType.length) {
+          alert('Please select a node type');
+          return;
+        }
+        if (nodeType.val() === 'parent') {
+          $('#chart-edit').orgchart('addParent', { 'name': nodeVals[0] });
+        } else if (nodeType.val() === 'siblings') {
+          $('#chart-edit').orgchart('addSiblings', $node,
+            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+          });
+        } else {
+          var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
+          if (!hasChild) {
+            var rel = nodeVals.length > 1 ? '110' : '100';
+            $('#chart-edit').orgchart('addChildren', $node, {
+                'children': nodeVals.map(function(item) {
+                  return { 'name': item, 'relationship': rel };
+                })
+              }, $.extend({}, $('#chart-edit').data('orgchart').options, { depth: 0 }));
+          } else {
+            $('#chart-edit').orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
+              { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+            });
+          }
+        }
+      });
+      $('#btn-delete-nodes').on('click', function() {
+        var $node = $('#selected-node').data('node');
+        if (!$node) {
+          alert('Please select one node in orgchart');
+          return;
+        }
+        $('#chart-edit').orgchart('removeNodes', $node);
+        $('#selected-node').data('node', null);
+      });
+      $('#btn-reset').on('click', function() {
+        $('#chart-edit').children('.orgchart').trigger('click');
+        $('#new-nodelist').find('input:first').val('').parent().siblings().remove();
+        $('#node-type-panel').find('input').prop('checked', false);
+      });
+      /*********************** chart editing **********************/
+      $('#drag-drop').orgchart({
+        'data' : jsonDs,
+        'nodeContent': 'title',
+        'draggable': true
+      });
+      /*********************** get hierarchy **********************/
+      $('#get-hierarchy').orgchart({
+        'data' : $('#ul-data2')
+      });
 
-    $('body').prepend(map.getViewport());
-      // var jsonDs3 = {
-      //   'name': 'Lao Lao',
-      //   'title': 'President Office',
-      //   'position': [-87.6297980, 41.8781140],
-      //   'children': [
-      //     { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'position': [-83.0457540, 42.3314270]},
-      //     { 'name': 'Su Miao', 'title': 'R & D Dept.', 'position': [-81.6943610, 41.4993200]},
-      //     { 'name': 'Yu Jie', 'title': 'Product Dept.', 'position': [-71.0588800, 42.3600820]},
-      //     { 'name': 'Yu Li', 'title': 'Legal Dept.', 'position': [-74.0059410, 40.7127840]},
-      //     { 'name': 'Hong Miao', 'title': 'Finance Dept.', 'position': [-80.8431270, 35.2270870]},
-      //     { 'name': 'Yu Wei', 'title': 'Security Dept.', 'position': [-81.6556510, 30.3321840]},
-      //     { 'name': 'Chun Miao', 'title': 'HR Dept. ', 'position': [-81.3792360, 28.5383350]},
-      //     { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'position': [-80.1917900, 25.7616800] }
-      //   ]
-      // };
-      // $('#integrate-map').orgchart({
-      //   'data' : jsonDs3,
-      //   'nodeContent': 'title',
-      //   'createNode': function($node, data) {
-      //     $node.on('click', function() {
-      //       var view = map.getView();
-      //       var duration = 2000;
-      //       var start = +new Date();
-      //       var pan = ol.animation.pan({
-      //         duration: duration,
-      //         source:  view.getCenter(),
-      //         start: start
-      //       });
-      //       var bounce = ol.animation.bounce({
-      //         duration: duration,
-      //         resolution: 4 * view.getResolution(),
-      //         start: start
-      //       });
-      //       map.beforeRender(pan, bounce);
-      //       view.setCenter(ol.proj.transform(data.position, 'EPSG:4326', 'EPSG:3857'));
-      //     });
-      //   }
-      // });
+    $('#btn-export-hier').on('click', function() {
+      if (!$('pre').length) {
+        var hierarchy = $('#get-hierarchy').orgchart('getHierarchy');
+        $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+      }
+    });
 
     });
 

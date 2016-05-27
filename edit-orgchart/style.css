@@ -21,7 +21,7 @@
 #edit-panel {
   position: relative;
   left: 10px;
-  width: calc(100% - 20px);
+  width: calc(100% - 40px);
   border-radius: 4px;
   float: left;
   margin-top: 10px;
