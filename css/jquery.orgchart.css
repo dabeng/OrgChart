@@ -45,18 +45,33 @@
 
 .orgchart.b2t {
   transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
 }
 
 .orgchart.l2r {
   position: absolute;
   transform: rotate(-90deg) rotateY(180deg);
+  -ms-transform: rotate(-90deg) rotateY(180deg);
+  -moz-transform: rotate(-90deg) rotateY(180deg);
+  -webkit-transform: rotate(-90deg) rotateY(180deg);
   transform-origin: left top;
+  -ms-transform-origin: left top;
+  -moz-transform-origin: left top;
+  -webkit-transform-origin: left top;
 }
 
 .orgchart.r2l {
   position: absolute;
   transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
   transform-origin: left top;
+  -ms-transform-origin: left top;
+  -moz-transform-origin: left top;
+  -webkit-transform-origin: left top;
 }
 
 .orgchart>.spinner {
@@ -154,18 +169,36 @@
 
 .orgchart.b2t .node .title {
   transform: rotate(-180deg);
+  -ms-transform: rotate(-180deg);
+  -moz-transform: rotate(-180deg);
+  -webkit-transform: rotate(-180deg);
   transform-origin: center bottom;
+  -ms-transform-origin: center bottom;
+  -moz-transform-origin: center bottom;
+  -webkit-transform-origin: center bottom;
 }
 
 .orgchart.l2r .node .title {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -webkit-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   transform-origin: bottom center;
+  -ms-transform-origin: bottom center;
+  -moz-transform-origin: bottom center;
+  -webkit-transform-origin: bottom center;
   width: 120px;
 }
 
 .orgchart.r2l .node .title {
   transform: rotate(-90deg) translate(-40px, -40px);
+  -ms-transform: rotate(-90deg) translate(-40px, -40px);
+  -moz-transform: rotate(-90deg) translate(-40px, -40px);
+  -webkit-transform: rotate(-90deg) translate(-40px, -40px);
   transform-origin: bottom center;
+  -ms-transform-origin: bottom center;
+  -moz-transform-origin: bottom center;
+  -webkit-transform-origin: bottom center;
   width: 120px;
 }
 
@@ -192,18 +225,36 @@
 
 .orgchart.b2t .node .content {
   transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
   transform-origin: center top;
+  -ms-transform-origin: center top;
+  -moz-transform-origin: center top;
+  -webkit-transform-origin: center top;
 }
 
 .orgchart.l2r .node .content {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  -webkit-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   transform-origin: top center;
+  -ms-transform-origin: top center;
+  -moz-transform-origin: top center;
+  -webkit-transform-origin: top center;
   width: 120px;
 }
 
 .orgchart.r2l .node .content {
   transform: rotate(-90deg) translate(-40px, -40px);
+  -ms-transform: rotate(-90deg) translate(-40px, -40px);
+  -moz-transform: rotate(-90deg) translate(-40px, -40px);
+  -webkit-transform: rotate(-90deg) translate(-40px, -40px);
   transform-origin: top center;
+  -ms-transform-origin: top center;
+  -moz-transform-origin: top center;
+  -webkit-transform-origin: top center;
   width: 120px;
 }
 
