@@ -655,6 +655,7 @@
             .find('.bottomEdge').remove()
             .end().end().siblings().remove();
         }
+        $orgchart.triggerHandler({ 'type': 'nodedropped.orgchart', 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
       });
     }
     // allow user to append dom modification after finishing node create of orgchart 
