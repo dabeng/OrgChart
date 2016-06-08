@@ -518,6 +518,16 @@ Removes the designated node and its descedant nodes.
 ##### .orgchart('getHierarchy'）
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new statte of orghcart. 
 
+### Events
+<table>
+  <thead>
+    <tr><th>Event Type</th><th>Attached Data</th><th>Required</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>nodedropped</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to example drag&drop.</td></tr>
+  </tbody>
+</table>
+
 ## Browser Compatibility
 - Chrome 19+
 - Firefox 4+
