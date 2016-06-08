@@ -524,7 +524,7 @@ This method is designed to get the hierarchy relationships of orgchart for furth
     <tr><th>Event Type</th><th>Attached Data</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>nodedropped</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to [example drag & drop](http://dabeng.github.io/OrgChart/drag-drop/).</td></tr>
+    <tr><td>nodedropped</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td></tr>
   </tbody>
 </table>
 
