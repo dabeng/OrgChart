@@ -380,6 +380,7 @@ $('#btn-export-hier').on('click', function() {
 ![get hierarchy](http://dabeng.github.io/OrgChart/get-hierarchy/snapshot.png)
 
 - **[I want a color-coded chart](http://dabeng.github.io/OrgChart/color-coded/)**
+
 It's a so easy task, we just need to append id or className property to node data.
 ```js
 var datascource = {
@@ -427,6 +428,8 @@ $('#chartContainerId').orgchart(options);
 ### Structure of Datasource
 ```js
 {
+  'id': 'rootNode', // It's a optional property which will be used as id attribute of node.
+  'className': 'top-level', // It's a optional property which will be used as className attribute of node.
   'nodeTitlePro': 'Lao Lao',
   'nodeContentPro': 'general manager',
   'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
