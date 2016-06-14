@@ -31,8 +31,7 @@
               ]
             }
           ]
-        },
-        { 'name': 'Hong Miao', 'title': 'department manager', 'className': 'middle-level' }
+        }
       ]
     };
 
