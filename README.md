@@ -379,6 +379,44 @@ $('#btn-export-hier').on('click', function() {
 ```
 ![get hierarchy](http://dabeng.github.io/OrgChart/get-hierarchy/snapshot.png)
 
+- **[I want a color-coded chart](http://dabeng.github.io/OrgChart/color-coded/)**
+It's a so easy task, we just need to append id or className property to node data.
+```js
+var datascource = {
+  'name': 'Lao Lao',
+  'title': 'general manager',
+  'className': 'top-level',
+  'children': [
+    { 'name': 'Bo Miao', 'title': 'department manager', 'className': 'middle-level',
+      'children': [
+        { 'name': 'Li Jing', 'title': 'senior engineer', 'className': 'bottom-level' },
+        { 'name': 'Li Xin', 'title': 'senior engineer', 'className': 'bottom-level' }
+      ]
+    }
+  };
+```
+```css
+.orgchart .top-level .title {
+  background-color: #006699;
+}
+.orgchart .top-level .content {
+  border-color: #006699;
+}
+.orgchart .middle-level .title {
+  background-color: #009933;
+}
+.orgchart .middle-level .content {
+  border-color: #009933;
+}
+.orgchart .bottom-level .title {
+  background-color: #993366;
+}
+.orgchart .bottom-level .content {
+  border-color: #993366;
+}
+```
+![color coded](http://dabeng.github.io/OrgChart/color-coded/snapshot.png)
+
 ## Usage
 
 ### Instantiation Statement
