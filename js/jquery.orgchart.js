@@ -82,6 +82,7 @@
     } else {
       $.ajax({
         'url': data,
+        'dataType': 'json',
         'beforeSend': function () {
           $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
         }
@@ -504,7 +505,7 @@
         // start up loading status
         if (startLoading($that, $node, opts)) {
         // load new nodes
-          $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/' })
+          $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/', 'dataType': 'json' })
           .done(function(data) {
             if ($node.closest('div.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
@@ -535,7 +536,7 @@
       } else { // load the new children nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': opts.ajaxURL.children + nodeId + '/' })
+          $.ajax({ 'url': opts.ajaxURL.children + nodeId + '/', 'dataType': 'json' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.children.length) {
@@ -571,7 +572,7 @@
         var nodeId = $that.parent()[0].id;
         var url = (getNodeState($node, 'parent').exist) ? opts.ajaxURL.siblings : opts.ajaxURL.families;
         if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': url + nodeId + '/' })
+          $.ajax({ 'url': url + nodeId + '/', 'dataType': 'json' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.siblings || data.children) {
