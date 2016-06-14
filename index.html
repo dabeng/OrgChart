@@ -280,6 +280,25 @@
         margin-left: 50px;
       }
 
+      #color-coded .orgchart {
+        background: transparent;
+      }
+      .orgchart .middle-level .title {
+        background-color: #006699;
+      }
+      .orgchart .product-dept .title {
+        background-color: #009933;
+      }
+      .orgchart .rd-dept .title {
+        background-color: #993366;
+      }
+      .orgchart .pipeline1 .title {
+        background-color: #996633;
+      }
+      .orgchart .frontend1 .title {
+        background-color: #cc0066;
+      }
+
     </style>
 
 </head>
@@ -376,6 +395,8 @@
   </ul>
   <div class="demo-container" id="get-hierarchy" style="width:600px"></div>
   <button id="btn-export-hier">Export Hierarchy</button>
+  <p class="demo-heading">color-coded</p>
+  <div class="demo-container" id="color-coded"></div>
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
@@ -767,12 +788,47 @@
         'data' : $('#ul-data2')
       });
 
-    $('#btn-export-hier').on('click', function() {
-      if (!$('pre').length) {
-        var hierarchy = $('#get-hierarchy').orgchart('getHierarchy');
-        $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
-      }
-    });
+      $('#btn-export-hier').on('click', function() {
+        if (!$('pre').length) {
+          var hierarchy = $('#get-hierarchy').orgchart('getHierarchy');
+          $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+        }
+      });
+      /*********************** color-coded **********************/
+      var jsonDs5 = {
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'children': [
+          { 'name': 'Bo Miao', 'title': 'department manager', 'className': 'middle-level',
+            'children': [
+              { 'name': 'Li Jing', 'title': 'senior engineer', 'className': 'product-dept' },
+              { 'name': 'Li Xin', 'title': 'senior engineer', 'className': 'product-dept',
+                'children': [
+                  { 'name': 'To To', 'title': 'engineer', 'className': 'pipeline1' },
+                  { 'name': 'Fei Fei', 'title': 'engineer', 'className': 'pipeline1' },
+                  { 'name': 'Xuan Xuan', 'title': 'engineer', 'className': 'pipeline1' }
+                ]
+              }
+            ]
+          },
+          { 'name': 'Su Miao', 'title': 'department manager', 'className': 'middle-level',
+            'children': [
+              { 'name': 'Pang Pang', 'title': 'senior engineer', 'className': 'rd-dept' },
+              { 'name': 'Hei Hei', 'title': 'senior engineer', 'className': 'rd-dept',
+                'children': [
+                  { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'className': 'frontend1' },
+                  { 'name': 'Dan Dan', 'title': 'engineer', 'className': 'frontend1' },
+                  { 'name': 'Zai Zai', 'title': 'engineer', 'className': 'frontend1' }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+      $('#color-coded').orgchart({
+        'data' : jsonDs5,
+        'nodeContent': 'title'
+      });
 
     });
 
