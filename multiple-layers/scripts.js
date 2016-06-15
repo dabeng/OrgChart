@@ -4,30 +4,40 @@
 
   $(function() {
 
-    var datascource = {
+    var topLevelDs = {
       'name': 'Lao Lao',
-      'title': 'president office',
+      'dept': 'president office',
       'children': [
-        { 'name': 'Bo Miao', 'title': 'product dept' },
-        { 'name': 'Su Miao', 'title': 'product dept',
-          'children': [
-            { 'name': 'Tie Hua', 'title': 'senior engineer' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer',
-              'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
-              ]
-            }
-          ]
-        },
-        { 'name': 'Hong Miao', 'title': 'finance dept' },
-        { 'name': 'Chun Miao', 'title': 'HR dept' }
+        { 'name': 'Bo Miao', 'dept': 'product dept' },
+        { 'name': 'Su Miao', 'dept': 'R&D dept' },
+        { 'name': 'Hong Miao', 'dept': 'finance dept' },
+        { 'name': 'Chun Miao', 'dept': 'HR dept' }
+      ]
+    };
+
+    var middleLevelDs = {
+      'name': 'Su Miao',
+      'dept': 'R&D dept',
+      'children': [
+        { 'name': 'Tie Hua', 'dept': 'backend group' },
+        { 'name': 'Hei Hei', 'dept': 'frontend group' }
+      ]
+    };
+
+    var bottomLevelDs = {
+      'name': 'Hei Hei',
+      'dept': 'frontend group',
+      'children': [
+        { 'name': 'Pang Pang', 'dept': 'frontend group' },
+        { 'name': 'Xiang Xiang', 'dept': 'frontend group' },
+        { 'name': 'Er Xiang', 'dept': 'frontend group' },
+        { 'name': 'San Xiang', 'dept': 'frontend group' }
       ]
     };
 
     $('#chart-container').orgchart({
-      'data' : datascource,
-      'nodeContent': 'title'
+      'data' : topLevelDs,
+      'nodeContent': 'dept'
     });
 
   });
