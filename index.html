@@ -720,6 +720,7 @@
         }
       });
       $('#btn-add-nodes').on('click', function() {
+        var $chartEdit = $('#chart-edit');
         var nodeVals = [];
         $('#new-nodelist').find('.new-node').each(function(index, item) {
           var validVal = item.value.trim();
@@ -742,22 +743,22 @@
           return;
         }
         if (nodeType.val() === 'parent') {
-          $('#chart-edit').orgchart('addParent', { 'name': nodeVals[0] });
+          $chartEdit.orgchart('addParent', $chartEdit.find('.node:first'), { 'name': nodeVals[0] });
         } else if (nodeType.val() === 'siblings') {
-          $('#chart-edit').orgchart('addSiblings', $node,
+          $chartEdit.orgchart('addSiblings', $node,
             { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
           });
         } else {
           var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
           if (!hasChild) {
             var rel = nodeVals.length > 1 ? '110' : '100';
-            $('#chart-edit').orgchart('addChildren', $node, {
+            $chartEdit.orgchart('addChildren', $node, {
                 'children': nodeVals.map(function(item) {
                   return { 'name': item, 'relationship': rel };
                 })
-              }, $.extend({}, $('#chart-edit').data('orgchart').options, { depth: 0 }));
+              }, $.extend({}, $chartEdit.data('orgchart').options, { depth: 0 }));
           } else {
-            $('#chart-edit').orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
+            $chartEdit.orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
               { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
             });
           }
@@ -777,7 +778,7 @@
         $('#new-nodelist').find('input:first').val('').parent().siblings().remove();
         $('#node-type-panel').find('input').prop('checked', false);
       });
-      /*********************** chart editing **********************/
+      /*********************** drag & drop **********************/
       $('#drag-drop').orgchart({
         'data' : jsonDs,
         'nodeContent': 'title',
