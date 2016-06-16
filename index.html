@@ -299,6 +299,29 @@
         background-color: #cc0066;
       }
 
+      .hidden {
+        display: none;
+      }
+
+      .orgchart .drill-icon {
+        transition: opacity .5s;
+        opacity: 0;
+        right: -14px;
+        top: -14px;
+        z-index: 2;
+        color: rgba(184, 0, 100, 0.8);
+        font-size: 24px;
+        position: absolute;
+      }
+
+      .orgchart .drill-icon:hover {
+        color: #b80064;
+      }
+
+      .orgchart .node:hover .drill-icon {
+        opacity: 1;
+      }
+
     </style>
 
 </head>
@@ -397,6 +420,8 @@
   <button id="btn-export-hier">Export Hierarchy</button>
   <p class="demo-heading">color-coded</p>
   <div class="demo-container" id="color-coded"></div>
+  <p class="demo-heading">multiple-layers</p>
+  <div class="demo-container" id="multiple-layers"></div>
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
@@ -756,7 +781,7 @@
                 'children': nodeVals.map(function(item) {
                   return { 'name': item, 'relationship': rel };
                 })
-              }, $.extend({}, $chartEdit.data('orgchart').options, { depth: 0 }));
+              }, $.extend({}, $chartEdit.find('.orgchart').data('options'), { depth: 0 }));
           } else {
             $chartEdit.orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
               { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
@@ -830,6 +855,93 @@
         'data' : jsonDs5,
         'nodeContent': 'title'
       });
+      /*********************** multiple-layers **********************/
+      $.mockjax({
+        url: '/orgchart/root-node',
+        responseTime: 1000,
+        contentType: 'application/json',
+        responseText: {
+          'className': 'root-node',
+          'name': 'Lao Lao',
+          'dept': 'president office',
+          'children': [
+            { 'name': 'Bo Miao', 'dept': 'product dept' },
+            { 'className': 'drill-down asso-rd', 'name': 'Su Miao', 'dept': 'R&D dept' },
+            { 'name': 'Hong Miao', 'dept': 'finance dept' },
+            { 'name': 'Chun Miao', 'dept': 'HR dept' }
+          ]
+        }
+      });
+      $.mockjax({
+        url: '/orgchart/asso-rd',
+        responseTime: 1000,
+        contentType: 'application/json',
+        responseText: {
+          'className': 'asso-rd drill-up',
+          'name': 'Su Miao',
+          'dept': 'R&D dept',
+          'children': [
+            { 'name': 'Tie Hua', 'dept': 'backend group' },
+            { 'className': 'drill-down asso-frontend', 'name': 'Hei Hei', 'dept': 'frontend group' }
+          ]
+        }
+      });
+      $.mockjax({
+        url: '/orgchart/asso-frontend',
+        responseTime: 1000,
+        contentType: 'application/json',
+        responseText:  {
+          'className': 'asso-frontend drill-up',
+          'name': 'Hei Hei',
+          'dept': 'frontend group',
+          'children': [
+            { 'name': 'Pang Pang', 'dept': 'frontend group' },
+            { 'name': 'Xiang Xiang', 'dept': 'frontend group',
+              'children': [
+                { 'name': 'Xiao Xiao', 'dept': 'frontend group' },
+                { 'name': 'Dan Dan', 'dept': 'frontend group' },
+                { 'name': 'Zai Zai', 'dept': 'frontend group' }
+              ]
+            }
+          ]
+        }
+      });
+
+      function initOrgchart(rootClass) {
+      $('#multiple-layers').orgchart({
+        'chartClass': rootClass,
+        'data' : '/orgchart/' + rootClass,
+        'nodeContent': 'dept',
+        'createNode': function($node, data) {
+          if ($node.is('.drill-down')) {
+            var assoClass = data.className.match(/asso-\w+/)[0];
+            var drillDownIcon = $('<i>', {
+              'class': 'fa fa-arrow-circle-down drill-icon',
+              'click': function() {
+                $('#multiple-layers').find('.orgchart:visible').addClass('hidden');
+                if (!$('#multiple-layers').find('.orgchart.' + assoClass).length) {
+                  initOrgchart(assoClass);
+                } else {
+                  $('#multiple-layers').find('.orgchart.' + assoClass).removeClass('hidden');
+                }
+              }
+            });
+            $node.append(drillDownIcon);
+          } else if ($node.is('.drill-up')) {
+            var assoClass = data.className.match(/asso-\w+/)[0];
+            var drillUpIcon = $('<i>', {
+              'class': 'fa fa-arrow-circle-up drill-icon',
+              'click': function() {
+                $('#multiple-layers').find('.orgchart:visible').addClass('hidden').end()
+                  .find('.drill-down.' + assoClass).closest('.orgchart').removeClass('hidden');
+              }
+            });
+            $node.append(drillUpIcon);
+          }
+        }
+      });
+    }
+    initOrgchart('root-node');
 
     });
 
