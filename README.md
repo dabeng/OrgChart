@@ -418,6 +418,12 @@ var datascource = {
 ```
 ![color coded](http://dabeng.github.io/OrgChart/color-coded/snapshot.png)
 
+- **[I want a multiple-layers chart](http://dabeng.github.io/OrgChart/multiple-layers/)**
+
+In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
+
+![multiple layers](http://dabeng.github.io/OrgChart/multiple-layers/recorder.gif)
+
 ## Usage
 
 ### Instantiation Statement
