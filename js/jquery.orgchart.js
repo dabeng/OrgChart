@@ -96,7 +96,7 @@
     $chartContainer.append($chart);
 
     // append the export button
-    if (opts.exportButton) {
+    if (opts.exportButton && !$chartContainer.find('.oc-export-btn').length) {
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',

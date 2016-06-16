@@ -1,0 +1,22 @@
+.hidden {
+  display: none;
+}
+
+.orgchart .drill-icon {
+  transition: opacity .5s;
+  opacity: 0;
+  right: -10px;
+  top: -10px;
+  z-index: 2;
+  color: rgba(68, 157, 68, 0.5);
+  font-size: 24px;
+  position: absolute;
+}
+
+.orgchart .drill-icon:hover {
+  color: #449d44;
+}
+
+.orgchart .node:hover .drill-icon {
+  opacity: 1;
+}
