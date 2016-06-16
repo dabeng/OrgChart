@@ -51,21 +51,17 @@
         return addSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'removeNodes':
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
-      case 'getHierarchy': {
-        if (!$(this).find('.node:first')[0].id) {
-          return 'Error: Nodes of orghcart to be exported must have id attribute!';
-        }
-        return getHierarchy.apply(this, [$(this)]);
-      }
+      case 'getHierarchy':
+        return getHierarchy.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
-        this.data('orgchart', { 'options' : opts });
     }
 
     // build the org-chart
     var $chartContainer = this;
     var data = opts.data;
     var $chart = $('<div>', {
+      'data': { 'options': opts },
       'class': 'orgchart' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + (opts.direction !== 't2b' ? ' ' + opts.direction : ''),
       'click': function(event) {
         if (!$(event.target).closest('.node').length) {
@@ -100,7 +96,7 @@
     $chartContainer.append($chart);
 
     // append the export button
-    if (opts.exportButton) {
+    if (opts.exportButton && !$chartContainer.find('.oc-export-btn').length) {
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
@@ -114,7 +110,7 @@
           } else {
             $mask.removeClass('hidden');
           }
-          html2canvas($chart[0], {
+          html2canvas($chartContainer.find('.orgchart:visible').get(0), {
             'onrendered': function(canvas) {
               $chartContainer.find('.mask').addClass('hidden')
                 .end().find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
@@ -226,14 +222,22 @@
     return data;
   }
 
-  function getHierarchy($orgchart) {
-    var $tr = $orgchart.find('tr:first');
+  function loopChart($chart) {
+    var $tr = $chart.find('tr:first');
     var subObj = { 'id': $tr.find('.node')[0].id };
     $tr.siblings(':last').children().each(function() {
       if (!subObj.children) { subObj.children = []; }
-      subObj.children.push(getHierarchy($(this)));
+      subObj.children.push(loopChart($(this)));
     });
     return subObj;
+  }
+
+  function getHierarchy($chart) {
+    var $chart = $chart || $(this).find('.orgchart');
+    if (!$chart.find('.node:first')[0].id) {
+      return 'Error: Nodes of orghcart to be exported must have id attribute!';
+    }
+    return loopChart($chart);
   }
 
   // detect the exist/display state of related node
@@ -507,9 +511,9 @@
         // load new nodes
           $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/', 'dataType': 'json' })
           .done(function(data) {
-            if ($node.closest('div.orgchart').data('inAjax')) {
+            if ($node.closest('.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
-                addParent.call($node.closest('.orgchart').parent(), data, opts);
+                addParent.call($node.closest('.orgchart').parent(), $node, data, opts);
               }
             }
           })
@@ -714,7 +718,7 @@
 
   // build the child nodes of specific node
   function buildChildNode ($appendTo, nodeData, opts, callback) {
-    var opts = opts || this.data('orgchart').options;
+    var opts = opts || $appendTo.closest('.orgchart').data('options');
     var data = nodeData.children || nodeData.siblings;
     $appendTo.find('td:first').attr('colspan', data.length * 2);
     buildHierarchy($appendTo, { 'children': data }, 0, opts, callback);
@@ -736,11 +740,11 @@
   }
 
   // build the parent node of specific node
-  function buildParentNode(nodeData, opts, callback) {
+  function buildParentNode($currentRoot, nodeData, opts, callback) {
     var that = this;
     var $table = $('<table>');
     nodeData.relationship = '001';
-    $.when(createNode(nodeData, 0, opts ? opts : this.data('orgchart').options))
+    $.when(createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
       .done(function($nodeDiv) {
         $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
         $table.append('<tr class="lines hidden"><td colspan="2"><div class="down"></div></td></tr>');
@@ -758,9 +762,8 @@
   }
 
   // exposed method
-  function addParent(data, opts) {
-    var $currentRoot = this.find('.node:first');
-    buildParentNode.call(this, data, opts, function() {
+  function addParent($currentRoot, data, opts) {
+    buildParentNode.call(this, $currentRoot, data, opts, function() {
       if (!$currentRoot.children('.topEdge').length) {
         $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
       }
@@ -780,7 +783,7 @@
 
   // build the sibling nodes of specific node
   function buildSiblingNode($nodeChart, nodeData, opts, callback) {
-    var opts = opts || this.data('orgchart').options;
+    var opts = opts || $nodeChart.closest('.orgchart').data('options');
     var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
     var existingSibligCount = $nodeChart.parent().is('td') ? $nodeChart.closest('tr').children().length : 1;
     var siblingCount = existingSibligCount + newSiblingCount;
