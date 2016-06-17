@@ -30,6 +30,7 @@
       'nodeTitle': 'name',
       'nodeId': 'id',
       'nodeChildren': 'children',
+      'toggleSiblingsResp': false,
       'depth': 999,
       'chartClass': '',
       'exportButton': false,
