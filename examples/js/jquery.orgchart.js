@@ -30,6 +30,7 @@
       'nodeTitle': 'name',
       'nodeId': 'id',
       'nodeChildren': 'children',
+      'toggleSiblingsResp': false,
       'depth': 999,
       'chartClass': '',
       'exportButton': false,
@@ -337,35 +338,58 @@
   }
 
   // hide the sibling nodes of the specified node
-  function hideSiblings($node) {
+  function hideSiblings($node, direction) {
     var $nodeContainer = $node.closest('table').parent();
     if ($nodeContainer.siblings().find('.spinner').length) {
       $node.closest('.orgchart').data('inAjax', false);
     }
-    $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
-    $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+    if (direction) {
+      if (direction === 'left') {
+        $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
+      } else {
+        $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+      }
+    } else {
+      $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
+      $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+    }
     var $animatedNodes = $nodeContainer.siblings().find('.slide');
     var $lines = $animatedNodes.closest('.nodes').prevAll('.lines').css('visibility', 'hidden');
     $animatedNodes.eq(0).one('transitionend', function() {
       $lines.removeAttr('style');
-      $nodeContainer.closest('.nodes').prev().children().slice(1, -1).addClass('hidden');
+      var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
+      $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
+        .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
       $animatedNodes.removeClass('slide');
-      $nodeContainer.siblings().find('.node:visible:gt(0)').removeClass('slide-left slide-right').addClass('slide-up');
-      $nodeContainer.siblings().find('.lines, .nodes').addClass('hidden');
-      $nodeContainer.siblings().addClass('hidden');
+      $siblings.find('.node:visible:gt(0)').removeClass('slide-left slide-right').addClass('slide-up')
+        .end().find('.lines, .nodes').addClass('hidden')
+        .end().addClass('hidden');
       if (isInAction($node)) {
-        switchHorizontalArrow($node, true);
+        switchHorizontalArrow($node);
       }
     });
   }
 
   // show the sibling nodes of the specified node
-  function showSiblings($node) {
+  function showSiblings($node, direction) {
     // firstly, show the sibling td tags
-    var $siblings = $node.closest('table').parent().siblings().removeClass('hidden');
+    var $siblings = $();
+    if (direction) {
+      if (direction === 'left') {
+        $siblings = $node.closest('table').parent().prevAll().removeClass('hidden');
+      } else {
+        $siblings = $node.closest('table').parent().nextAll().removeClass('hidden');
+      }
+    } else {
+      $siblings = $node.closest('table').parent().siblings().removeClass('hidden');
+    }
     // secondly, show the lines
     var $upperLevel = $node.closest('table').closest('tr').siblings();
-    $upperLevel.eq(2).children().slice(1, -1).removeClass('hidden');
+    if (direction) {
+      $upperLevel.eq(2).children('.hidden').slice(0, $siblings.length * 2).removeClass('hidden');
+    } else {
+      $upperLevel.eq(2).children('.hidden').removeClass('hidden');
+    }
     // thirdly, do some cleaning stuff
     if (!getNodeState($node, 'parent').visible) {
       $upperLevel.removeClass('hidden');
@@ -379,7 +403,8 @@
     $siblings.find('.node:visible').addClass('slide').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
       $siblings.find('.node:visible').removeClass('slide');
       if (isInAction($node)) {
-        collapseArrow($node);
+        switchHorizontalArrow($node);
+        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
       }
     });
   }
@@ -418,14 +443,31 @@
     $arrow.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
   }
 
-  function collapseArrow($node) {
-    switchHorizontalArrow($node, false);
-    $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-  }
-
-  function switchHorizontalArrow($node, isExpand) {
-    $node.children('.leftEdge').toggleClass('fa-chevron-right', !isExpand).toggleClass('fa-chevron-left', isExpand);
-    $node.children('.rightEdge').toggleClass('fa-chevron-left', !isExpand).toggleClass('fa-chevron-right', isExpand);
+  function switchHorizontalArrow($node) {
+    var opts = $node.closest('.orgchart').data('options');
+    if (opts.toggleSiblingsResp && (typeof opts.ajaxURL === 'undefined' || $node.closest('.nodes').data('siblingsLoaded'))) {
+      var $prevSib = $node.closest('table').parent().prev();
+      if ($prevSib.length) {
+        if ($prevSib.is('.hidden')) {
+          $node.children('.leftEdge').addClass('fa-chevron-left').removeClass('fa-chevron-right');
+        } else {
+          $node.children('.leftEdge').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+        }
+      }
+      var $nextSib = $node.closest('table').parent().next();
+      if ($nextSib.length) {
+        if ($nextSib.is('.hidden')) {
+          $node.children('.rightEdge').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+        } else {
+          $node.children('.rightEdge').addClass('fa-chevron-left').removeClass('fa-chevron-right');
+        }
+      }
+    } else {
+      var $sibs = $node.closest('table').parent().siblings();
+      var sibsVisible = $sibs.length ? !$sibs.is('.hidden') : false;
+      $node.children('.leftEdge').toggleClass('fa-chevron-right', sibsVisible).toggleClass('fa-chevron-left', !sibsVisible);
+      $node.children('.rightEdge').toggleClass('fa-chevron-left', sibsVisible).toggleClass('fa-chevron-right', !sibsVisible);
+    }
   }
 
   function repaint(node) {
@@ -470,7 +512,7 @@
           $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
         }
         if ($leftEdge.length) {
-          switchHorizontalArrow($node, !getNodeState($node, 'siblings').visible);
+          switchHorizontalArrow($node);
         }
       } else {
         $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
@@ -497,7 +539,7 @@
           $parent.one('transitionend', function() {
             if (isInAction($node)) {
               switchVerticalArrow($that);
-              switchHorizontalArrow($node, true);
+              switchHorizontalArrow($node);
             }
           });
         } else { // show the ancestors and siblings
@@ -566,10 +608,28 @@
       if (siblingsState.exist) {
         var $siblings = $node.closest('table').parent().siblings();
         if ($siblings.find('.node:visible').is('.slide')) { return; }
-        if (siblingsState.visible) { // hide the sibling nodes of the specified node
-          hideSiblings($node);
-        } else { // show the siblings
-          showSiblings($node);
+        if (opts.toggleSiblingsResp) {
+          var $prevSib = $node.closest('table').parent().prev();
+          var $nextSib = $node.closest('table').parent().next();
+          if ($that.is('.leftEdge')) {
+            if ($prevSib.is('.hidden')) {
+              showSiblings($node, 'left');
+            } else {
+              hideSiblings($node, 'left');
+            }
+          } else {
+            if ($nextSib.is('.hidden')) {
+              showSiblings($node, 'right');
+            } else {
+              hideSiblings($node, 'right');
+            }
+          }
+        } else {
+          if (siblingsState.visible) {
+            hideSiblings($node);
+          } else {
+            showSiblings($node);
+          }
         }
       } else {
         // load the new sibling nodes of the specified node by ajax request
@@ -827,6 +887,7 @@
 
   function addSiblings($node, data, opts) {
     buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
+      $node.closest('.nodes').data('siblingsLoaded', true);
       if (!$node.children('.leftEdge').length) {
         $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
       }
