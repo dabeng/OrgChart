@@ -422,6 +422,8 @@
   <div class="demo-container" id="color-coded"></div>
   <p class="demo-heading">multiple-layers</p>
   <div class="demo-container" id="multiple-layers"></div>
+  <p class="demo-heading">show/hide sibling nodes respectively</p>
+  <div class="demo-container" id="toggle-sibs-resp"></div>
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
@@ -942,6 +944,12 @@
       });
     }
     initOrgchart('root-node');
+    /*********************** show/hide sibling nodes respectively **********************/
+    $('#toggle-sibs-resp').orgchart({
+      'data' : jsonDs,
+      'nodeContent': 'title',
+      'toggleSiblingsResp': true
+    });
 
     });
 
