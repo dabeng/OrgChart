@@ -128,7 +128,7 @@ $('#chart-container').orgchart({
 ```
 ![Right to Left](http://dabeng.github.io/OrgChart/direction/r2l.png)
 
-- **[I wanna show/hide sibling nodes respectively by clicking left/right arrow](http://dabeng.github.io/OrgChart/toggle-sibs-resp/)**
+- **[I wanna show/hide left/right sibling nodes respectively by clicking left/right arrow](http://dabeng.github.io/OrgChart/toggle-sibs-resp/)**
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
