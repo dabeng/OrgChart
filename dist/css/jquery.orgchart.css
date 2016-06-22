@@ -81,7 +81,8 @@
 }
 
 .orgchart table {
- border-spacing:0;
+  border-spacing: 0!important;
+  border-collapse: separate!important;
 }
 
 .orgchart>table:first-child{
