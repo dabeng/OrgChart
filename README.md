@@ -590,12 +590,15 @@ This method is designed to get the hierarchy relationships of orgchart for furth
 </table>
 
 ### Tips
-- **How can I deactivate expand/collapse feature of orgchart?**(inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thank der-robert and ActiveScottShaw for their constructive discussions:blush)
+- **How can I deactivate expand/collapse feature of orgchart?**
+
+This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thank [der-robert](https://github.com/der-robert) and [ActiveScottShaw](https://github.com/ActiveScottShaw) for their constructive discussions:blush:
+
 Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
 ```js
-$('.orgchart').addClass('noncollapsable');
+$('.orgchart').addClass('noncollapsable'); // deactivate 
 
-$('.orgchart').removeClass('noncollapsable');
+$('.orgchart').removeClass('noncollapsable'); // activate
 ```
 
 ## Browser Compatibility
