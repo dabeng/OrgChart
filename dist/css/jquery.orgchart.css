@@ -267,6 +267,10 @@
   -webkit-transition: .2s;
 }
 
+.orgchart.noncollapsable .node .edge {
+  display: none;
+}
+
 .orgchart .edge:hover {
   color: #449d44;
   cursor: pointer;
