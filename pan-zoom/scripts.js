@@ -33,7 +33,8 @@
       'data' : datascource,
       'depth': 2,
       'nodeContent': 'title',
-      'panzoom': true
+      'pan': true,
+      'zoom': true
     });
 
   });

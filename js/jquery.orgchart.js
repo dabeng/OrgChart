@@ -38,7 +38,8 @@
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
       'direction': 't2b',
-      'panzoom': false
+      'pan': false,
+      'zoom': false
     };
 
     switch (options) {
@@ -124,7 +125,7 @@
       $chartContainer.append($exportBtn).append(downloadBtn);
     }
 
-    if (opts.panzoom) {
+    if (opts.pan) {
       $chartContainer.css('overflow', 'hidden');
       $chart.on('mousedown',function(e){
         var $this = $(this);
@@ -179,6 +180,9 @@
           $(this).off('mousemove');
         }
       });
+    }
+
+    if (opts.zoom) {
       $chartContainer.on('wheel', function(event) {
         event.preventDefault();
         var lastTf = $chart.css('transform');
