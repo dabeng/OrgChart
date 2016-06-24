@@ -480,7 +480,10 @@ $('#chartContainerId').orgchart(options);
       <td>data</td><td>json or string</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>panzoom</td><td>boolean</td><td>no</td><td>false</td><td>Users could pan the orgchart by mouse drag&drop, zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
+      <td>pan</td><td>boolean</td><td>no</td><td>false</td><td>Users could pan the orgchart by mouse drag&drop if they enable this option.</td>
+    </tr>
+    <tr>
+      <td>zoom</td><td>boolean</td><td>no</td><td>false</td><td>Users could zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
     </tr>
     <tr>
       <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
