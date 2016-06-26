@@ -112,11 +112,24 @@
           } else {
             $mask.removeClass('hidden');
           }
-          html2canvas($chartContainer.find('.orgchart:visible').get(0), {
+          var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
+          var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
+          html2canvas(sourceChart, {
+            'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
+            'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
+            'onclone': function(cloneDoc) {
+              $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
+                .find('.orgchart').css('transform', '');
+            },
             'onrendered': function(canvas) {
               $chartContainer.find('.mask').addClass('hidden')
                 .end().find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
             }
+          })
+          .then(function() {
+            $chartContainer.removeClass('canvasContainer');
+          }, function() {
+            $chartContainer.removeClass('canvasContainer');
           });
         }
       });
