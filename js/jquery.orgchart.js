@@ -119,7 +119,7 @@
             'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
             'onclone': function(cloneDoc) {
               $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-                .find('.orgchart').css('transform', '');
+                .find('.orgchart:visible:first').css('transform', '');
             },
             'onrendered': function(canvas) {
               $chartContainer.find('.mask').addClass('hidden')
