@@ -352,7 +352,21 @@ $('#btn-delete-nodes').on('click', function() {
 
 - **[I wanna drag & drop the nodes of orgchart](http://dabeng.github.io/OrgChart/drag-drop/)**
 
-Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true.
+Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true. Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'nodeContent': 'title',
+  'draggable': true,
+  'dropCriteria': function($draggedNode, $dragZone, $dropZone) {
+    if($draggedNode.find('.content').text().indexOf('manager') > -1 && $dropZone.find('.content').text().indexOf('engineer') > -1) {
+      return false;
+    }
+    return true;
+  }
+})
+```
 
 ![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
 
