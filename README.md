@@ -352,7 +352,11 @@ $('#btn-delete-nodes').on('click', function() {
 
 - **[I wanna drag & drop the nodes of orgchart](http://dabeng.github.io/OrgChart/drag-drop/)**
 
-Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true. Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
+Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true.
+
+![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
+
+Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
@@ -367,8 +371,6 @@ $('#chart-container').orgchart({
   }
 })
 ```
-
-![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
 
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
 
@@ -541,6 +543,9 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option</td>
+    </tr>
+    <tr>
+      <td>dropCriteria</td><td>function</td><td>no</td><td></td><td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
     </tr>
   </tbody>
 </table>
