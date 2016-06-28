@@ -674,12 +674,19 @@
       $nodeDiv.on('dragstart', function(event) {
         event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
         var $dragged = $(this);
-        var $draggedZone = $dragged.closest('table').find('.node');
+        var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
+        var $dragHier = $dragged.closest('table').find('.node');
         $dragged.closest('.orgchart')
           .data('dragged', $dragged)
           .find('.node').each(function(index, node) {
-            if ($draggedZone.index(node) === -1) {
-              $(node).addClass('allowedDrop');
+            if ($dragHier.index(node) === -1) {
+              if (opts.dropCriteria) {
+                if (opts.dropCriteria($dragged, $dragZone, $(node))) {
+                  $(node).addClass('allowedDrop');
+                }
+              } else {
+                $(node).addClass('allowedDrop');
+              }
             }
           });
       })
@@ -687,7 +694,9 @@
         event.preventDefault();
         var $dropZone = $(this);
         var $dragged = $dropZone.closest('.orgchart').data('dragged');
-        if ($dragged.closest('table').find('.node').index($dropZone) > -1) {
+        var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
+        if ($dragged.closest('table').find('.node').index($dropZone) > -1 ||
+          (opts.dropCriteria && !opts.dropCriteria($dragged, $dragZone, $dropZone))) {
           event.originalEvent.dataTransfer.dropEffect = 'none';
         }
       })
