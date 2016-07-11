@@ -630,3 +630,10 @@ $('.orgchart').removeClass('noncollapsable'); // activate
 - Safari 6+
 - Opera 15+
 - IE 11+
+
+## Work Show
+- [I love NBA.](http://codepen.io/dabeng/full/aZzEVJ/)
+![2016 NBA Playoff](http://dabeng.github.io/OrgChart/img/2016nba/2016-nba-palyoff.png)
+
+- [We thank JordiCorbilla for his sharing how to save datasource after chart editing](https://github.com/dabeng/OrgChart/issues/34)
+![save datasource](https://cloud.githubusercontent.com/assets/7347994/16707530/d7e206ca-45c9-11e6-9a93-5b29840de272.png)
