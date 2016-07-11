@@ -613,7 +613,7 @@ This method is designed to get the hierarchy relationships of orgchart for furth
 </table>
 
 ### Tips
-- **How can I deactivate expand/collapse feature of orgchart?**
+**How can I deactivate expand/collapse feature of orgchart?**
 
 This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thank [der-robert](https://github.com/der-robert) and [ActiveScottShaw](https://github.com/ActiveScottShaw) for their constructive discussions:blush:
 
