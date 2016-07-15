@@ -101,10 +101,12 @@
 
 .orgchart td.right {
   border-right: 1px solid rgba(217, 83, 79, 0.8);
+  float: none;
 }
 
 .orgchart td.left {
   border-left: 1px solid rgba(217, 83, 79, 0.8);
+  float: none;
 }
 
 .orgchart td>.down {
@@ -112,6 +114,7 @@
   margin: 0px auto;
   height: 20px;
   width: 2px;
+  float: none;
 }
 
 /* node styling */
