@@ -75,7 +75,7 @@
       if (data instanceof $) { // ul datasource
         buildHierarchy($chart, buildJsonDS(data.children()), 0, opts);
       } else { // local json datasource
-        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
+        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00', opts), 0, opts);
       }
     } else {
       $.ajax({
@@ -86,7 +86,7 @@
         }
       })
       .done(function(data, textStatus, jqXHR) {
-        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
+        buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00', opts), 0, opts);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(errorThrown);
@@ -230,11 +230,12 @@
     return subObj;
   }
 
-  function attachRel(data, flags) {
-    data.relationship = flags + (data.children ? 1 : 0);
-    if (data.children) {
-    data.children.forEach(function(item) {
-      attachRel(item, '1' + (data.children.length > 1 ? 1 :0));
+  function attachRel(data, flags, opts) {
+    var children = data[opts.nodeChildren]
+    data.relationship = flags + (children && children.length > 0 ? 1 : 0);
+    if (children) {
+    children.forEach(function(item) {
+      attachRel(item, '1' + (children.length > 1 ? 1 :0), opts);
     });
     }
     return data;
