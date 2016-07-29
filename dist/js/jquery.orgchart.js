@@ -234,9 +234,9 @@
     var children = data[opts.nodeChildren]
     data.relationship = flags + (children && children.length > 0 ? 1 : 0);
     if (children) {
-    children.forEach(function(item) {
-      attachRel(item, '1' + (children.length > 1 ? 1 :0), opts);
-    });
+      children.forEach(function(item) {
+        attachRel(item, '1' + (children.length > 1 ? 1 :0), opts);
+      });
     }
     return data;
   }
