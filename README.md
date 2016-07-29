@@ -515,9 +515,6 @@ $('#chartContainerId').orgchart(options);
       <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
     </tr>
     <tr>
-      <td>nodeChildren</td><td>string</td><td>no</td><td>"children"</td><td>It sets one property of datasource as children nodes collection.</td>
-    </tr>
-    <tr>
       <td>nodeTitle</td><td>string</td><td>no</td><td>"name"</td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
     </tr>
     <tr>
