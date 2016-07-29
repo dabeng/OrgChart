@@ -626,7 +626,7 @@ $('.orgchart').removeClass('noncollapsable'); // activate
 - Firefox 4+
 - Safari 6+
 - Opera 15+
-- IE 11+
+- IE 10+
 
 ## Work Show
 [I love NBA.](http://codepen.io/dabeng/full/aZzEVJ/)
