@@ -51,11 +51,33 @@
 }
 
 .orgchart.l2r {
-  position: absolute;
+  /*position: absolute;*/
   transform: rotate(-90deg) rotateY(180deg);
   -ms-transform: rotate(-90deg) rotateY(180deg);
   -moz-transform: rotate(-90deg) rotateY(180deg);
   -webkit-transform: rotate(-90deg) rotateY(180deg);
+  transform-origin: left top;
+  -ms-transform-origin: left top;
+  -moz-transform-origin: left top;
+  -webkit-transform-origin: left top;
+}
+
+.orgchart .lines.l2r {
+  transform: rotate(-90deg) rotateY(180deg) translateY(10px);
+  -ms-transform: rotate(-90deg) rotateY(180deg) translateY(10px);
+  -moz-transform: rotate(-90deg) rotateY(180deg) translateY(10px);
+  -webkit-transform: rotate(-90deg) rotateY(180deg) translateY(10px);
+  transform-origin: left top;
+  -ms-transform-origin: left top;
+  -moz-transform-origin: left top;
+  -webkit-transform-origin: left top;
+}
+
+.orgchart .nodes.l2r {
+  transform: rotate(-90deg) rotateY(180deg) translate(-22px, 30px);
+  -ms-transform: rotate(-90deg) rotateY(180deg) translate(-22px, 30px);
+  -moz-transform: rotate(-90deg) rotateY(180deg) translate(-22px, 30px);
+  -webkit-transform: rotate(-90deg) rotateY(180deg) translateX(-22px, 30px);
   transform-origin: left top;
   -ms-transform-origin: left top;
   -moz-transform-origin: left top;
@@ -128,7 +150,7 @@
   width: 130px;
 }
 
-.orgchart.l2r .node, .orgchart.r2l .node {
+.orgchart.l2r .node, .orgchart.r2l .node, .orgchart .nodes.l2r .node {
   width: 50px;
   height: 130px;
 }
@@ -182,7 +204,7 @@
   -webkit-transform-origin: center bottom;
 }
 
-.orgchart.l2r .node .title {
+.orgchart.l2r .node .title, .orgchart .nodes.l2r .node .title {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
@@ -238,7 +260,7 @@
   -webkit-transform-origin: center top;
 }
 
-.orgchart.l2r .node .content {
+.orgchart.l2r .node .content, .orgchart .nodes.l2r .node .content {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
