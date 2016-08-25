@@ -30,7 +30,7 @@
           'children': [
             { 'name': 'Xing An', 'title': 'senior engineer' },
             { 'name': 'Yi Dian', 'title': 'engineer' },
-            { 'name': 'Xiao Gand', 'title': 'engineer' }
+            { 'name': 'Xiao Gang', 'title': 'engineer' }
           ]
         }
       ]

@@ -782,18 +782,23 @@
       }
       var isHidden = level + 1 >= opts.depth ? ' hidden' : '';
       var isVertical = (opts.verticalDepth && ++level >= opts.verticalDepth) ? ' l2r' : '';
+
       // draw the line close to parent node
-      $table.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
+      $table.append('<tr class="lines' + isHidden + isVertical + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
       // draw the lines close to children nodes
-      var linesRow = '<tr class="lines' + isHidden + isVertical + '"><td class="right">&nbsp;</td>';
+      var linesRow = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
       for (var i=1; i<$childNodes.length; i++) {
         linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
       }
       linesRow += '<td class="left">&nbsp;</td></tr>';
-      $table.append(linesRow);
+      var $childNodesRow = $('<tr class="nodes' + isHidden + '">');
+      if (isVertical) {
+        $table.append('<tr><td class="verticalTd"><table class="l2r"></table></td></tr>')
+          .find('table').append(linesRow).append($childNodesRow);
+      } else {
+        $table.append(linesRow).append($childNodesRow);
+      }
       // recurse through children nodes
-      var $childNodesRow = $('<tr class="nodes' + isHidden + isVertical + '">');
-      $table.append($childNodesRow);
       $.each($childNodes, function() {
         var $td = $('<td colspan="2">');
         $childNodesRow.append($td);
