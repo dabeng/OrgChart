@@ -671,7 +671,9 @@
     });
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
-        event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
+        if (/firefox/.test(window.navigator.userAgent.toLowerCase())) {
+          event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
+        }
         var $dragged = $(this);
         var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
         var $dragHier = $dragged.closest('table').find('.node');
