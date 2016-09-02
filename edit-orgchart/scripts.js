@@ -20,6 +20,7 @@
       'exportFilename': 'SportsChart',
       'parentNodeSymbol': 'fa-th-large',
       'createNode': function($node, data) {
+        $node[0].id = (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001);
         $node.on('click', function(event) {
           if (!$(event.target).is('.edge')) {
             $('#selected-node').val(data.name).data('node', $node);
