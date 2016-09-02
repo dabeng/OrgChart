@@ -51,7 +51,7 @@
 }
 
 .orgchart.l2r {
-  /*position: absolute;*/
+  position: absolute;
   transform: rotate(-90deg) rotateY(180deg);
   -ms-transform: rotate(-90deg) rotateY(180deg);
   -moz-transform: rotate(-90deg) rotateY(180deg);
@@ -60,33 +60,6 @@
   -ms-transform-origin: left top;
   -moz-transform-origin: left top;
   -webkit-transform-origin: left top;
-}
-
-.orgchart .lines.l2r:nth-child(2)>td>.down {
-  float: left;
-  margin-left: 32px;
-}
-
-.orgchart .verticalTd::before {
-  content: '';
-  padding: 92px;
-}
-
-.orgchart table.l2r {
-  margin-top: -20px;
-  margin-left: 32px;
-  transform: rotate(-90deg) rotateY(180deg);
-  -ms-transform: rotate(-90deg) rotateY(180deg);
-  -moz-transform: rotate(-90deg) rotateY(180deg);
-  -webkit-transform: rotate(-90deg) rotateY(180deg);
-  transform-origin: left top;
-  -ms-transform-origin: left top;
-  -moz-transform-origin: left top;
-  -webkit-transform-origin: left top;
-}
-
-.orgchart table.l2r .lines>td:nth-child(1) {
-  border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
 .orgchart.r2l {
@@ -144,10 +117,6 @@
   float: none;
 }
 
-.orgchart td>table {
-  margin: 0 auto;
-}
-
 /* node styling */
 .orgchart .node {
   display: inline-block;
@@ -159,7 +128,7 @@
   width: 130px;
 }
 
-.orgchart.l2r .node, .orgchart.r2l .node, .orgchart table.l2r .node {
+.orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
   height: 130px;
 }
@@ -213,7 +182,7 @@
   -webkit-transform-origin: center bottom;
 }
 
-.orgchart.l2r .node .title, .orgchart table.l2r .node .title {
+.orgchart.l2r .node .title {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
@@ -269,7 +238,7 @@
   -webkit-transform-origin: center top;
 }
 
-.orgchart.l2r .node .content, .orgchart table.l2r .node .content {
+.orgchart.l2r .node .content {
   transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
   -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
