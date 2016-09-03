@@ -14,12 +14,17 @@
       ]
     };
 
+    var getId = function() {
+      return (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001);
+    };
+
     $('#chart-container').orgchart({
       'data' : datascource,
       'exportButton': true,
       'exportFilename': 'SportsChart',
       'parentNodeSymbol': 'fa-th-large',
       'createNode': function($node, data) {
+        $node[0].id = getId();
         $node.on('click', function(event) {
           if (!$(event.target).is('.edge')) {
             $('#selected-node').val(data.name).data('node', $node);
@@ -89,10 +94,10 @@
         return;
       }
       if (nodeType.val() === 'parent') {
-        $chartContainer.orgchart('addParent', $chartContainer.find('.node:first'), { 'name': nodeVals[0] });
+        $chartContainer.orgchart('addParent', $chartContainer.find('.node:first'), { 'name': nodeVals[0], 'Id': getId() });
       } else if (nodeType.val() === 'siblings') {
         $chartContainer.orgchart('addSiblings', $node,
-          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
         });
       } else {
         var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
@@ -100,12 +105,12 @@
           var rel = nodeVals.length > 1 ? '110' : '100';
           $chartContainer.orgchart('addChildren', $node, {
               'children': nodeVals.map(function(item) {
-                return { 'name': item, 'relationship': rel };
+                return { 'name': item, 'relationship': rel, 'Id': getId() };
               })
             }, $.extend({}, $chartContainer.find('.orgchart').data('options'), { depth: 0 }));
         } else {
           $chartContainer.orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
-            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
           });
         }
       }
