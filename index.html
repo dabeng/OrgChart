@@ -699,6 +699,9 @@
           { 'name': 'Volleyball', 'relationship': '110' }
         ]
       };
+      var getId = function() {
+        return (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001);
+      };
       $('#chart-edit').orgchart({
         'data' : jsonDs4,
         'exportButton': true,
@@ -770,10 +773,10 @@
           return;
         }
         if (nodeType.val() === 'parent') {
-          $chartEdit.orgchart('addParent', $chartEdit.find('.node:first'), { 'name': nodeVals[0] });
+          $chartEdit.orgchart('addParent', $chartEdit.find('.node:first'), { 'name': nodeVals[0], 'Id': getId() });
         } else if (nodeType.val() === 'siblings') {
           $chartEdit.orgchart('addSiblings', $node,
-            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
           });
         } else {
           var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
@@ -781,12 +784,12 @@
             var rel = nodeVals.length > 1 ? '110' : '100';
             $chartEdit.orgchart('addChildren', $node, {
                 'children': nodeVals.map(function(item) {
-                  return { 'name': item, 'relationship': rel };
+                  return { 'name': item, 'relationship': rel, 'Id': getId() };
                 })
               }, $.extend({}, $chartEdit.find('.orgchart').data('options'), { depth: 0 }));
           } else {
             $chartEdit.orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
-              { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
+              { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
             });
           }
         }
