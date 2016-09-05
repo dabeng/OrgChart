@@ -74,8 +74,8 @@
 }
 
 .orgchart .verticalTd::before {
-  content: '';
-  padding: 92px;
+ /* content: '';
+  padding: 92px;*/
 }
 
 .orgchart table.l2r {

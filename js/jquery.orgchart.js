@@ -759,16 +759,21 @@
   }
   // recursively build the tree
   function buildHierarchy ($appendTo, nodeData, level, opts, callback) {
-    var $table;
+    var $nodeWrapper;
     // Construct the node
     var $childNodes = nodeData.children;
     var hasChildren = $childNodes ? $childNodes.length : false;
+    var isVerticalNode = (opts.verticalDepth && (level + 1) >= opts.verticalDepth) ? true : false;
     if (Object.keys(nodeData).length > 1) { // if nodeData has nested structure
-      $table = $('<table>');
-      $appendTo.append($table);
+      $nodeWrapper = isVerticalNode ? $('<ul>') : $('<table>');
+      $appendTo.append($nodeWrapper);
       $.when(createNode(nodeData, level, opts))
       .done(function($nodeDiv) {
-        $table.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+        if (isVerticalNode) {
+          $nodeWrapper.append($nodeDiv.wrap('<li>').closest('li'));
+        }else {
+          $nodeWrapper.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+        }
         if (callback) {
           callback();
         }
@@ -780,31 +785,33 @@
     // Construct the inferior nodes and connectiong lines
     if (hasChildren) {
       if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
-        $table = $appendTo;
+        $nodeWrapper = $appendTo;
       }
       var isHidden = level + 1 >= opts.depth ? ' hidden' : '';
-      var isVertical = (opts.verticalDepth && ++level >= opts.verticalDepth) ? ' l2r' : '';
+      var isVerticalLayer = (opts.verticalDepth && (level + 2) >= opts.verticalDepth) ? true : false;
 
       // draw the line close to parent node
-      $table.append('<tr class="lines' + isHidden + isVertical + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
-      // draw the lines close to children nodes
-      var linesRow = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
-      for (var i=1; i<$childNodes.length; i++) {
-        linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+      if (!isVerticalLayer) {
+        $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
       }
-      linesRow += '<td class="left">&nbsp;</td></tr>';
-      var $childNodesRow = $('<tr class="nodes' + isHidden + '">');
-      if (isVertical) {
-        $table.append('<tr><td class="verticalTd"><ul></ul></td></tr>')
-          .find('ul').append(linesRow).append($childNodesRow);
+      // draw the lines close to children nodes
+      var lineLayer = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
+      for (var i=1; i<$childNodes.length; i++) {
+        lineLayer += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+      }
+      lineLayer += '<td class="left">&nbsp;</td></tr>';
+      var $nodeLayer = isVerticalLayer ?  $('<ul>') : $('<tr class="nodes' + isHidden + '">');
+      if (isVerticalLayer) {
+        $nodeWrapper.append('<tr><td class="verticalTd"></td></tr>')
+          .find('.verticalTd').append($nodeLayer);
       } else {
-        $table.append(linesRow).append($childNodesRow);
+        $nodeWrapper.append(lineLayer).append($nodeLayer);
       }
       // recurse through children nodes
       $.each($childNodes, function() {
-        var $td = $('<td colspan="2">');
-        $childNodesRow.append($td);
-        buildHierarchy($td, this, level + 1, opts, callback);
+        var $nodeCell = isVerticalLayer ? $('<li>') : $('<td colspan="2">');
+        $nodeLayer.append($nodeCell);
+        buildHierarchy($nodeCell, this, level + 1, opts, callback);
       });
     }
   }
