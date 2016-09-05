@@ -800,7 +800,7 @@
         lineLayer += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
       }
       lineLayer += '<td class="left">&nbsp;</td></tr>';
-      var $nodeLayer = isVerticalLayer ?  $('<ul>') : $('<tr class="nodes' + isHidden + '">');
+      var $nodeLayer = isVerticalLayer ?  $('<ul class="nodes">') : $('<tr class="nodes' + isHidden + '">');
       if (isVerticalLayer) {
         $nodeWrapper.append('<tr><td class="verticalTd"></td></tr>')
           .find('.verticalTd').append($nodeLayer);
