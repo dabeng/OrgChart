@@ -454,7 +454,18 @@ In fact, this is a wonderful solution to display a orgchart which includes a hug
 
 - **[I want a hybrid(horizontal + vertical) chart](http://dabeng.github.io/OrgChart/vertical-depth/)**
 
-In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
+This feature is inspired by the issues([Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)). Thank [mfahadi](https://github.com/mfahadi) and [Destructrix](https://github.com/Destructrix) for their constructive suggestions:blush:
+
+From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalDepth" allows users to align child nodes vertically from the given depth.
+
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datascource,
+  'nodeContent': 'title',
+  'verticalDepth': 3 // From the 3th level of orgchart, nodes will be aligned vertically.
+});
+```
 
 ![hybrid layout](http://dabeng.github.io/OrgChart/vertical-depth/snapshot.png)
 
@@ -510,6 +521,9 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
+    </tr>
+    <tr>
+      <td>verticalDepth</td><td>integer</td><td>no</td><td></td><td>Users can make use of this option to align the nodes vertically from the specified depth.</td>
     </tr>
     <tr>
       <td>toggleSiblingsResp</td><td>boolean</td><td>no</td><td>false</td><td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
