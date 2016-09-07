@@ -329,10 +329,18 @@
       $node.closest('.orgchart').data('inAjax', false);
     }
     var $visibleNodes = $temp.last().find('.node:visible');
-    var $lines = $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
+    var isVerticalDesc = $temp.last().is('.verticalNodes') ? true : false;
+    if (!isVerticalDesc) {
+      var $lines = $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
+    }
     $visibleNodes.addClass('slide slide-up').eq(0).one('transitionend', function() {
       $visibleNodes.removeClass('slide');
-      $lines.removeAttr('style').addClass('hidden').siblings('.nodes').addClass('hidden');
+      if (isVerticalDesc) {
+        $temp.addClass('hidden');
+      } else {
+        $lines.removeAttr('style').addClass('hidden').siblings('.nodes').addClass('hidden');
+        $temp.last().find('.verticalNodes').addClass('hidden');
+      }
       if (isInAction($node)) {
         switchVerticalArrow($node.children('.bottomEdge'));
       }
@@ -341,8 +349,11 @@
 
   // show the children nodes of the specified node
   function showDescendants($node) {
-    var $descendants = $node.closest('tr').siblings().removeClass('hidden')
-      .eq(2).children().find('tr:first').find('.node:visible');
+    var $temp = $node.closest('tr').siblings();
+    var isVerticalDesc = $temp.is('.verticalNodes') ? true : false;
+    var $descendants = isVerticalDesc
+      ? $temp.removeClass('hidden').find('.node:visible')
+      : $temp.removeClass('hidden').eq(2).children().find('tr:first').find('.node:visible');
     // the two following statements are used to enforce browser to repaint
     repaint($descendants.get(0));
     $descendants.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
@@ -378,8 +389,9 @@
         .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
       $animatedNodes.removeClass('slide');
       $siblings.find('.node:visible:gt(0)').removeClass('slide-left slide-right').addClass('slide-up')
-        .end().find('.lines, .nodes').addClass('hidden')
+        .end().find('.lines, .nodes, .verticalNodes').addClass('hidden')
         .end().addClass('hidden');
+
       if (isInAction($node)) {
         switchHorizontalArrow($node);
       }
@@ -498,18 +510,24 @@
       .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
-    // append 4 direction arrows
+    // append 4 direction arrows or expand/collapse buttons
     var flags = nodeData.relationship || '';
-    if (Number(flags.substr(0,1))) {
-      $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
-    }
-    if(Number(flags.substr(1,1))) {
-      $nodeDiv.append('<i class="edge horizontalEdge rightEdge fa"></i>' +
-        '<i class="edge horizontalEdge leftEdge fa"></i>');
-    }
-    if(Number(flags.substr(2,1))) {
-      $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>')
-        .children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
+    if (opts.verticalDepth && (level + 2) > opts.verticalDepth) {
+      if ((level + 1) >= opts.verticalDepth && Number(flags.substr(2,1))) {
+        $nodeDiv.append('<i class="toggleBtn fa fa-minus-square"></i>');
+      }
+    } else {
+      if (Number(flags.substr(0,1))) {
+        $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
+      }
+      if(Number(flags.substr(1,1))) {
+        $nodeDiv.append('<i class="edge horizontalEdge rightEdge fa"></i>' +
+          '<i class="edge horizontalEdge leftEdge fa"></i>');
+      }
+      if(Number(flags.substr(2,1))) {
+        $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+          .children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
+      }
     }
 
     $nodeDiv.on('mouseenter mouseleave', function(event) {
@@ -613,6 +631,29 @@
             endLoading($that, $node, opts);
           });
         }
+      }
+    });
+
+    // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
+    $nodeDiv.on('click', '.toggleBtn', function(event) {
+      var $this = $(this);
+      var $descWrapper = $this.parent().next();
+      var $descendants = $descWrapper.find('.node');
+      var $children = $descWrapper.children().children('.node');
+      if ($children.is('.slide')) { return; }
+      $this.toggleClass('fa-plus-square fa-minus-square');
+      if ($descendants.eq(0).is('.slide-up')) {
+        $descWrapper.removeClass('hidden');
+        repaint($children.get(0));
+        $children.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
+          $children.removeClass('slide');
+        });
+      } else {
+        $descendants.addClass('slide slide-up').eq(0).one('transitionend', function() {
+          $descendants.removeClass('slide');
+          // $descWrapper.addClass('hidden');
+          $descendants.closest('ul').addClass('hidden');
+        }).find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
       }
     });
 
@@ -759,16 +800,23 @@
   }
   // recursively build the tree
   function buildHierarchy ($appendTo, nodeData, level, opts, callback) {
-    var $table;
+    var $nodeWrapper;
     // Construct the node
     var $childNodes = nodeData.children;
     var hasChildren = $childNodes ? $childNodes.length : false;
+    var isVerticalNode = (opts.verticalDepth && (level + 1) >= opts.verticalDepth) ? true : false;
     if (Object.keys(nodeData).length > 1) { // if nodeData has nested structure
-      $table = $('<table>');
-      $appendTo.append($table);
+      $nodeWrapper = isVerticalNode ? $appendTo : $('<table>');
+      if (!isVerticalNode) {
+        $appendTo.append($nodeWrapper);
+      }
       $.when(createNode(nodeData, level, opts))
       .done(function($nodeDiv) {
-        $table.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+        if (isVerticalNode) {
+          $nodeWrapper.append($nodeDiv);
+        }else {
+          $nodeWrapper.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+        }
         if (callback) {
           callback();
         }
@@ -780,25 +828,39 @@
     // Construct the inferior nodes and connectiong lines
     if (hasChildren) {
       if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
-        $table = $appendTo;
+        $nodeWrapper = $appendTo;
       }
       var isHidden = level + 1 >= opts.depth ? ' hidden' : '';
+      var isVerticalLayer = (opts.verticalDepth && (level + 2) >= opts.verticalDepth) ? true : false;
+
       // draw the line close to parent node
-      $table.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
-      // draw the lines close to children nodes
-      var linesRow = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
-      for (var i=1; i<$childNodes.length; i++) {
-        linesRow += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+      if (!isVerticalLayer) {
+        $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
       }
-      linesRow += '<td class="left">&nbsp;</td></tr>';
-      $table.append(linesRow);
+      // draw the lines close to children nodes
+      var lineLayer = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
+      for (var i=1; i<$childNodes.length; i++) {
+        lineLayer += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+      }
+      lineLayer += '<td class="left">&nbsp;</td></tr>';
+      var $nodeLayer;
+      if (isVerticalLayer) {
+        $nodeLayer = $('<ul>');
+        if (level + 2 === opts.verticalDepth) {
+          $nodeWrapper.append('<tr class="verticalNodes"><td></td></tr>')
+            .find('.verticalNodes').children().append($nodeLayer);
+        } else {
+          $nodeWrapper.append($nodeLayer);
+        }
+      } else {
+        $nodeLayer = $('<tr class="nodes' + isHidden + '">');
+        $nodeWrapper.append(lineLayer).append($nodeLayer);
+      }
       // recurse through children nodes
-      var $childNodesRow = $('<tr class="nodes' + isHidden + '">');
-      $table.append($childNodesRow);
       $.each($childNodes, function() {
-        var $td = $('<td colspan="2">');
-        $childNodesRow.append($td);
-        buildHierarchy($td, this, level + 1, opts, callback);
+        var $nodeCell = isVerticalLayer ? $('<li>') : $('<td colspan="2">');
+        $nodeLayer.append($nodeCell);
+        buildHierarchy($nodeCell, this, level + 1, opts, callback);
       });
     }
   }
