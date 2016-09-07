@@ -458,6 +458,8 @@ This feature is inspired by the issues([Aligning Children Vertical](https://gith
 
 From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalDepth" allows users to align child nodes vertically from the given depth.
 
+**Note**: currently, this option is incompatible with many other options or methods, like direction, drag&drop, addChildren(), removeNodes(), getHierarchy() and so on. These conflicts will be solved one by one in the later versions.
+
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
