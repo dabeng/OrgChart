@@ -452,6 +452,12 @@ In fact, this is a wonderful solution to display a orgchart which includes a hug
 
 ![multiple layers](http://dabeng.github.io/OrgChart/multiple-layers/recorder.gif)
 
+- **[I want a hybrid(horizontal + vertical) chart](http://dabeng.github.io/OrgChart/vertical-depth/)**
+
+In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
+
+![hybrid layout](http://dabeng.github.io/OrgChart/vertical-depth/snapshot.png)
+
 ## Usage
 
 ### Instantiation Statement
