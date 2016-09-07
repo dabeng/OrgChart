@@ -20,8 +20,12 @@
             { 'name': 'Tie Hua', 'title': 'senior engineer' },
             { 'name': 'Hei Hei', 'title': 'senior engineer',
               'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                { 'name': 'Pang Pang', 'title': 'engineer',
+                  'children': [
+                    { 'name': 'Dan Zai', 'title': 'intern' },
+                    { 'name': 'Er Dan Zai', 'title': 'intern' }
+                  ]
+                }
               ]
             }
           ]

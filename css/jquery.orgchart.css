@@ -67,35 +67,10 @@
   margin-left: 32px;
 }
 
-.orgchart .verticalTd ul {
+.orgchart .verticalNodes ul {
   list-style: none;
   margin:0px;
-  padding: 0px;
-}
-
-.orgchart ul.nodes {
-  border-left: 2px solid rgba(217, 83, 79, 0.8);
-    margin: 0 0 0 37px;
-    overflow: hidden;
-    padding: 0 0 0 25px;
-}
-
-.orgchart ul.nodes>li {
-  position: relative;
-}
-
-.orgchart ul.nodes>li::before {
-border-bottom: 2px solid rgba(217, 83, 79, 0.8);
-    content: "";
-    left: -25px;
-    position: absolute;
-    top: 25px;
-    width: 25px;
-}
-
-.orgchart .verticalTd::before {
- /* content: '';
-  padding: 92px;*/
+  padding-left: 24px;
 }
 
 .orgchart table.l2r {
@@ -377,6 +352,17 @@ border-bottom: 2px solid rgba(217, 83, 79, 0.8);
 
 .orgchart .node .leftEdge::before {
   left: 3px;
+}
+
+.orgchart .node .toggleBtn {
+  position: absolute;
+  left: -9px;
+  bottom: 16px;
+  color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node .toggleBtn:hover {
+  color: rgba(68, 157, 68, 0.8);
 }
 
 .oc-export-btn {
