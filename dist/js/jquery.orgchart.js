@@ -499,7 +499,8 @@
   }
 
   function repaint(node) {
-    node.style.offsetWidth = node.offsetWidth;
+	if (node)
+      node.style.offsetWidth = node.offsetWidth;
   }
 
   // create node
@@ -874,6 +875,7 @@
   }
   // exposed method
   function addChildren($node, data, opts) {
+    var opts = opts || $node.closest('.orgchart').data('options');
     var count = 0;
     buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
       if (++count === data.children.length) {
