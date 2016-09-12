@@ -499,8 +499,9 @@
   }
 
   function repaint(node) {
-	if (node)
+	  if (node) {
       node.style.offsetWidth = node.offsetWidth;
+    }
   }
 
   // create node
