@@ -17,7 +17,12 @@
                 { 'name': 'Pang Pang', 'title': 'engineer' },
                 { 'name': 'Dan Zai', 'title': 'UE engineer',
                   'children': [
-                    { 'name': 'Er Dan Zai', 'title': 'Intern' }
+                    { 'name': 'Er Dan Zai', 'title': 'engineer',
+                      'children': [
+                        { 'name': 'AAA', 'title': 'Intern' },
+                        { 'name': 'BBB', 'title': 'Intern' }
+                      ]
+                    }
                   ]
                 }
               ]
@@ -30,13 +35,16 @@
     };
 
     var showDescendents = function(node, depth) {
-      if (depth === 0) return false;
+      if (depth === 1) {
+        return false;
+      }
       $(node).closest('tr').siblings(':last').children().find('.node:first').each(function(index, node) {
-        var $temp = $(node).closest('tr').siblings().removeClass('hidden')
-        if (depth < 3 && index === 0) {
-          node.style.offsetWidth = node.offsetWidth;
+        var $temp = $(node).closest('tr').siblings().removeClass('hidden');
+        var $children = $temp.last().children().find('.node:first');
+        if ($children.length) {
+          $children[0].style.offsetWidth = $children[0].offsetWidth;
         }
-        $temp.children().find('.node:first').removeClass('slide-up');
+        $children.removeClass('slide-up');
         showDescendents(node, depth--);
       });
     };
