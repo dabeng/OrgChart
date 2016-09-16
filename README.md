@@ -18,16 +18,16 @@
 - Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections)
 
 ## Installation
-Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp. 
+Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp.
 ### Install with Bower
 ```
-# From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies 
+# From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies
 $ bower install orgchart
 ```
 
 ### Install with npm
 ```
-# From version 1.0.4 on, users can install orgchart with npm 
+# From version 1.0.4 on, users can install orgchart with npm
 $ npm install orgchart
 ```
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
@@ -80,7 +80,7 @@ var datasource = {
     { 'name': 'Chun Miao', 'title': 'department manager' }
   ]
 };
-    
+
 $('#chart-container').orgchart({
   'data' : datasource,
   'depth': 2,
@@ -96,7 +96,7 @@ $('#chart-container').orgchart({
 - **I wanna align orgchart with different orientation**(this feature comes from [the good idea of fvlima and badulesia :blush:](https://github.com/dabeng/OrgChart/issues/5))
 
   Top to Bottom -- default direction, as you can see all other examples on this page.
-  
+
   [Bottom to Top](http://dabeng.github.io/OrgChart/direction/bottom2top)
 ```js
 // sample of core source code
@@ -157,7 +157,7 @@ $('#chart-container').orgchart({
 Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
 ```js
 // sample of core source code
-var datascource = {
+var datasource = {
   'id': '1',
   'name': 'Su Miao',
   'title': 'department manager',
@@ -172,11 +172,11 @@ var ajaxURLs = {
   'children': '/orgchart/children/',
   'parent': '/orgchart/parent/',
   'siblings': '/orgchart/siblings/',
-  'families': '/orgchart/families/' 
+  'families': '/orgchart/families/'
 };
 
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'ajaxURL': ajaxURLs,
   'nodeContent': 'title',
   'nodeId': 'id'
@@ -188,7 +188,7 @@ $('#chart-container').orgchart({
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'depth': 2,
   'nodeContent': 'title',
   'nodeID': 'id',
@@ -212,13 +212,13 @@ Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canva
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'depth': 2,
   'nodeContent': 'title',
   'exportButton': true,
   'exportFilename': 'MyOrgChart'
 });
-``` 
+```
 ![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
 
 - **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
@@ -249,7 +249,7 @@ var map = new ol.Map({
 });
 $('body').prepend(map.getViewport());
 
-var datascource = {
+var datasource = {
   'name': 'Lao Lao',
   'title': 'President Office',
   'position': [-87.6297980, 41.8781140],
@@ -261,7 +261,7 @@ var datascource = {
 };
 
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'nodeContent': 'title',
   'createNode': function($node, data) {
     $node.on('click', function() {
@@ -283,7 +283,7 @@ $('#chart-container').orgchart({
     });
   }
 });
-``` 
+```
 ![integrate map](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
 
 - **[I wanna edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)**
@@ -292,7 +292,7 @@ With the help of exposed core methods(addParent(), addSiblings(), addChildren(),
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'exportButton': true,
   'exportFilename': 'SportsChart',
   'parentNodeSymbol': 'fa-th-large',
@@ -361,7 +361,7 @@ Furthermore, users can make use of option dropCriteria to inject their custom li
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'nodeContent': 'title',
   'draggable': true,
   'dropCriteria': function($draggedNode, $dragZone, $dropZone) {
@@ -412,7 +412,7 @@ $('#btn-export-hier').on('click', function() {
 
 It's a so easy task, we just need to append id or className property to node data.
 ```js
-var datascource = {
+var datasource = {
   'name': 'Lao Lao',
   'title': 'general manager',
   'className': 'top-level',
@@ -464,7 +464,7 @@ From now on, users never have to worry about how to align a huge of nodes in one
 ```js
 // sample of core source code
 $('#chart-container').orgchart({
-  'data' : datascource,
+  'data' : datasource,
   'nodeContent': 'title',
   'verticalDepth': 3 // From the 3th level of orgchart, nodes will be aligned vertically.
 });
@@ -477,7 +477,7 @@ $('#chart-container').orgchart({
 ### Instantiation Statement
 ```js
 $('#chartContainerId').orgchart(options);
-``` 
+```
 
 ### Structure of Datasource
 ```js
@@ -488,7 +488,7 @@ $('#chartContainerId').orgchart(options);
   'nodeContentPro': 'general manager',
   'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
   // you should use json datsource (local or remote) and set this property.
-  // This property implies that whether this node has parent node, siblings nodes or children nodes. 
+  // This property implies that whether this node has parent node, siblings nodes or children nodes.
   // relationshipValue is a string composed of three "0/1" identifier.
   // First character stands for wether current node has parent node;
   // Scond character stands for wether current node has siblings nodes;
@@ -505,7 +505,7 @@ $('#chartContainerId').orgchart(options);
   ],
   'otherPro': anyValue
 };
-``` 
+```
 
 ### Options
 <table>
@@ -620,7 +620,7 @@ Removes the designated node and its descedant nodes.
   </tbody>
 </table>
 ##### .orgchart('getHierarchy'）
-This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new statte of orghcart. 
+This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new statte of orghcart.
 
 ### Events
 <table>
@@ -639,7 +639,7 @@ This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issu
 
 Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
 ```js
-$('.orgchart').addClass('noncollapsable'); // deactivate 
+$('.orgchart').addClass('noncollapsable'); // deactivate
 
 $('.orgchart').removeClass('noncollapsable'); // activate
 ```
