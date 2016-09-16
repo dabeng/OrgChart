@@ -620,7 +620,7 @@ Removes the designated node and its descedant nodes.
   </tbody>
 </table>
 ##### .orgchart('getHierarchy'）
-This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new statte of orghcart.
+This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
 
 ### Events
 <table>
