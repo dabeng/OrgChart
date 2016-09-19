@@ -717,6 +717,34 @@
         if (/firefox/.test(window.navigator.userAgent.toLowerCase())) {
           event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
         }
+        // if users enable zoom or direction options
+        if ($nodeDiv.closest('.orgchart').css('transform') !== 'none') {
+          var ghostNode, nodeCover;
+          if (!document.querySelector('.ghost-node')) {
+            ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            ghostNode.classList.add('ghost-node');
+            nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
+            nodeCover.setAttribute('fill','#ffffff');
+            nodeCover.setAttribute('stroke','#bf0000');
+            nodeCover.classList.add('ghost-node-cover');
+            ghostNode.appendChild(nodeCover);
+            $nodeDiv.closest('.orgchart').append(ghostNode);
+          } else {
+            ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
+            nodeCover = $(ghostNode).children().get(0);
+          }
+          var scale = $nodeDiv.closest('.orgchart').css('transform').match(/-?[\d\.]+/g)[0];
+          ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
+          ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+          nodeCover.setAttribute('x',5 * scale);
+          nodeCover.setAttribute('y',5 * scale);
+          nodeCover.setAttribute('width', 120 * scale);
+          nodeCover.setAttribute('height', 40 * scale);
+          nodeCover.setAttribute('rx', 4 * scale);
+          nodeCover.setAttribute('ry', 4 * scale);
+
+          event.originalEvent.dataTransfer.setDragImage(ghostNode, 0, 0);
+        }
         var $dragged = $(this);
         var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
         var $dragHier = $dragged.closest('table').find('.node');
