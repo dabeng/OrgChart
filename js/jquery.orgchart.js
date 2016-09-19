@@ -714,8 +714,9 @@
     });
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
+        var origEvent = event.originalEvent;
         if (/firefox/.test(window.navigator.userAgent.toLowerCase())) {
-          event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
+          origEvent.dataTransfer.setData('text/html', 'hack for firefox');
         }
         // if users enable zoom or direction options
         if ($nodeDiv.closest('.orgchart').css('transform') !== 'none') {
@@ -724,9 +725,6 @@
             ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             ghostNode.classList.add('ghost-node');
             nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
-            nodeCover.setAttribute('fill','#ffffff');
-            nodeCover.setAttribute('stroke','#bf0000');
-            nodeCover.classList.add('ghost-node-cover');
             ghostNode.appendChild(nodeCover);
             $nodeDiv.closest('.orgchart').append(ghostNode);
           } else {
@@ -743,7 +741,7 @@
           nodeCover.setAttribute('rx', 4 * scale);
           nodeCover.setAttribute('ry', 4 * scale);
 
-          event.originalEvent.dataTransfer.setDragImage(ghostNode, 0, 0);
+          origEvent.dataTransfer.setDragImage(ghostNode, origEvent.offsetX * scale, origEvent.offsetY * scale);
         }
         var $dragged = $(this);
         var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
