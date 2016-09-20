@@ -715,7 +715,8 @@
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
         var origEvent = event.originalEvent;
-        if (/firefox/.test(window.navigator.userAgent.toLowerCase())) {
+        var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
+        if (isFirefox) {
           origEvent.dataTransfer.setData('text/html', 'hack for firefox');
         }
         // if users enable zoom or direction options
@@ -740,8 +741,16 @@
           nodeCover.setAttribute('height', 40 * scale);
           nodeCover.setAttribute('rx', 4 * scale);
           nodeCover.setAttribute('ry', 4 * scale);
-
-          origEvent.dataTransfer.setDragImage(ghostNode, origEvent.offsetX * scale, origEvent.offsetY * scale);
+          nodeCover.setAttribute('stroke-width', 1 * scale);
+          if (isFirefox) { // hack for old version of Firefox(< 48.0)
+            nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
+            nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
+            var ghostNodeWrapper = document.createElement('img');
+            ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
+            origEvent.dataTransfer.setDragImage(ghostNodeWrapper, origEvent.offsetX * scale, origEvent.offsetY * scale);
+          } else {
+            origEvent.dataTransfer.setDragImage(ghostNode, origEvent.offsetX * scale, origEvent.offsetY * scale);
+          }
         }
         var $dragged = $(this);
         var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
