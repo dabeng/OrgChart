@@ -159,6 +159,17 @@
   background-color: rgba(238, 217, 54, 0.5);
 }
 
+.orgchart .ghost-node {
+  position: fixed;
+  left: -10000px;
+  top: -10000px;
+}
+
+.orgchart .ghost-node>* {
+  fill: #ffffff;
+  stroke: #bf0000;
+}
+
 .orgchart .node.allowedDrop {
   border-color: rgba(68, 157, 68, 0.9);
 }

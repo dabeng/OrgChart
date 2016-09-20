@@ -714,8 +714,43 @@
     });
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
-        if (/firefox/.test(window.navigator.userAgent.toLowerCase())) {
-          event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
+        var origEvent = event.originalEvent;
+        var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
+        if (isFirefox) {
+          origEvent.dataTransfer.setData('text/html', 'hack for firefox');
+        }
+        // if users enable zoom or direction options
+        if ($nodeDiv.closest('.orgchart').css('transform') !== 'none') {
+          var ghostNode, nodeCover;
+          if (!document.querySelector('.ghost-node')) {
+            ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            ghostNode.classList.add('ghost-node');
+            nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
+            ghostNode.appendChild(nodeCover);
+            $nodeDiv.closest('.orgchart').append(ghostNode);
+          } else {
+            ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
+            nodeCover = $(ghostNode).children().get(0);
+          }
+          var scale = $nodeDiv.closest('.orgchart').css('transform').match(/-?[\d\.]+/g)[0];
+          ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
+          ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+          nodeCover.setAttribute('x',5 * scale);
+          nodeCover.setAttribute('y',5 * scale);
+          nodeCover.setAttribute('width', 120 * scale);
+          nodeCover.setAttribute('height', 40 * scale);
+          nodeCover.setAttribute('rx', 4 * scale);
+          nodeCover.setAttribute('ry', 4 * scale);
+          nodeCover.setAttribute('stroke-width', 1 * scale);
+          if (isFirefox) { // hack for old version of Firefox(< 48.0)
+            nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
+            nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
+            var ghostNodeWrapper = document.createElement('img');
+            ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
+            origEvent.dataTransfer.setDragImage(ghostNodeWrapper, origEvent.offsetX * scale, origEvent.offsetY * scale);
+          } else {
+            origEvent.dataTransfer.setDragImage(ghostNode, origEvent.offsetX * scale, origEvent.offsetY * scale);
+          }
         }
         var $dragged = $(this);
         var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
