@@ -210,6 +210,21 @@
           }
         }
       });
+
+      $chartContainer.on('touchstart',function(e){
+        if(e.touches && e.touches.length === 2) {
+          $chart.data('pinching', true);
+          $chart.data('pinch-dist', Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
+            (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y)));
+        }
+      });
+      $(document).on('touchend',function(e) {
+        if($chart.data('pinching')) {
+          var dist = Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
+            (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y));
+          $chart.data('pinching', false);
+        }
+      });
     }
 
     return $chartContainer;
