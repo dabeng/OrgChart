@@ -732,7 +732,8 @@
             ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
             nodeCover = $(ghostNode).children().get(0);
           }
-          var scale = $nodeDiv.closest('.orgchart').css('transform').match(/-?[\d\.]+/g)[0];
+          var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
+          var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
           ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
           ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
           nodeCover.setAttribute('x',5 * scale);
@@ -742,14 +743,26 @@
           nodeCover.setAttribute('rx', 4 * scale);
           nodeCover.setAttribute('ry', 4 * scale);
           nodeCover.setAttribute('stroke-width', 1 * scale);
+          var xOffset = origEvent.offsetX * scale;
+          var yOffset = origEvent.offsetY * scale;
+          if (opts.direction === 'l2r') {
+            xOffset = origEvent.offsetY * scale;
+            yOffset = origEvent.offsetX * scale;
+          } else if (opts.direction === 'r2l') {
+            xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetY * scale;
+            yOffset = origEvent.offsetX * scale;
+          } else if (opts.direction === 'b2t') {
+            xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetX * scale;
+            yOffset = $nodeDiv.outerHeight(false) - origEvent.offsetY * scale;
+          }
           if (isFirefox) { // hack for old version of Firefox(< 48.0)
             nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
             nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
             var ghostNodeWrapper = document.createElement('img');
             ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
-            origEvent.dataTransfer.setDragImage(ghostNodeWrapper, origEvent.offsetX * scale, origEvent.offsetY * scale);
+            origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
           } else {
-            origEvent.dataTransfer.setDragImage(ghostNode, origEvent.offsetX * scale, origEvent.offsetY * scale);
+            origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
           }
         }
         var $dragged = $(this);
