@@ -34,9 +34,8 @@
       'nodeContent': 'title',
       'pan': true,
       'zoom': true
-    });
-
-    $('body').on('touchmove', function(event) {
+    })
+    .on('touchmove', function(event) {
       event.preventDefault();
     });
 
