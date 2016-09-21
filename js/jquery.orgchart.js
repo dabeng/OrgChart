@@ -160,13 +160,35 @@
             lastY = parseInt(temp[13]);
           }
         }
-        var isMobile = e.targetTouches && e.targetTouches.length === 1;
-        var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
-        var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
+        var startX = 0;
+        var startY = 0;
+        if (!e.targetTouches) { // pand on desktop
+          startX = e.pageX - lastX;
+          startY = e.pageY - lastY;
+        } else if (e.targetTouches.length === 1) { // pan on mobile device
+          startX = e.targetTouches[0].pageX - lastX;
+          startY = e.targetTouches[0].pageY - lastY;
+        } else if (e.targetTouches.length > 1) {
+          return;
+        }
+        // var isMobile = e.targetTouches && e.targetTouches.length === 1;
+        // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
+        // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
         $(document).on('mousemove touchmove',function(e) {
-          var isMobile = e.targetTouches && e.targetTouches.length === 1;
-          var newX = isMobile ? e.targetTouches[0].pageX - startX : e.pageX - startX;
-          var newY = isMobile ? e.targetTouches[0].pageY - startY : e.pageY - startY;
+          var newX = 0;
+          var newY = 0;
+          if (!e.targetTouches) { // pand on desktop
+            newX = e.pageX - startX;
+            newY = e.pageY - startY;
+          } else if (e.targetTouches.length === 1) { // pan on mobile device
+            newX = e.targetTouches[0].pageX - startX;
+            newY = e.targetTouches[0].pageY - startY;
+          } else if (e.targetTouches.length > 1) {
+            return;
+          }
+          // var isMobile = e.targetTouches && e.targetTouches.length === 1;
+          // var newX = isMobile ? e.targetTouches[0].pageX - startX : e.pageX - startX;
+          // var newY = isMobile ? e.targetTouches[0].pageY - startY : e.pageY - startY;
           var lastTf = $this.css('transform');
           if (lastTf === 'none') {
             if (lastTf.indexOf('3d') === -1) {
