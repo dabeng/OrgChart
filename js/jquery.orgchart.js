@@ -227,7 +227,7 @@
       $chartContainer.on('touchstart',function(e){
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
-          $chart.data('pinch-dist', Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
+          $chart.data('pinchDist', Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
             (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y)));
         }
       });
@@ -235,9 +235,9 @@
         if($chart.data('pinching')) {
           var dist = Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
             (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y));
-          var newScale = dist/$chart.data('pinch-dist');
+          var newScale = dist/$chart.data('pinchDist');
           setChartScale($chart, newScale);
-          $chart.data('pinch-dist', dist);
+          $chart.data('pinchDist', dist);
         }
       })
       .on('touchend',function(e) {
