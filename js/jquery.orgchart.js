@@ -139,7 +139,7 @@
 
     if (opts.pan) {
       $chartContainer.css('overflow', 'hidden');
-      $chart.on('mousedown',function(e){
+      $chart.on('mousedown touchstart',function(e){
         var $this = $(this);
         if ($(e.target).closest('.node').length) {
           $this.data('panning', false);
@@ -160,12 +160,13 @@
             lastY = parseInt(temp[13]);
           }
         }
-        var startX = e.pageX - lastX;
-        var startY = e.pageY - lastY;
-
-        $(document).on('mousemove',function(ev) {
-          var newX = ev.pageX - startX;
-          var newY = ev.pageY - startY;
+        var isMobile = e.targetTouches && e.targetTouches.length === 1;
+        var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
+        var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
+        $(document).on('mousemove touchmove',function(e) {
+          var isMobile = e.targetTouches && e.targetTouches.length === 1;
+          var newX = isMobile ? e.targetTouches[0].pageX - startX : e.pageX - startX;
+          var newY = isMobile ? e.targetTouches[0].pageY - startY : e.pageY - startY;
           var lastTf = $this.css('transform');
           if (lastTf === 'none') {
             if (lastTf.indexOf('3d') === -1) {
@@ -186,10 +187,10 @@
           }
         });
       });
-      $(document).on('mouseup',function() {
+      $(document).on('mouseup touchend',function() {
         if ($chart.data('panning')) {
           $chart.css('cursor', 'default');
-          $(this).off('mousemove');
+          $(this).off('mousemove touchmove');
         }
       });
     }
