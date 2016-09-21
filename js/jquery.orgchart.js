@@ -227,16 +227,16 @@
       $chartContainer.on('touchstart',function(e){
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
-          $chart.data('pinchDist', Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
-            (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y)));
+          $chart.data('pinchDist', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          var dist = Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
-            (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y));
-          // var newScale = dist/window.parseInt($chart.data('pinchDist'));
-          alert(e.touches[0].x +',' + e.touches[1].x+',' +e.touches[0].y+',' + e.touches[1].y);
+          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+          var newScale = dist/window.parseInt($chart.data('pinchDist'));
+          // alert(e.touches[0].x +',' + e.touches[1].x+',' +e.touches[0].y+',' + e.touches[1].y);
           setChartScale($chart, newScale);
           $chart.data('pinchDist', dist);
         }
