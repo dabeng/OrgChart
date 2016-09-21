@@ -36,6 +36,10 @@
       'zoom': true
     });
 
+    $('body').on('touchmove', function(event) {
+      event.preventDefault();
+    });
+
   });
 
 })(jQuery);
