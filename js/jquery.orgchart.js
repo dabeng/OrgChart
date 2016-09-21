@@ -198,17 +198,8 @@
     if (opts.zoom) {
       $chartContainer.on('wheel', function(event) {
         event.preventDefault();
-        var lastTf = $chart.css('transform');
         var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
-        if (lastTf === 'none') {
-          $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
-        } else {
-          if (lastTf.indexOf('3d') === -1) {
-            $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
-          } else {
-            $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
-          }
-        }
+        setChartScale($chart, newScale);
       });
 
       $chartContainer.on('touchstart',function(e){
@@ -218,10 +209,17 @@
             (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y)));
         }
       });
-      $(document).on('touchend',function(e) {
+      $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
           var dist = Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
             (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y));
+          var newScale = dist/$chart.data('pinch-dist');
+          setChartScale($chart, newScale);
+          $chart.data('pinch-dist', dist);
+        }
+      })
+      .on('touchend',function(e) {
+        if($chart.data('pinching')) {
           $chart.data('pinching', false);
         }
       });
@@ -229,6 +227,19 @@
 
     return $chartContainer;
   };
+
+  function setChartScale($chart, newScale) {
+    var lastTf = $chart.css('transform');
+    if (lastTf === 'none') {
+      $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
+    } else {
+      if (lastTf.indexOf('3d') === -1) {
+        $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+      } else {
+        $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+      }
+    }
+  }
 
   function buildJsonDS($li) {
     var subObj = {
