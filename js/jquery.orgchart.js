@@ -235,7 +235,7 @@
         if($chart.data('pinching')) {
           var dist = Math.sqrt((e.touches[0].x-e.touches[1].x) * (e.touches[0].x-e.touches[1].x) +
             (e.touches[0].y-e.touches[1].y) * (e.touches[0].y-e.touches[1].y));
-          var newScale = dist/$chart.data('pinchDist');
+          var newScale = dist/window.parseInt($chart.data('pinchDist'));
           alert(newScale);
           setChartScale($chart, newScale);
           $chart.data('pinchDist', dist);
