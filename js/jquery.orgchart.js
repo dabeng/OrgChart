@@ -238,12 +238,14 @@
           var newScale = dist/window.parseInt($chart.data('pinchDist'));
           // alert(e.touches[0].x +',' + e.touches[1].x+',' +e.touches[0].y+',' + e.touches[1].y);
           setChartScale($chart, newScale);
-          $chart.data('pinchDist', dist);
         }
       })
       .on('touchend',function(e) {
         if($chart.data('pinching')) {
           $chart.data('pinching', false);
+          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+          $chart.data('pinchDist', dist);
         }
       });
     }
