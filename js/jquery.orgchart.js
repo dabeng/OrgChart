@@ -238,7 +238,7 @@
           var newScale = dist/window.parseInt($chart.data('pinchDist'));
           // alert(e.touches[0].x +',' + e.touches[1].x+',' +e.touches[0].y+',' + e.touches[1].y);
           setChartScale($chart, newScale);
-          // $chart.data('pinchDist', dist);
+          $chart.data('pinchDist', dist);
         }
       })
       .on('touchend',function(e) {
