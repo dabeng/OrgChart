@@ -237,8 +237,8 @@
         if($chart.data('pinching')) {
           var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2);
-          var newScale = (dist/($chart.data('pinchDist')*10)).toFixed(6);
-          alert(newScale);
+          var newScale = (dist/$chart.data('pinchDist')).toFixed(2);
+          // alert(newScale);
           setChartScale($chart, newScale);
         }
       })
