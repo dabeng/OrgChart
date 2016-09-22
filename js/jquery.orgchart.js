@@ -249,7 +249,7 @@
     return $chartContainer;
   };
 
-  function pinchDist(e) {
+  function getPinchDist(e) {
     return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
       (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
   }
