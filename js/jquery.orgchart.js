@@ -174,7 +174,7 @@
         // var isMobile = e.targetTouches && e.targetTouches.length === 1;
         // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
         // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
-        $(document).on('mousemove touchmove',function(e) {
+        $chart.on('mousemove touchmove',function(e) {
           var newX = 0;
           var newY = 0;
           if (!e.targetTouches) { // pand on desktop
@@ -230,26 +230,17 @@
           $chart.data('pinching', true);
           $chart.data('pinchDistStart', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
-        // alert($chart.data('pinchDist'));
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2);
-          // var newScale = (dist/$chart.data('pinchDist')).toFixed(2);
-          // alert(newScale);
-          // setChartScale($chart, newScale);
-          $chart.data('pinchDistEnd', dist);
+          $chart.data('pinchDistEnd', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2));
         }
       })
       .on('touchend',function(e) {
         if($chart.data('pinching')) {
           $chart.data('pinching', false);
-          // alert(e.touches.length);
-          // var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            // (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
-          // $chart.data('pinchDist', dist);
           var diff = $chart.data('pinchDistEnd') - $chart.data('pinchDistStart');
           if (diff > 0) {
             setChartScale($chart, 1.2);
