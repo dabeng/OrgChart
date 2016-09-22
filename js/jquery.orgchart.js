@@ -141,7 +141,7 @@
       $chartContainer.css('overflow', 'hidden');
       $chart.on('mousedown touchstart',function(e){
         var $this = $(this);
-        if ($(e.target).closest('.node').length) {
+        if ($(e.target).closest('.node').length || (e.touches && e.touches.length > 1)) {
           $this.data('panning', false);
           return;
         } else {
