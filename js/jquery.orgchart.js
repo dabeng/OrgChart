@@ -171,9 +171,6 @@
         } else if (e.targetTouches.length > 1) {
           return;
         }
-        // var isMobile = e.targetTouches && e.targetTouches.length === 1;
-        // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
-        // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
         $chart.on('mousemove touchmove',function(e) {
           if (!$this.data('panning')) {
             return;
@@ -189,9 +186,6 @@
           } else if (e.targetTouches.length > 1) {
             return;
           }
-          // var isMobile = e.targetTouches && e.targetTouches.length === 1;
-          // var newX = isMobile ? e.targetTouches[0].pageX - startX : e.pageX - startX;
-          // var newY = isMobile ? e.targetTouches[0].pageY - startY : e.pageY - startY;
           var lastTf = $this.css('transform');
           if (lastTf === 'none') {
             if (lastTf.indexOf('3d') === -1) {
@@ -231,14 +225,12 @@
       $chartContainer.on('touchstart',function(e){
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
-          $chart.data('pinchDistStart', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
+          $chart.data('pinchDistStart', getPinchDist(e));
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          $chart.data('pinchDistEnd', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2));
+          $chart.data('pinchDistEnd', getPinchDist(e));
         }
       })
       .on('touchend',function(e) {
@@ -256,6 +248,11 @@
 
     return $chartContainer;
   };
+
+  function pinchDist(e) {
+    return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+      (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+  }
 
   function setChartScale($chart, newScale) {
     var lastTf = $chart.css('transform');
