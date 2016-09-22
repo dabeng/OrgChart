@@ -174,7 +174,7 @@
         // var isMobile = e.targetTouches && e.targetTouches.length === 1;
         // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
         // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
-        $(document).on('mousemove touchmove',function(e) {
+        $(document).one('mousemove touchmove',function(e) {
           var newX = 0;
           var newY = 0;
           if (!e.targetTouches) { // pand on desktop
@@ -209,10 +209,11 @@
           }
         });
       });
-      $(document).on('mouseup touchend',function() {
+      $(document).on('mouseup touchend',function(e) {
         if ($chart.data('panning')) {
+          $chart.data('panning', false);
           $chart.css('cursor', 'default');
-          $(this).off('mousemove touchmove');
+          // $(this).off('mousemove');
         }
       });
     }
@@ -236,7 +237,7 @@
         if($chart.data('pinching')) {
           var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2);
-          var newScale = (dist/$chart.data('pinchDist')).toFixed(2);
+          var newScale = (dist/($chart.data('pinchDist')*10)).toFixed(4);
           // alert(dist+','+$chart.data('pinchDist')+','+newScale);
           setChartScale($chart, newScale);
         }
