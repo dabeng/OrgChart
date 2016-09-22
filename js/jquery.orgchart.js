@@ -225,12 +225,14 @@
       $chartContainer.on('touchstart',function(e){
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
-          $chart.data('pinchDistStart', getPinchDist(e));
+          var dist = getPinchDist(e);
+          $chart.data('pinchDistStart', dist);
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          $chart.data('pinchDistEnd', getPinchDist(e));
+           var dist = getPinchDist(e);
+          $chart.data('pinchDistEnd', dist);
         }
       })
       .on('touchend',function(e) {
