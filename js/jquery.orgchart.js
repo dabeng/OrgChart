@@ -229,7 +229,7 @@
           $chart.data('pinching', true);
           $chart.data('pinchDist', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
-        alert($chart.data('pinchDist'));
+        // alert($chart.data('pinchDist'));
         }
       });
       $(document).on('touchmove',function(e) {
@@ -237,7 +237,7 @@
           var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
           var newScale = dist/window.parseInt($chart.data('pinchDist'));
-          // alert(e.touches[0].x +',' + e.touches[1].x+',' +e.touches[0].y+',' + e.touches[1].y);
+          alert(dist+','+$chart.data('pinchDist')+','+newScale);
           setChartScale($chart, newScale);
         }
       })
