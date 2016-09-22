@@ -174,7 +174,7 @@
         // var isMobile = e.targetTouches && e.targetTouches.length === 1;
         // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
         // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
-        $(document).one('mousemove touchmove',function(e) {
+        $(document).on('mousemove touchmove',function(e) {
           var newX = 0;
           var newY = 0;
           if (!e.targetTouches) { // pand on desktop
@@ -213,7 +213,7 @@
         if ($chart.data('panning')) {
           $chart.data('panning', false);
           $chart.css('cursor', 'default');
-          // $(this).off('mousemove');
+          $(this).off('mousemove');
         }
       });
     }
@@ -229,25 +229,31 @@
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
           $chart.data('pinchDist', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2));
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
         // alert($chart.data('pinchDist'));
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2);
-          var newScale = (dist/$chart.data('pinchDist')).toFixed(2);
-          alert(newScale);
-          setChartScale($chart, newScale);
+          // var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            // (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)).toFixed(2);
+          // var newScale = (dist/$chart.data('pinchDist')).toFixed(2);
+          // alert(newScale);
+          // setChartScale($chart, newScale);
         }
       })
       .on('touchend',function(e) {
         if($chart.data('pinching')) {
           $chart.data('pinching', false);
-          // var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-          //   (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
           // $chart.data('pinchDist', dist);
+          var diff = dist - $chart.data('pinchDist');
+          if (diff > 0) {
+            setChartScale($chart, 1.2);
+          } else if (diff < 0) {
+            setChartScale($chart, 0.8);
+          }
         }
       });
     }
