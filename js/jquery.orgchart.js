@@ -213,7 +213,7 @@
         if ($chart.data('panning')) {
           $chart.data('panning', false);
           $chart.css('cursor', 'default');
-          $(this).off('mousemove');
+          $chart.off('mousemove');
         }
       });
     }
