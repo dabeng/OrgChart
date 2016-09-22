@@ -249,6 +249,7 @@
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
           // $chart.data('pinchDist', dist);
           var diff = dist - $chart.data('pinchDist');
+          alert(diff);
           if (diff > 0) {
             setChartScale($chart, 1.2);
           } else if (diff < 0) {
