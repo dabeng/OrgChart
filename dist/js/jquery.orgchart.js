@@ -139,9 +139,9 @@
 
     if (opts.pan) {
       $chartContainer.css('overflow', 'hidden');
-      $chart.on('mousedown',function(e){
+      $chart.on('mousedown touchstart',function(e){
         var $this = $(this);
-        if ($(e.target).closest('.node').length) {
+        if ($(e.target).closest('.node').length || (e.touches && e.touches.length > 1)) {
           $this.data('panning', false);
           return;
         } else {
@@ -160,12 +160,32 @@
             lastY = parseInt(temp[13]);
           }
         }
-        var startX = e.pageX - lastX;
-        var startY = e.pageY - lastY;
-
-        $(document).on('mousemove',function(ev) {
-          var newX = ev.pageX - startX;
-          var newY = ev.pageY - startY;
+        var startX = 0;
+        var startY = 0;
+        if (!e.targetTouches) { // pand on desktop
+          startX = e.pageX - lastX;
+          startY = e.pageY - lastY;
+        } else if (e.targetTouches.length === 1) { // pan on mobile device
+          startX = e.targetTouches[0].pageX - lastX;
+          startY = e.targetTouches[0].pageY - lastY;
+        } else if (e.targetTouches.length > 1) {
+          return;
+        }
+        $chart.on('mousemove touchmove',function(e) {
+          if (!$this.data('panning')) {
+            return;
+          }
+          var newX = 0;
+          var newY = 0;
+          if (!e.targetTouches) { // pand on desktop
+            newX = e.pageX - startX;
+            newY = e.pageY - startY;
+          } else if (e.targetTouches.length === 1) { // pan on mobile device
+            newX = e.targetTouches[0].pageX - startX;
+            newY = e.targetTouches[0].pageY - startY;
+          } else if (e.targetTouches.length > 1) {
+            return;
+          }
           var lastTf = $this.css('transform');
           if (lastTf === 'none') {
             if (lastTf.indexOf('3d') === -1) {
@@ -186,10 +206,9 @@
           }
         });
       });
-      $(document).on('mouseup',function() {
+      $(document).on('mouseup touchend',function(e) {
         if ($chart.data('panning')) {
-          $chart.css('cursor', 'default');
-          $(this).off('mousemove');
+          $chart.data('panning', false).css('cursor', 'default').off('mousemove');
         }
       });
     }
@@ -197,15 +216,31 @@
     if (opts.zoom) {
       $chartContainer.on('wheel', function(event) {
         event.preventDefault();
-        var lastTf = $chart.css('transform');
         var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
-        if (lastTf === 'none') {
-          $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
-        } else {
-          if (lastTf.indexOf('3d') === -1) {
-            $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
-          } else {
-            $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        setChartScale($chart, newScale);
+      });
+
+      $chartContainer.on('touchstart',function(e){
+        if(e.touches && e.touches.length === 2) {
+          $chart.data('pinching', true);
+          var dist = getPinchDist(e);
+          $chart.data('pinchDistStart', dist);
+        }
+      });
+      $(document).on('touchmove',function(e) {
+        if($chart.data('pinching')) {
+           var dist = getPinchDist(e);
+          $chart.data('pinchDistEnd', dist);
+        }
+      })
+      .on('touchend',function(e) {
+        if($chart.data('pinching')) {
+          $chart.data('pinching', false);
+          var diff = $chart.data('pinchDistEnd') - $chart.data('pinchDistStart');
+          if (diff > 0) {
+            setChartScale($chart, 1.2);
+          } else if (diff < 0) {
+            setChartScale($chart, 0.8);
           }
         }
       });
@@ -213,6 +248,24 @@
 
     return $chartContainer;
   };
+
+  function getPinchDist(e) {
+    return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+      (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+  }
+
+  function setChartScale($chart, newScale) {
+    var lastTf = $chart.css('transform');
+    if (lastTf === 'none') {
+      $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
+    } else {
+      if (lastTf.indexOf('3d') === -1) {
+        $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+      } else {
+        $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+      }
+    }
+  }
 
   function buildJsonDS($li) {
     var subObj = {
