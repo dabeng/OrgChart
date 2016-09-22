@@ -237,7 +237,7 @@
           var dist = Window.parseInt(Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
           var newScale = Window.parseInt(dist/$chart.data('pinchDist'));
-          // alert(dist+','+$chart.data('pinchDist')+','+newScale);
+          alert(dist+','+$chart.data('pinchDist')+','+newScale);
           setChartScale($chart, newScale);
         }
       })
