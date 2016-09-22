@@ -227,26 +227,26 @@
       $chartContainer.on('touchstart',function(e){
         if(e.touches && e.touches.length === 2) {
           $chart.data('pinching', true);
-          $chart.data('pinchDist', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
+          $chart.data('pinchDist', Window.parseInt(Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY))));
         // alert($chart.data('pinchDist'));
         }
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
-          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
-          var newScale = dist/window.parseInt($chart.data('pinchDist'));
-          alert(dist+','+$chart.data('pinchDist')+','+newScale);
+          var dist = Window.parseInt(Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
+          var newScale = Window.parseInt(dist/$chart.data('pinchDist'));
+          // alert(dist+','+$chart.data('pinchDist')+','+newScale);
           setChartScale($chart, newScale);
         }
       })
       .on('touchend',function(e) {
         if($chart.data('pinching')) {
           $chart.data('pinching', false);
-          var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
-            (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
-          $chart.data('pinchDist', dist);
+          // var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
+          //   (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
+          // $chart.data('pinchDist', dist);
         }
       });
     }
