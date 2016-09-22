@@ -16,6 +16,7 @@
 - Supports exporting chart as a picture.
 - Supports pan and zoom
 - Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections)
+- touch-enabled plugin for mobile divice
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp.
