@@ -175,6 +175,9 @@
         // var startX = isMobile ? e.targetTouches[0].pageX - lastX : e.pageX - lastX;
         // var startY = isMobile ? e.targetTouches[0].pageY - lastY : e.pageY - lastY;
         $chart.on('mousemove touchmove',function(e) {
+          if (!$this.data('panning')) {
+            return;
+          }
           var newX = 0;
           var newY = 0;
           if (!e.targetTouches) { // pand on desktop
