@@ -208,9 +208,7 @@
       });
       $(document).on('mouseup touchend',function(e) {
         if ($chart.data('panning')) {
-          $chart.data('panning', false);
-          $chart.css('cursor', 'default');
-          $chart.off('mousemove');
+          $chart.data('panning', false).css('cursor', 'default').off('mousemove');
         }
       });
     }
