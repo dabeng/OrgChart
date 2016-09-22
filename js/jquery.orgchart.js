@@ -230,6 +230,7 @@
           $chart.data('pinchDist', Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY)));
         }
+        alert($chart.data('pinchDist');
       });
       $(document).on('touchmove',function(e) {
         if($chart.data('pinching')) {
