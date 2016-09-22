@@ -181,11 +181,9 @@
             newX = e.pageX - startX;
             newY = e.pageY - startY;
           } else if (e.targetTouches.length === 1) { // pan on mobile device
-            alert('1');
             newX = e.targetTouches[0].pageX - startX;
             newY = e.targetTouches[0].pageY - startY;
           } else if (e.targetTouches.length > 1) {
-            alert('2');
             return;
           }
           // var isMobile = e.targetTouches && e.targetTouches.length === 1;
