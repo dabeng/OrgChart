@@ -245,11 +245,12 @@
       $(document).on('touchend',function(e) {
         if($chart.data('pinching')) {
           $chart.data('pinching', false);
+          alert(e.touches.length);
           var dist = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
             (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
           // $chart.data('pinchDist', dist);
           var diff = dist - $chart.data('pinchDist');
-          alert(diff);
+
           if (diff > 0) {
             setChartScale($chart, 1.2);
           } else if (diff < 0) {
