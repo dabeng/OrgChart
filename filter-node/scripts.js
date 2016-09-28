@@ -46,19 +46,20 @@
         window.alert('Please type key word firstly.');
         return;
       } else {
-        $('.orgchart').addClass('noncollapsable');
+        var $chart = $('.orgchart');
+        // disalbe the expand/collapse feture
+        $chart.addClass('noncollapsable filtered');
         // distinguish the matched nodes and the unmatched nodes according to the given key word
-        $('#chart-container').find('.node').filter(function(index, node) {
+        $chart.find('.node').filter(function(index, node) {
             return $(node).text().toLowerCase().indexOf(keyWord) > -1;
-          })
-        .addClass('matched')
+          }).addClass('matched')
           .closest('table').parents('table').find('tr:first').find('.node').addClass('retained');
-        $('#chart-container').find('.node:not(.matched,.retained)').addClass('unmatched');
         // hide the unmatched nodes
-        // var $filteredNodes = $('#chart-container').find('.node.filtered');
-        // for (var i = $filteredNodes.length; i > -1; i--) {
-        //   $filteredNodes.eq(i).closest('table').parent().siblings
-        // }
+        $chart.find('.matched,.retained').each(function(index, node) {
+          var $unmatched = $(node).closest('table').parent().siblings().find('.node:first:not(.matched,.retained)')//find('.node:first').not('.matched,.retained')
+            .closest('table').parent().addClass('hidden');
+          $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
+        });
       }
     });
 

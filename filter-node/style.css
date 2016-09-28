@@ -4,9 +4,6 @@
 .orgchart .node.matched {
   background-color: rgba(238, 217, 54, 0.5);
 }
-.orgchart .node.unmatched {
-  display: none;
-}
 #edit-panel {
   text-align: center;
   position: relative;
