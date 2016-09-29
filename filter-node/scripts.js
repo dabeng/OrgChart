@@ -21,7 +21,7 @@
           .closest('table').parent().addClass('hidden');
         $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
       });
-      // hide the descendant nodes of the matched nodes
+      // hide the redundant descendant nodes of the matched nodes
       $chart.find('.matched').each(function(index, node) {
         if (!$(node).closest('tr').siblings(':last').find('.matched').length) {
           $(node).closest('tr').siblings().addClass('hidden');
