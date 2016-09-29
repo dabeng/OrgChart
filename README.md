@@ -648,7 +648,7 @@ $('.orgchart').removeClass('noncollapsable'); // activate
 **How can I search nodes and show the minimized chart?**
 
 This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/78). Thanks [Mmannem](https://github.com/Mmannem) for his constructive discussions:blush:
-The following statements show the core logic and this is the complete [demo](http://dabeng.github.io/OrgChart/filter-node).
+The following statements show the core logic and this is the complete [demo - filter node](http://dabeng.github.io/OrgChart/filter-node).
 ```js
 var $chart = $('.orgchart');
 // disalbe the expand/collapse feture
