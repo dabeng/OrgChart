@@ -616,6 +616,7 @@
 
     // define click event handler for the top edge
     $nodeDiv.on('click', '.topEdge', function(event) {
+      event.stopPropagation();
       var $that = $(this);
       var $node = $that.parent();
       var parentState = getNodeState($node, 'parent');
@@ -656,6 +657,7 @@
 
     // bind click event handler for the bottom edge
     $nodeDiv.on('click', '.bottomEdge', function(event) {
+      event.stopPropagation();
       var $that = $(this);
       var $node = $that.parent();
       var childrenState = getNodeState($node, 'children');
@@ -714,6 +716,7 @@
 
     // bind click event handler for the left and right edges
     $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
+      event.stopPropagation();
       var $that = $(this);
       var $node = $that.parent();
       var siblingsState = getNodeState($node, 'siblings');
