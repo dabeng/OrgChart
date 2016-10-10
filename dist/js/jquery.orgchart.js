@@ -54,6 +54,16 @@
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getHierarchy':
         return getHierarchy.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideDescendants':
+        return hideDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showDescendants':
+        return showDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideSiblings':
+        return hideSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showSiblings':
+        return showSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'getNodeState':
+        return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));    
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
@@ -322,11 +332,11 @@
     }
     if ($target.length) {
       if ($target.is(':visible')) {
-        return {"exist": true, "visible": true};
+        return {"exist": true, "visible": true, nodes: $target};
       }
-      return {"exist": true, "visible": false};
+      return { "exist": true, "visible": false, nodes: $target};
     }
-    return {"exist": false, "visible": false};
+    return { "exist": false, "visible": false, nodes: $target};
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
