@@ -641,7 +641,7 @@
         // start up loading status
         if (startLoading($that, $node, opts)) {
         // load new nodes
-          $.ajax({ 'url': opts.ajaxURL.parent + nodeId + '/', 'dataType': 'json' })
+          $.ajax({ 'url': $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(nodeData) : opts.ajaxURL.parent + nodeId, 'dataType': 'json' })
           .done(function(data) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (!$.isEmptyObject(data)) {
@@ -673,7 +673,7 @@
       } else { // load the new children nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
         if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': opts.ajaxURL.children + nodeId + '/', 'dataType': 'json' })
+          $.ajax({ 'url': $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(nodeData) : opts.ajaxURL.children + nodeId, 'dataType': 'json' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.children.length) {
@@ -749,9 +749,11 @@
       } else {
         // load the new sibling nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
-        var url = (getNodeState($node, 'parent').exist) ? opts.ajaxURL.siblings : opts.ajaxURL.families;
+        var url = (getNodeState($node, 'parent').exist) ?
+          ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(nodeData) : opts.ajaxURL.siblings + nodeId) :
+          ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(nodeData) : opts.ajaxURL.families + nodeId);
         if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': url + nodeId + '/', 'dataType': 'json' })
+          $.ajax({ 'url': url, 'dataType': 'json' })
           .done(function(data, textStatus, jqXHR) {
             if ($node.closest('.orgchart').data('inAjax')) {
               if (data.siblings || data.children) {
