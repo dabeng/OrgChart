@@ -863,8 +863,8 @@
         if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
           $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
             .parent().attr('colspan', 2)
-            .parent().after('<tr class="lines"><td colspan="2"><div class="down"></div></td></tr>'
-            + '<tr class="lines"><td class="right">&nbsp;</td><td class="left">&nbsp;</td></tr>'
+            .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
+            + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
             + '<tr class="nodes"></tr>')
             .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
         } else {
@@ -874,7 +874,7 @@
           if (!$dragged.find('.horizontalEdge').length) {
             $dragged.append(horizontalEdges);
           }
-          $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>')
+          $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
             .end().next().append($dragged.closest('table').parent());
           var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
           if ($dropSibs.length === 1) {
@@ -943,14 +943,14 @@
 
       // draw the line close to parent node
       if (!isVerticalLayer) {
-        $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="down"></div></td></tr>');
+        $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="downLine"></div></td></tr>');
       }
       // draw the lines close to children nodes
-      var lineLayer = '<tr class="lines' + isHidden + '"><td class="right">&nbsp;</td>';
+      var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine">&nbsp;</td>';
       for (var i=1; i<$childNodes.length; i++) {
-        lineLayer += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+        lineLayer += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
       }
-      lineLayer += '<td class="left">&nbsp;</td></tr>';
+      lineLayer += '<td class="leftLine">&nbsp;</td></tr>';
       var $nodeLayer;
       if (isVerticalLayer) {
         $nodeLayer = $('<ul>');
@@ -1005,8 +1005,8 @@
     $.when(createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
       .done(function($nodeDiv) {
         $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
-        $table.append('<tr class="lines hidden"><td colspan="2"><div class="down"></div></td></tr>');
-        var linesRow = '<td class="right">&nbsp;</td><td class="left">&nbsp;</td>';
+        $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
+        var linesRow = '<td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td>';
         $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
         var $oc = that.children('.orgchart');
         $oc.prepend($table)
@@ -1033,7 +1033,7 @@
   function complementLine($oneSibling, siblingCount, existingSibligCount) {
     var lines = '';
     for (var i = 0; i < existingSibligCount; i++) {
-      lines += '<td class="left top">&nbsp;</td><td class="right top">&nbsp;</td>';
+      lines += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
     }
     $oneSibling.parent().prevAll('tr:gt(0)').children().attr('colspan', siblingCount * 2)
       .end().next().children(':first').after(lines);
