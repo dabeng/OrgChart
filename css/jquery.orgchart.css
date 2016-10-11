@@ -101,21 +101,21 @@
   padding: 0;
 }
 
-.orgchart tr.lines td.top {
+.orgchart tr.lines td.topBorder {
   border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
-.orgchart tr.lines td.right {
+.orgchart tr.lines td.rightBorder {
   border-right: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
 }
 
-.orgchart tr.lines td.left {
+.orgchart tr.lines td.leftBorder {
   border-left: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
 }
 
-.orgchart tr.lines td>.down {
+.orgchart tr.lines td>.downBorder {
   background-color: rgba(217, 83, 79, 0.8);
   margin: 0px auto;
   height: 20px;
