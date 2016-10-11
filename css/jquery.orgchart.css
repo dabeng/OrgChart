@@ -108,11 +108,13 @@
 .orgchart tr.lines td.rightLine {
   border-right: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
+  border-radius: 0px;
 }
 
 .orgchart tr.lines td.leftLine {
   border-left: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
+  border-radius: 0px;
 }
 
 .orgchart tr.lines .downLine {
