@@ -172,8 +172,14 @@ var datasource = {
 var ajaxURLs = {
   'children': '/orgchart/children/',
   'parent': '/orgchart/parent/',
-  'siblings': '/orgchart/siblings/',
-  'families': '/orgchart/families/'
+  // It would be helpful to have functions instead of URLs for the AJAX fetching
+  // as it would allow a more flexible treatment of the results.
+  'siblings': function(nodeData) {
+    return '/orgchart/siblings/' + nodeData.id;
+  },
+  'families': function(nodeData) {
+    return '/orgchart/families/' + nodeData.id;
+  }
 };
 
 $('#chart-container').orgchart({
@@ -533,7 +539,7 @@ $('#chartContainerId').orgchart(options);
       <td>toggleSiblingsResp</td><td>boolean</td><td>no</td><td>false</td><td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
     </tr>
     <tr>
-      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety indicates the URL to which ajax request for different nodes is sent.</td>
+      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety provides the URL to which ajax request for different nodes is sent.</td>
     </tr>
     <tr>
       <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
