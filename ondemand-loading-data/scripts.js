@@ -5,7 +5,7 @@
   $(function() {
 
     $.mockjax({
-      url: '/orgchart/children/3/',
+      url: '/orgchart/children/3',
       contentType: 'application/json',
       responseTime: 1000,
       responseText: { 'children': [
@@ -15,14 +15,14 @@
     });
 
     $.mockjax({
-      url: '/orgchart/parent/1/',
+      url: '/orgchart/parent/1',
       contentType: 'application/json',
       responseTime: 1000,
       responseText: { 'id': '6','name': 'Lao Lao', 'title': 'general manager', 'relationship': '001' }
     });
 
     $.mockjax({
-      url: '/orgchart/siblings/1/',
+      url: '/orgchart/siblings/1',
       contentType: 'application/json',
       responseTime: 1000,
       responseText: { 'siblings': [
@@ -37,7 +37,7 @@
     });
 
     $.mockjax({
-      url: '/orgchart/families/1/',
+      url: '/orgchart/families/1',
       contentType: 'application/json',
       responseTime: 1000,
       responseText: {
@@ -70,8 +70,12 @@
     var ajaxURLs = {
       'children': '/orgchart/children/',
       'parent': '/orgchart/parent/',
-      'siblings': '/orgchart/siblings/',
-      'families': '/orgchart/families/' 
+      'siblings': function(nodeData) {
+        return '/orgchart/siblings/' + nodeData.id;
+      },
+      'families': function(nodeData) {
+        return '/orgchart/families/' + nodeData.id;
+      }
     };
 
     $('#chart-container').orgchart({
