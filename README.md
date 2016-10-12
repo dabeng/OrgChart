@@ -680,13 +680,12 @@ $chart.find('.matched').each(function(index, node) {
 
 **Why is the root node gone?**
 
-This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thanks [der-robert](https://github.com/der-robert) and [ActiveScottShaw](https://github.com/ActiveScottShaw) for their constructive discussions:blush:
+When I have a huge orgchart with enabled "pan" option, if I hide all the children of one of the topmost parents then the chart disappear from screen. It seems that we need to add a reset button to keep the chart visible.
+For details, please refer to the [issue](https://github.com/dabeng/OrgChart/issues/25) opened by [manuel-84](https://github.com/manuel-84) :blush:
 
-Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
+Users can embed any clear up logics into the click handler of the reset buttton as shown below.
 ```js
-$('.orgchart').addClass('noncollapsable'); // deactivate
-
-$('.orgchart').removeClass('noncollapsable'); // activate
+$('.orgchart').css('transform',''); // remove the tansform settings
 ```
 
 ## Browser Compatibility
