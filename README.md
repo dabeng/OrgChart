@@ -678,6 +678,17 @@ $chart.find('.matched').each(function(index, node) {
 });
 ```
 
+**Why is the root node gone?**
+
+This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thanks [der-robert](https://github.com/der-robert) and [ActiveScottShaw](https://github.com/ActiveScottShaw) for their constructive discussions:blush:
+
+Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
+```js
+$('.orgchart').addClass('noncollapsable'); // deactivate
+
+$('.orgchart').removeClass('noncollapsable'); // activate
+```
+
 ## Browser Compatibility
 - Chrome 19+
 - Firefox 4+
