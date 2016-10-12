@@ -489,7 +489,8 @@ $('#chartContainerId').orgchart(options);
 ### Structure of Datasource
 ```js
 {
-  'id': 'rootNode', // It's a optional property which will be used as id attribute of node.
+  'id': 'rootNode', // It's a optional property which will be used as id attribute of node
+  // and data-parent attribute, which contains the id of the parent node
   'className': 'top-level', // It's a optional property which will be used as className attribute of node.
   'nodeTitlePro': 'Lao Lao',
   'nodeContentPro': 'general manager',
@@ -628,6 +629,125 @@ Removes the designated node and its descedant nodes.
 </table>
 ##### .orgchart('getHierarchy'）
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
+##### .orgchart('hideDescendants',$node)
+This method allows you to hide programatically the children of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to hide its children nodes</td>
+  </tr>
+</table>
+##### .orgchart('showDescendants',$node)
+This method allows you to show programatically the children of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to show its children nodes</td>
+  </tr>
+</table>
+##### .orgchart('hideSiblings',$node,direction)
+This method allows you to hide programatically the siblings of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to hide its siblings nodes</td>
+  </tr>
+  <tr>
+    <td>direction</td>
+    <td>string</td>
+    <td>No</td>
+    <td>None</td>
+    <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
+  </tr>
+</table>
+##### .orgchart('showSiblings',$node,direction)
+This method allows you to show programatically the siblings of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to show its siblings nodes</td>
+  </tr>
+  <tr>
+    <td>direction</td>
+    <td>string</td>
+    <td>No</td>
+    <td>None</td>
+    <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
+  </tr>
+</table>
+##### .orgchart('getNodeState',$node,relation)
+This method returns you the specified relation of a node
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to know its relationship</td>
+  </tr>
+  <tr>
+    <td>relation</td>
+    <td>String</td>
+    <td>No</td>
+    <td>None</td>
+    <td>Possible values:"children","parent". Specifies the desired relation to return, in case the parameter is not defined, it will return the siblings.</td>
+  </tr>
+</table>
+The returning object will have the next structure:
+```js
+{
+  "exists": true|false,  //Indicates if has parent|children|siblings
+  "visible":true|false,  //Indicates if the relationship nodes are visible
+  "nodes": JQueryObject  //The jquery object with the matching elements
+}
+```
 
 ### Events
 <table>
