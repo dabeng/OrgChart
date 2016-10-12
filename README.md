@@ -681,7 +681,7 @@ $chart.find('.matched').each(function(index, node) {
 **Why is the root node gone?**
 
 When I have a huge orgchart with enabled "pan" option, if I hide all the children of one of the topmost parents then the chart disappear from screen. It seems that we need to add a reset button to keep the chart visible.
-For details, please refer to the [issue](https://github.com/dabeng/OrgChart/issues/25) opened by [manuel-84](https://github.com/manuel-84) :blush:
+For details, please refer to the [issue](https://github.com/dabeng/OrgChart/issues/85) opened by [manuel-84](https://github.com/manuel-84) :blush:
 
 Users can embed any clear up logics into the click handler of the reset buttton as shown below.
 ```js
