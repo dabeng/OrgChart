@@ -25,7 +25,7 @@
     factory(jQuery, window, document);
   }
 }(function($, window, document, undefined) {
-  $.fn.orgchart = function(options) {
+  $.fn.orgchart = function(options,callback) {
     var defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
@@ -255,7 +255,7 @@
         }
       });
     }
-
+    (typeof callback !== "undefined" && typeof callback === "function") ? callback() : null;
     return $chartContainer;
   };
 
