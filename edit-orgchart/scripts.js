@@ -29,6 +29,11 @@
     .on('click', '.node', function() {
       var $this = $(this);
       $('#selected-node').val($this.find('.title').text()).data('node', $this);
+    })
+    .on('click', '.orgchart', function(event) {
+      if (!$(event.target).closest('.node').length) {
+        $('#selected-node').val('');
+      }
     });
 
     $('input[name="chart-state"]').on('click', function() {
