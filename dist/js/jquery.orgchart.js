@@ -1111,7 +1111,7 @@
     var $sibs = $parent.parent().siblings();
     if ($parent.is('td')) {
       if (getNodeState($node, 'siblings').exist) {
-        $sibs.eq(2).children('.top:lt(2)').remove();
+        $sibs.eq(2).children('.topLine:lt(2)').remove();
         $sibs.eq(':lt(2)').children().attr('colspan', $sibs.eq(2).children().length);
         $parent.remove();
       } else {
