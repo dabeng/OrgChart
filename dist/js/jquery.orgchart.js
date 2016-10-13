@@ -25,7 +25,7 @@
     factory(jQuery, window, document);
   }
 }(function($, window, document, undefined) {
-  $.fn.orgchart = function(options) {
+  $.fn.orgchart = function(options,callback) {
     var defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
@@ -54,6 +54,16 @@
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getHierarchy':
         return getHierarchy.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideDescendants':
+        return hideDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showDescendants':
+        return showDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideSiblings':
+        return hideSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showSiblings':
+        return showSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'getNodeState':
+        return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));    
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
@@ -245,7 +255,7 @@
         }
       });
     }
-
+    (typeof callback !== "undefined" && typeof callback === "function") ? callback() : null;
     return $chartContainer;
   };
 
@@ -322,11 +332,11 @@
     }
     if ($target.length) {
       if ($target.is(':visible')) {
-        return {"exist": true, "visible": true};
+        return {"exist": true, "visible": true, nodes: $target};
       }
-      return {"exist": true, "visible": false};
+      return { "exist": true, "visible": false, nodes: $target};
     }
-    return {"exist": false, "visible": false};
+    return { "exist": false, "visible": false, nodes: $target};
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
@@ -559,9 +569,12 @@
 
   // create node
   function createNode(nodeData, level, opts) {
+    $.each(nodeData.children, function (i, n) {
+        n.parentId = nodeData.id;
+    })
     var dtd = $.Deferred();
     // construct the content of node
-    var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + '>')
+    var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
       .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''))
       .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
       .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
