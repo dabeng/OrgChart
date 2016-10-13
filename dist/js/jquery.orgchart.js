@@ -25,7 +25,7 @@
     factory(jQuery, window, document);
   }
 }(function($, window, document, undefined) {
-  $.fn.orgchart = function(options,callback) {
+  $.fn.orgchart = function(options) {
     var defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
@@ -255,7 +255,7 @@
         }
       });
     }
-    (typeof callback !== "undefined" && typeof callback === "function") ? callback() : null;
+
     return $chartContainer;
   };
 
@@ -332,11 +332,11 @@
     }
     if ($target.length) {
       if ($target.is(':visible')) {
-        return {"exist": true, "visible": true, nodes: $target};
+        return { 'exist': true, 'visible': true, 'nodes': $target };
       }
-      return { "exist": true, "visible": false, nodes: $target};
+      return { 'exist': true, 'visible': false, 'nodes': $target };
     }
-    return { "exist": false, "visible": false, nodes: $target};
+    return { 'exist': false, 'visible': false, 'nodes': $target };
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
@@ -569,8 +569,8 @@
 
   // create node
   function createNode(nodeData, level, opts) {
-    $.each(nodeData.children, function (i, n) {
-        n.parentId = nodeData.id;
+    $.each(nodeData.children, function (index, child) {
+      child.parentId = nodeData.id;
     })
     var dtd = $.Deferred();
     // construct the content of node
