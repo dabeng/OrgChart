@@ -63,7 +63,7 @@
       case 'showSiblings':
         return showSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getNodeState':
-        return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));    
+        return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
