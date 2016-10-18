@@ -17,6 +17,9 @@
         .closest('table').parents('table').find('tr:first').find('.node').addClass('retained');
       // hide the unmatched nodes
       $chart.find('.matched,.retained').each(function(index, node) {
+        $(node).removeClass('slide-up')
+          .closest('.nodes').removeClass('hidden')
+          .siblings('.lines').removeClass('hidden');
         var $unmatched = $(node).closest('table').parent().siblings().find('.node:first:not(.matched,.retained)')
           .closest('table').parent().addClass('hidden');
         $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
@@ -33,7 +36,8 @@
   function clearFilterResult() {
     $('.orgchart').removeClass('noncollapsable')
       .find('.node').removeClass('matched retained')
-      .end().find('.hidden').removeClass('hidden');
+      .end().find('.hidden').removeClass('hidden')
+      .end().find('.slide-up, .slide-left, .slide-right').removeClass('slide-up slide-right slide-left');
   }
 
   $(function() {
