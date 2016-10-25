@@ -360,7 +360,7 @@ $('#btn-delete-nodes').on('click', function() {
 
 - **[I wanna drag & drop the nodes of orgchart](http://dabeng.github.io/OrgChart/drag-drop/)**
 
-Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true(Note: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API).
+Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true(**Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API).
 
 ![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
 
@@ -570,7 +570,7 @@ $('#chartContainerId').orgchart(options);
       <td>chartClass</td><td>string</td><td>no</td><td>""</td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
     </tr>
     <tr>
-      <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option.Note: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API.</td>
+      <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option. **Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API.</td>
     </tr>
     <tr>
       <td>dropCriteria</td><td>function</td><td>no</td><td></td><td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
