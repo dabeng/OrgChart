@@ -968,7 +968,7 @@
       if (isVerticalLayer) {
         $nodeLayer = $('<ul>');
         if (level + 2 === opts.verticalDepth) {
-          $nodeWrapper.append('<tr class="verticalNodes"><td></td></tr>')
+          $nodeWrapper.append('<tr class="verticalNodes' + isHidden + '"><td></td></tr>')
             .find('.verticalNodes').children().append($nodeLayer);
         } else {
           $nodeWrapper.append($nodeLayer);
