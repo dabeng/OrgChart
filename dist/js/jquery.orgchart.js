@@ -571,7 +571,7 @@
   function createNode(nodeData, level, opts) {
     $.each(nodeData.children, function (index, child) {
       child.parentId = nodeData.id;
-    })
+    });
     var dtd = $.Deferred();
     // construct the content of node
     var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
@@ -582,7 +582,8 @@
     var flags = nodeData.relationship || '';
     if (opts.verticalDepth && (level + 2) > opts.verticalDepth) {
       if ((level + 1) >= opts.verticalDepth && Number(flags.substr(2,1))) {
-        $nodeDiv.append('<i class="toggleBtn fa fa-minus-square"></i>');
+        var icon = level + 1  >= opts.depth ? 'plus' : 'minus';
+        $nodeDiv.append('<i class="toggleBtn fa fa-' + icon + '-square"></i>');
       }
     } else {
       if (Number(flags.substr(0,1))) {
@@ -723,7 +724,8 @@
           $descendants.removeClass('slide');
           // $descWrapper.addClass('hidden');
           $descendants.closest('ul').addClass('hidden');
-        }).find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
+        });
+        $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
       }
     });
 
@@ -967,6 +969,9 @@
       var $nodeLayer;
       if (isVerticalLayer) {
         $nodeLayer = $('<ul>');
+        if (isHidden) {
+          $nodeLayer.addClass(isHidden);
+        }
         if (level + 2 === opts.verticalDepth) {
           $nodeWrapper.append('<tr class="verticalNodes' + isHidden + '"><td></td></tr>')
             .find('.verticalNodes').children().append($nodeLayer);
