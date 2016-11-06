@@ -104,7 +104,7 @@
 }
 .orgchart .verticalNodes ul>li:first-child::after {
   top: 24px;
-  width: 12px;
+  width: 11px;
   border-width: 2px 0 0 2px;
 }
 .orgchart .verticalNodes ul>li:last-child::after {
