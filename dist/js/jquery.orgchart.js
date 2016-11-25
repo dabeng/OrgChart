@@ -855,11 +855,7 @@
       })
       .on('dragover', function(event) {
         event.preventDefault();
-        var $dropZone = $(this);
-        var $dragged = $dropZone.closest('.orgchart').data('dragged');
-        var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
-        if ($dragged.closest('table').find('.node').index($dropZone) > -1 ||
-          (opts.dropCriteria && !opts.dropCriteria($dragged, $dragZone, $dropZone))) {
+        if (!$(this).is('.allowedDrop')) {
           event.originalEvent.dataTransfer.dropEffect = 'none';
         }
       })
