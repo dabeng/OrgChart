@@ -326,10 +326,10 @@
   function getNodeState($node, relation) {
     var $target = {};
     if (relation === 'parent') {
-      $target = $node.closest('.nodes').siblings();
+      $target = $node.closest('.nodes').siblings(':first');
     } else if (relation === 'children') {
       $target = $node.closest('tr').siblings();
-    } else {
+    } else if (relation === 'siblings') {
       $target = $node.closest('table').parent().siblings();
     }
     if ($target.length) {

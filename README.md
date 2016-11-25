@@ -737,9 +737,9 @@ This method returns you the specified relation of a node
   <tr>
     <td>relation</td>
     <td>String</td>
-    <td>No</td>
+    <td>Yes</td>
     <td>None</td>
-    <td>Possible values:"children","parent". Specifies the desired relation to return, in case the parameter is not defined, it will return the siblings.</td>
+    <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
   </tr>
 </table>
 The returning object will have the next structure:
@@ -747,9 +747,33 @@ The returning object will have the next structure:
 {
   "exists": true|false,  //Indicates if has parent|children|siblings
   "visible":true|false,  //Indicates if the relationship nodes are visible
-  "nodes": JQueryObject  //The jquery object with the matching elements
 }
 ```
+##### .orgchart('getRelatedNodes',$node,relation)
+This method returns you the nodes related to the specified node
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to know its relationship</td>
+  </tr>
+  <tr>
+    <td>relation</td>
+    <td>String</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
+  </tr>
+</table>
 
 ### Events
 <table>
