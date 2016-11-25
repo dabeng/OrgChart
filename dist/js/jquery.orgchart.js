@@ -64,6 +64,8 @@
         return showSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getNodeState':
         return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'getRelatedNodes':
+        return getRelatedNodes.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
@@ -324,7 +326,7 @@
   function getNodeState($node, relation) {
     var $target = {};
     if (relation === 'parent') {
-      $target = $node.closest('table').closest('tr').siblings(':first').find('.node');
+      $target = $node.closest('.nodes').siblings();
     } else if (relation === 'children') {
       $target = $node.closest('tr').siblings();
     } else {
@@ -332,11 +334,22 @@
     }
     if ($target.length) {
       if ($target.is(':visible')) {
-        return { 'exist': true, 'visible': true, 'nodes': $target };
+        return { 'exist': true, 'visible': true };
       }
-      return { 'exist': true, 'visible': false, 'nodes': $target };
+      return { 'exist': true, 'visible': false };
     }
-    return { 'exist': false, 'visible': false, 'nodes': $target };
+    return { 'exist': false, 'visible': false };
+  }
+
+  // find the related nodes
+  function getRelatedNodes($node, relation) {
+    if (relation === 'parent') {
+      return $node.closest('.nodes').parent().children(':first').find('.node');
+    } else if (relation === 'children') {
+      return $node.closest('table').children(':last').children().find('.node:first');
+    } else if (relation === 'siblings') {
+      return $node.closest('table').parent().siblings().find('.node:first');
+    }
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
