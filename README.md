@@ -2,7 +2,7 @@
 
 #### It's a simple and direct organization chart plugin. Anytime you want a tree-like chart, you can turn to OrgChart.
 
-#[Native javascript version of orgchart is coming soon](https://github.com/dabeng/OrgChart.js) :blush:#
+# [Here's the native javascript(ES6) version, just enjoy it](http://github.com/dabeng/OrgChart.js) :blush:#
 
 ## Foreword
 - First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg.
