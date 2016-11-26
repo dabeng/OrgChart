@@ -745,7 +745,7 @@ This method returns you the specified relation of a node
 The returning object will have the next structure:
 ```js
 {
-  "exists": true|false,  //Indicates if has parent|children|siblings
+  "exist": true|false,  //Indicates if has parent|children|siblings
   "visible":true|false,  //Indicates if the relationship nodes are visible
 }
 ```
