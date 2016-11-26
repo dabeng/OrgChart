@@ -464,7 +464,7 @@ In fact, this is a wonderful solution to display a orgchart which includes a hug
 
 - **[I want a hybrid(horizontal + vertical) chart](http://dabeng.github.io/OrgChart/vertical-depth/)**
 
-This feature is inspired by the issues([Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)). Thank [mfahadi](https://github.com/mfahadi) and [Destructrix](https://github.com/Destructrix) for their constructive suggestions:blush:
+This feature is inspired by the issues([Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)). Thank [mfahadi](https://github.com/mfahadi) and [Destructrix](https://github.com/Destructrix) for their constructive suggestions:blush: Special thanks to [tedliang](https://github.com/tedliang) for his wonderful hybrid mode solution.
 
 From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalDepth" allows users to align child nodes vertically from the given depth.
 
