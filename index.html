@@ -325,6 +325,10 @@
         opacity: 1;
       }
 
+      #vertical-depth {
+        height: 620px;
+      }
+
     </style>
 
 </head>
@@ -427,6 +431,8 @@
   <div class="demo-container" id="multiple-layers"></div>
   <p class="demo-heading">show/hide sibling nodes respectively</p>
   <div class="demo-container" id="toggle-sibs-resp"></div>
+  <p class="demo-heading">hybrid mode chart</p>
+  <div class="demo-container" id="vertical-depth"></div>
 
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
   <script type="text/javascript" src="https://cdn.rawgit.com/jakerella/jquery-mockjax/master/dist/jquery.mockjax.min.js"></script>
@@ -980,6 +986,52 @@
       'data' : jsonDs,
       'nodeContent': 'title',
       'toggleSiblingsResp': true
+    });
+    /*********************** vertical-depth **********************/
+    var jsonDs6 = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' ,
+                'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
+          ]}
+              ]
+            }
+          ]
+        },
+        { 'name': 'Hong Miao', 'title': 'department manager' },
+        { 'name': 'Chun Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Bing Qin', 'title': 'senior engineer' },
+            { 'name': 'Yue Yue', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Er Yue', 'title': 'engineer' },
+                { 'name': 'San Yue', 'title': 'UE engineer' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    $('#vertical-depth').orgchart({
+      'data' : jsonDs6,
+      'nodeContent': 'title',
+      'verticalDepth': 3,
+      'depth': 4
     });
 
     });
