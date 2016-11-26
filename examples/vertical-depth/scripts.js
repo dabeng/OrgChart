@@ -8,33 +8,37 @@
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
-        { 'name': 'Bo Miao', 'title': 'department manager',
-          'children': [
-            { 'name': 'Ren Wu', 'title': 'senior engineer' },
-            { 'name': 'Wo Ge', 'title': 'senior engineer' },
-            { 'name': 'Fei Xuan', 'title': 'engineer' }
-          ]
-        },
+        { 'name': 'Bo Miao', 'title': 'department manager' },
         { 'name': 'Su Miao', 'title': 'department manager',
           'children': [
             { 'name': 'Tie Hua', 'title': 'senior engineer' },
             { 'name': 'Hei Hei', 'title': 'senior engineer',
               'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer',
-                  'children': [
-                    { 'name': 'Dan Zai', 'title': 'intern' },
-                    { 'name': 'Er Dan Zai', 'title': 'intern' }
-                  ]
-                }
+                { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' ,
+                'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
+          ]}
               ]
             }
           ]
         },
-        { 'name': 'Hong Miao', 'title': 'department manager',
+        { 'name': 'Hong Miao', 'title': 'department manager' },
+        { 'name': 'Chun Miao', 'title': 'department manager',
           'children': [
-            { 'name': 'Xing An', 'title': 'senior engineer' },
-            { 'name': 'Yi Dian', 'title': 'engineer' },
-            { 'name': 'Xiao Gang', 'title': 'engineer' }
+            { 'name': 'Bing Qin', 'title': 'senior engineer' },
+            { 'name': 'Yue Yue', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Er Yue', 'title': 'engineer' },
+                { 'name': 'San Yue', 'title': 'UE engineer' }
+              ]
+            }
           ]
         }
       ]
@@ -43,7 +47,8 @@
     $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
-      'verticalDepth': 3
+      'verticalDepth': 3,
+      'depth': 4
     });
 
   });
