@@ -1,5 +1,3 @@
-#### It's a simple and direct organization chart plugin. Anytime you want a tree-like chart, you can turn to OrgChart.
-
 ![OrgChart](http://dabeng.github.io/OrgChart/img/orgchart-heading.png)
 
 # [Here's the native javascript(ES6) version, just enjoy it](http://github.com/dabeng/OrgChart.js) :blush:#
