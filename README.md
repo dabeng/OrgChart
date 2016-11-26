@@ -473,7 +473,8 @@ From now on, users never have to worry about how to align a huge of nodes in one
 $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
-  'verticalDepth': 3 // From the 3th level of orgchart, nodes will be aligned vertically.
+  'verticalDepth': 3, // From the 3th level of orgchart, nodes will be aligned vertically.
+  'depth': 4
 });
 ```
 
