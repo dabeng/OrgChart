@@ -3,12 +3,7 @@
  * https://github.com/dabeng/OrgChart
  *
  * Demos of jQuery OrgChart Plugin
- * http://dabeng.github.io/OrgChart/local-datasource/
- * http://dabeng.github.io/OrgChart/ajax-datasource/
- * http://dabeng.github.io/OrgChart/ondemand-loading-data/
- * http://dabeng.github.io/OrgChart/option-createNode/
- * http://dabeng.github.io/OrgChart/export-orgchart/
- * http://dabeng.github.io/OrgChart/integrate-map/
+ * http://dabeng.github.io/OrgChart/
  *
  * Copyright 2016, dabeng
  * http://dabeng.github.io/
@@ -54,10 +49,14 @@
         return removeNodes.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getHierarchy':
         return getHierarchy.apply(this, Array.prototype.splice.call(arguments, 1));
-      case 'hideDescendants':
-        return hideDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
-      case 'showDescendants':
-        return showDescendants.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideParent':
+        return hideParent.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showParent':
+        return showParent.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'hideChildren':
+        return hideChildren.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'showChildren':
+        return showChildren.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'hideSiblings':
         return hideSiblings.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'showSiblings':
@@ -353,7 +352,7 @@
   }
 
   // recursively hide the ancestor node and sibling nodes of the specified node
-  function hideAncestorsSiblings($node) {
+  function hideParent($node) {
     var $temp = $node.closest('table').closest('tr').siblings();
     if ($temp.eq(0).find('.spinner').length) {
       $node.closest('.orgchart').data('inAjax', false);
@@ -377,7 +376,7 @@
     }
     // if the current node has the parent node, hide it recursively
     if ($parent.length && grandfatherVisible) {
-      hideAncestorsSiblings($parent);
+      hideParent($parent);
     }
   }
 
@@ -399,7 +398,7 @@
   }
 
   // recursively hide the descendant nodes of the specified node
-  function hideDescendants($node) {
+  function hideChildren($node) {
     var $temp = $node.closest('tr').siblings();
     if ($temp.last().find('.spinner').length) {
       $node.closest('.orgchart').data('inAjax', false);
@@ -424,7 +423,7 @@
   }
 
   // show the children nodes of the specified node
-  function showDescendants($node) {
+  function showChildren($node) {
     var $temp = $node.closest('tr').siblings();
     var isVerticalDesc = $temp.is('.verticalNodes') ? true : false;
     var $descendants = isVerticalDesc
@@ -652,7 +651,7 @@
         if ($parent.is('.slide')) { return; }
         // hide the ancestor nodes and sibling nodes of the specified node
         if (parentState.visible) {
-          hideAncestorsSiblings($node);
+          hideParent($node);
           $parent.one('transitionend', function() {
             if (isInAction($node)) {
               switchVerticalArrow($that);
@@ -693,9 +692,9 @@
         if ($children.find('.node:visible').is('.slide')) { return; }
         // hide the descendant nodes of the specified node
         if (childrenState.visible) {
-          hideDescendants($node);
+          hideChildren($node);
         } else { // show the descendants
-          showDescendants($node);
+          showChildren($node);
         }
       } else { // load the new children nodes of the specified node by ajax request
         var nodeId = $that.parent()[0].id;
@@ -1019,7 +1018,7 @@
         if (!$node.find('.symbol').length) {
           $node.children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
         }
-        showDescendants($node);
+        showChildren($node);
       }
     });
   }
