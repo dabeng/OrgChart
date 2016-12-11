@@ -630,7 +630,43 @@ Removes the designated node and its descedant nodes.
 </table>
 ##### .orgchart('getHierarchy'）
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
-##### .orgchart('hideDescendants',$node)
+##### .orgchart('hideParent',$node)
+This method allows you to hide programatically the parent node of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
+  </tr>
+</table>
+##### .orgchart('showParent',$node)
+This method allows you to show programatically the parent node of any specific node(.node element), if it has
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td>None</td>
+    <td>Is the desired JQuery Object to show its parent node</td>
+  </tr>
+</table>
+##### .orgchart('hideChildren',$node)
 This method allows you to hide programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
@@ -648,7 +684,7 @@ This method allows you to hide programatically the children of any specific node
     <td>Is the desired JQuery Object to hide its children nodes</td>
   </tr>
 </table>
-##### .orgchart('showDescendants',$node)
+##### .orgchart('showChildren',$node)
 This method allows you to show programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
