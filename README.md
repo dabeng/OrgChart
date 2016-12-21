@@ -645,7 +645,7 @@ This method allows you to hide programatically the parent node of any specific n
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
+    <td>It's the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
   </tr>
 </table>
 ##### .orgchart('showParent',$node)
@@ -663,7 +663,7 @@ This method allows you to show programatically the parent node of any specific n
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to show its parent node</td>
+    <td>It's the desired JQuery Object to show its parent node</td>
   </tr>
 </table>
 ##### .orgchart('hideChildren',$node)
@@ -681,7 +681,7 @@ This method allows you to hide programatically the children of any specific node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to hide its children nodes</td>
+    <td>It's the desired JQuery Object to hide its children nodes</td>
   </tr>
 </table>
 ##### .orgchart('showChildren',$node)
@@ -699,7 +699,7 @@ This method allows you to show programatically the children of any specific node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to show its children nodes</td>
+    <td>It's the desired JQuery Object to show its children nodes</td>
   </tr>
 </table>
 ##### .orgchart('hideSiblings',$node,direction)
@@ -717,7 +717,7 @@ This method allows you to hide programatically the siblings of any specific node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to hide its siblings nodes</td>
+    <td>It's the desired JQuery Object to hide its siblings nodes</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -742,7 +742,7 @@ This method allows you to show programatically the siblings of any specific node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to show its siblings nodes</td>
+    <td>It's the desired JQuery Object to show its siblings nodes</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -753,7 +753,7 @@ This method allows you to show programatically the siblings of any specific node
   </tr>
 </table>
 ##### .orgchart('getNodeState',$node,relation)
-This method returns you the specified relation of a node
+This method returns you the display state of related node of the specified node.
 <table>
   <tr>
     <th>Name</th>
@@ -767,7 +767,7 @@ This method returns you the specified relation of a node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to know its relationship</td>
+    <td>It's the desired JQuery Object to know its related nodes' display state.</td>
   </tr>
   <tr>
     <td>relation</td>
@@ -799,7 +799,7 @@ This method returns you the nodes related to the specified node
     <td>JQuery Object</td>
     <td>Yes</td>
     <td>None</td>
-    <td>Is the desired JQuery Object to know its relationship</td>
+    <td>It's the desired JQuery Object to know its related nodes</td>
   </tr>
   <tr>
     <td>relation</td>
