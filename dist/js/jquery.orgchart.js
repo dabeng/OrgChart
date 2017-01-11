@@ -922,7 +922,7 @@
         $orgchart.triggerHandler({ 'type': 'nodedropped.orgchart', 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
       });
     }
-    // allow user to append dom modification after finishing node create of orgchart 
+    // allow user to append dom modification after finishing node create of orgchart
     if (opts.createNode) {
       opts.createNode($nodeDiv, nodeData);
     }
@@ -1027,7 +1027,7 @@
   function buildParentNode($currentRoot, nodeData, opts, callback) {
     var that = this;
     var $table = $('<table>');
-    nodeData.relationship = '001';
+    nodeData.relationship = nodeData.relationship || '001';
     $.when(createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
       .done(function($nodeDiv) {
         $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
