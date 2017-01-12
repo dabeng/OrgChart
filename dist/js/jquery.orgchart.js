@@ -29,6 +29,7 @@
       'chartClass': '',
       'exportButton': false,
       'exportFilename': 'OrgChart',
+      'exportFileextension': 'png',
       'parentNodeSymbol': 'fa-users',
       'draggable': false,
       'direction': 't2b',
@@ -132,8 +133,21 @@
                 .find('.orgchart:visible:first').css('transform', '');
             },
             'onrendered': function(canvas) {
-              $chartContainer.find('.mask').addClass('hidden')
-                .end().find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+              $chartContainer.find('.mask').addClass('hidden');
+              if (opts.exportFileextension.toLowerCase() === 'pdf') {
+                var doc = {};
+                var docWidth = Math.floor(canvas.width * 0.2646);
+                var docHeight = Math.floor(canvas.height * 0.2646);
+                if (docWidth > docHeight) {
+                  doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
+                } else {
+                  doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
+                }
+                doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+                doc.save(opts.exportFilename + '.pdf');
+              } else {
+                $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+              }
             }
           })
           .then(function() {
@@ -143,9 +157,12 @@
           });
         }
       });
-      var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
-        + ' download="' + opts.exportFilename + '.png"></a>';
-      $chartContainer.append($exportBtn).append(downloadBtn);
+      $chartContainer.append($exportBtn);
+      if (opts.exportFileextension.toLowerCase() !== 'pdf') {
+        var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
+          + ' download="' + opts.exportFilename + '.png"></a>';
+        $exportBtn.after(downloadBtn);
+      }
     }
 
     if (opts.pan) {

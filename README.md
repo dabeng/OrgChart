@@ -14,7 +14,7 @@
 - Align the chart in 4 orientations.
 - Allows user to change orgchart structure by drag/drop nodes.
 - Allows user to edit orgchart dynamically and save the final hierarchy as a JSON object.
-- Supports exporting chart as a picture.
+- Supports exporting chart as a picture or pdf document.
 - Supports pan and zoom
 - Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections)
 - touch-enabled plugin for mobile divice
@@ -567,6 +567,9 @@ $('#chartContainerId').orgchart(options);
     </tr>
     <tr>
       <td>exportFilename</td><td>string</td><td>no</td><td>"Orgchart"</td><td>It's filename when you export current orgchart as a picture.</td>
+    </tr>
+    <tr>
+      <td>exportFileextension</td><td>string</td><td>no</td><td>"png"</td><td>Available values are png and pdf.</td>
     </tr>
     <tr>
       <td>chartClass</td><td>string</td><td>no</td><td>""</td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
