@@ -229,6 +229,22 @@ $('#chart-container').orgchart({
 ```
 ![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
 
+Besides, if you wanna export a pdf format, you need to introduce jspdf as shown bellow:
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
+```
+```js
+// sample of core source code
+$('#chart-container').orgchart({
+  'data' : datasource,
+  'depth': 2,
+  'nodeContent': 'title',
+  'exportButton': true,
+  'exportFilename': 'MyOrgChart',
+  'exportFileextension': 'pdf'
+});
+```
+
 - **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
 
 Here, we fall back on [OpenLayers](https://github.com/openlayers/ol3). It's the most aewsome open-source js library for Web GIS you sholdn't miss.
