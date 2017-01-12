@@ -146,7 +146,16 @@
                 doc.addImage(canvas.toDataURL(), 'png', 0, 0);
                 doc.save(opts.exportFilename + '.pdf');
               } else {
-                $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+                var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+                var isFf = !!window.sidebar;
+                var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+
+                if ((!isWebkit && !isFf) || isEdge) {
+                  window.navigator.msSaveBlob(canvas.msToBlob(), opts.exportFilename + '.png');
+                }
+                else {
+                  $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+                }
               }
             }
           })
