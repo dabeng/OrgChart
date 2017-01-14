@@ -244,6 +244,7 @@ $('#chart-container').orgchart({
   'exportFileextension': 'pdf'
 });
 ```
+**Note:** if you wanna export something in IE or Edge, please introduce [es6-promise.auto.js](https://github.com/stefanpenner/es6-promise) firstly.
 
 - **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
 
