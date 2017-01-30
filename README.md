@@ -498,7 +498,7 @@ $('#chart-container').orgchart({
 
 ![hybrid layout](http://dabeng.github.io/OrgChart/vertical-depth/snapshot.png)
 
-- **[I want to collapse some nodes by default](http://dabeng.github.io/OrgChart/default-collapse/)**
+- **[I want to collapse some nodes by default](http://dabeng.github.io/OrgChart/default-collapsed/)**
 
 No problem. You just need to adjust a little detail of datasource with the help of option "collapse" and className "slide-up".
 
