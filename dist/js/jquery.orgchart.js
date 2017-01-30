@@ -987,7 +987,7 @@
       if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
         $nodeWrapper = $appendTo;
       }
-      var isHidden = level + 1 >= opts.depth ? ' hidden' : '';
+      var isHidden = (level + 1 >= opts.depth || nodeData.collapsed) ? ' hidden' : '';
       var isVerticalLayer = (opts.verticalDepth && (level + 2) >= opts.verticalDepth) ? true : false;
 
       // draw the line close to parent node

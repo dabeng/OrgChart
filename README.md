@@ -498,6 +498,44 @@ $('#chart-container').orgchart({
 
 ![hybrid layout](http://dabeng.github.io/OrgChart/vertical-depth/snapshot.png)
 
+- **[I want to collapse some nodes by default](http://dabeng.github.io/OrgChart/default-collapse/)**
+
+No problem. You just need to adjust a little detail of datasource with the help of option "collapse" and className "slide-up".
+
+```js
+// sample of core source code
+var datascource = {
+  'name': 'Lao Lao',
+  'title': 'general manager',
+  'children': [
+    { 'name': 'Bo Miao', 'title': 'department manager', 'collapsed': true,
+      'children': [
+        { 'name': 'Li Jing', 'title': 'senior engineer', 'className': 'slide-up' },
+        { 'name': 'Li Xin', 'title': 'senior engineer', 'collapsed': true, 'className': 'slide-up',
+          'children': [
+            { 'name': 'To To', 'title': 'engineer', 'className': 'slide-up' },
+            { 'name': 'Fei Fei', 'title': 'engineer', 'className': 'slide-up' },
+            { 'name': 'Xuan Xuan', 'title': 'engineer', 'className': 'slide-up' }
+          ]
+        }
+      ]
+    },
+    { 'name': 'Su Miao', 'title': 'department manager',
+      'children': [
+        { 'name': 'Pang Pang', 'title': 'senior engineer' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer', 'collapsed': true,
+          'children': [
+            { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'className': 'slide-up' },
+            { 'name': 'Dan Dan', 'title': 'engineer', 'className': 'slide-up' },
+            { 'name': 'Zai Zai', 'title': 'engineer', 'className': 'slide-up' }
+          ]
+        }
+      ]
+    }
+  ]
+};
+```
+
 ## Usage
 
 ### Instantiation Statement
@@ -510,6 +548,7 @@ $('#chartContainerId').orgchart(options);
 {
   'id': 'rootNode', // It's a optional property which will be used as id attribute of node
   // and data-parent attribute, which contains the id of the parent node
+  'collapsed': true, // By default, the children nodes of current node is hidden.
   'className': 'top-level', // It's a optional property which will be used as className attribute of node.
   'nodeTitlePro': 'Lao Lao',
   'nodeContentPro': 'general manager',
