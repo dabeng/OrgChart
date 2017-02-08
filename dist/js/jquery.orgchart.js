@@ -113,7 +113,8 @@
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
-        'click': function() {
+        'click': function(e) {
+          e.preventDefault();
           if ($(this).children('.spinner').length) {
             return false;
           }
