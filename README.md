@@ -244,11 +244,11 @@ $('#chart-container').orgchart({
   'exportFileextension': 'pdf'
 });
 ```
-**Note:** 
+**Note:**
+
 (1) if you wanna export something in IE or Edge, please introduce [es6-promise.auto.js](https://github.com/stefanpenner/es6-promise) firstly.
 
 (2) if your OS is windows, please check your display scaling settings. For the perfact exported picture, you'd better adjust "Change the size of text, apps, and other items" to 100%.(thanks for [sayamkrai](https://github.com/sayamkrai)'s [exploration](https://github.com/dabeng/OrgChart/issues/152))
-
 
 - **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
 
