@@ -34,7 +34,9 @@
       'draggable': false,
       'direction': 't2b',
       'pan': false,
-      'zoom': false
+      'zoom': false,
+      'zoominLimit': 7,
+      'zoomoutLimit': 0.5
     };
 
     switch (options) {
@@ -113,7 +115,8 @@
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
-        'click': function() {
+        'click': function(e) {
+          e.preventDefault();
           if ($(this).children('.spinner').length) {
             return false;
           }
@@ -292,14 +295,24 @@
   }
 
   function setChartScale($chart, newScale) {
+    var opts = $chart.data('options');
     var lastTf = $chart.css('transform');
+    var matrix = '';
+    var targetScale = 1;
     if (lastTf === 'none') {
       $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
     } else {
+      matrix = lastTf.split(',');
       if (lastTf.indexOf('3d') === -1) {
-        $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+        targetScale = window.parseFloat(matrix[3]) * newScale;
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+        }
       } else {
-        $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        targetScale = window.parseFloat(matrix[1]) * newScale;
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        }
       }
     }
   }
