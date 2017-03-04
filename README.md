@@ -593,6 +593,12 @@ $('#chartContainerId').orgchart(options);
       <td>zoom</td><td>boolean</td><td>no</td><td>false</td><td>Users could zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
     </tr>
     <tr>
+      <td>zoominLimit</td><td>number</td><td>no</td><td>7</td><td>Users are allowed to set a zoom-in limit.</td>
+    </tr>
+    <tr>
+      <td>zoomoutLimit</td><td>number</td><td>no</td><td>0.5</td><td>Users are allowed to set a zoom-out limit.</td>
+    </tr>
+    <tr>
       <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
     </tr>
     <tr>
