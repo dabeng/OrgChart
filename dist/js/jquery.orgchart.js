@@ -463,11 +463,11 @@
 
   // show the children nodes of the specified node
   function showChildren($node) {
-    var $temp = $node.closest('tr').siblings();
-    var isVerticalDesc = $temp.is('.verticalNodes') ? true : false;
+    var $levels = $node.closest('tr').siblings();
+    var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
     var $descendants = isVerticalDesc
-      ? $temp.removeClass('hidden').find('.node:visible')
-      : $temp.removeClass('hidden').eq(2).children().find('tr:first').find('.node:visible');
+      ? $levels.removeClass('hidden').find('.node:visible')
+      : $levels.removeClass('hidden').eq(2).children().find('.node:first');
     // the two following statements are used to enforce browser to repaint
     repaint($descendants.get(0));
     $descendants.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
