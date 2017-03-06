@@ -33,36 +33,22 @@ body {
 
 .home-link a {
   font-size: 36px;
-  color: #d43f3a;
+  color: #000;
   text-decoration: none;
 }
 
 .home-link a:hover {
-  text-shadow: 0 0 6px #d43f3a;
+  text-shadow: 0 0 3px #000;
 }
 
-.home-link a:hover+i {
-  animation: jump 0.6s ease infinite;
-  -webkit-animation: jump 0.6s ease infinite;
+.home-link img {
+  border-radius: 24px;
+  vertical-align: bottom;
+  margin-left: 20px;
 }
 
-@keyframes jump {
-    0% {top: 0px;}
-    50% {top: -6px;}
-    100% {top: 6px;}
-}
-
-@-webkit-keyframes jump {
-    0% {top: 0px;}
-    50% {top: -6px;}
-    100% {top: 6px;}
-}
-
-.home-link i {
-  position: relative;
-    font-size: 48px;
-    color: #fff;
-    text-shadow: 0 1px 0 #ccc,
+.home-link a:hover+img {
+    box-shadow: 0 1px 0 #ccc,
       0 2px 0 #c9c9c9,
       0 3px 0 #bbb,
       0 4px 0 #b9b9b9,
