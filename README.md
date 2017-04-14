@@ -859,13 +859,15 @@ This method returns you the display state of related node of the specified node.
     <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
   </tr>
 </table>
-The returning object will have the next structure:
+
+The returning object will have the following structure:
 ```js
 {
   "exist": true|false,  //Indicates if has parent|children|siblings
   "visible":true|false,  //Indicates if the relationship nodes are visible
 }
 ```
+
 #### .orgchart('getRelatedNodes',$node,relation)
 This method returns you the nodes related to the specified node
 <table>
