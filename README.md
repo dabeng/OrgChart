@@ -651,6 +651,7 @@ $('#chartContainerId').orgchart(options);
 
 ### Methods
 I'm sure that you can grasp the key points of the methods below after you try out demo -- [edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/).
+
 #### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
 #### .orgchart('addParent', data, opts)
@@ -664,6 +665,7 @@ Adds parent node(actullay it's always root node) for current orgchart.
     <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
+
 #### .orgchart('addSiblings', $node, data, opts)
 Adds sibling nodes for designated node.
 <table>
@@ -676,6 +678,7 @@ Adds sibling nodes for designated node.
     <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
+
 #### .orgchart('addChildren', $node, data, opts）
 Adds child nodes for designed node.
 <table>
@@ -688,6 +691,7 @@ Adds child nodes for designed node.
     <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
+
 #### .orgchart('removeNodes', $node）
 Removes the designated node and its descedant nodes.
 <table>
@@ -698,8 +702,10 @@ Removes the designated node and its descedant nodes.
     <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>node to be removed</td></tr>
   </tbody>
 </table>
+
 #### .orgchart('getHierarchy'）
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
+
 #### .orgchart('hideParent',$node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has
 <table>
@@ -718,6 +724,7 @@ This method allows you to hide programatically the parent node of any specific n
     <td>It's the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
   </tr>
 </table>
+
 #### .orgchart('showParent',$node)
 This method allows you to show programatically the parent node of any specific node(.node element), if it has
 <table>
@@ -736,6 +743,7 @@ This method allows you to show programatically the parent node of any specific n
     <td>It's the desired JQuery Object to show its parent node</td>
   </tr>
 </table>
+
 #### .orgchart('hideChildren',$node)
 This method allows you to hide programatically the children of any specific node(.node element), if it has
 <table>
@@ -754,6 +762,7 @@ This method allows you to hide programatically the children of any specific node
     <td>It's the desired JQuery Object to hide its children nodes</td>
   </tr>
 </table>
+
 #### .orgchart('showChildren',$node)
 This method allows you to show programatically the children of any specific node(.node element), if it has
 <table>
@@ -772,6 +781,7 @@ This method allows you to show programatically the children of any specific node
     <td>It's the desired JQuery Object to show its children nodes</td>
   </tr>
 </table>
+
 #### .orgchart('hideSiblings',$node,direction)
 This method allows you to hide programatically the siblings of any specific node(.node element), if it has
 <table>
@@ -797,6 +807,7 @@ This method allows you to hide programatically the siblings of any specific node
     <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
   </tr>
 </table>
+
 #### .orgchart('showSiblings',$node,direction)
 This method allows you to show programatically the siblings of any specific node(.node element), if it has
 <table>
@@ -822,6 +833,7 @@ This method allows you to show programatically the siblings of any specific node
     <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
   </tr>
 </table>
+
 #### .orgchart('getNodeState',$node,relation)
 This method returns you the display state of related node of the specified node.
 <table>
@@ -879,6 +891,7 @@ This method returns you the nodes related to the specified node
     <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
   </tr>
 </table>
+
 #### .orgchart('setChartScale', $chart, newScale)
 This method returns you the nodes related to the specified node
 <table>
@@ -904,6 +917,7 @@ This method returns you the nodes related to the specified node
     <td>Positive float value which is used to zoom in/out the chart</td>
   </tr>
 </table>
+
 ### Events
 <table>
   <thead>
