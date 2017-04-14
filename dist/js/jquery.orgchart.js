@@ -68,6 +68,8 @@
         return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getRelatedNodes':
         return getRelatedNodes.apply(this, Array.prototype.splice.call(arguments, 1));
+      case 'setChartScale':
+        return setChartScale.apply(this, Array.prototype.splice.call(arguments, 1));
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
