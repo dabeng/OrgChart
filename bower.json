@@ -29,7 +29,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "^2.2.3",
+    "jquery": "~3.2.1",
     "font-awesome": "^4.6.2",
     "html2canvas": "^0.4.1"
   }
