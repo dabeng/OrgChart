@@ -386,7 +386,7 @@
     if (relation === 'parent') {
       return $node.closest('.nodes').parent().children(':first').find('.node');
     } else if (relation === 'children') {
-      return $node.closest('table').children(':last').children().find('.node:first');
+      return $node.closest('tbody').children(':last').children().find('.node:first');
     } else if (relation === 'siblings') {
       return $node.closest('table').parent().siblings().find('.node:first');
     }
