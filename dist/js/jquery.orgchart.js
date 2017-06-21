@@ -213,7 +213,7 @@
         } else if (e.targetTouches.length > 1) {
           return;
         }
-        $chart.on('mousemove touchmove',function(e) {
+        $(document).on('mousemove touchmove',function(e) {
           if (!$this.data('panning')) {
             return;
           }
