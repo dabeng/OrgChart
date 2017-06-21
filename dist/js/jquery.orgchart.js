@@ -213,7 +213,7 @@
         } else if (e.targetTouches.length > 1) {
           return;
         }
-        $(document).on('mousemove touchmove',function(e) {
+        $(document).on('mousemove.OrgChart touchmove.OrgChart',function(e) {
           if (!$this.data('panning')) {
             return;
           }
@@ -248,9 +248,10 @@
           }
         });
       });
-      $(document).on('mouseup touchend',function(e) {
+      $(document).on('mouseup.OrgChart touchend.OrgChart',function(e) {
         if ($chart.data('panning')) {
-          $chart.data('panning', false).css('cursor', 'default').off('mousemove');
+          $chart.data('panning', false).css('cursor', 'default');
+          $(document).off('mousemove.OrgChart touchmove.OrgChart');
         }
       });
     }
