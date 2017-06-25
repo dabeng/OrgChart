@@ -1,0 +1,25 @@
+language: node_js
+sudo: required
+cache:
+  directories:
+    - node_modules
+env:
+  global:
+  - ENCRYPTION_LABEL: "600709f16855"
+  - COMMIT_AUTHOR_EMAIL: "dabeng413@gmail.com"
+  - COMMIT_AUTHOR_USERNAME: "dabeng"
+  - TRIGGER_REPO_SLUG: "dabeng/OrgChart"
+  - TRIGGER_REPO_BRANCH: "master"
+notifications:
+  email: false
+node_js:
+  - '7'
+  - '6'
+  - '4'
+before_script:
+  - npm prune
+after_success:
+  - npm run semantic-release
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
