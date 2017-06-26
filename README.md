@@ -20,7 +20,7 @@
 - touch-enabled plugin for mobile divice
 
 ## Installation
-Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapp.
+Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your web apps.
 ### Install with Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies
