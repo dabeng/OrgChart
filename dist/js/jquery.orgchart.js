@@ -86,6 +86,22 @@
         }
       }
     });
+    var mo = new MutationObserver(function (mutations) {
+      mo.disconnect();
+      initTime:
+      for (var i = 0; i < mutations.length; i++) {
+        for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+          if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
+            if (opts.initCompleted && typeof opts.initCompleted === 'function') {
+              opts.initCompleted($chart);
+              $chartContainer.triggerHandler({ 'type': 'init.orgchart', 'chart': $chart });
+              break initTime;
+            }
+          }
+        }
+      }
+    });
+    mo.observe($chartContainer[0], { childList: true });
     if ($.type(data) === 'object') {
       if (data instanceof $) { // ul datasource
         buildHierarchy($chart, buildJsonDS(data.children()), 0, opts);
