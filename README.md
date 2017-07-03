@@ -646,6 +646,9 @@ $('#chartContainerId').orgchart(options);
     <tr>
       <td>dropCriteria</td><td>function</td><td>no</td><td></td><td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
     </tr>
+    <tr>
+      <td>initCompleted</td><td>function</td><td>no</td><td></td><td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It recieves one parament: "$chart" stands for jquery object of initialised chart.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -927,6 +930,7 @@ This method returns you the nodes related to the specified node
   </thead>
   <tbody>
     <tr><td>nodedropped.orgchart</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td></tr>
+    <tr><td>init.orgchart</td><td>chart</td><td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td></tr>
   </tbody>
 </table>
 
