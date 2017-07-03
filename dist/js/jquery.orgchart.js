@@ -105,8 +105,14 @@
     if ($.type(data) === 'object') {
       if (data instanceof $) { // ul datasource
         buildHierarchy($chart, buildJsonDS(data.children()), 0, opts);
+        if (opts.renderingCompleted && typeof opts.renderingCompleted === "function") {
+            opts.renderingCompleted($chart);
+        }
       } else { // local json datasource
         buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
+        if (opts.renderingCompleted && typeof opts.renderingCompleted === "function") {
+            opts.renderingCompleted($chart);
+        }
       }
     } else {
       $.ajax({
@@ -118,6 +124,9 @@
       })
       .done(function(data, textStatus, jqXHR) {
         buildHierarchy($chart, opts.ajaxURL ? data : attachRel(data, '00'), 0, opts);
+        if (opts.renderingCompleted && typeof opts.renderingCompleted === "function") {
+            opts.renderingCompleted($chart);
+        }
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         console.log(errorThrown);
