@@ -36,7 +36,8 @@
       'pan': false,
       'zoom': false,
       'zoominLimit': 7,
-      'zoomoutLimit': 0.5
+      'zoomoutLimit': 0.5,
+      'collapsible': true
     };
 
     switch (options) {
@@ -631,7 +632,7 @@
   }
 
   function repaint(node) {
-	  if (node) {
+    if (node) {
       node.style.offsetWidth = node.offsetWidth;
     }
   }
@@ -670,24 +671,26 @@
 
     $nodeDiv.on('mouseenter mouseleave', function(event) {
       var $node = $(this), flag = false;
-      var $topEdge = $node.children('.topEdge');
-      var $rightEdge = $node.children('.rightEdge');
-      var $bottomEdge = $node.children('.bottomEdge');
-      var $leftEdge = $node.children('.leftEdge');
-      if (event.type === 'mouseenter') {
-        if ($topEdge.length) {
-          flag = getNodeState($node, 'parent').visible;
-          $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
+      if (opts.collapsible) {
+        var $topEdge = $node.children('.topEdge');
+        var $rightEdge = $node.children('.rightEdge');
+        var $bottomEdge = $node.children('.bottomEdge');
+        var $leftEdge = $node.children('.leftEdge');
+        if (event.type === 'mouseenter') {
+          if ($topEdge.length) {
+            flag = getNodeState($node, 'parent').visible;
+            $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
+          }
+          if ($bottomEdge.length) {
+            flag = getNodeState($node, 'children').visible;
+            $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
+          }
+          if ($leftEdge.length) {
+            switchHorizontalArrow($node);
+          }
+        } else {
+          $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
         }
-        if ($bottomEdge.length) {
-          flag = getNodeState($node, 'children').visible;
-          $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
-        }
-        if ($leftEdge.length) {
-          switchHorizontalArrow($node);
-        }
-      } else {
-        $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
       }
     });
 
@@ -697,163 +700,169 @@
       $(this).addClass('focused');
     });
 
-    // define click event handler for the top edge
-    $nodeDiv.on('click', '.topEdge', function(event) {
-      event.stopPropagation();
-      var $that = $(this);
-      var $node = $that.parent();
-      var parentState = getNodeState($node, 'parent');
-      if (parentState.exist) {
-        var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
-        if ($parent.is('.slide')) { return; }
-        // hide the ancestor nodes and sibling nodes of the specified node
-        if (parentState.visible) {
-          hideParent($node);
-          $parent.one('transitionend', function() {
-            if (isInAction($node)) {
-              switchVerticalArrow($that);
-              switchHorizontalArrow($node);
-            }
-          });
-        } else { // show the ancestors and siblings
-          showParent($node);
-        }
-      } else {
-        // load the new parent node of the specified node by ajax request
-        var nodeId = $that.parent()[0].id;
-        // start up loading status
-        if (startLoading($that, $node, opts)) {
-        // load new nodes
-          $.ajax({ 'url': $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(nodeData) : opts.ajaxURL.parent + nodeId, 'dataType': 'json' })
-          .done(function(data) {
-            if ($node.closest('.orgchart').data('inAjax')) {
-              if (!$.isEmptyObject(data)) {
-                addParent.call($node.closest('.orgchart').parent(), $node, data, opts);
+    if (opts.collapsible) {
+      // define click event handler for the top edge
+      $nodeDiv.on('click', '.topEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var parentState = getNodeState($node, 'parent');
+        if (parentState.exist) {
+          var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
+          if ($parent.is('.slide')) { return; }
+          // hide the ancestor nodes and sibling nodes of the specified node
+          if (parentState.visible) {
+            hideParent($node);
+            $parent.one('transitionend', function() {
+              if (isInAction($node)) {
+                switchVerticalArrow($that);
+                switchHorizontalArrow($node);
               }
-            }
-          })
-          .fail(function() { console.log('Failed to get parent node data'); })
-          .always(function() { endLoading($that, $node, opts); });
-        }
-      }
-    });
-
-    // bind click event handler for the bottom edge
-    $nodeDiv.on('click', '.bottomEdge', function(event) {
-      event.stopPropagation();
-      var $that = $(this);
-      var $node = $that.parent();
-      var childrenState = getNodeState($node, 'children');
-      if (childrenState.exist) {
-        var $children = $node.closest('tr').siblings(':last');
-        if ($children.find('.node:visible').is('.slide')) { return; }
-        // hide the descendant nodes of the specified node
-        if (childrenState.visible) {
-          hideChildren($node);
-        } else { // show the descendants
-          showChildren($node);
-        }
-      } else { // load the new children nodes of the specified node by ajax request
-        var nodeId = $that.parent()[0].id;
-        if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(nodeData) : opts.ajaxURL.children + nodeId, 'dataType': 'json' })
-          .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('.orgchart').data('inAjax')) {
-              if (data.children.length) {
-                addChildren($node, data, $.extend({}, opts, { depth: 0 }));
+            });
+          } else { // show the ancestors and siblings
+            showParent($node);
+          }
+        } else {
+          // load the new parent node of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          // start up loading status
+          if (startLoading($that, $node, opts)) {
+          // load new nodes
+            $.ajax({ 'url': $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(nodeData) : opts.ajaxURL.parent + nodeId, 'dataType': 'json' })
+            .done(function(data) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (!$.isEmptyObject(data)) {
+                  addParent.call($node.closest('.orgchart').parent(), $node, data, opts);
+                }
               }
-            }
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('Failed to get children nodes data');
-          })
-          .always(function() {
-            endLoading($that, $node, opts);
-          });
+            })
+            .fail(function() { console.log('Failed to get parent node data'); })
+            .always(function() { endLoading($that, $node, opts); });
+          }
         }
-      }
-    });
+      });
 
-    // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
-    $nodeDiv.on('click', '.toggleBtn', function(event) {
-      var $this = $(this);
-      var $descWrapper = $this.parent().next();
-      var $descendants = $descWrapper.find('.node');
-      var $children = $descWrapper.children().children('.node');
-      if ($children.is('.slide')) { return; }
-      $this.toggleClass('fa-plus-square fa-minus-square');
-      if ($descendants.eq(0).is('.slide-up')) {
-        $descWrapper.removeClass('hidden');
-        repaint($children.get(0));
-        $children.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
-          $children.removeClass('slide');
-        });
-      } else {
-        $descendants.addClass('slide slide-up').eq(0).one('transitionend', function() {
-          $descendants.removeClass('slide');
-          // $descWrapper.addClass('hidden');
-          $descendants.closest('ul').addClass('hidden');
-        });
-        $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
-      }
-    });
+      // bind click event handler for the bottom edge
+      $nodeDiv.on('click', '.bottomEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var childrenState = getNodeState($node, 'children');
+        if (childrenState.exist) {
+          var $children = $node.closest('tr').siblings(':last');
+          if ($children.find('.node:visible').is('.slide')) { return; }
+          // hide the descendant nodes of the specified node
+          if (childrenState.visible) {
+            hideChildren($node);
+            console.log("hidechild");
+          } else { // show the descendants
+            showChildren($node);
+            console.log("showchild");
+          }
+        } else { // load the new children nodes of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          if (startLoading($that, $node, opts)) {
+            $.ajax({ 'url': $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(nodeData) : opts.ajaxURL.children + nodeId, 'dataType': 'json' })
+            .done(function(data, textStatus, jqXHR) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (data.children.length) {
+                  addChildren($node, data, $.extend({}, opts, { depth: 0 }));
+                }
+              }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              console.log('Failed to get children nodes data');
+            })
+            .always(function() {
+              endLoading($that, $node, opts);
+            });
+          }
+        }
+      });
 
-    // bind click event handler for the left and right edges
-    $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
-      event.stopPropagation();
-      var $that = $(this);
-      var $node = $that.parent();
-      var siblingsState = getNodeState($node, 'siblings');
-      if (siblingsState.exist) {
-        var $siblings = $node.closest('table').parent().siblings();
-        if ($siblings.find('.node:visible').is('.slide')) { return; }
-        if (opts.toggleSiblingsResp) {
-          var $prevSib = $node.closest('table').parent().prev();
-          var $nextSib = $node.closest('table').parent().next();
-          if ($that.is('.leftEdge')) {
-            if ($prevSib.is('.hidden')) {
-              showSiblings($node, 'left');
+      // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
+      $nodeDiv.on('click', '.toggleBtn', function(event) {
+        var $this = $(this);
+        var $descWrapper = $this.parent().next();
+        var $descendants = $descWrapper.find('.node');
+        var $children = $descWrapper.children().children('.node');
+        if ($children.is('.slide')) { return; }
+        $this.toggleClass('fa-plus-square fa-minus-square');
+        if ($descendants.eq(0).is('.slide-up')) {
+          $descWrapper.removeClass('hidden');
+          repaint($children.get(0));
+          $children.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
+            $children.removeClass('slide');
+          });
+        } else {
+          $descendants.addClass('slide slide-up').eq(0).one('transitionend', function() {
+            $descendants.removeClass('slide');
+            // $descWrapper.addClass('hidden');
+            $descendants.closest('ul').addClass('hidden');
+          });
+          $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
+        }
+      });
+
+      // bind click event handler for the left and right edges
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var siblingsState = getNodeState($node, 'siblings');
+        if (siblingsState.exist) {
+          var $siblings = $node.closest('table').parent().siblings();
+          if ($siblings.find('.node:visible').is('.slide')) { return; }
+          if (opts.toggleSiblingsResp) {
+            var $prevSib = $node.closest('table').parent().prev();
+            var $nextSib = $node.closest('table').parent().next();
+            if ($that.is('.leftEdge')) {
+              if ($prevSib.is('.hidden')) {
+                showSiblings($node, 'left');
+              } else {
+                hideSiblings($node, 'left');
+              }
             } else {
-              hideSiblings($node, 'left');
+              if ($nextSib.is('.hidden')) {
+                showSiblings($node, 'right');
+              } else {
+                hideSiblings($node, 'right');
+              }
             }
           } else {
-            if ($nextSib.is('.hidden')) {
-              showSiblings($node, 'right');
+            if (siblingsState.visible) {
+              hideSiblings($node);
             } else {
-              hideSiblings($node, 'right');
+              showSiblings($node);
             }
           }
         } else {
-          if (siblingsState.visible) {
-            hideSiblings($node);
-          } else {
-            showSiblings($node);
+          // load the new sibling nodes of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          var url = (getNodeState($node, 'parent').exist) ?
+            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(nodeData) : opts.ajaxURL.siblings + nodeId) :
+            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(nodeData) : opts.ajaxURL.families + nodeId);
+          if (startLoading($that, $node, opts)) {
+            $.ajax({ 'url': url, 'dataType': 'json' })
+            .done(function(data, textStatus, jqXHR) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (data.siblings || data.children) {
+                  addSiblings($node, data, opts);
+                }
+              }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              console.log('Failed to get sibling nodes data');
+            })
+            .always(function() {
+              endLoading($that, $node, opts);
+            });
           }
         }
-      } else {
-        // load the new sibling nodes of the specified node by ajax request
-        var nodeId = $that.parent()[0].id;
-        var url = (getNodeState($node, 'parent').exist) ?
-          ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(nodeData) : opts.ajaxURL.siblings + nodeId) :
-          ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(nodeData) : opts.ajaxURL.families + nodeId);
-        if (startLoading($that, $node, opts)) {
-          $.ajax({ 'url': url, 'dataType': 'json' })
-          .done(function(data, textStatus, jqXHR) {
-            if ($node.closest('.orgchart').data('inAjax')) {
-              if (data.siblings || data.children) {
-                addSiblings($node, data, opts);
-              }
-            }
-          })
-          .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('Failed to get sibling nodes data');
-          })
-          .always(function() {
-            endLoading($that, $node, opts);
-          });
-        }
-      }
-    });
+      });
+    }
+
+
     if (opts.draggable) {
       $nodeDiv.on('dragstart', function(event) {
         var origEvent = event.originalEvent;
