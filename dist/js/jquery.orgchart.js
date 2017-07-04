@@ -94,7 +94,7 @@
           if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
             if (opts.initCompleted && typeof opts.initCompleted === 'function') {
               opts.initCompleted($chart);
-              $chartContainer.triggerHandler({ 'type': 'init.orgchart', 'chart': $chart });
+              $chart.triggerHandler({ 'type': 'init.orgchart' });
               break initTime;
             }
           }
