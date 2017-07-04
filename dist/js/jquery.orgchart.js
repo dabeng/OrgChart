@@ -304,6 +304,8 @@
       });
     }
 
+	if (opts.renderingCompleted && typeof opts.renderingCompleted === "function")
+      opts.renderingCompleted($chartContainer);
     return $chartContainer;
   };
 
