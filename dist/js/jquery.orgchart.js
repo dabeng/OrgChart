@@ -93,7 +93,7 @@
           }
         })
         .done(function(data, textStatus, jqXHR) {
-          this.buildHierarchy($chart, this.options.ajaxURL ? data : this.attachRel(data, '00'), 0, this.options);
+          that.buildHierarchy($chart, that.options.ajaxURL ? data : that.attachRel(data, '00'), 0, that.options);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
           console.log(errorThrown);
