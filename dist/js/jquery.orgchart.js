@@ -113,6 +113,7 @@
         'url': data,
         'dataType': 'json',
         'beforeSend': function () {
+          ($.ajaxSettings.beforeSend || $.noop)(xhr);
           $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
         }
       })
