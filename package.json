@@ -1,0 +1,50 @@
+{
+  "name": "orgchart",
+  "version": "0.0.0-semantically-released",
+  "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
+  "main": "./dist/js/jquery.orgchart.js",
+  "style": [
+    "./dist/css/jquery.orgchart.css"
+  ],
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "commit": "git-cz",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "czConfig": {
+    "path": "node_modules/cz-conventional-changelog"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dabeng/OrgChart.git"
+  },
+  "keywords": [
+    "jquery",
+    "plugin",
+    "organization",
+    "chart",
+    "orgchart",
+    "tree",
+    "tree-like",
+    "tree-view"
+  ],
+  "author": "dabeng <dabeng413@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dabeng/OrgChart/issues"
+  },
+  "homepage": "https://github.com/dabeng/OrgChart#readme",
+  "dependencies": {
+    "jquery": "~3.2.1",
+    "font-awesome": "^4.6.3",
+    "jquery-mockjax": "^2.2.0",
+    "html2canvas": "^0.5.0-beta4"
+  },
+  "devDependencies": {
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0",
+    "semantic-release": "^6.3.6"
+  }
+}

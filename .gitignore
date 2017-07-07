@@ -1,0 +1,6 @@
+# Folders to ignore
+bower_components
+node_modules
+
+# Numerous always-ignore extensions
+*.log

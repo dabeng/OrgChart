@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Organization Chart Plugin</title>
+
+    <link rel="icon" href="../img/logo.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../dist/css/jquery.orgchart.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+  <div id="chart-container"></div>
+  <div id="edit-panel" class="view-state">
+    <span id="chart-state-panel" class="radio-panel">
+      <input type="radio" name="chart-state" id="rd-view" value="view" checked="true"><label for="rd-view">View</label>
+      <input type="radio" name="chart-state" id="rd-edit" value="edit"><label for="rd-edit">Edit</label>
+    </span>
+    <label class="selected-node-group">selected node:</label>
+    <input type="text" id="selected-node" class="selected-node-group">
+    <label>new node:</label>
+    <ul id="new-nodelist">
+      <li><input type="text" class="new-node"></li>
+    </ul>
+    <i class="fa fa-plus-circle btn-inputs" id="btn-add-input"></i>
+    <i class="fa fa-minus-circle btn-inputs" id="btn-remove-input"></i>
+    <span id="node-type-panel" class="radio-panel">
+      <input type="radio" name="node-type" id="rd-parent" value="parent"><label for="rd-parent">Parent(root)</label>
+      <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>
+      <input type="radio" name="node-type" id="rd-sibling" value="siblings"><label for="rd-sibling">Sibling</label>
+    </span>
+    <button type="button" id="btn-add-nodes">Add</button>
+    <button type="button" id="btn-delete-nodes">Delete</button>
+    <button type="button" id="btn-reset">Reset</button>
+  </div>
+  <div class="home-link">
+    <a href="https://github.com/dabeng/OrgChart" >More orgcharts</a>
+    <img src="../img/logo.png"></img>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.rawgit.com/niklasvh/html2canvas/master/dist/html2canvas.min.js"></script>
+  <script type="text/javascript" src="../../dist/js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="scripts.js"></script>
+  </body>
+</html>

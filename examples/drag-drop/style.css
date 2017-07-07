@@ -1,0 +1,8 @@
+#chart-container {
+  height: 600px;
+  border: 2px solid #aaa;
+}
+
+.orgchart {
+  background: #fff;
+}
