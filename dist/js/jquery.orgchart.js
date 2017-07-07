@@ -249,7 +249,7 @@
         $chartContainer.on('wheel', function(event) {
           event.preventDefault();
           var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
-          setChartScale($chart, newScale);
+          that.setChartScale($chart, newScale);
         });
 
         $chartContainer.on('touchstart',function(e){
@@ -270,9 +270,9 @@
             $chart.data('pinching', false);
             var diff = $chart.data('pinchDistEnd') - $chart.data('pinchDistStart');
             if (diff > 0) {
-              setChartScale($chart, 1.2);
+              that.setChartScale($chart, 1.2);
             } else if (diff < 0) {
-              setChartScale($chart, 0.8);
+              that.setChartScale($chart, 0.8);
             }
           }
         });
@@ -310,6 +310,7 @@
     },
     //
     buildJsonDS ($li) {
+      var that = this;
       var subObj = {
         'name': $li.contents().eq(0).text().trim(),
         'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('ul').length ? 1 : 0)
@@ -319,7 +320,7 @@
       }
       $li.children('ul').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
-        subObj.children.push(buildJsonDS($(this)));
+        subObj.children.push(that.buildJsonDS($(this)));
       });
       return subObj;
     },
@@ -336,21 +337,22 @@
     },
     //
     loopChart ($chart) {
+      var that = this;
       var $tr = $chart.find('tr:first');
       var subObj = { 'id': $tr.find('.node')[0].id };
       $tr.siblings(':last').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
-        subObj.children.push(loopChart($(this)));
+        subObj.children.push(that.loopChart($(this)));
       });
       return subObj;
     },
     //
     getHierarchy ($chart) {
-      var $chart = $chart || $(this).find('.orgchart');
+      var $chart = $chart || this.$chart;
       if (!$chart.find('.node:first')[0].id) {
         return 'Error: Nodes of orghcart to be exported must have id attribute!';
       }
-      return loopChart($chart);
+      return this.loopChart($chart);
     },
     // detect the exist/display state of related node
     getNodeState ($node, relation) {
@@ -697,7 +699,7 @@
             .done(function(data) {
               if ($node.closest('.orgchart').data('inAjax')) {
                 if (!$.isEmptyObject(data)) {
-                  addParent.call($node.closest('.orgchart').parent(), $node, data, opts);
+                  that.addParent($node, data, opts);
                 }
               }
             })
@@ -737,7 +739,7 @@
               console.log('Failed to get children nodes data');
             })
             .always(function() {
-              endLoading($that, $node, opts);
+              that.endLoading($that, $node, opts);
             });
           }
         }
@@ -818,7 +820,7 @@
               console.log('Failed to get sibling nodes data');
             })
             .always(function() {
-              endLoading($that, $node, opts);
+              that.endLoading($that, $node, opts);
             });
           }
         }

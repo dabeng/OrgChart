@@ -78,7 +78,7 @@
       }
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'ajaxURL': ajaxURLs,
       'nodeContent': 'title',
