@@ -29,14 +29,11 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
       'pan': true,
       'zoom': true
-    })
-    .on('touchmove', function(event) {
-      event.preventDefault();
     });
 
   });

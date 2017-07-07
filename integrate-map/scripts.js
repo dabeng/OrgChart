@@ -44,7 +44,7 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
       'createNode': function($node, data) {

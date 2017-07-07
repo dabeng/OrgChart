@@ -30,7 +30,7 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'depth': 2,
       'nodeContent': 'title',

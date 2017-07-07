@@ -4,7 +4,7 @@
 
   $(function() {
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : $('#ul-data')
     });
 
