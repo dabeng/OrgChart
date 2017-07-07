@@ -51,6 +51,9 @@
       this.options = $.extend({}, this.defaultOptions, this.opts, this.dataOpts, opts);
       // build the org-chart
       var $chartContainer = this.$chartContainer;
+      if ($chartContainer.children().length) {
+        $chartContainer.empty();
+      }
       var data = this.options.data;
       var $chart = this.$chart = $('<div>', {
         'data': { 'options': this.options },
