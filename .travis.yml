@@ -20,7 +20,6 @@ before_script:
   - npm prune
 after_success:
   - npm run semantic-release
-  - ./release.sh
 branches:
   except:
     - /^v\d+\.\d+\.\d+$/

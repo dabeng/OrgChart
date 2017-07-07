@@ -58,7 +58,7 @@ require('orgchart') will load orgchart plugin onto the jQuery object. The orgcha
 </ul>
 ```
 ```js
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : $('#ul-data')
 });
 ```
@@ -83,7 +83,7 @@ var datasource = {
   ]
 };
 
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'depth': 2,
   'nodeContent': 'title'
@@ -102,7 +102,7 @@ $('#chart-container').orgchart({
   [Bottom to Top](http://dabeng.github.io/OrgChart/direction/bottom2top)
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'direction': 'b2t'
@@ -113,7 +113,7 @@ $('#chart-container').orgchart({
   [Left to Right](http://dabeng.github.io/OrgChart/direction/left2right)
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'direction': 'l2r'
@@ -124,7 +124,7 @@ $('#chart-container').orgchart({
   [Right to Left](http://dabeng.github.io/OrgChart/direction/right2left)
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'direction': 'r2l'
@@ -135,7 +135,7 @@ $('#chart-container').orgchart({
 - **[I wanna show/hide left/right sibling nodes respectively by clicking left/right arrow](http://dabeng.github.io/OrgChart/toggle-sibs-resp/)**
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'toggleSiblingsResp': true
@@ -146,7 +146,7 @@ $('#chart-container').orgchart({
 - **[I wanna load datasource through ajax](http://dabeng.github.io/OrgChart/ajax-datasource/)**
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : '/orgchart/initdata',
   'depth': 2,
   'nodeContent': 'title'
@@ -183,7 +183,7 @@ var ajaxURLs = {
   }
 };
 
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'ajaxURL': ajaxURLs,
   'nodeContent': 'title',
@@ -195,7 +195,7 @@ $('#chart-container').orgchart({
 - **[I wanna customize the structure of node](http://dabeng.github.io/OrgChart/option-createNode/)**
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'depth': 2,
   'nodeContent': 'title',
@@ -219,7 +219,7 @@ $('#chart-container').orgchart({
 Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canvas).
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'depth': 2,
   'nodeContent': 'title',
@@ -235,7 +235,7 @@ Besides, if you wanna export a pdf format, you need to introduce jspdf as shown 
 ```
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'depth': 2,
   'nodeContent': 'title',
@@ -289,7 +289,7 @@ var datasource = {
   ]
 };
 
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'createNode': function($node, data) {
@@ -320,7 +320,7 @@ $('#chart-container').orgchart({
 With the help of exposed core methods(addParent(), addSiblings(), addChildren(), removeNodes()) of orgchart plugin, we can finish this task easily.
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'exportButton': true,
   'exportFilename': 'SportsChart',
@@ -332,8 +332,9 @@ $('#chart-container').orgchart({
       }
     });
   }
-})
-.on('click', '.orgchart', function(event) {
+});
+
+oc.$chart.on('click', function(event) {
   if (!$(event.target).closest('.node').length) {
     $('#selected-node').val('');
   }
@@ -350,22 +351,22 @@ $('#btn-add-nodes').on('click', function() {
   var $node = $('#selected-node').data('node');
   var nodeType = $('input[name="node-type"]:checked');
   if (nodeType.val() === 'parent') {
-    $('#chart-container').orgchart('addParent', $('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
+    oc.addParent($('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
   } else if (nodeType.val() === 'siblings') {
-    $('#chart-container').orgchart('addSiblings', $node,
+    oc.addSiblings($node,
       { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
     });
   } else {
     var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
     if (!hasChild) {
       var rel = nodeVals.length > 1 ? '110' : '100';
-      $('#chart-container').orgchart('addChildren', $node, {
+      oc.addChildren($node, {
           'children': nodeVals.map(function(item) {
             return { 'name': item, 'relationship': rel };
           })
         }, $.extend({}, $('#chart-container').data('orgchart').options, { depth: 0 }));
     } else {
-      $('#chart-container').orgchart('addSiblings', $node.closest('tr').siblings('.nodes').find('.node:first'),
+      oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'),
         { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
       });
     }
@@ -374,7 +375,7 @@ $('#btn-add-nodes').on('click', function() {
 
 $('#btn-delete-nodes').on('click', function() {
   var $node = $('#selected-node').data('node');
-  $('#chart-container').orgchart('removeNodes', $node);
+  oc.removeNodes($node);
   $('#selected-node').data('node', null);
 });
 ```
@@ -389,7 +390,7 @@ Users are allowed to drag & drop the nodes of orgchart when option "draggable" i
 Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'draggable': true,
@@ -426,12 +427,12 @@ That's where getHierarchy() comes in.
 </ul>
 ```
 ```js
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : $('#ul-data')
 });
 
 $('#btn-export-hier').on('click', function() {
-  var hierarchy = $('#chart-container').orgchart('getHierarchy');
+  var hierarchy = oc.getHierarchy();
   $(this).after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
 });
 ```
@@ -492,7 +493,7 @@ From now on, users never have to worry about how to align a huge of nodes in one
 
 ```js
 // sample of core source code
-$('#chart-container').orgchart({
+var oc = $('#chart-container').orgchart({
   'data' : datasource,
   'nodeContent': 'title',
   'verticalDepth': 3, // From the 3th level of orgchart, nodes will be aligned vertically.
@@ -544,7 +545,7 @@ var datascource = {
 
 ### Instantiation Statement
 ```js
-$('#chartContainerId').orgchart(options);
+var oc = $('#chartContainerId').orgchart(options);
 ```
 
 ### Structure of Datasource
@@ -657,7 +658,7 @@ I'm sure that you can grasp the key points of the methods below after you try ou
 
 #### $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
-#### .orgchart('addParent', data, opts)
+#### .addParent(data, opts)
 Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
@@ -669,7 +670,7 @@ Adds parent node(actullay it's always root node) for current orgchart.
   </tbody>
 </table>
 
-#### .orgchart('addSiblings', $node, data, opts)
+#### .addSiblings($node, data, opts)
 Adds sibling nodes for designated node.
 <table>
   <thead>
@@ -682,7 +683,7 @@ Adds sibling nodes for designated node.
   </tbody>
 </table>
 
-#### .orgchart('addChildren', $node, data, opts）
+#### .addChildren($node, data, opts）
 Adds child nodes for designed node.
 <table>
   <thead>
@@ -695,7 +696,7 @@ Adds child nodes for designed node.
   </tbody>
 </table>
 
-#### .orgchart('removeNodes', $node）
+#### .removeNodes($node）
 Removes the designated node and its descedant nodes.
 <table>
   <thead>
@@ -706,10 +707,10 @@ Removes the designated node and its descedant nodes.
   </tbody>
 </table>
 
-#### .orgchart('getHierarchy'）
+#### .getHierarchy()
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
 
-#### .orgchart('hideParent',$node)
+#### .hideParent($node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has
 <table>
   <tr>
@@ -728,7 +729,7 @@ This method allows you to hide programatically the parent node of any specific n
   </tr>
 </table>
 
-#### .orgchart('showParent',$node)
+#### .showParent($node)
 This method allows you to show programatically the parent node of any specific node(.node element), if it has
 <table>
   <tr>
@@ -747,7 +748,7 @@ This method allows you to show programatically the parent node of any specific n
   </tr>
 </table>
 
-#### .orgchart('hideChildren',$node)
+#### .hideChildren($node)
 This method allows you to hide programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
@@ -766,7 +767,7 @@ This method allows you to hide programatically the children of any specific node
   </tr>
 </table>
 
-#### .orgchart('showChildren',$node)
+#### .showChildren($node)
 This method allows you to show programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
@@ -785,7 +786,7 @@ This method allows you to show programatically the children of any specific node
   </tr>
 </table>
 
-#### .orgchart('hideSiblings',$node,direction)
+#### .hideSiblings($node, direction)
 This method allows you to hide programatically the siblings of any specific node(.node element), if it has
 <table>
   <tr>
@@ -811,7 +812,7 @@ This method allows you to hide programatically the siblings of any specific node
   </tr>
 </table>
 
-#### .orgchart('showSiblings',$node,direction)
+#### .showSiblings($node, direction)
 This method allows you to show programatically the siblings of any specific node(.node element), if it has
 <table>
   <tr>
@@ -837,7 +838,7 @@ This method allows you to show programatically the siblings of any specific node
   </tr>
 </table>
 
-#### .orgchart('getNodeState',$node,relation)
+#### .getNodeState($node, relation)
 This method returns you the display state of related node of the specified node.
 <table>
   <tr>
@@ -871,7 +872,7 @@ The returning object will have the following structure:
 }
 ```
 
-#### .orgchart('getRelatedNodes',$node,relation)
+#### .getRelatedNodes($node, relation)
 This method returns you the nodes related to the specified node
 <table>
   <tr>
@@ -897,7 +898,7 @@ This method returns you the nodes related to the specified node
   </tr>
 </table>
 
-#### .orgchart('setChartScale', $chart, newScale)
+#### .setChartScale($chart, newScale)
 This method returns you the nodes related to the specified node
 <table>
   <tr>
@@ -990,7 +991,7 @@ $('.orgchart').css('transform',''); // remove the tansform settings
 - Opera 15+
 - IE 10+
 
-## Work Show
+## Charts Show
 [I love NBA.](http://codepen.io/dabeng/full/aZzEVJ/)
 ![2016 NBA Playoff](http://dabeng.github.io/OrgChart/img/2016nba/2016-nba-playoff.png)
 

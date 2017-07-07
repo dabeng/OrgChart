@@ -143,7 +143,7 @@
           return;
         }
       }
-      $('#chart-container').orgchart('removeNodes', $node);
+      oc.removeNodes($node);
       $('#selected-node').val('').data('node', null);
     });
 
