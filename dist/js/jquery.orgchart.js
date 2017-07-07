@@ -22,10 +22,9 @@
 }(function ($, window, document, undefined) {
   //
   var OrgChart = function (elem, opts) {
-    this.elem = elem;
-    this.$elem = $(elem);
+    this.$chartContainer = $(elem);
     this.opts = opts;
-    this.dataOpts = this.$elem.data('options');
+    this.dataOpts = this.$chartContainer.data('options');
     this.defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
@@ -51,9 +50,9 @@
       var that = this;
       this.options = $.extend({}, this.defaultOptions, this.opts, this.dataOpts, opts);
       // build the org-chart
-      var $chartContainer = this.$elem;
+      var $chartContainer = this.$chartContainer;
       var data = this.options.data;
-      var $chart = $('<div>', {
+      var $chart = this.$chart = $('<div>', {
         'data': { 'options': this.options },
         'class': 'orgchart' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '') + (this.options.direction !== 't2b' ? ' ' + this.options.direction : ''),
         'click': function(event) {
@@ -1162,9 +1161,7 @@
   };
 
   $.fn.orgchart = function (opts) {
-    return this.map(function () {
-      return new OrgChart(this, opts).init();
-    });
+    return new OrgChart(this, opts).init();
   };
 
 }));

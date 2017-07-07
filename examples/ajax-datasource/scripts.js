@@ -34,7 +34,7 @@
       }
     });
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : '/orgchart/initdata',
       'depth': 2,
       'nodeContent': 'title'

@@ -27,7 +27,7 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
       'draggable': true,
@@ -37,8 +37,8 @@
         }
         return true;
       }
-    })
-    .children('.orgchart').on('nodedropped.orgchart', function(event) {
+    });
+    oc.$chart.on('nodedropped.orgchart', function(event) {
       console.log('draggedNode:' + event.draggedNode.children('.title').text()
         + ', dragZone:' + event.dragZone.children('.title').text()
         + ', dropZone:' + event.dropZone.children('.title').text()
