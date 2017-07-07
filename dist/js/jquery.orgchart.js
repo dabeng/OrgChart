@@ -120,7 +120,7 @@
               $mask.removeClass('hidden');
             }
             var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
-            var flag = this.options.direction === 'l2r' || this.options.direction === 'r2l';
+            var flag = that.options.direction === 'l2r' || that.options.direction === 'r2l';
             html2canvas(sourceChart, {
               'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
               'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
@@ -130,7 +130,7 @@
               },
               'onrendered': function(canvas) {
                 $chartContainer.find('.mask').addClass('hidden');
-                if (opts.exportFileextension.toLowerCase() === 'pdf') {
+                if (that.options.exportFileextension.toLowerCase() === 'pdf') {
                   var doc = {};
                   var docWidth = Math.floor(canvas.width * 0.2646);
                   var docHeight = Math.floor(canvas.height * 0.2646);
@@ -140,14 +140,14 @@
                     doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
                   }
                   doc.addImage(canvas.toDataURL(), 'png', 0, 0);
-                  doc.save(opts.exportFilename + '.pdf');
+                  doc.save(that.options.exportFilename + '.pdf');
                 } else {
                   var isWebkit = 'WebkitAppearance' in document.documentElement.style;
                   var isFf = !!window.sidebar;
                   var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
 
                   if ((!isWebkit && !isFf) || isEdge) {
-                    window.navigator.msSaveBlob(canvas.msToBlob(), opts.exportFilename + '.png');
+                    window.navigator.msSaveBlob(canvas.msToBlob(), that.options.exportFilename + '.png');
                   } else {
                     $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
                   }
@@ -1034,9 +1034,10 @@
     },
     // exposed method
     addChildren ($node, data, opts) {
+      var that = this;
       var opts = opts || $node.closest('.orgchart').data('options');
       var count = 0;
-      this.buildChildNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
+      this.buildChildNode($node.closest('table'), data, opts, function() {
         if (++count === data.children.length) {
           if (!$node.children('.bottomEdge').length) {
             $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
@@ -1044,7 +1045,7 @@
           if (!$node.find('.symbol').length) {
             $node.children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
           }
-          this.showChildren($node);
+          that.showChildren($node);
         }
       });
     },
@@ -1059,10 +1060,10 @@
           $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
           var linesRow = '<td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td>';
           $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
-          var $oc = that.children('.orgchart');
-          $oc.prepend($table)
+          var $chart = that.$chart;
+          $chart.prepend($table)
             .children('table:first').append('<tr class="nodes"><td colspan="2"></td></tr>')
-            .children('tr:last').children().append($oc.children('table').last());
+            .children('tr:last').children().append($chart.children('table').last());
           callback();
         })
         .fail(function() {
@@ -1071,11 +1072,12 @@
     },
     // exposed method
     addParent ($currentRoot, data, opts) {
-      this.buildParentNode.call(this, $currentRoot, data, opts, function() {
+      var that = this;
+      this.buildParentNode($currentRoot, data, opts, function() {
         if (!$currentRoot.children('.topEdge').length) {
           $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
         }
-        showParent($currentRoot);
+        that.showParent($currentRoot);
       });
     },
     // subsequent processing of build sibling nodes
@@ -1089,6 +1091,7 @@
     },
     // build the sibling nodes of specific node
     buildSiblingNode ($nodeChart, nodeData, opts, callback) {
+      var that = this;
       var opts = opts || $nodeChart.closest('.orgchart').data('options');
       var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
       var existingSibligCount = $nodeChart.parent().is('td') ? $nodeChart.closest('tr').children().length : 1;
@@ -1099,14 +1102,14 @@
         var $parent = $nodeChart.closest('tr').prevAll('tr:last');
         $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
         var childCount = 0;
-        this.buildChildNode.call($nodeChart.closest('.orgchart').parent(),$nodeChart.parent().closest('table'), nodeData, opts, function() {
+        this.buildChildNode($nodeChart.parent().closest('table'), nodeData, opts, function() {
           if (++childCount === newSiblingCount) {
             var $siblingTds = $nodeChart.parent().closest('table').children('tr:last').children('td');
             if (existingSibligCount > 1) {
-              this.complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().addBack().unwrap()), siblingCount, existingSibligCount);
+              that.complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().addBack().unwrap()), siblingCount, existingSibligCount);
               $siblingTds.addClass('hidden').find('.node').addClass('slide-left');
             } else {
-              this.complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
+              that.complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
               $siblingTds.not(':eq(' + insertPostion + 1 + ')').addClass('hidden')
                 .slice(0, insertPostion).find('.node').addClass('slide-right')
                 .end().end().slice(insertPostion).find('.node').addClass('slide-left');
@@ -1118,7 +1121,7 @@
         var nodeCount = 0;
         this.buildHierarchy($nodeChart.closest('.orgchart'), nodeData, 0, opts, function() {
           if (++nodeCount === siblingCount) {
-            this.complementLine($nodeChart.next().children('tr:last')
+            that.complementLine($nodeChart.next().children('tr:last')
               .children().eq(insertPostion).after($('<td colspan="2">')
               .append($nodeChart)), siblingCount, 1);
             $nodeChart.closest('tr').siblings().eq(0).addClass('hidden').find('.node').addClass('slide-down');
@@ -1132,12 +1135,13 @@
     },
     //
     addSiblings ($node, data, opts) {
-      this.buildSiblingNode.call($node.closest('.orgchart').parent(), $node.closest('table'), data, opts, function() {
+      var that = this;
+      this.buildSiblingNode($node.closest('table'), data, opts, function() {
         $node.closest('.nodes').data('siblingsLoaded', true);
         if (!$node.children('.leftEdge').length) {
           $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
         }
-        this.showSiblings($node);
+        that.showSiblings($node);
       });
     },
     //
