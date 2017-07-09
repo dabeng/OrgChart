@@ -4,7 +4,7 @@
 
   $(function() {
 
-    var datascource = {
+    var datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -30,7 +30,7 @@
     };
 
     var oc = $('#chart-container').orgchart({
-      'data' : datascource,
+      'data' : datasource,
       'depth': 2,
       'nodeContent': 'title'
     });
