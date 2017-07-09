@@ -541,6 +541,14 @@ var datascource = {
 };
 ```
 
+- **[I want to refresh orgchart base on new options or datasource](http://dabeng.github.io/OrgChart/reload-data/)**
+
+It's not a big deal. You just turn to the method init().
+```js
+var oc = $('#chartContainerId').orgchart(options);
+oc.init(newOptions);
+```
+
 ## Usage
 
 ### Instantiation Statement
@@ -656,9 +664,11 @@ var oc = $('#chartContainerId').orgchart(options);
 ### Methods
 I'm sure that you can grasp the key points of the methods below after you try out demo -- [edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/).
 
-#### $container.orgchart(options)
-Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required.
-#### .addParent(data, opts)
+#### var oc = $container.orgchart(options)
+Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required. Variable oc is the instance of class OrgChart.
+#### init(newOptions)
+It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
+#### addParent(data, opts)
 Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
@@ -670,7 +680,7 @@ Adds parent node(actullay it's always root node) for current orgchart.
   </tbody>
 </table>
 
-#### .addSiblings($node, data, opts)
+#### addSiblings($node, data, opts)
 Adds sibling nodes for designated node.
 <table>
   <thead>
@@ -683,7 +693,7 @@ Adds sibling nodes for designated node.
   </tbody>
 </table>
 
-#### .addChildren($node, data, opts）
+#### addChildren($node, data, opts）
 Adds child nodes for designed node.
 <table>
   <thead>
@@ -696,7 +706,7 @@ Adds child nodes for designed node.
   </tbody>
 </table>
 
-#### .removeNodes($node）
+#### removeNodes($node）
 Removes the designated node and its descedant nodes.
 <table>
   <thead>
@@ -707,10 +717,10 @@ Removes the designated node and its descedant nodes.
   </tbody>
 </table>
 
-#### .getHierarchy()
+#### getHierarchy()
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
 
-#### .hideParent($node)
+#### hideParent($node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has
 <table>
   <tr>
@@ -729,7 +739,7 @@ This method allows you to hide programatically the parent node of any specific n
   </tr>
 </table>
 
-#### .showParent($node)
+#### showParent($node)
 This method allows you to show programatically the parent node of any specific node(.node element), if it has
 <table>
   <tr>
@@ -748,7 +758,7 @@ This method allows you to show programatically the parent node of any specific n
   </tr>
 </table>
 
-#### .hideChildren($node)
+#### hideChildren($node)
 This method allows you to hide programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
@@ -767,7 +777,7 @@ This method allows you to hide programatically the children of any specific node
   </tr>
 </table>
 
-#### .showChildren($node)
+#### showChildren($node)
 This method allows you to show programatically the children of any specific node(.node element), if it has
 <table>
   <tr>
@@ -786,7 +796,7 @@ This method allows you to show programatically the children of any specific node
   </tr>
 </table>
 
-#### .hideSiblings($node, direction)
+#### hideSiblings($node, direction)
 This method allows you to hide programatically the siblings of any specific node(.node element), if it has
 <table>
   <tr>
@@ -812,7 +822,7 @@ This method allows you to hide programatically the siblings of any specific node
   </tr>
 </table>
 
-#### .showSiblings($node, direction)
+#### showSiblings($node, direction)
 This method allows you to show programatically the siblings of any specific node(.node element), if it has
 <table>
   <tr>
@@ -838,7 +848,7 @@ This method allows you to show programatically the siblings of any specific node
   </tr>
 </table>
 
-#### .getNodeState($node, relation)
+#### getNodeState($node, relation)
 This method returns you the display state of related node of the specified node.
 <table>
   <tr>
@@ -872,7 +882,7 @@ The returning object will have the following structure:
 }
 ```
 
-#### .getRelatedNodes($node, relation)
+#### getRelatedNodes($node, relation)
 This method returns you the nodes related to the specified node
 <table>
   <tr>
@@ -898,7 +908,7 @@ This method returns you the nodes related to the specified node
   </tr>
 </table>
 
-#### .setChartScale($chart, newScale)
+#### setChartScale($chart, newScale)
 This method returns you the nodes related to the specified node
 <table>
   <tr>
