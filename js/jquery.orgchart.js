@@ -24,7 +24,6 @@
   var OrgChart = function (elem, opts) {
     this.$chartContainer = $(elem);
     this.opts = opts;
-    this.dataOpts = this.$chartContainer.data('options');
     this.defaultOptions = {
       'nodeTitle': 'name',
       'nodeId': 'id',
@@ -48,9 +47,12 @@
     //
     init: function (opts) {
       var that = this;
-      this.options = $.extend({}, this.defaultOptions, this.opts, this.dataOpts, opts);
+      this.options = $.extend({}, this.defaultOptions, this.opts, opts);
       // build the org-chart
       var $chartContainer = this.$chartContainer;
+      if (this.$chart) {
+        this.$chart.remove();
+      }
       var data = this.options.data;
       var $chart = this.$chart = $('<div>', {
         'data': { 'options': this.options },
