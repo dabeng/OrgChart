@@ -36,59 +36,11 @@ require('orgchart') will load orgchart plugin onto the jQuery object. The orgcha
 
 ## [Demo](http://dabeng.github.io/OrgChart/)
 - **[using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)**(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
-```html
-<!-- wrap the text node with <a href="#"> , <span>, blabla is also OK. Note:text node must immediately follow the <li> tag, with no intervening characters of any kind.  -->
-<ul id="ul-data">
-  <li>Lao Lao
-    <ul>
-      <li>Bo Miao</li>
-      <li>Su Miao
-        <ul>
-          <li>Tie Hua</li>
-          <li>Hei Hei
-            <ul>
-              <li>Pang Pang</li>
-              <li>Xiang Xiang</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-```
-```js
-var oc = $('#chart-container').orgchart({
-  'data' : $('#ul-data')
-});
-```
+
 ![ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/snapshot.png)
 
 - **[using local datasource](http://dabeng.github.io/OrgChart/local-datasource/)**
-```js
-// sample of core source code
-var datasource = {
-  'name': 'Lao Lao',
-  'title': 'general manager',
-  'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager' },
-    { 'name': 'Su Miao', 'title': 'department manager',
-      'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer' },
-        { 'name': 'Hei Hei', 'title': 'senior engineer' }
-      ]
-    },
-    { 'name': 'Hong Miao', 'title': 'department manager' },
-    { 'name': 'Chun Miao', 'title': 'department manager' }
-  ]
-};
 
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'depth': 2,
-  'nodeContent': 'title'
-});
-```
 ![local datasource](http://dabeng.github.io/OrgChart/local-datasource/recorder.gif)
 
 - **[I wanna pan&zoom the orgchart](http://dabeng.github.io/OrgChart/pan-zoom/)**
@@ -100,150 +52,46 @@ var oc = $('#chart-container').orgchart({
   Top to Bottom -- default direction, as you can see all other examples on this page.
 
   [Bottom to Top](http://dabeng.github.io/OrgChart/direction/bottom2top)
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'direction': 'b2t'
-});
-```
+
 ![Bottom to Top](http://dabeng.github.io/OrgChart/direction/b2t.png)
 
   [Left to Right](http://dabeng.github.io/OrgChart/direction/left2right)
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'direction': 'l2r'
-});
-```
+
 ![Left to Right](http://dabeng.github.io/OrgChart/direction/l2r.png)
 
   [Right to Left](http://dabeng.github.io/OrgChart/direction/right2left)
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'direction': 'r2l'
-});
-```
+
 ![Right to Left](http://dabeng.github.io/OrgChart/direction/r2l.png)
 
 - **[I wanna show/hide left/right sibling nodes respectively by clicking left/right arrow](http://dabeng.github.io/OrgChart/toggle-sibs-resp/)**
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'toggleSiblingsResp': true
-});
-```
+
 ![toggle siblings respectively](http://dabeng.github.io/OrgChart/toggle-sibs-resp/recorder.gif)
 
 - **[I wanna load datasource through ajax](http://dabeng.github.io/OrgChart/ajax-datasource/)**
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : '/orgchart/initdata',
-  'depth': 2,
-  'nodeContent': 'title'
-});
-```
+
 ![ajax datasource](http://dabeng.github.io/OrgChart/ajax-datasource/recorder.gif)
 
 - **[I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)**
 
 Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
-```js
-// sample of core source code
-var datasource = {
-  'id': '1',
-  'name': 'Su Miao',
-  'title': 'department manager',
-  'relationship': '111',
-  'children': [
-    { 'id': '2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-    { 'id': '3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
-  ]
-};
 
-var ajaxURLs = {
-  'children': '/orgchart/children/',
-  'parent': '/orgchart/parent/',
-  // It would be helpful to have functions instead of URLs for the AJAX fetching
-  // as it would allow a more flexible treatment of the results.
-  'siblings': function(nodeData) {
-    return '/orgchart/siblings/' + nodeData.id;
-  },
-  'families': function(nodeData) {
-    return '/orgchart/families/' + nodeData.id;
-  }
-};
-
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'ajaxURL': ajaxURLs,
-  'nodeContent': 'title',
-  'nodeId': 'id'
-});
-```
 ![on-demand loading data](http://dabeng.github.io/OrgChart/ondemand-loading-data/recorder.gif)
 
 - **[I wanna customize the structure of node](http://dabeng.github.io/OrgChart/option-createNode/)**
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'depth': 2,
-  'nodeContent': 'title',
-  'nodeID': 'id',
-  'createNode': function($node, data) {
-    var secondMenuIcon = $('<i>', {
-      'class': 'fa fa-info-circle second-menu-icon',
-      click: function() {
-        $(this).siblings('.second-menu').toggle();
-      }
-    });
-    var secondMenu = '<div class="second-menu"><img class="avatar" src="../img/avatar/' + data.id + '.jpg"></div>';
-    $node.append(secondMenuIcon).append(secondMenu);
-  }
-});
-```
+
 ![option--createNode](http://dabeng.github.io/OrgChart/option-createNode/recorder.gif)
 
 - **[I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchart/)**
 
 Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canvas).
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'depth': 2,
-  'nodeContent': 'title',
-  'exportButton': true,
-  'exportFilename': 'MyOrgChart'
-});
-```
+
 ![export orgchart](http://dabeng.github.io/OrgChart/export-orgchart/recorder.gif)
 
 Besides, if you wanna export a pdf format, you need to introduce jspdf as shown bellow:
 ```html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
 ```
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'depth': 2,
-  'nodeContent': 'title',
-  'exportButton': true,
-  'exportFilename': 'MyOrgChart',
-  'exportFileextension': 'pdf'
-});
-```
+
 **Note:**
 
 (1) if you wanna export something in IE or Edge, please introduce [es6-promise.auto.js](https://github.com/stefanpenner/es6-promise) firstly.
@@ -253,132 +101,13 @@ var oc = $('#chart-container').orgchart({
 - **[I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)**
 
 Here, we fall back on [OpenLayers](https://github.com/openlayers/ol3). It's the most aewsome open-source js library for Web GIS you sholdn't miss.
-```js
-// sample of core source code
-var map = new ol.Map({
-  layers: [
-    new ol.layer.Tile({
-      source: new ol.source.Stamen({
-        layer: 'watercolor'
-      }),
-      preload: 4
-    }),
-    new ol.layer.Tile({
-      source: new ol.source.Stamen({
-        layer: 'terrain-labels'
-      }),
-      preload: 1
-    })
-  ],
-  target: 'pageBody',
-  view: new ol.View({
-    center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 10
-  })
-});
-$('body').prepend(map.getViewport());
 
-var datasource = {
-  'name': 'Lao Lao',
-  'title': 'President Office',
-  'position': [-87.6297980, 41.8781140],
-  'children': [
-    { 'name': 'Bo Miao', 'title': 'Administration  Dept.', 'position': [-83.0457540, 42.3314270]},
-    { 'name': 'Yu Jie', 'title': 'Product Dept.', 'position': [-71.0588800, 42.3600820]},
-    { 'name': 'Yu Tie', 'title': 'Marketing Dept.', 'position': [-80.1917900, 25.7616800] }
-  ]
-};
-
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'createNode': function($node, data) {
-    $node.on('click', function() {
-      var view = map.getView();
-      var duration = 2000;
-      var start = +new Date();
-      var pan = ol.animation.pan({
-        duration: duration,
-        source:  view.getCenter(),
-        start: start
-      });
-      var bounce = ol.animation.bounce({
-        duration: duration,
-        resolution: 4 * view.getResolution(),
-        start: start
-      });
-      map.beforeRender(pan, bounce);
-      view.setCenter(ol.proj.transform(data.position, 'EPSG:4326', 'EPSG:3857'));
-    });
-  }
-});
-```
 ![integrate map](http://dabeng.github.io/OrgChart/integrate-map/recorder.gif)
 
 - **[I wanna edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)**
 
 With the help of exposed core methods(addParent(), addSiblings(), addChildren(), removeNodes()) of orgchart plugin, we can finish this task easily.
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'exportButton': true,
-  'exportFilename': 'SportsChart',
-  'parentNodeSymbol': 'fa-th-large',
-  'createNode': function($node, data) {
-    $node.on('click', function(event) {
-      if (!$(event.target).is('.edge')) {
-        $('#selected-node').val(data.name).data('node', $node);
-      }
-    });
-  }
-});
 
-oc.$chart.on('click', function(event) {
-  if (!$(event.target).closest('.node').length) {
-    $('#selected-node').val('');
-  }
-});
-
-$('#btn-add-nodes').on('click', function() {
-  var nodeVals = [];
-  $('#new-nodelist').find('.new-node').each(function(index, item) {
-    var validVal = item.value.trim();
-    if (validVal.length) {
-      nodeVals.push(validVal);
-    }
-  });
-  var $node = $('#selected-node').data('node');
-  var nodeType = $('input[name="node-type"]:checked');
-  if (nodeType.val() === 'parent') {
-    oc.addParent($('#chart-container').find('.node:first'), { 'name': nodeVals[0] });
-  } else if (nodeType.val() === 'siblings') {
-    oc.addSiblings($node,
-      { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
-    });
-  } else {
-    var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
-    if (!hasChild) {
-      var rel = nodeVals.length > 1 ? '110' : '100';
-      oc.addChildren($node, {
-          'children': nodeVals.map(function(item) {
-            return { 'name': item, 'relationship': rel };
-          })
-        }, $.extend({}, $('#chart-container').data('orgchart').options, { depth: 0 }));
-    } else {
-      oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'),
-        { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110' }; })
-      });
-    }
-  }
-});
-
-$('#btn-delete-nodes').on('click', function() {
-  var $node = $('#selected-node').data('node');
-  oc.removeNodes($node);
-  $('#selected-node').data('node', null);
-});
-```
 ![edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/recorder.gif)
 
 - **[I wanna drag & drop the nodes of orgchart](http://dabeng.github.io/OrgChart/drag-drop/)**
@@ -388,93 +117,18 @@ Users are allowed to drag & drop the nodes of orgchart when option "draggable" i
 ![drag & drop](http://dabeng.github.io/OrgChart/drag-drop/recorder.gif)
 
 Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'draggable': true,
-  'dropCriteria': function($draggedNode, $dragZone, $dropZone) {
-    if($draggedNode.find('.content').text().indexOf('manager') > -1 && $dropZone.find('.content').text().indexOf('engineer') > -1) {
-      return false;
-    }
-    return true;
-  }
-})
-```
+
 
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
 
 That's where getHierarchy() comes in.
-```html
-<ul id="ul-data">
-  <li id="1">Lao Lao
-    <ul>
-      <li id="2">Bo Miao</li>
-      <li id="3">Su Miao
-        <ul>
-          <li id="4">Tie Hua</li>
-          <li id="5">Hei Hei
-            <ul>
-              <li id="6">Pang Pang</li>
-              <li id="7">Xiang Xiang</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-```
-```js
-var oc = $('#chart-container').orgchart({
-  'data' : $('#ul-data')
-});
 
-$('#btn-export-hier').on('click', function() {
-  var hierarchy = oc.getHierarchy();
-  $(this).after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
-});
-```
 ![get hierarchy](http://dabeng.github.io/OrgChart/get-hierarchy/snapshot.png)
 
 - **[I want a color-coded chart](http://dabeng.github.io/OrgChart/color-coded/)**
 
 It's a so easy task, we just need to append id or className property to node data.
-```js
-var datasource = {
-  'name': 'Lao Lao',
-  'title': 'general manager',
-  'className': 'top-level',
-  'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager', 'className': 'middle-level',
-      'children': [
-        { 'name': 'Li Jing', 'title': 'senior engineer', 'className': 'bottom-level' },
-        { 'name': 'Li Xin', 'title': 'senior engineer', 'className': 'bottom-level' }
-      ]
-    }
-  };
-```
-```css
-.orgchart .top-level .title {
-  background-color: #006699;
-}
-.orgchart .top-level .content {
-  border-color: #006699;
-}
-.orgchart .middle-level .title {
-  background-color: #009933;
-}
-.orgchart .middle-level .content {
-  border-color: #009933;
-}
-.orgchart .bottom-level .title {
-  background-color: #993366;
-}
-.orgchart .bottom-level .content {
-  border-color: #993366;
-}
-```
+
 ![color coded](http://dabeng.github.io/OrgChart/color-coded/snapshot.png)
 
 - **[I want a multiple-layers chart](http://dabeng.github.io/OrgChart/multiple-layers/)**
@@ -491,63 +145,15 @@ From now on, users never have to worry about how to align a huge of nodes in one
 
 **Note**: currently, this option is incompatible with many other options or methods, like direction, drag&drop, addChildren(), removeNodes(), getHierarchy() and so on. These conflicts will be solved one by one in the later versions.
 
-```js
-// sample of core source code
-var oc = $('#chart-container').orgchart({
-  'data' : datasource,
-  'nodeContent': 'title',
-  'verticalDepth': 3, // From the 3th level of orgchart, nodes will be aligned vertically.
-  'depth': 4
-});
-```
-
 ![hybrid layout](http://dabeng.github.io/OrgChart/vertical-depth/snapshot.png)
 
 - **[I want to collapse some nodes by default](http://dabeng.github.io/OrgChart/default-collapsed/)**
 
 No problem. You just need to adjust a little detail of datasource with the help of option "collapse" and className "slide-up".
 
-```js
-// sample of core source code
-var datascource = {
-  'name': 'Lao Lao',
-  'title': 'general manager',
-  'children': [
-    { 'name': 'Bo Miao', 'title': 'department manager', 'collapsed': true,
-      'children': [
-        { 'name': 'Li Jing', 'title': 'senior engineer', 'className': 'slide-up' },
-        { 'name': 'Li Xin', 'title': 'senior engineer', 'collapsed': true, 'className': 'slide-up',
-          'children': [
-            { 'name': 'To To', 'title': 'engineer', 'className': 'slide-up' },
-            { 'name': 'Fei Fei', 'title': 'engineer', 'className': 'slide-up' },
-            { 'name': 'Xuan Xuan', 'title': 'engineer', 'className': 'slide-up' }
-          ]
-        }
-      ]
-    },
-    { 'name': 'Su Miao', 'title': 'department manager',
-      'children': [
-        { 'name': 'Pang Pang', 'title': 'senior engineer' },
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'collapsed': true,
-          'children': [
-            { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'className': 'slide-up' },
-            { 'name': 'Dan Dan', 'title': 'engineer', 'className': 'slide-up' },
-            { 'name': 'Zai Zai', 'title': 'engineer', 'className': 'slide-up' }
-          ]
-        }
-      ]
-    }
-  ]
-};
-```
-
 - **[I want to refresh orgchart base on new options or datasource](http://dabeng.github.io/OrgChart/reload-data/)**
 
 It's not a big deal. You just turn to the method init().
-```js
-var oc = $('#chartContainerId').orgchart(options);
-oc.init(newOptions);
-```
 
 ## Usage
 

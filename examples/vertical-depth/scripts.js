@@ -47,7 +47,7 @@
     var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
-      'verticalDepth': 3,
+      'verticalDepth': 3, // From the 3th level of orgchart, nodes will be aligned vertically.
       'depth': 4
     });
 
