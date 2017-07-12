@@ -203,14 +203,14 @@
         if (opts.data) {
           this.init(opts);
         } else {
-          if (typeof opts.pan !== undefined) {
+          if (typeof opts.pan !== 'undefined') {
             if (opts.pan) {
               this.bindPan();
             } else {
               this.unbindPan();
             }
           }
-          if (typeof opts.zoom !== undefined) {
+          if (typeof opts.zoom !== 'undefined') {
             if (opts.zoom) {
               this.bindZoom();
             } else {
