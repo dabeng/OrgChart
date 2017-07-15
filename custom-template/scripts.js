@@ -13,12 +13,7 @@
         { 'name': 'Su Miao', 'title': 'department manager', 'office': '北戴河',
           'children': [
             { 'name': 'Tie Hua', 'title': 'senior engineer', 'office': '北戴河' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer', 'office': '北戴河',
-              'children': [
-                { 'name': 'Pang Pang', 'title': 'engineer', 'office': '北戴河' },
-                { 'name': 'Xiang Xiang', 'title': 'UE engineer', 'office': '北戴河' }
-              ]
-            }
+            { 'name': 'Hei Hei', 'title': 'senior engineer', 'office': '北戴河' }
           ]
         },
         { 'name': 'Yu Jie', 'title': 'department manager', 'office': '长春' },

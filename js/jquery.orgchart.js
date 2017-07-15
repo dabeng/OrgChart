@@ -172,118 +172,192 @@
       }
 
       if (this.options.pan) {
-        $chartContainer.css('overflow', 'hidden');
-        $chart.on('mousedown touchstart',function(e){
-          var $this = $(this);
-          if ($(e.target).closest('.node').length || (e.touches && e.touches.length > 1)) {
-            $this.data('panning', false);
-            return;
-          } else {
-            $this.css('cursor', 'move').data('panning', true);
-          }
-          var lastX = 0;
-          var lastY = 0;
-          var lastTf = $this.css('transform');
-          if (lastTf !== 'none') {
-            var temp = lastTf.split(',');
-            if (lastTf.indexOf('3d') === -1) {
-              lastX = parseInt(temp[4]);
-              lastY = parseInt(temp[5]);
-            } else {
-              lastX = parseInt(temp[12]);
-              lastY = parseInt(temp[13]);
-            }
-          }
-          var startX = 0;
-          var startY = 0;
-          if (!e.targetTouches) { // pand on desktop
-            startX = e.pageX - lastX;
-            startY = e.pageY - lastY;
-          } else if (e.targetTouches.length === 1) { // pan on mobile device
-            startX = e.targetTouches[0].pageX - lastX;
-            startY = e.targetTouches[0].pageY - lastY;
-          } else if (e.targetTouches.length > 1) {
-            return;
-          }
-          $chart.on('mousemove touchmove',function(e) {
-            if (!$this.data('panning')) {
-              return;
-            }
-            var newX = 0;
-            var newY = 0;
-            if (!e.targetTouches) { // pand on desktop
-              newX = e.pageX - startX;
-              newY = e.pageY - startY;
-            } else if (e.targetTouches.length === 1) { // pan on mobile device
-              newX = e.targetTouches[0].pageX - startX;
-              newY = e.targetTouches[0].pageY - startY;
-            } else if (e.targetTouches.length > 1) {
-              return;
-            }
-            var lastTf = $this.css('transform');
-            if (lastTf === 'none') {
-              if (lastTf.indexOf('3d') === -1) {
-                $this.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
-              } else {
-                $this.css('transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + newX + ', ' + newY + ', 0, 1)');
-              }
-            } else {
-              var matrix = lastTf.split(',');
-              if (lastTf.indexOf('3d') === -1) {
-                matrix[4] = ' ' + newX;
-                matrix[5] = ' ' + newY + ')';
-              } else {
-                matrix[12] = ' ' + newX;
-                matrix[13] = ' ' + newY;
-              }
-              $this.css('transform', matrix.join(','));
-            }
-          });
-        });
-        $(document).on('mouseup touchend',function(e) {
-          if ($chart.data('panning')) {
-            $chart.data('panning', false).css('cursor', 'default').off('mousemove');
-          }
-        });
+        this.bindPan();
       }
 
       if (this.options.zoom) {
-        $chartContainer.on('wheel', function(event) {
-          event.preventDefault();
-          var newScale  = 1 + (event.originalEvent.deltaY > 0 ? -0.2 : 0.2);
-          that.setChartScale($chart, newScale);
-        });
-
-        $chartContainer.on('touchstart',function(e){
-          if(e.touches && e.touches.length === 2) {
-            $chart.data('pinching', true);
-            var dist = getPinchDist(e);
-            $chart.data('pinchDistStart', dist);
-          }
-        });
-        $(document).on('touchmove',function(e) {
-          if($chart.data('pinching')) {
-             var dist = getPinchDist(e);
-            $chart.data('pinchDistEnd', dist);
-          }
-        })
-        .on('touchend',function(e) {
-          if($chart.data('pinching')) {
-            $chart.data('pinching', false);
-            var diff = $chart.data('pinchDistEnd') - $chart.data('pinchDistStart');
-            if (diff > 0) {
-              that.setChartScale($chart, 1.2);
-            } else if (diff < 0) {
-              that.setChartScale($chart, 0.8);
-            }
-          }
-        });
+        this.bindZoom();
       }
 
       return this;
     },
     //
-    getPinchDist(e) {
+    setOptions (opts, val) {
+      if (typeof opts === 'string') {
+        if (opts === 'pan') {
+          if (val) {
+            this.bindPan();
+          } else {
+            this.unbindPan();
+          }
+        }
+        if (opts === 'zoom') {
+          if (val) {
+            this.bindZoom();
+          } else {
+            this.unbindZoom();
+          }
+        }
+      }
+      if (typeof opts === 'object') {
+        if (opts.data) {
+          this.init(opts);
+        } else {
+          if (typeof opts.pan !== 'undefined') {
+            if (opts.pan) {
+              this.bindPan();
+            } else {
+              this.unbindPan();
+            }
+          }
+          if (typeof opts.zoom !== 'undefined') {
+            if (opts.zoom) {
+              this.bindZoom();
+            } else {
+              this.unbindZoom();
+            }
+          }
+        }
+      }
+
+      return this;
+    },
+    //
+    panStartHandler (e) {
+      var $chart = $(e.delegateTarget);
+      if ($(e.target).closest('.node').length || (e.touches && e.touches.length > 1)) {
+        $chart.data('panning', false);
+        return;
+      } else {
+        $chart.css('cursor', 'move').data('panning', true);
+      }
+      var lastX = 0;
+      var lastY = 0;
+      var lastTf = $chart.css('transform');
+      if (lastTf !== 'none') {
+        var temp = lastTf.split(',');
+        if (lastTf.indexOf('3d') === -1) {
+          lastX = parseInt(temp[4]);
+          lastY = parseInt(temp[5]);
+        } else {
+          lastX = parseInt(temp[12]);
+          lastY = parseInt(temp[13]);
+        }
+      }
+      var startX = 0;
+      var startY = 0;
+      if (!e.targetTouches) { // pand on desktop
+        startX = e.pageX - lastX;
+        startY = e.pageY - lastY;
+      } else if (e.targetTouches.length === 1) { // pan on mobile device
+        startX = e.targetTouches[0].pageX - lastX;
+        startY = e.targetTouches[0].pageY - lastY;
+      } else if (e.targetTouches.length > 1) {
+        return;
+      }
+      $chart.on('mousemove touchmove',function(e) {
+        if (!$chart.data('panning')) {
+          return;
+        }
+        var newX = 0;
+        var newY = 0;
+        if (!e.targetTouches) { // pand on desktop
+          newX = e.pageX - startX;
+          newY = e.pageY - startY;
+        } else if (e.targetTouches.length === 1) { // pan on mobile device
+          newX = e.targetTouches[0].pageX - startX;
+          newY = e.targetTouches[0].pageY - startY;
+        } else if (e.targetTouches.length > 1) {
+          return;
+        }
+        var lastTf = $chart.css('transform');
+        if (lastTf === 'none') {
+          if (lastTf.indexOf('3d') === -1) {
+            $chart.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
+          } else {
+            $chart.css('transform', 'matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, ' + newX + ', ' + newY + ', 0, 1)');
+          }
+        } else {
+          var matrix = lastTf.split(',');
+          if (lastTf.indexOf('3d') === -1) {
+            matrix[4] = ' ' + newX;
+            matrix[5] = ' ' + newY + ')';
+          } else {
+            matrix[12] = ' ' + newX;
+            matrix[13] = ' ' + newY;
+          }
+          $chart.css('transform', matrix.join(','));
+        }
+      });
+    },
+    //
+    panEndHandler (e) {
+      if (e.data.chart.data('panning')) {
+        e.data.chart.data('panning', false).css('cursor', 'default').off('mousemove');
+      }
+    },
+    //
+    bindPan () {
+      this.$chartContainer.css('overflow', 'hidden');
+      this.$chart.on('mousedown touchstart', this.panStartHandler);
+      $(document).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
+    },
+    //
+    unbindPan () {
+      this.$chartContainer.css('overflow', 'auto');
+      this.$chart.off('mousedown touchstart', this.panStartHandler);
+      $(document).off('mouseup touchend', this.panEndHandler);
+    },
+    //
+    zoomWheelHandler (e) {
+      var oc = e.data.oc;
+      e.preventDefault();
+      var newScale  = 1 + (e.originalEvent.deltaY > 0 ? -0.2 : 0.2);
+      oc.setChartScale(oc.$chart, newScale);
+    },
+    //
+    zoomStartHandler (e) {
+      if(e.touches && e.touches.length === 2) {
+        var oc = e.data.oc;
+        oc.$chart.data('pinching', true);
+        var dist = oc.getPinchDist(e);
+        oc.$chart.data('pinchDistStart', dist);
+      }
+    },
+    zoomingHandler (e) {
+      var oc = e.data.oc;
+      if(oc.$chart.data('pinching')) {
+        var dist = oc.getPinchDist(e);
+        oc.$chart.data('pinchDistEnd', dist);
+      }
+    },
+    zoomEndHandler (e) {
+      var oc = e.data.oc;
+      if(oc.$chart.data('pinching')) {
+        oc.$chart.data('pinching', false);
+        var diff = oc.$chart.data('pinchDistEnd') - oc.$chart.data('pinchDistStart');
+        if (diff > 0) {
+          oc.setChartScale(oc.$chart, 1.2);
+        } else if (diff < 0) {
+          oc.setChartScale(oc.$chart, 0.8);
+        }
+      }
+    },
+    //
+    bindZoom () {
+      this.$chartContainer.on('wheel', { 'oc': this }, this.zoomWheelHandler);
+      this.$chartContainer.on('touchstart', { 'oc': this }, this.zoomStartHandler);
+      $(document).on('touchmove', { 'oc': this }, this.zoomingHandler);
+      $(document).on('touchend', { 'oc': this }, this.zoomEndHandler);
+    },
+    unbindZoom () {
+      this.$chartContainer.off('wheel', this.zoomWheelHandler);
+      this.$chartContainer.off('touchstart', this.zoomStartHandler);
+      $(document).off('touchmove', this.zoomingHandler);
+      $(document).off('touchend', this.zoomEndHandler);
+    },
+    //
+    getPinchDist (e) {
       return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
       (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
     },
@@ -617,9 +691,13 @@
       var dtd = $.Deferred();
       // construct the content of node
       var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
-        .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''))
-        .append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
-        .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
+        .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''));
+      if (opts.nodeTemplate) {
+        $nodeDiv.append(opts.nodeTemplate(nodeData));
+      } else {
+        $nodeDiv.append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
+          .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
+      }
       // append 4 direction arrows or expand/collapse buttons
       var flags = nodeData.relationship || '';
       if (opts.verticalDepth && (level + 2) > opts.verticalDepth) {
