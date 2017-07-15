@@ -118,7 +118,6 @@ Users are allowed to drag & drop the nodes of orgchart when option "draggable" i
 
 Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
 
-
 - **[I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)**
 
 That's where getHierarchy() comes in.
@@ -154,6 +153,12 @@ No problem. You just need to adjust a little detail of datasource with the help 
 - **[I want to refresh orgchart base on new options or datasource](http://dabeng.github.io/OrgChart/reload-data/)**
 
 It's not a big deal. You just turn to the method init().
+
+- **[I want to use complex template to customize the internal structure of every node](http://dabeng.github.io/OrgChart/custom-template/)**
+
+No problem. With the help of ES6 Template literals, we can customize the any complex node structure rather than the common title and content sections.
+
+![custom template](http://dabeng.github.io/OrgChart/custom-template/snapshot.png)
 
 ## Usage
 
