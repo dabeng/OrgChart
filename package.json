@@ -1,6 +1,6 @@
 {
   "name": "orgchart",
-  "version": "0.0.0-semantically-released",
+  "version": "2.0.2",
   "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
   "main": "./dist/js/jquery.orgchart.js",
   "style": [
@@ -8,13 +8,6 @@
   ],
   "directories": {
     "example": "examples"
-  },
-  "scripts": {
-    "commit": "git-cz",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
-  },
-  "czConfig": {
-    "path": "node_modules/cz-conventional-changelog"
   },
   "repository": {
     "type": "git",
@@ -41,10 +34,5 @@
     "font-awesome": "^4.6.3",
     "jquery-mockjax": "^2.2.0",
     "html2canvas": "^0.5.0-beta4"
-  },
-  "devDependencies": {
-    "commitizen": "^2.9.6",
-    "cz-conventional-changelog": "^2.0.0",
-    "semantic-release": "^6.3.6"
   }
 }
