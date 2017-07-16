@@ -246,7 +246,10 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>nodeId</td><td>string</td><td>no</td><td>"id"</td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
     </tr>
     <tr>
-      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parament: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
+      <td>nodeTemplate</td><td>function</td><td>no</td><td></td><td>It's a template generation function used to customize any complex internal structure of node. It recieves only one parameter: "data" stands for json datasoure which will be use to render one node.</td>
+    </tr>
+    <tr>
+      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
     </tr>
     <tr>
       <td>exportButton</td><td>boolean</td><td>no</td><td>false</td><td>It enable the export button for orgchart.</td>
