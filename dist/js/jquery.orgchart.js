@@ -30,7 +30,6 @@
       'toggleSiblingsResp': false,
       'depth': 999,
       'chartClass': '',
-      'collapsable': true,
       'exportButton': false,
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
@@ -57,7 +56,7 @@
       var data = this.options.data;
       var $chart = this.$chart = $('<div>', {
         'data': { 'options': this.options },
-        'class': 'orgchart' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '') + (this.options.direction !== 't2b' ? ' ' + this.options.direction : '') + (this.options.collapsable === false ? ' noncollapsable' : ''),
+        'class': 'orgchart' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '') + (this.options.direction !== 't2b' ? ' ' + this.options.direction : ''),
         'click': function(event) {
           if (!$(event.target).closest('.node').length) {
             $chart.find('.node.focused').removeClass('focused');
