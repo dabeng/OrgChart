@@ -183,7 +183,7 @@
       return this;
     },
     //
-    setOptions: function (opts, val) {
+    setOptions (opts, val) {
       if (typeof opts === 'string') {
         if (opts === 'pan') {
           if (val) {
@@ -224,7 +224,7 @@
       return this;
     },
     //
-    panStartHandler: function (e) {
+    panStartHandler (e) {
       var $chart = $(e.delegateTarget);
       if ($(e.target).closest('.node').length || (e.touches && e.touches.length > 1)) {
         $chart.data('panning', false);
@@ -292,32 +292,32 @@
       });
     },
     //
-    panEndHandler: function (e) {
+    panEndHandler (e) {
       if (e.data.chart.data('panning')) {
         e.data.chart.data('panning', false).css('cursor', 'default').off('mousemove');
       }
     },
     //
-    bindPan: function () {
+    bindPan () {
       this.$chartContainer.css('overflow', 'hidden');
       this.$chart.on('mousedown touchstart', this.panStartHandler);
       $(document).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
     },
     //
-    unbindPan: function () {
+    unbindPan () {
       this.$chartContainer.css('overflow', 'auto');
       this.$chart.off('mousedown touchstart', this.panStartHandler);
       $(document).off('mouseup touchend', this.panEndHandler);
     },
     //
-    zoomWheelHandler: function (e) {
+    zoomWheelHandler (e) {
       var oc = e.data.oc;
       e.preventDefault();
       var newScale  = 1 + (e.originalEvent.deltaY > 0 ? -0.2 : 0.2);
       oc.setChartScale(oc.$chart, newScale);
     },
     //
-    zoomStartHandler: function (e) {
+    zoomStartHandler (e) {
       if(e.touches && e.touches.length === 2) {
         var oc = e.data.oc;
         oc.$chart.data('pinching', true);
@@ -325,14 +325,14 @@
         oc.$chart.data('pinchDistStart', dist);
       }
     },
-    zoomingHandler: function (e) {
+    zoomingHandler (e) {
       var oc = e.data.oc;
       if(oc.$chart.data('pinching')) {
         var dist = oc.getPinchDist(e);
         oc.$chart.data('pinchDistEnd', dist);
       }
     },
-    zoomEndHandler: function (e) {
+    zoomEndHandler (e) {
       var oc = e.data.oc;
       if(oc.$chart.data('pinching')) {
         oc.$chart.data('pinching', false);
@@ -345,25 +345,25 @@
       }
     },
     //
-    bindZoom: function () {
+    bindZoom () {
       this.$chartContainer.on('wheel', { 'oc': this }, this.zoomWheelHandler);
       this.$chartContainer.on('touchstart', { 'oc': this }, this.zoomStartHandler);
       $(document).on('touchmove', { 'oc': this }, this.zoomingHandler);
       $(document).on('touchend', { 'oc': this }, this.zoomEndHandler);
     },
-    unbindZoom: function () {
+    unbindZoom () {
       this.$chartContainer.off('wheel', this.zoomWheelHandler);
       this.$chartContainer.off('touchstart', this.zoomStartHandler);
       $(document).off('touchmove', this.zoomingHandler);
       $(document).off('touchend', this.zoomEndHandler);
     },
     //
-    getPinchDist: function (e) {
+    getPinchDist (e) {
       return Math.sqrt((e.touches[0].clientX - e.touches[1].clientX) * (e.touches[0].clientX - e.touches[1].clientX) +
       (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
     },
     //
-    setChartScale: function ($chart, newScale) {
+    setChartScale ($chart, newScale) {
       var opts = $chart.data('options');
       var lastTf = $chart.css('transform');
       var matrix = '';
@@ -386,7 +386,7 @@
       }
     },
     //
-    buildJsonDS: function ($li) {
+    buildJsonDS ($li) {
       var that = this;
       var subObj = {
         'name': $li.contents().eq(0).text().trim(),
@@ -402,7 +402,7 @@
       return subObj;
     },
     //
-    attachRel: function (data, flags) {
+    attachRel (data, flags) {
       var that = this;
       data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
       if (data.children) {
@@ -413,7 +413,7 @@
       return data;
     },
     //
-    loopChart: function ($chart) {
+    loopChart ($chart) {
       var that = this;
       var $tr = $chart.find('tr:first');
       var subObj = { 'id': $tr.find('.node')[0].id };
@@ -424,7 +424,7 @@
       return subObj;
     },
     //
-    getHierarchy: function ($chart) {
+    getHierarchy ($chart) {
       var $chart = $chart || this.$chart;
       if (!$chart.find('.node:first')[0].id) {
         return 'Error: Nodes of orghcart to be exported must have id attribute!';
@@ -432,7 +432,7 @@
       return this.loopChart($chart);
     },
     // detect the exist/display state of related node
-    getNodeState: function ($node, relation) {
+    getNodeState ($node, relation) {
       var $target = {};
       if (relation === 'parent') {
         $target = $node.closest('.nodes').siblings(':first');
@@ -450,7 +450,7 @@
       return { 'exist': false, 'visible': false };
     },
     // find the related nodes
-    getRelatedNodes: function ($node, relation) {
+    getRelatedNodes ($node, relation) {
       if (relation === 'parent') {
         return $node.closest('.nodes').parent().children(':first').find('.node');
       } else if (relation === 'children') {
@@ -460,7 +460,7 @@
       }
     },
     // recursively hide the ancestor node and sibling nodes of the specified node
-    hideParent: function ($node) {
+    hideParent ($node) {
       var $temp = $node.closest('table').closest('tr').siblings();
       if ($temp.eq(0).find('.spinner').length) {
         $node.closest('.orgchart').data('inAjax', false);
@@ -488,7 +488,7 @@
       }
     },
     // show the parent node of the specified node
-    showParent: function ($node) {
+    showParent ($node) {
       var that = this;
       // just show only one superior level
       var $temp = $node.closest('table').closest('tr').siblings().removeClass('hidden');
@@ -505,7 +505,7 @@
       });
     },
     // recursively hide the descendant nodes of the specified node
-    hideChildren: function ($node) {
+    hideChildren ($node) {
       var that = this;
       var $temp = $node.closest('tr').siblings();
       if ($temp.last().find('.spinner').length) {
@@ -530,7 +530,7 @@
       });
     },
     // show the children nodes of the specified node
-    showChildren: function ($node) {
+    showChildren ($node) {
       var that = this;
       var $levels = $node.closest('tr').siblings();
       var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
@@ -547,7 +547,7 @@
       });
     },
     // hide the sibling nodes of the specified node
-    hideSiblings: function ($node, direction) {
+    hideSiblings ($node, direction) {
       var that = this;
       var $nodeContainer = $node.closest('table').parent();
       if ($nodeContainer.siblings().find('.spinner').length) {
@@ -581,7 +581,7 @@
       });
     },
     // show the sibling nodes of the specified node
-    showSiblings: function ($node, direction) {
+    showSiblings ($node, direction) {
       var that = this;
       // firstly, show the sibling td tags
       var $siblings = $();
@@ -620,7 +620,7 @@
       });
     },
     // start up loading status for requesting new nodes
-    startLoading: function ($arrow, $node, options) {
+    startLoading ($arrow, $node, options) {
       var $chart = $node.closest('.orgchart');
       if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
         return false;
@@ -634,7 +634,7 @@
       return true;
     },
     // terminate loading status for requesting new nodes
-    endLoading: function ($arrow, $node, options) {
+    endLoading ($arrow, $node, options) {
       var $chart = $node.closest('div.orgchart');
       $arrow.removeClass('hidden');
       $node.find('.spinner').remove();
@@ -643,15 +643,15 @@
       $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', false);
     },
     // whether the cursor is hovering over the node
-    isInAction: function ($node) {
+    isInAction ($node) {
       return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
     },
     //
-    switchVerticalArrow: function ($arrow) {
+    switchVerticalArrow ($arrow) {
       $arrow.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
     },
     //
-    switchHorizontalArrow: function ($node) {
+    switchHorizontalArrow ($node) {
       var opts = $node.closest('.orgchart').data('options');
       if (opts.toggleSiblingsResp && (typeof opts.ajaxURL === 'undefined' || $node.closest('.nodes').data('siblingsLoaded'))) {
         var $prevSib = $node.closest('table').parent().prev();
@@ -678,13 +678,13 @@
       }
     },
     //
-    repaint: function (node) {
+    repaint (node) {
       if (node) {
         node.style.offsetWidth = node.offsetWidth;
       }
     },
     // create node
-    createNode: function (nodeData, level, opts) {
+    createNode(nodeData, level, opts) {
       var that = this;
       $.each(nodeData.children, function (index, child) {
         child.parentId = nodeData.id;
@@ -1039,7 +1039,7 @@
       return dtd.promise();
     },
     // recursively build the tree
-    buildHierarchy: function ($appendTo, nodeData, level, opts, callback) {
+    buildHierarchy ($appendTo, nodeData, level, opts, callback) {
       var that = this;
       var $nodeWrapper;
       // Construct the node
@@ -1109,14 +1109,14 @@
       }
     },
     // build the child nodes of specific node
-    buildChildNode: function ($appendTo, nodeData, opts, callback) {
+    buildChildNode ($appendTo, nodeData, opts, callback) {
       var opts = opts || $appendTo.closest('.orgchart').data('options');
       var data = nodeData.children || nodeData.siblings;
       $appendTo.find('td:first').attr('colspan', data.length * 2);
       this.buildHierarchy($appendTo, { 'children': data }, 0, opts, callback);
     },
     // exposed method
-    addChildren: function ($node, data, opts) {
+    addChildren ($node, data, opts) {
       var that = this;
       var opts = opts || $node.closest('.orgchart').data('options');
       var count = 0;
@@ -1133,7 +1133,7 @@
       });
     },
     // build the parent node of specific node
-    buildParentNode: function ($currentRoot, nodeData, opts, callback) {
+    buildParentNode ($currentRoot, nodeData, opts, callback) {
       var that = this;
       var $table = $('<table>');
       nodeData.relationship = nodeData.relationship || '001';
@@ -1154,7 +1154,7 @@
         });
     },
     // exposed method
-    addParent: function ($currentRoot, data, opts) {
+    addParent ($currentRoot, data, opts) {
       var that = this;
       this.buildParentNode($currentRoot, data, opts, function() {
         if (!$currentRoot.children('.topEdge').length) {
@@ -1164,7 +1164,7 @@
       });
     },
     // subsequent processing of build sibling nodes
-    complementLine: function ($oneSibling, siblingCount, existingSibligCount) {
+    complementLine ($oneSibling, siblingCount, existingSibligCount) {
       var lines = '';
       for (var i = 0; i < existingSibligCount; i++) {
         lines += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
@@ -1173,7 +1173,7 @@
         .end().next().children(':first').after(lines);
     },
     // build the sibling nodes of specific node
-    buildSiblingNode: function ($nodeChart, nodeData, opts, callback) {
+    buildSiblingNode ($nodeChart, nodeData, opts, callback) {
       var that = this;
       var opts = opts || $nodeChart.closest('.orgchart').data('options');
       var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
@@ -1217,7 +1217,7 @@
       }
     },
     //
-    addSiblings: function ($node, data, opts) {
+    addSiblings ($node, data, opts) {
       var that = this;
       this.buildSiblingNode($node.closest('table'), data, opts, function() {
         $node.closest('.nodes').data('siblingsLoaded', true);
@@ -1228,7 +1228,7 @@
       });
     },
     //
-    removeNodes: function ($node) {
+    removeNodes ($node) {
       var $parent = $node.closest('table').parent();
       var $sibs = $parent.parent().siblings();
       if ($parent.is('td')) {
