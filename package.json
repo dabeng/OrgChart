@@ -1,6 +1,6 @@
 {
   "name": "orgchart",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
   "main": "./dist/js/jquery.orgchart.js",
   "style": [
@@ -34,5 +34,9 @@
     "font-awesome": "^4.6.3",
     "jquery-mockjax": "^2.2.0",
     "html2canvas": "^0.5.0-beta4"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2"
   }
 }
