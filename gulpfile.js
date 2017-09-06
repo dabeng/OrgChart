@@ -52,20 +52,32 @@ gulp.task('vendorJS', function () {
     .pipe(gulp.dest(paths.tmpJSFolder));
 });
 
-gulp.task('copy', ['html', 'css', 'js', 'vendorCSS', 'vendorJS']);
+gulp.task('vendorAssets', function () {
+  return gulp.src(['node_modules/font-awesome/fonts/**/*'])
+    .pipe(gulp.dest(paths.tmp + '/fonts'));
+});
+
+gulp.task('copy', ['html', 'css', 'js', 'vendorCSS', 'vendorJS', 'vendorAssets']);
 
 gulp.task('inject', ['copy'], function () {
   return gulp.src(paths.tmpHTML)
-    .pipe(inject(gulp.src(paths.tmpCSS), { relative:true }))
-    .pipe(inject(gulp.src(paths.tmpJS), { relative:true }))
+    .pipe(inject(gulp.src([paths.tmpCSS, paths.tmpJS], {read: false}), { relative:true }))
     .pipe(gulp.dest(paths.tmp));
 });
 
-// Static server
 gulp.task('serve', ['inject'], function() {
-    browserSync.init({
-        server: {
-            baseDir: paths.tmp
-        }
-    });
+  browserSync.init({
+    server: {
+      baseDir: paths.tmp
+    }
+  });
+});
+
+gulp.task('reload', ['inject'], function (done) {
+  browserSync.reload();
+  done();
+});
+
+gulp.task('watch', ['serve'], function () {
+  gulp.watch(paths.src, ['reload']);
 });
