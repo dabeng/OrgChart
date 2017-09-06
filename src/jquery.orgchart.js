@@ -63,22 +63,24 @@
           }
         }
       });
-      var mo = new MutationObserver(function (mutations) {
-        mo.disconnect();
-        initTime:
-        for (var i = 0; i < mutations.length; i++) {
-          for (var j = 0; j < mutations[i].addedNodes.length; j++) {
-            if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
-              if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
-                that.options.initCompleted($chart);
-                $chart.triggerHandler({ 'type': 'init.orgchart' });
-                break initTime;
+      if (typeof MutationObserver !== 'undefined') {
+        var mo = new MutationObserver(function (mutations) {
+          mo.disconnect();
+          initTime:
+          for (var i = 0; i < mutations.length; i++) {
+            for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+              if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
+                if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
+                  that.options.initCompleted($chart);
+                  $chart.triggerHandler({ 'type': 'init.orgchart' });
+                  break initTime;
+                }
               }
             }
           }
-        }
-      });
+        });
       mo.observe($chartContainer[0], { childList: true });
+      }
       if ($.type(data) === 'object') {
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($chart, this.buildJsonDS(data.children()), 0, this.options);

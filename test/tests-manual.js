@@ -1,16 +1,9 @@
-const should = require('chai').should();
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div></body></html>');
-global.window = dom.window;
-global.document = dom.window.document;
-const $ = require('jquery');
-require('../src/jquery.orgchart');
+chai.should();
 
 describe('orgchart', function () {
 
-  let $container = $('#chart-container');
-  let  datascource = {
+  var $container = $('#chart-container');
+  var datascource = {
     'name': 'Lao Lao',
     'title': 'general manager',
     'children': [
@@ -32,7 +25,7 @@ describe('orgchart', function () {
   };
 
   beforeEach(function () {
-    let oc = $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title'
     });
@@ -43,7 +36,7 @@ describe('orgchart', function () {
   });
 
   it('There will be an orgchart embeded in the container div after initialization', function () {
-    let $chart = $container.find('.orgchart');
+    var $chart = $container.find('.orgchart');
 
     $chart.length.should.equal(1);
   });
