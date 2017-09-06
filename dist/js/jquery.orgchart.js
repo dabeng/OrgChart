@@ -367,6 +367,11 @@
       var lastTf = $chart.css('transform');
       var matrix = '';
       var targetScale = 1;
+      if(!opts) {
+        opts = {};
+        opts.zoomoutLimit = this.defaultOptions.zoomoutLimit;
+        opts.zoominLimit = this.defaultOptions.zoominLimit;
+      }
       if (lastTf === 'none') {
         $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
       } else {
