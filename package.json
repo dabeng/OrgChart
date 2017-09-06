@@ -36,8 +36,10 @@
     "html2canvas": "^0.5.0-beta4"
   },
   "devDependencies": {
+    "browser-sync": "^2.18.13",
     "chai": "^4.1.2",
     "gulp": "^3.9.1",
+    "gulp-inject": "^4.2.0",
     "gulp-mocha": "^4.3.1",
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
