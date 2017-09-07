@@ -2,7 +2,6 @@
 bower_components
 node_modules
 
-tmp
 
 # Numerous always-ignore extensions
 *.log

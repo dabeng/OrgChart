@@ -38,9 +38,13 @@
   "devDependencies": {
     "browser-sync": "^2.18.13",
     "chai": "^4.1.2",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
+    "gulp-eslint": "^4.0.0",
     "gulp-inject": "^4.2.0",
     "gulp-mocha": "^4.3.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^3.0.0",
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
     "mocha": "^3.4.2"

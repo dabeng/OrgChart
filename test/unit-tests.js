@@ -5,7 +5,7 @@ const dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></di
 global.window = dom.window;
 global.document = dom.window.document;
 const $ = require('jquery');
-require('../src/jquery.orgchart');
+require('../src/js/jquery.orgchart');
 
 describe('orgchart', function () {
 

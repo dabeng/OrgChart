@@ -20,7 +20,6 @@
     factory(jQuery, window, document);
   }
 }(function ($, window, document, undefined) {
-  //
   var OrgChart = function (elem, opts) {
     this.$chartContainer = $(elem);
     this.opts = opts;
