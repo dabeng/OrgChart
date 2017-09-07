@@ -686,6 +686,7 @@
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
+      if (!nodeData.children) { nodeData.children = []; }
       $.each(nodeData.children, function (index, child) {
         child.parentId = nodeData.id;
       });
