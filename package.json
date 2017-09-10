@@ -47,6 +47,7 @@
     "gulp-uglify": "^3.0.0",
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
+    "merge-stream": "^1.0.1",
     "mocha": "^3.4.2"
   }
 }
