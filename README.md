@@ -130,10 +130,10 @@ No problem. With the help of ES6 Template literals, we can customize the any com
 - you have to install node.js v6+ because our unit tests are based on jsdom v11
 - you have to install modern browsers because many behaviors of orgchart plugin is based on HTML5 and CSS3
 
-- run ```js npm install``` to install necessary dependencies
-- run ```js npm test``` to start up unit testing
-- run ```js npm build``` to generate production js&css files of plugin
-- run ```js npm start``` to start up local web server to host all the demos
+- run ```npm install``` to install necessary dependencies
+- run ```npm test``` to start up unit testing
+- run ```npm build``` to generate production js&css files of plugin
+- run ```npm start``` to start up local web server to host all the demos
 
 ## Usage
 
