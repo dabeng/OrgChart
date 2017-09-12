@@ -7,18 +7,14 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { background-color: #eee; }
-    .orgchart { background: #fff; }
+    #chart-container { height:  620px; }
+    .orgchart { background: white; }
   </style>
 </head>
 <body>
   <div id="chart-container"></div>
 
-  <script src="js/jquery.min.js"></script>
-  <!-- the following reference is specific for IE -->
-  <script type="text/javascript" src="https://cdn.rawgit.com/stefanpenner/es6-promise/master/dist/es6-promise.auto.min.js"></script>
-  <script type="text/javascript" src="js/html2canvas.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.min.js"></script>
   <script type="text/javascript">
     $(function() {
@@ -34,26 +30,40 @@
             { 'name': 'Hei Hei', 'title': 'senior engineer',
               'children': [
                 { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' ,
+                'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer' },
                 { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
+          ]}
               ]
             }
           ]
         },
-        { 'name': 'Yu Jie', 'title': 'department manager' },
-        { 'name': 'Yu Li', 'title': 'department manager' },
         { 'name': 'Hong Miao', 'title': 'department manager' },
-        { 'name': 'Yu Wei', 'title': 'department manager' },
-        { 'name': 'Chun Miao', 'title': 'department manager' },
-        { 'name': 'Yu Tie', 'title': 'department manager' }
+        { 'name': 'Chun Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Bing Qin', 'title': 'senior engineer' },
+            { 'name': 'Yue Yue', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Er Yue', 'title': 'engineer' },
+                { 'name': 'San Yue', 'title': 'UE engineer' }
+              ]
+            }
+          ]
+        }
       ]
     };
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'depth': 2,
       'nodeContent': 'title',
-      'exportButton': true,
-      'exportFilename': 'MyOrgChart'
+      'verticalDepth': 3,
+      'depth': 4
     });
 
   });

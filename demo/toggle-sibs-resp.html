@@ -6,9 +6,6 @@
   <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
-  <style type="text/css">
-    #chart-container { text-align: left; }
-  </style>
 </head>
 <body>
   <div id="chart-container"></div>
@@ -26,18 +23,23 @@
         { 'name': 'Su Miao', 'title': 'department manager',
           'children': [
             { 'name': 'Tie Hua', 'title': 'senior engineer' },
-            { 'name': 'Hei Hei', 'title': 'senior engineer' }
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
           ]
         },
         { 'name': 'Hong Miao', 'title': 'department manager' },
-        { 'name': 'Chun Miao', 'title': 'department manager' }
+        { 'name': 'Chun Miao', 'title': 'department manager' }, 
       ]
     };
 
     $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
-      'direction': 'l2r'
+      'toggleSiblingsResp': true
     });
 
   });
