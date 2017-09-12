@@ -6,6 +6,8 @@ var rename = require("gulp-rename");
 var del = require('del');
 var eslint = require('gulp-eslint');
 var merge = require('merge-stream');
+var csslint = require('gulp-csslint');
+var cleanCSS = require('gulp-clean-css');
 var paths = {
   src: 'src',
   srcFiles: 'src/**/*',
@@ -22,15 +24,12 @@ var paths = {
   dist: 'dist',
   distIndex: 'dist/index.html',
   distCSS: 'dist/**/*.css',
+  distCSSFolder: 'dist/css',
   distJS: 'dist/**/*.js',
   distJSFolder: 'dist/js'
 };
 
-gulp.task('default', function () {
-  console.log('Hello World!');
-});
-
-gulp.task('cleanJS', function() {
+gulp.task('cleanupJS', function() {
   del([paths.demoJSFolder + '/*orgchart*', paths.distJSFolder]);
 });
 
@@ -40,12 +39,12 @@ gulp.task('eslint', function () {
     .pipe(eslint.failOnError());
 });
 
-gulp.task('test', ['eslint'], function () {
+gulp.task('test', function () {
   return gulp.src(['test/**/*-tests.js'], {read: false})
     .pipe(mocha({reporter: 'spec'}));
 });
 
-gulp.task('js', ['cleanJS', 'test'], function () {
+gulp.task('js', ['cleanupJS', 'eslint', 'test'], function () {
   return gulp.src(paths.srcJS)
     .pipe(uglify())
     .pipe(rename('jquery.orgchart.min.js'))
@@ -53,10 +52,28 @@ gulp.task('js', ['cleanJS', 'test'], function () {
     .pipe(gulp.dest(paths.distJSFolder));
 });
 
-gulp.task('css', function () {
+gulp.task('cleanupCSS', function() {
+  del([paths.demoCSSFolder + '/*orgchart*', paths.distCSSFolder]);
+});
+
+gulp.task('csslint', function() {
+  gulp.src(paths.srcCSS)
+    .pipe(csslint({
+      'adjoining-classes': false,
+      'box-sizing': false,
+      'box-model': false,
+      'fallback-colors': false,
+      'order-alphabetical': false
+    }))
+    .pipe(csslint.formatter());
+});
+
+gulp.task('css', ['cleanupCSS'], function () {
   return gulp.src(paths.srcCSS)
-    .pipe(gulp.dest(paths.demo))
-    .pipe(gulp.dest(paths.dist));
+    .pipe(cleanCSS())
+    .pipe(rename('jquery.orgchart.min.css'))
+    .pipe(gulp.dest(paths.demoCSSFolder))
+    .pipe(gulp.dest(paths.distCSSFolder));
 });
 
 gulp.task('vendorAssets', function() {
