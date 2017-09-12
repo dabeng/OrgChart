@@ -68,7 +68,7 @@ gulp.task('csslint', function() {
     .pipe(csslint.formatter());
 });
 
-gulp.task('css', ['cleanupCSS'], function () {
+gulp.task('css', ['cleanupCSS', 'csslint'], function () {
   return gulp.src(paths.srcCSS)
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))

@@ -2,11 +2,8 @@
  * jQuery OrgChart Plugin
  * https://github.com/dabeng/OrgChart
  *
- * Demos of jQuery OrgChart Plugin
- * http://dabeng.github.io/OrgChart/
- *
  * Copyright 2016, dabeng
- * http://dabeng.github.io/
+ * https://github.com/dabeng
  *
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
