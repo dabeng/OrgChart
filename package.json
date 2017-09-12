@@ -7,7 +7,9 @@
     "./dist/css/jquery.orgchart.css"
   ],
   "scripts": {
-    "test": "mocha ./test/**/*-tests.js"
+    "test": "mocha ./test/**/*-tests.js",
+    "build": "gulp build",
+    "start": "gulp serve"
   },
   "repository": {
     "type": "git",

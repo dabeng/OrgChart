@@ -93,14 +93,14 @@ gulp.task('vendorAssets', function() {
   return merge(fontawesomeCSS, fontawesomeFonts, vendorJS);
 });
 
-gulp.task('build', ['js', 'css', 'vendorAssets']);
+gulp.task('build', ['js', 'css']);
 
 gulp.task('reload', function (done) {
   browserSync.reload();
   done();
 });
 
-gulp.task('serve', ['build'], function() {
+gulp.task('serve', ['build', 'vendorAssets'], function() {
   browserSync.init({
     server: {
       baseDir: paths.demo
