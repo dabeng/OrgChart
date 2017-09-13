@@ -8,6 +8,7 @@ var eslint = require('gulp-eslint');
 var merge = require('merge-stream');
 var csslint = require('gulp-csslint');
 var cleanCSS = require('gulp-clean-css');
+var sourcemaps = require('gulp-sourcemaps');
 var paths = {
   src: 'src',
   srcFiles: 'src/**/*',
@@ -46,8 +47,10 @@ gulp.task('test', function () {
 
 gulp.task('js', ['cleanupJS', 'eslint', 'test'], function () {
   return gulp.src(paths.srcJS)
+    .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(rename('jquery.orgchart.min.js'))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest(paths.demoJSFolder))
     .pipe(gulp.dest(paths.distJSFolder));
 });
@@ -70,8 +73,10 @@ gulp.task('csslint', function() {
 
 gulp.task('css', ['cleanupCSS', 'csslint'], function () {
   return gulp.src(paths.srcCSS)
+    .pipe(sourcemaps.init())
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest(paths.demoCSSFolder))
     .pipe(gulp.dest(paths.distCSSFolder));
 });

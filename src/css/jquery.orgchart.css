@@ -10,6 +10,7 @@
  */
 
 .orgchart {
+  box-sizing: border-box;
   display: inline-block;
   min-height: 202px;
   min-width: 202px;
