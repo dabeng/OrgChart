@@ -35,34 +35,34 @@ $ npm install orgchart
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
 ## Demo
-### online demos
-- [using ul datasource](http://dabeng.github.io/OrgChart/ul-datasource/)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
+### [online demos](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)
+- [using ul datasource](https://rawgit.com/dabeng/OrgChart/master/demo/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 
-- [using local datasource](http://dabeng.github.io/OrgChart/local-datasource/)
+- [using local datasource](https://rawgit.com/dabeng/OrgChart/master/demo/local-datasource.html)
 
-- [I wanna pan&zoom the orgchart](http://dabeng.github.io/OrgChart/pan-zoom/)
+- [I wanna pan&zoom the orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/pan-zoom.html)
 
 - I wanna align orgchart with different orientation**(this feature comes from [the good idea of fvlima and badulesia :blush:](https://github.com/dabeng/OrgChart/issues/5))
 
   Top to Bottom -- default direction, as you can see all other examples on this page.
 
-  [Bottom to Top](http://dabeng.github.io/OrgChart/direction/bottom2top)
+  [Bottom to Top](https://rawgit.com/dabeng/OrgChart/master/demo/bottom2top.html)
 
-  [Left to Right](http://dabeng.github.io/OrgChart/direction/left2right)
+  [Left to Right](https://rawgit.com/dabeng/OrgChart/master/demo/left2right.html)
 
-  [Right to Left](http://dabeng.github.io/OrgChart/direction/right2left)
+  [Right to Left](https://rawgit.com/dabeng/OrgChart/master/demo/right2left.html)
 
-- [I wanna show/hide left/right sibling nodes respectively by clicking left/right arrow](http://dabeng.github.io/OrgChart/toggle-sibs-resp/)
+- [I wanna show/hide left/right sibling nodes respectively by clicking left/right arrow](https://rawgit.com/dabeng/OrgChart/master/demo/toggle-sibs-resp.html)
 
-- [I wanna load datasource through ajax](http://dabeng.github.io/OrgChart/ajax-datasource/)
+- [I wanna load datasource through ajax](https://rawgit.com/dabeng/OrgChart/master/demo/ajax-datasource.html)
 
-- [I wanna load data on-demand](http://dabeng.github.io/OrgChart/ondemand-loading-data/)
+- [I wanna load data on-demand](https://rawgit.com/dabeng/OrgChart/master/demo/ondemand-loading-data.html)
 
 Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
 
-- [I wanna customize the structure of node](http://dabeng.github.io/OrgChart/option-createNode/)
+- [I wanna customize the structure of node](https://rawgit.com/dabeng/OrgChart/master/demo/option-createNode.html)
 
-- [I wanna export the organization chart as a picture](http://dabeng.github.io/OrgChart/export-orgchart/)
+- [I wanna export the organization chart as a picture](https://rawgit.com/dabeng/OrgChart/master/demo/export-chart.html)
 
 Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canvas).
 
@@ -77,33 +77,33 @@ Besides, if you wanna export a pdf format, you need to introduce jspdf as shown 
 
 (2) if your OS is windows, please check your display scaling settings. For the perfact exported picture, you'd better adjust "Change the size of text, apps, and other items" to 100%.(thanks for [sayamkrai](https://github.com/sayamkrai)'s [exploration](https://github.com/dabeng/OrgChart/issues/152))
 
-- [I wanna itegrate organization chart with geographic information](http://dabeng.github.io/OrgChart/integrate-map/)
+- [I wanna itegrate organization chart with geographic information](https://rawgit.com/dabeng/OrgChart/master/demo/integrate-map.html)
 
 Here, we fall back on [OpenLayers](https://github.com/openlayers/ol3). It's the most aewsome open-source js library for Web GIS you sholdn't miss.
 
-- [I wanna edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)
+- [I wanna edit orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/edit-chart.html)
 
 With the help of exposed core methods(addParent(), addSiblings(), addChildren(), removeNodes()) of orgchart plugin, we can finish this task easily.
 
-- [I wanna drag & drop the nodes of orgchart](http://dabeng.github.io/OrgChart/drag-drop/)
+- [I wanna drag & drop the nodes of orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/drag-drop.html)
 
 Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true(**Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API).
 
 Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
 
-- [I want a method that can decribe the hierarchy of orgchart](http://dabeng.github.io/OrgChart/get-hierarchy/)
+- [I want a method that can decribe the hierarchy of orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/get-hierarchy.html)
 
 That's where getHierarchy() comes in.
 
-- [I want a color-coded chart](http://dabeng.github.io/OrgChart/color-coded/)
+- [I want a color-coded chart](https://rawgit.com/dabeng/OrgChart/master/demo/color-coded.html)
 
 It's a so easy task, we just need to append id or className property to node data.
 
-- [I want a multiple-layers chart](http://dabeng.github.io/OrgChart/multiple-layers/)
+- [I want a multiple-layers chart](https://rawgit.com/dabeng/OrgChart/master/demo/multiple-layers.html)
 
 In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
 
-- [I want a hybrid(horizontal + vertical) chart](http://dabeng.github.io/OrgChart/vertical-depth/)
+- [I want a hybrid(horizontal + vertical) chart](https://rawgit.com/dabeng/OrgChart/master/demo/vertical-depth.html)
 
 This feature is inspired by the issues([Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)). Thank [mfahadi](https://github.com/mfahadi) and [Destructrix](https://github.com/Destructrix) for their constructive suggestions:blush: Special thanks to [tedliang](https://github.com/tedliang) for his wonderful hybrid mode solution.
 
@@ -111,15 +111,15 @@ From now on, users never have to worry about how to align a huge of nodes in one
 
 **Note**: currently, this option is incompatible with many other options or methods, like direction, drag&drop, addChildren(), removeNodes(), getHierarchy() and so on. These conflicts will be solved one by one in the later versions.
 
-- [I want to collapse some nodes by default](http://dabeng.github.io/OrgChart/default-collapsed/)
+- [I want to collapse some nodes by default](https://rawgit.com/dabeng/OrgChart/master/demo/default-collapsed.html)
 
 No problem. You just need to adjust a little detail of datasource with the help of option "collapse" and className "slide-up".
 
-- [I want to refresh orgchart base on new options or datasource](http://dabeng.github.io/OrgChart/reload-data/)
+- [I want to refresh orgchart base on new options or datasource](https://rawgit.com/dabeng/OrgChart/master/demo/reload-data.html)
 
 It's not a big deal. You just turn to the method init().
 
-- [I want to use complex template to customize the internal structure of every node](http://dabeng.github.io/OrgChart/custom-template/)
+- [I want to use complex template to customize the internal structure of every node](https://rawgit.com/dabeng/OrgChart/master/demo/custom-template.html)
 
 No problem. With the help of ES6 Template literals, we can customize the any complex node structure rather than the common title and content sections.
 
