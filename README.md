@@ -543,33 +543,6 @@ $('.orgchart').addClass('noncollapsable'); // deactivate
 $('.orgchart').removeClass('noncollapsable'); // activate
 ```
 
-**How can I search nodes and show the minimized chart?**
-
-This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/78). Thanks [Mmannem](https://github.com/Mmannem) for his constructive discussions:blush:
-The following statements show the core logic and this is the complete [demo - filter node](http://dabeng.github.io/OrgChart/filter-node).
-```js
-var $chart = $('.orgchart');
-// disalbe the expand/collapse feture
-$chart.addClass('noncollapsable');
-// distinguish the matched nodes and the unmatched nodes according to the given key word
-$chart.find('.node').filter(function(index, node) {
-    return $(node).text().toLowerCase().indexOf(keyWord) > -1;
-  }).addClass('matched')
-  .closest('table').parents('table').find('tr:first').find('.node').addClass('retained');
-// hide the unmatched nodes
-$chart.find('.matched,.retained').each(function(index, node) {
-  var $unmatched = $(node).closest('table').parent().siblings().find('.node:first:not(.matched,.retained)')
-    .closest('table').parent().addClass('hidden');
-  $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
-});
-// hide the redundant descendant nodes of the matched nodes
-$chart.find('.matched').each(function(index, node) {
-  if (!$(node).closest('tr').siblings(':last').find('.matched').length) {
-    $(node).closest('tr').siblings().addClass('hidden');
-  }
-});
-```
-
 **Why is the root node gone?**
 
 When I have a huge orgchart with enabled "pan" option, if I hide all the children of one of the topmost parents then the chart disappear from screen. It seems that we need to add a reset button to keep the chart visible.
