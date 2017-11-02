@@ -307,7 +307,7 @@ Removes the designated node and its descedant nodes.
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
 
 #### hideParent($node)
-This method allows you to hide programatically the parent node of any specific node(.node element), if it has
+This method allows you to hide programatically the parent node of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -326,7 +326,7 @@ This method allows you to hide programatically the parent node of any specific n
 </table>
 
 #### showParent($node)
-This method allows you to show programatically the parent node of any specific node(.node element), if it has
+This method allows you to show programatically the parent node of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -345,7 +345,7 @@ This method allows you to show programatically the parent node of any specific n
 </table>
 
 #### hideChildren($node)
-This method allows you to hide programatically the children of any specific node(.node element), if it has
+This method allows you to hide programatically the children of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -364,7 +364,7 @@ This method allows you to hide programatically the children of any specific node
 </table>
 
 #### showChildren($node)
-This method allows you to show programatically the children of any specific node(.node element), if it has
+This method allows you to show programatically the children of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -383,7 +383,7 @@ This method allows you to show programatically the children of any specific node
 </table>
 
 #### hideSiblings($node, direction)
-This method allows you to hide programatically the siblings of any specific node(.node element), if it has
+This method allows you to hide programatically the siblings of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -409,7 +409,7 @@ This method allows you to hide programatically the siblings of any specific node
 </table>
 
 #### showSiblings($node, direction)
-This method allows you to show programatically the siblings of any specific node(.node element), if it has
+This method allows you to show programatically the siblings of any specific node(.node element), if it has.
 <table>
   <tr>
     <th>Name</th>
@@ -469,7 +469,7 @@ The returning object will have the following structure:
 ```
 
 #### getRelatedNodes($node, relation)
-This method returns you the nodes related to the specified node
+This method returns you the nodes related to the specified node.
 <table>
   <tr>
     <th>Name</th>
@@ -495,7 +495,7 @@ This method returns you the nodes related to the specified node
 </table>
 
 #### setChartScale($chart, newScale)
-This method returns you the nodes related to the specified node
+This method returns you the nodes related to the specified node.
 <table>
   <tr>
     <th>Name</th>
@@ -517,6 +517,32 @@ This method returns you the nodes related to the specified node
     <td>Yes</td>
     <td>None</td>
     <td>Positive float value which is used to zoom in/out the chart</td>
+  </tr>
+</table>
+
+#### export(exportFilename, exportFileextension)
+This method allow you to export current orgchart as png or pdf file.
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>exportFilename</td>
+    <td>String</td>
+    <td>No</td>
+    <td>'OrgChart'</td>
+    <td>It's the name of exported file</td>
+  </tr>
+  <tr>
+    <td>exportFileextension</td>
+    <td>String</td>
+    <td>No</td>
+    <td>'png'</td>
+    <td>It's the extension name of exported file</td>
   </tr>
 </table>
 
