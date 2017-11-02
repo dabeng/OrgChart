@@ -110,15 +110,10 @@
           'text': 'Export',
           'click': function(e) {
             e.preventDefault();
-            that.exportTree();
+            that.export();
           }
         });
         $chartContainer.append($exportBtn);
-        if (this.options.exportFileextension.toLowerCase() !== 'pdf') {
-          var downloadBtn = '<a class="oc-download-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '') + '"'
-          + ' download="' + this.options.exportFilename + '.png"></a>';
-          $exportBtn.after(downloadBtn);
-        }
       }
 
       if (this.options.pan) {
@@ -1195,57 +1190,65 @@
         $parent.add($parent.siblings()).remove();
       }
     },
-    exportTree() {
+    //
+    export: function (exportFilename, exportFileextension) {
       var that = this;
+      exportFilename = (typeof exportFilename !== 'undefined') ?  exportFilename : this.options.exportFilename;
+      exportFileextension = (typeof exportFileextension !== 'undefined') ?  exportFileextension : this.options.exportFileextension;
       if ($(this).children('.spinner').length) {
-          return false;
+        return false;
       }
       var $chartContainer = this.$chartContainer;
       var $mask = $chartContainer.find('.mask');
       if (!$mask.length) {
-          $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
+        $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
       } else {
-          $mask.removeClass('hidden');
+        $mask.removeClass('hidden');
       }
       var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
       var flag = that.options.direction === 'l2r' || that.options.direction === 'r2l';
       html2canvas(sourceChart, {
-          'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
-          'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
-          'onclone': function (cloneDoc) {
-              $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-                .find('.orgchart:visible:first').css('transform', '');
-          },
-          'onrendered': function (canvas) {
-              $chartContainer.find('.mask').addClass('hidden');
-              if (that.options.exportFileextension.toLowerCase() === 'pdf') {
-                  var doc = {};
-                  var docWidth = Math.floor(canvas.width * 0.2646);
-                  var docHeight = Math.floor(canvas.height * 0.2646);
-                  if (docWidth > docHeight) {
-                      doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
-                  } else {
-                      doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
-                  }
-                  doc.addImage(canvas.toDataURL(), 'png', 0, 0);
-                  doc.save(that.options.exportFilename + '.pdf');
-              } else {
-                  var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-                  var isFf = !!window.sidebar;
-                  var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+        'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
+        'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
+        'onclone': function (cloneDoc) {
+          $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
+            .find('.orgchart:visible:first').css('transform', '');
+        },
+        'onrendered': function (canvas) {
+          $chartContainer.find('.mask').addClass('hidden');
+          if (exportFileextension.toLowerCase() === 'pdf') {
+            var doc = {};
+            var docWidth = Math.floor(canvas.width * 0.2646);
+            var docHeight = Math.floor(canvas.height * 0.2646);
+            if (docWidth > docHeight) {
+              doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
+            } else {
+              doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
+            }
+            doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+            doc.save(exportFilename + '.pdf');
+          } else {
+            var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+            var isFf = !!window.sidebar;
+            var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
 
-                  if ((!isWebkit && !isFf) || isEdge) {
-                      window.navigator.msSaveBlob(canvas.msToBlob(), that.options.exportFilename + '.png');
-                  } else {
-                      $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
-                  }
+            if ((!isWebkit && !isFf) || isEdge) {
+              window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
+            } else {
+              var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
+              if (!$chartContainer.find(selector).length) {
+                $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
+                  + ' download="' + exportFilename + '.png"></a>');
               }
+              $chartContainer.find(selector).attr('href', canvas.toDataURL())[0].click();
+            }
           }
+        }
       })
       .then(function () {
-          $chartContainer.removeClass('canvasContainer');
+        $chartContainer.removeClass('canvasContainer');
       }, function () {
-          $chartContainer.removeClass('canvasContainer');
+        $chartContainer.removeClass('canvasContainer');
       });
     }
   };
