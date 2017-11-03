@@ -146,6 +146,7 @@
 
 /* node styling */
 .orgchart .node {
+  box-sizing: border-box;
   display: inline-block;
   position: relative;
   margin: 0;
