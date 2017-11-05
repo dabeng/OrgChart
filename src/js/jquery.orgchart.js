@@ -84,12 +84,10 @@
           this.buildHierarchy($chart, this.options.ajaxURL ? data : this.attachRel(data, '00'), 0, this.options);
         }
       } else {
+        $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
         $.ajax({
           'url': data,
-          'dataType': 'json',
-          'beforeSend': function () {
-            $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
-          }
+          'dataType': 'json'
         })
         .done(function(data, textStatus, jqXHR) {
           that.buildHierarchy($chart, that.options.ajaxURL ? data : that.attachRel(data, '00'), 0, that.options);
