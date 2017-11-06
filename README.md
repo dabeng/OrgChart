@@ -66,16 +66,13 @@ Note: when users use ajaxURL option to build orghchart, they must use json datas
 
 Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canvas).
 
-Besides, if you wanna export a pdf format, you need to introduce jspdf as shown bellow:
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.debug.js"></script>
-```
-
 **Note:**
 
 (1) if you wanna export something in IE or Edge, please introduce [es6-promise.auto.js](https://github.com/stefanpenner/es6-promise) firstly.
 
 (2) if your OS is windows, please check your display scaling settings. For the perfact exported picture, you'd better adjust "Change the size of text, apps, and other items" to 100%.(thanks for [sayamkrai](https://github.com/sayamkrai)'s [exploration](https://github.com/dabeng/OrgChart/issues/152))
+
+(3) Besides, if you wanna export a pdf format or your orgchart includes picture, you have to introduce [jspdf](https://github.com/MrRio/jsPDF) and set "exportFileextension" option to "pdf".
 
 - [I wanna itegrate organization chart with geographic information](https://rawgit.com/dabeng/OrgChart/master/demo/integrate-map.html)
 
