@@ -315,12 +315,12 @@
       } else {
         matrix = lastTf.split(',');
         if (lastTf.indexOf('3d') === -1) {
-          targetScale = window.parseFloat(matrix[3]) * newScale;
+          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
           if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
           }
         } else {
-          targetScale = window.parseFloat(matrix[1]) * newScale;
+          targetScale = Math.abs(window.parseFloat(matrix[1]) * newScale);
           if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
           }
