@@ -366,12 +366,19 @@
       return subObj;
     },
     //
-    getHierarchy: function ($chart) {
-      var $chart = $chart || this.$chart;
-      if (!$chart.find('.node:first')[0].id) {
-        return 'Error: Nodes of orghcart to be exported must have id attribute!';
+    getHierarchy: function () {
+      if (typeof this.$chart === 'undefined') {
+        return 'Error: orgchart does not exist'
+      } else {
+        if (!this.$chart.find('.node').length) {
+          return 'Error: nodes do not exist'
+        } else {
+          if (!this.$chart.find('.node')[0].id) {
+            return 'Error: Nodes of orghcart to be exported must have id attribute!';
+          }
+        }
       }
-      return this.loopChart($chart);
+      return this.loopChart(this.$chart);
     },
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {

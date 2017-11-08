@@ -10,7 +10,7 @@ require('../src/js/jquery.orgchart');
 describe('orgchart', function () {
 
   let $container = $('#chart-container');
-  let datascource = {
+  let ds = {
     'id': '1',
     'name': 'Lao Lao',
     'title': 'general manager',
@@ -35,10 +35,32 @@ describe('orgchart', function () {
     ]
   };
   let oc = null;
+  let hierarchy = {
+    id: '1',
+    children: [
+      { id: '2' },
+      { id: '3',
+        children: [
+          { id: '4' },
+          { id: '5',
+            children: [
+              { id: '6',
+                children: [
+                  { id: '7' }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      { id: '8' },
+      { id: '9' }
+    ]
+  };
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
-      'data': datascource,
+      'data': ds,
       'nodeContent': 'title',
       'depth': 2
     });
@@ -52,6 +74,27 @@ describe('orgchart', function () {
     let $chart = $container.find('.orgchart');
 
     $chart.length.should.equal(1);
+  });
+
+  it('Mthod loopChart() works well', function () {
+    oc.loopChart($('.orgchart')).should.deep.equal(hierarchy);
+  });
+
+  it('Mthod getHierarchy() works well', function () {
+    oc.getHierarchy().should.deep.equal(hierarchy);
+
+    let oc2 = $('#chart-container').orgchart({
+      'data': { name: 'Lao Lao',
+        'children': [
+          { name: 'Bo Miao' }
+        ]
+      }
+    });
+    oc2.getHierarchy().should.include('Error');
+    oc2.$chart.empty();
+    oc2.getHierarchy().should.include('Error');
+    oc2.$chart = undefined;
+    oc2.getHierarchy().should.include('Error');
   });
 
   it('Mthod getNodeState() works well', function () {
