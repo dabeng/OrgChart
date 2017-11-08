@@ -378,16 +378,28 @@
       var $target = {};
       if (relation === 'parent') {
         $target = $node.closest('.nodes').siblings(':first');
-      } else if (relation === 'children') {
-        $target = $node.closest('tr').siblings();
-      } else if (relation === 'siblings') {
-        $target = $node.closest('table').parent().siblings();
-      }
-      if ($target.length) {
-        if ($target.is(':visible')) {
+        if ($target.length) {
+          if ($target.is('.hidden') || (!$target.is('.hidden') && $target.closest('.nodes').is('.hidden'))) {
+            return { 'exist': true, 'visible': false };
+          }
           return { 'exist': true, 'visible': true };
         }
-        return { 'exist': true, 'visible': false };
+      } else if (relation === 'children') {
+        $target = $node.closest('tr').siblings('.nodes');
+        if ($target.length) {
+          if (!$target.is('.hidden')) {
+            return { 'exist': true, 'visible': true };
+          }
+          return { 'exist': true, 'visible': false };
+        }
+      } else if (relation === 'siblings') {
+        $target = $node.closest('table').parent().siblings();
+        if ($target.length) {
+          if (!$target.is('.hidden') && !$target.parent().is('.hidden')) {
+            return { 'exist': true, 'visible': true };
+          }
+          return { 'exist': true, 'visible': false };
+        }
       }
       return { 'exist': false, 'visible': false };
     },

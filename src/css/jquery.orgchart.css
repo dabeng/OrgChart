@@ -392,44 +392,41 @@
 }
 
 .orgchart .node {
-  transition: all 0.3s;
-  opacity: 1;
-  top: 0;
-  left: 0;
+  transition: transform 0.3s, opacity 0.3s;
 }
 
 .orgchart .slide-down {
   opacity: 0;
-  top: 40px;
+  transform: translateY(40px);
 }
 
 .orgchart.l2r .node.slide-down, .orgchart.r2l .node.slide-down {
-  top: 130px;
+  transform: translateY(130px);
 }
 
 .orgchart .slide-up {
   opacity: 0;
-  top: -40px;
+  transform: translateY(-40px);
 }
 
 .orgchart.l2r .node.slide-up, .orgchart.r2l .node.slide-up {
-  top: -130px;
+  transform: translateY(-130px);
 }
 
 .orgchart .slide-right {
   opacity: 0;
-  left: 130px;
+  transform: translateX(130px);
 }
 
 .orgchart.l2r .node.slide-right, .orgchart.r2l .node.slide-right {
-  left: 40px;
+  transform: translateX(40px);
 }
 
 .orgchart .slide-left {
   opacity: 0;
-  left: -130px;
+  transform: translateX(-130px);
 }
 
 .orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
-  left: -40px;
+  transform: translateX(-40px);
 }
