@@ -412,12 +412,17 @@
     },
     // find the related nodes
     getRelatedNodes: function ($node, relation) {
+      if (!$node || !($node instanceof $) || !$node.is('.node')) {
+        return $();
+      }
       if (relation === 'parent') {
         return $node.closest('.nodes').parent().children(':first').find('.node');
       } else if (relation === 'children') {
-        return $node.closest('table').children(':last').children().find('.node:first');
+        return $node.closest('tr').siblings('.nodes').children().find('.node:first');
       } else if (relation === 'siblings') {
         return $node.closest('table').parent().siblings().find('.node:first');
+      } else {
+        return $();
       }
     },
     // recursively hide the ancestor node and sibling nodes of the specified node
