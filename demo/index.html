@@ -11,7 +11,7 @@
       padding-left: 3rem;
       font-family: Arial;
       line-height: 1.5rem;
-      background-color: #1BB287;
+      background-color: #000;
     }
     section {
       width: 30rem;
@@ -22,10 +22,13 @@
       margin-bottom: 3rem;
       font-size: 1.2rem;
     }
+    #heading {
+      background-color: #fff;
+      width: 100%;
+    }
     #logo {
-      position: relative;
-      top: 40px;
-      left: -100px;
+      margin-top: -50px;
+      margin-left: -50px;
     }
     h1 {
       margin-top: -1.5rem;
@@ -59,7 +62,7 @@
       line-height: 1.5rem;
       text-align: center;
       color: #fff;
-      background-color: #1BB287;
+      background-color: #000;
       border-radius: 100em;
       counter-increment: counter;
       content: counter(counter);
@@ -84,9 +87,9 @@
 
 </head>
 <body>
+<img src="img/logo.png" id="logo"/>
 <section>
-  <img src="img/logo.png" id="logo"/>
-  <h1>OrgChart Examples</h1>
+  <img src="img/heading.svg" id="heading"/>
   <ol class="custom-bullet custom-bullet--a">
     <li><a href="ajax-datasource.html" target="_blank">load datasource through ajax</a></li>
     <li><a href="center-on-selected-node.html" target="_blank">center on selected node</a></li>

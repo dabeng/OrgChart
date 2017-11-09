@@ -425,9 +425,13 @@
         return $();
       }
     },
+    hideParentEnd: function (event) {
+      $(event.target).removeClass('slide');
+      event.data.upperLevel.addClass('hidden').slice(1).removeAttr('style');
+    },
     // recursively hide the ancestor node and sibling nodes of the specified node
     hideParent: function ($node) {
-      var $temp = $node.closest('table').closest('tr').siblings();
+      var $temp = $node.closest('.nodes').siblings();
       if ($temp.eq(0).find('.spinner').length) {
         $node.closest('.orgchart').data('inAjax', false);
       }
@@ -442,11 +446,7 @@
       var $parent = $temp.eq(0).find('.node');
       var grandfatherVisible = this.getNodeState($parent, 'parent').visible;
       if ($parent.length && $parent.is(':visible')) {
-        $parent.addClass('slide slide-down').one('transitionend', function() {
-          $parent.removeClass('slide');
-          $lines.removeAttr('style');
-          $temp.addClass('hidden');
-        });
+        $parent.addClass('slide slide-down').one('transitionend', { 'upperLevel': $temp }, this.hideParentEnd);
       }
       // if the current node has the parent node, hide it recursively
       if ($parent.length && grandfatherVisible) {

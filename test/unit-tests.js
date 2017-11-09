@@ -85,12 +85,6 @@ describe('orgchart', function () {
     $container.empty();
   });
 
-  it('There will be an orgchart embeded in the container div after initialization', function () {
-    let $chart = $container.find('.orgchart');
-
-    $chart.length.should.equal(1);
-  });
-
   it('loopChart() works well', function () {
     oc.loopChart($('.orgchart')).should.deep.equal(hierarchy);
   });
