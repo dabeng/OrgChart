@@ -1,15 +1,19 @@
-const should = require('chai').should();
-const jsdom = require("jsdom");
-const { JSDOM } = jsdom;
-const dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div></body></html>');
+var chai = require("chai");
+var sinon = require("sinon");
+var sinonChai = require("sinon-chai");
+chai.should();
+chai.use(sinonChai);
+var jsdom = require("jsdom");
+var { JSDOM } = jsdom;
+var dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div></body></html>');
 global.window = dom.window;
 global.document = dom.window.document;
-const $ = require('jquery');
+var $ = require('jquery');
 require('../src/js/jquery.orgchart');
 
 describe('orgchart', function () {
 
-  let $container = $('#chart-container'),
+  var $container = $('#chart-container'),
   ds = {
     'id': '1',
     'name': 'Lao Lao',
@@ -18,20 +22,20 @@ describe('orgchart', function () {
       { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
       { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
         'children': [
-          { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
-          { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
+          { 'id': '5', 'name': 'Tie Hua', 'title': 'senior engineer' },
+          { 'id': '6', 'name': 'Hei Hei', 'title': 'senior engineer',
             'children': [
-              { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer',
+              { 'id': '8', 'name': 'Dan Dan', 'title': 'engineer',
                 'children' : [
-                  { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                  { 'id': '9', 'name': 'Er Dan', 'title': 'intern' }
                 ]
               }
             ]
-          }
+          },
+          { 'id': '7', 'name': 'Pang Pang', 'title': 'senior engineer' }
         ]
       },
-      { 'id': '8', 'name': 'Hong Miao', 'title': 'department manager' },
-      { 'id': '9', 'name': 'Chun Miao', 'title': 'department manager' }
+      { 'id': '4', 'name': 'Hong Miao', 'title': 'department manager' }
     ]
   },
   oc = {},
@@ -41,47 +45,48 @@ describe('orgchart', function () {
       { id: '2' },
       { id: '3',
         children: [
-          { id: '4' },
-          { id: '5',
+          { id: '5' },
+          { id: '6',
             children: [
-              { id: '6',
+              { id: '8',
                 children: [
-                  { id: '7' }
+                  { id: '9' }
                 ]
               }
             ]
-          }
+          },
+          { id: '7' }
         ]
       },
-      { id: '8' },
-      { id: '9' }
+      { id: '4' }
     ]
   },
   $root,
   $bomiao,
   $sumiao,
+  $hongmiao,
   $tiehua,
   $heihei,
   $pangpang,
-  $xiangxiang;
+  $dandan;
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
       'data': ds,
-      'nodeContent': 'title',
-      'depth': 2
+      'nodeContent': 'title'
     }),
     $root = $('#1'),
     $bomiao = $('#2'),
     $sumiao = $('#3'),
-    $tiehua = $('#4'),
-    $heihei = $('#5'),
-    $pangpang = $('#6'),
-    $xiangxiang = $('#7');
+    $hongmiao = $('#4'),
+    $tiehua = $('#5'),
+    $heihei = $('#6'),
+    $pangpang = $('#7'),
+    $dandan = $('#8');
   });
     
   afterEach(function () {
-    $root = $bomiao = $sumiao = $tiehua = $heihei = $pangpang = $xiangxiang = null;
+    $root = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = null;
     $container.empty();
   });
 
@@ -92,7 +97,7 @@ describe('orgchart', function () {
   it('getHierarchy() works well', function () {
     oc.getHierarchy().should.deep.equal(hierarchy);
 
-    let oc2 = $('#chart-container').orgchart({
+    var oc2 = $('#chart-container').orgchart({
       'data': { name: 'Lao Lao',
         'children': [
           { name: 'Bo Miao' }
@@ -107,33 +112,35 @@ describe('orgchart', function () {
   });
 
   it('getNodeState() works well', function () {
-    oc.getNodeState($root, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
-    oc.getNodeState($root, 'children').should.deep.equal({ 'exist': true, 'visible': true });
-    oc.getNodeState($root, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+    oc.init({ 'depth': 2 }).$chart.on('init.orgchart', function () {
+      oc.getNodeState($root, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($root, 'children').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($root, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
 
-    oc.getNodeState($bomiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-    oc.getNodeState($bomiao, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-    oc.getNodeState($bomiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($bomiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($bomiao, 'children').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($bomiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
 
-    oc.getNodeState($sumiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-    oc.getNodeState($sumiao, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-    oc.getNodeState($sumiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($sumiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($sumiao, 'children').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($sumiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
 
-    oc.getNodeState($tiehua, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-    oc.getNodeState($tiehua, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-    oc.getNodeState($tiehua, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($tiehua, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($tiehua, 'children').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($tiehua, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
 
-    oc.getNodeState($heihei, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-    oc.getNodeState($heihei, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-    oc.getNodeState($heihei, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($heihei, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($heihei, 'children').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($heihei, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
 
-    oc.getNodeState($pangpang, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
-    oc.getNodeState($pangpang, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-    oc.getNodeState($pangpang, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($pangpang, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($pangpang, 'children').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($pangpang, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
 
-    oc.getNodeState($xiangxiang, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
-    oc.getNodeState($xiangxiang, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-    oc.getNodeState($xiangxiang, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($dandan, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
+      oc.getNodeState($dandan, 'children').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($dandan, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+    });
   });
 
   it('getRelatedNodes() works well', function () {
@@ -142,20 +149,25 @@ describe('orgchart', function () {
     oc.getRelatedNodes($('.node:first'), 'child').should.deep.equal($());
 
     oc.getRelatedNodes($root, 'parent').should.deep.equal($());
-    oc.getRelatedNodes($root, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $('#8')[0], $('#9')[0]]);
+    oc.getRelatedNodes($root, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0]]);
     oc.getRelatedNodes($root, 'siblings').should.deep.equal($());
 
     oc.getRelatedNodes($bomiao, 'parent').should.deep.equal($root);
     oc.getRelatedNodes($bomiao, 'children').should.have.lengthOf(0);
-    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $('#8')[0], $('#9')[0]]);
+    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0]]);
   });
 
   it('hideParent() works well', function () {
-    // oc.hideParent($xiangxiang);
+    var spy = sinon.spy(oc, 'hideSiblings');
+    oc.hideParent($heihei);
+    spy.should.have.been.called;
+    spy.should.have.been.callCount(2);
+    oc.hideParentEnd({ 'target': $sumiao[0], 'data': { 'upperLevel': $heihei.closest('.nodes').siblings() } });
+    oc.hideParentEnd({ 'target': $root[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
 
-    // $xiangxiang.parents('.nodes').prevAll().each(function () {
-    //   $(this).is('.hidden').should.be.true;
-    // });
+    $heihei.parents('.nodes').siblings().each(function () {
+      $(this).is('.hidden').should.be.true;
+    });
   });
 
 });

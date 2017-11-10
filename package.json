@@ -55,6 +55,8 @@
     "jsdom": "^11.2.0",
     "jsdom-global": "^3.0.2",
     "merge-stream": "^1.0.1",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0"
   }
 }

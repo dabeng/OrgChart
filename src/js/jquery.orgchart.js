@@ -392,7 +392,7 @@
           return { 'exist': true, 'visible': true };
         }
       } else if (relation === 'children') {
-        $target = $node.closest('tr').siblings('.nodes');
+        $target = $node.closest('tr').siblings(':last');
         if ($target.length) {
           if (!$target.is('.hidden')) {
             return { 'exist': true, 'visible': true };
@@ -431,8 +431,8 @@
     },
     // recursively hide the ancestor node and sibling nodes of the specified node
     hideParent: function ($node) {
-      var $temp = $node.closest('.nodes').siblings();
-      if ($temp.eq(0).find('.spinner').length) {
+      var $upperLevel = $node.closest('.nodes').siblings();
+      if ($upperLevel.eq(0).find('.spinner').length) {
         $node.closest('.orgchart').data('inAjax', false);
       }
       // hide the sibling nodes
@@ -440,13 +440,13 @@
         this.hideSiblings($node);
       }
       // hide the lines
-      var $lines = $temp.slice(1);
+      var $lines = $upperLevel.slice(1);
       $lines.css('visibility', 'hidden');
       // hide the superior nodes with transition
-      var $parent = $temp.eq(0).find('.node');
+      var $parent = $upperLevel.eq(0).find('.node');
       var grandfatherVisible = this.getNodeState($parent, 'parent').visible;
       if ($parent.length && $parent.is(':visible')) {
-        $parent.addClass('slide slide-down').one('transitionend', { 'upperLevel': $temp }, this.hideParentEnd);
+        $parent.addClass('slide slide-down').one('transitionend', { 'upperLevel': $upperLevel }, this.hideParentEnd);
       }
       // if the current node has the parent node, hide it recursively
       if ($parent.length && grandfatherVisible) {
