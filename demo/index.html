@@ -6,15 +6,15 @@
   <link rel="icon" href="img/logo.png">
   <style type="text/css">
     body {
-      padding-top: 1rem;
-      padding-right: 3rem;
-      padding-left: 3rem;
+      padding: 0;
+      margin: 0;
       font-family: Arial;
       line-height: 1.5rem;
       background-color: #000;
     }
     section {
       width: 30rem;
+      margin-top: 200px;
       margin-left: auto;
       margin-right: auto;
       padding: 1.5rem;
@@ -22,8 +22,16 @@
       margin-bottom: 3rem;
       font-size: 1.2rem;
     }
-    #heading {
+    header {
+      text-align: center;
+      position: fixed;
+      top: 0;
       width: 100%;
+      z-index: 1000;
+      background-color: #000;
+    }
+    #heading {
+      height: 200px;
     }
     #logo {
       position: absolute;
@@ -87,9 +95,11 @@
 
 </head>
 <body>
-<img src="img/logo.png" id="logo"/>
-<section>
+<header>
+  <img src="img/logo.png" id="logo"/>
   <img src="img/heading.svg" id="heading"/>
+</header>
+<section>
   <ol class="custom-bullet custom-bullet--a">
     <li><a href="ajax-datasource.html" target="_blank">load datasource through ajax</a></li>
     <li><a href="center-on-selected-node.html" target="_blank">center on selected node</a></li>
