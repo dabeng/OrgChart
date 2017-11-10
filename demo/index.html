@@ -31,10 +31,17 @@
       background-color: #000;
     }
     #heading {
+      width: 800px;
       height: 200px;
+      background-image: url(img/heading.svg);
+      display: inline-block;
     }
     #logo {
+      background-image: url(img/logo.png);
+      display: inline-block;
       position: absolute;
+      width: 108px;
+      height: 108px;
       top: 5px;
       left: 5px;
     }
@@ -75,6 +82,10 @@
       counter-increment: counter;
       content: counter(counter);
     }
+    ol > li:hover:before {
+      color: #000;
+      background-color: #fff;
+    }
     ol > li:after {
       position: absolute;
       top: 0;
@@ -96,8 +107,8 @@
 </head>
 <body>
 <header>
-  <img src="img/logo.png" id="logo"/>
-  <img src="img/heading.svg" id="heading"/>
+  <a id="logo" href="http://github.com/dabeng" target="_blank"></a>
+  <a id="heading" href="http://github.com/dabeng/OrgChart" target="_blank"></a>
 </header>
 <section>
   <ol class="custom-bullet custom-bullet--a">

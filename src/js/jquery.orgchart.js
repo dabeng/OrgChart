@@ -383,6 +383,7 @@
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {
       var $target = {};
+      var relation = relation || 'self';
       if (relation === 'parent') {
         $target = $node.closest('.nodes').siblings(':first');
         if ($target.length) {
@@ -403,6 +404,14 @@
         $target = $node.closest('table').parent().siblings();
         if ($target.length) {
           if (!$target.is('.hidden') && !$target.parent().is('.hidden')) {
+            return { 'exist': true, 'visible': true };
+          }
+          return { 'exist': true, 'visible': false };
+        }
+      } else {
+        $target = $node;
+        if ($target.length) {
+          if ($target[0].className.indexOf('slide-') === -1) {
             return { 'exist': true, 'visible': true };
           }
           return { 'exist': true, 'visible': false };
@@ -444,12 +453,11 @@
       $lines.css('visibility', 'hidden');
       // hide the superior nodes with transition
       var $parent = $upperLevel.eq(0).find('.node');
-      var grandfatherVisible = this.getNodeState($parent, 'parent').visible;
-      if ($parent.length && $parent.is(':visible')) {
+      if (this.getNodeState($parent).visible) {
         $parent.addClass('slide slide-down').one('transitionend', { 'upperLevel': $upperLevel }, this.hideParentEnd);
       }
       // if the current node has the parent node, hide it recursively
-      if ($parent.length && grandfatherVisible) {
+      if (this.getNodeState($parent, 'parent').visible) {
         this.hideParent($parent);
       }
     },

@@ -160,7 +160,6 @@ describe('orgchart', function () {
   it('hideParent() works well', function () {
     var spy = sinon.spy(oc, 'hideSiblings');
     oc.hideParent($heihei);
-    spy.should.have.been.called;
     spy.should.have.been.callCount(2);
     oc.hideParentEnd({ 'target': $sumiao[0], 'data': { 'upperLevel': $heihei.closest('.nodes').siblings() } });
     oc.hideParentEnd({ 'target': $root[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
@@ -168,6 +167,8 @@ describe('orgchart', function () {
     $heihei.parents('.nodes').siblings().each(function () {
       $(this).is('.hidden').should.be.true;
     });
+    $sumiao.is('.slide-down').should.be.true;
+    $root.is('.slide-down').should.be.true;
   });
 
 });
