@@ -164,11 +164,25 @@ describe('orgchart', function () {
     oc.hideParentEnd({ 'target': $sumiao[0], 'data': { 'upperLevel': $heihei.closest('.nodes').siblings() } });
     oc.hideParentEnd({ 'target': $root[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
 
-    $heihei.parents('.nodes').siblings().each(function () {
-      $(this).is('.hidden').should.be.true;
+    $heihei.parents('.nodes').each(function () {
+      $(this).siblings().filter('.hidden').should.lengthOf(3);
     });
     $sumiao.is('.slide-down').should.be.true;
     $root.is('.slide-down').should.be.true;
+  });
+
+  it('showParent() works well', function () {
+    var spy = sinon.spy(oc, 'repaint');
+    $root.add($sumiao).closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
+    oc.showParent($heihei);
+    spy.should.have.been.called;
+    var $upperLevel = $heihei.closest('.nodes').siblings();
+    $upperLevel.filter('.hidden').should.lengthOf(0);
+    var $lines = $upperLevel.eq(2).children();
+    $lines.first().is('.hidden').should.be.false;
+    $lines.last().is('.hidden').should.be.false;
+    $lines.filter('.hidden').should.lengthOf($lines.length - 2);
+    $sumiao.is('.slide-down').should.be.false;
   });
 
 });

@@ -435,7 +435,7 @@
       }
     },
     hideParentEnd: function (event) {
-      $(event.target).removeClass('slide');
+      $(event.target).removeClass('sliding');
       event.data.upperLevel.addClass('hidden').slice(1).removeAttr('style');
     },
     // recursively hide the ancestor node and sibling nodes of the specified node
@@ -454,29 +454,30 @@
       // hide the superior nodes with transition
       var $parent = $upperLevel.eq(0).find('.node');
       if (this.getNodeState($parent).visible) {
-        $parent.addClass('slide slide-down').one('transitionend', { 'upperLevel': $upperLevel }, this.hideParentEnd);
+        $parent.addClass('sliding slide-down').one('transitionend', { 'upperLevel': $upperLevel }, this.hideParentEnd);
       }
       // if the current node has the parent node, hide it recursively
       if (this.getNodeState($parent, 'parent').visible) {
         this.hideParent($parent);
       }
     },
+    showParentEnd: function (event) {
+      var $node = event.data.node;
+      $(event.target).removeClass('sliding');
+      if (this.isInAction($node)) {
+        this.switchVerticalArrow($node.children('.topEdge'));
+      }
+    },
     // show the parent node of the specified node
     showParent: function ($node) {
-      var that = this;
       // just show only one superior level
-      var $temp = $node.closest('table').closest('tr').siblings().removeClass('hidden');
+      var $upperLevel = $node.closest('.nodes').siblings().removeClass('hidden');
       // just show only one line
-      $temp.eq(2).children().slice(1, -1).addClass('hidden');
+      $upperLevel.eq(2).children().slice(1, -1).addClass('hidden');
       // show parent node with animation
-      var parent = $temp.eq(0).find('.node')[0];
-      this.repaint(parent);
-      $(parent).addClass('slide').removeClass('slide-down').one('transitionend', function() {
-        $(parent).removeClass('slide');
-        if (that.isInAction($node)) {
-          that.switchVerticalArrow($node.children('.topEdge'));
-        }
-      });
+      var $parent = $upperLevel.eq(0).find('.node');
+      this.repaint($parent[0]);
+      $parent.addClass('sliding').removeClass('slide-down').one('transitionend', { 'node': $node }, this.showParentEnd.bind(this));
     },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
@@ -490,8 +491,8 @@
       if (!isVerticalDesc) {
         var $lines = $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
       }
-      $visibleNodes.addClass('slide slide-up').eq(0).one('transitionend', function() {
-        $visibleNodes.removeClass('slide');
+      $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', function() {
+        $visibleNodes.removeClass('sliding');
         if (isVerticalDesc) {
           $temp.addClass('hidden');
         } else {
@@ -513,8 +514,8 @@
         : $levels.removeClass('hidden').eq(2).children().find('.node:first');
       // the two following statements are used to enforce browser to repaint
       this.repaint($descendants.get(0));
-      $descendants.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
-        $descendants.removeClass('slide');
+      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
+        $descendants.removeClass('sliding');
         if (that.isInAction($node)) {
           that.switchVerticalArrow($node.children('.bottomEdge'));
         }
@@ -529,22 +530,22 @@
       }
       if (direction) {
         if (direction === 'left') {
-          $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
+          $nodeContainer.prevAll().find('.node:visible').addClass('sliding slide-right');
         } else {
-          $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+          $nodeContainer.nextAll().find('.node:visible').addClass('sliding slide-left');
         }
       } else {
-        $nodeContainer.prevAll().find('.node:visible').addClass('slide slide-right');
-        $nodeContainer.nextAll().find('.node:visible').addClass('slide slide-left');
+        $nodeContainer.prevAll().find('.node:visible').addClass('sliding slide-right');
+        $nodeContainer.nextAll().find('.node:visible').addClass('sliding slide-left');
       }
-      var $animatedNodes = $nodeContainer.siblings().find('.slide');
+      var $animatedNodes = $nodeContainer.siblings().find('.sliding');
       var $lines = $animatedNodes.closest('.nodes').prevAll('.lines').css('visibility', 'hidden');
       $animatedNodes.eq(0).one('transitionend', function() {
         $lines.removeAttr('style');
         var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
         $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
           .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
-        $animatedNodes.removeClass('slide');
+        $animatedNodes.removeClass('sliding');
         $siblings.find('.node:visible:gt(0)').removeClass('slide-left slide-right').addClass('slide-up')
           .end().find('.lines, .nodes, .verticalNodes').addClass('hidden')
           .end().addClass('hidden');
@@ -580,13 +581,13 @@
         $upperLevel.removeClass('hidden');
         var parent = $upperLevel.find('.node')[0];
         this.repaint(parent);
-        $(parent).addClass('slide').removeClass('slide-down').one('transitionend', function() {
-          $(this).removeClass('slide');
+        $(parent).addClass('sliding').removeClass('slide-down').one('transitionend', function() {
+          $(this).removeClass('sliding');
         });
       }
       // lastly, show the sibling nodes with animation
-      $siblings.find('.node:visible').addClass('slide').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
-        $siblings.find('.node:visible').removeClass('slide');
+      $siblings.find('.node:visible').addClass('sliding').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
+        $siblings.find('.node:visible').removeClass('sliding');
         if (that.isInAction($node)) {
           that.switchHorizontalArrow($node);
           $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
@@ -732,7 +733,7 @@
         var parentState = that.getNodeState($node, 'parent');
         if (parentState.exist) {
           var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
-          if ($parent.is('.slide')) { return; }
+          if ($parent.is('.sliding')) { return; }
           // hide the ancestor nodes and sibling nodes of the specified node
           if (parentState.visible) {
             that.hideParent($node);
@@ -773,7 +774,7 @@
         var childrenState = that.getNodeState($node, 'children');
         if (childrenState.exist) {
           var $children = $node.closest('tr').siblings(':last');
-          if ($children.find('.node:visible').is('.slide')) { return; }
+          if ($children.find('.node:visible').is('.sliding')) { return; }
           // hide the descendant nodes of the specified node
           if (childrenState.visible) {
             that.hideChildren($node);
@@ -807,17 +808,17 @@
         var $descWrapper = $this.parent().next();
         var $descendants = $descWrapper.find('.node');
         var $children = $descWrapper.children().children('.node');
-        if ($children.is('.slide')) { return; }
+        if ($children.is('.sliding')) { return; }
         $this.toggleClass('fa-plus-square fa-minus-square');
         if ($descendants.eq(0).is('.slide-up')) {
           $descWrapper.removeClass('hidden');
           that.repaint($children.get(0));
-          $children.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
-            $children.removeClass('slide');
+          $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
+            $children.removeClass('sliding');
           });
         } else {
-          $descendants.addClass('slide slide-up').eq(0).one('transitionend', function() {
-            $descendants.removeClass('slide');
+          $descendants.addClass('sliding slide-up').eq(0).one('transitionend', function() {
+            $descendants.removeClass('sliding');
             // $descWrapper.addClass('hidden');
             $descendants.closest('ul').addClass('hidden');
           });
@@ -833,7 +834,7 @@
         var siblingsState = that.getNodeState($node, 'siblings');
         if (siblingsState.exist) {
           var $siblings = $node.closest('table').parent().siblings();
-          if ($siblings.find('.node:visible').is('.slide')) { return; }
+          if ($siblings.find('.node:visible').is('.sliding')) { return; }
           if (opts.toggleSiblingsResp) {
             var $prevSib = $node.closest('table').parent().prev();
             var $nextSib = $node.closest('table').parent().next();
