@@ -481,25 +481,28 @@
     },
     //
     hideChildrenEnd: function (event) {
-        event.data.visibleNodes.removeClass('sliding');
-        if (event.data.isVerticalDesc) {
-          event.data.lowerLevel.addClass('hidden');
-        } else {
-          event.data.visibleNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
-            .siblings('.nodes').addClass('hidden');
-          event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
-        }
-        if (this.isInAction(event.data.node)) {
-          this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
-        }
+      event.data.visibleNodes.removeClass('sliding');
+      if (event.data.isVerticalDesc) {
+        event.data.lowerLevel.addClass('hidden');
+      } else {
+        event.data.visibleNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
+          .siblings('.nodes').addClass('hidden');
+        event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
+      }
+      if (this.isInAction(event.data.node)) {
+        this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
+      }
+    },
+    stopAjax: function ($nodeLevel) {
+      if ($nodeLevel.find('.spinner').length) {
+        $nodeLevel.closest('.orgchart').data('inAjax', false);
+      }
     },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
       var that = this;
       var $lowerLevel = $node.closest('tr').siblings();
-      if ($lowerLevel.last().find('.spinner').length) {
-        $node.closest('.orgchart').data('inAjax', false);
-      }
+      this.stopAjax($lowerLevel.last());
       var $visibleNodes = $lowerLevel.last().find('.node').filter(function () {
         return that.getNodeState($(this)).visible;
       });

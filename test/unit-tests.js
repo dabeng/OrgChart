@@ -68,7 +68,8 @@ describe('orgchart', function () {
   $tiehua,
   $heihei,
   $pangpang,
-  $dandan;
+  $dandan,
+  $erdan;
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
@@ -82,11 +83,12 @@ describe('orgchart', function () {
     $tiehua = $('#5'),
     $heihei = $('#6'),
     $pangpang = $('#7'),
-    $dandan = $('#8');
+    $dandan = $('#8'),
+    $erdan = $('#9');
   });
     
   afterEach(function () {
-    $root = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = null;
+    $root = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = null;
     $container.empty();
   });
 
@@ -187,6 +189,16 @@ describe('orgchart', function () {
 
     oc.showParentEnd({ 'target': $sumiao[0], 'data': { 'node': $heihei } });
     $sumiao.is('.sliding').should.be.false;
+  });
+
+  it('hideChildren() works well', function () {
+    oc.hideChildren($heihei);
+    $heihei.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(4);
+    $dandan.is('.sliding,.slide-up').should.be.true;
+    $erdan.is('.sliding,.slide-up').should.be.true;
+    oc.hideChildrenEnd({ 'data': { 'visibleNodes': $dandan.add($erdan), 'lowerLevel': $heihei.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $heihei } });
+    $dandan.is('.sliding').should.be.false;
+    $erdan.is('.sliding').should.be.false;
   });
 
 });
