@@ -479,30 +479,35 @@
       this.repaint($parent[0]);
       $parent.addClass('sliding').removeClass('slide-down').one('transitionend', { 'node': $node }, this.showParentEnd.bind(this));
     },
+    //
+    hideChildrenEnd: function (event) {
+        event.data.visibleNodes.removeClass('sliding');
+        if (event.data.isVerticalDesc) {
+          event.data.lowerLevel.addClass('hidden');
+        } else {
+          event.data.visibleNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
+            .siblings('.nodes').addClass('hidden');
+          event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
+        }
+        if (this.isInAction(event.data.node)) {
+          this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
+        }
+    },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
       var that = this;
-      var $temp = $node.closest('tr').siblings();
-      if ($temp.last().find('.spinner').length) {
+      var $lowerLevel = $node.closest('tr').siblings();
+      if ($lowerLevel.last().find('.spinner').length) {
         $node.closest('.orgchart').data('inAjax', false);
       }
-      var $visibleNodes = $temp.last().find('.node:visible');
-      var isVerticalDesc = $temp.last().is('.verticalNodes') ? true : false;
-      if (!isVerticalDesc) {
-        var $lines = $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
-      }
-      $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', function() {
-        $visibleNodes.removeClass('sliding');
-        if (isVerticalDesc) {
-          $temp.addClass('hidden');
-        } else {
-          $lines.removeAttr('style').addClass('hidden').siblings('.nodes').addClass('hidden');
-          $temp.last().find('.verticalNodes').addClass('hidden');
-        }
-        if (that.isInAction($node)) {
-          that.switchVerticalArrow($node.children('.bottomEdge'));
-        }
+      var $visibleNodes = $lowerLevel.last().find('.node').filter(function () {
+        return that.getNodeState($(this)).visible;
       });
+      var isVerticalDesc = $lowerLevel.last().is('.verticalNodes') ? true : false;
+      if (!isVerticalDesc) {
+        $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
+      }
+      $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'visibleNodes': $visibleNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
     },
     // show the children nodes of the specified node
     showChildren: function ($node) {

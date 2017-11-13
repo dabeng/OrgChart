@@ -182,7 +182,11 @@ describe('orgchart', function () {
     $lines.first().is('.hidden').should.be.false;
     $lines.last().is('.hidden').should.be.false;
     $lines.filter('.hidden').should.lengthOf($lines.length - 2);
+    $sumiao.is('.sliding').should.be.true;
     $sumiao.is('.slide-down').should.be.false;
+
+    oc.showParentEnd({ 'target': $sumiao[0], 'data': { 'node': $heihei } });
+    $sumiao.is('.sliding').should.be.false;
   });
 
 });
