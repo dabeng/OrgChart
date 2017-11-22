@@ -30,6 +30,7 @@
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
       'parentNodeSymbol': 'fa-users',
+      'validateDrop': false,
       'draggable': false,
       'direction': 't2b',
       'pan': false,
@@ -675,7 +676,7 @@
       });
       var dtd = $.Deferred();
       // construct the content of node
-      var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
+      var $nodeDiv = $('<div' + (opts.validateDrop ? ' validateDrop="true"' : '') + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
         .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''));
       if (opts.nodeTemplate) {
         $nodeDiv.append(opts.nodeTemplate(nodeData));
@@ -975,44 +976,53 @@
           var $dragged = $orgchart.data('dragged');
           $orgchart.find('.allowedDrop').removeClass('allowedDrop');
           var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
-          // firstly, deal with the hierarchy of drop zone
-          if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
-            $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
-              .parent().attr('colspan', 2)
-              .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
-              + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
-              + '<tr class="nodes"></tr>')
-              .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
-          } else {
-            var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
-            var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
-            $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
-            if (!$dragged.find('.horizontalEdge').length) {
-              $dragged.append(horizontalEdges);
-            }
-            $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
-              .end().next().append($dragged.closest('table').parent());
-            var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
-            if ($dropSibs.length === 1) {
-              $dropSibs.append(horizontalEdges);
-            }
-          }
-          // secondly, deal with the hierarchy of dragged node
-          var dragColspan = parseInt($dragZone.attr('colspan'));
-          if (dragColspan > 2) {
-            $dragZone.attr('colspan', dragColspan - 2)
-              .parent().next().children().attr('colspan', dragColspan - 2)
-              .end().next().children().slice(1, 3).remove();
-            var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
-            if ($dragSibs.length ===1) {
-              $dragSibs.find('.horizontalEdge').remove();
-            }
-          } else {
-            $dragZone.removeAttr('colspan')
-              .find('.bottomEdge').remove()
-              .end().end().siblings().remove();
-          }
-          $orgchart.triggerHandler({ 'type': 'nodedropped.orgchart', 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
+          var promise = $.Deferred().resolve();
+	      if (opts.validateDrop) {
+		    promise = $orgchart.triggerHandler({'type': 'validate.nodedropped.orgchart','draggedNode': $dragged,'dragZone': $dragZone.children(),'dropZone': $dropZone});
+		  }
+          promise.then(function () {
+		    // firstly, deal with the hierarchy of drop zone
+		    if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
+			  $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+			    .parent().attr('colspan', 2)
+			    .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
+			    + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
+			    + '<tr class="nodes"></tr>')
+			    .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
+		    } else {
+			  var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+			  var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
+			  $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+			  if (!$dragged.find('.horizontalEdge').length) {
+			    $dragged.append(horizontalEdges);
+			  }
+			  $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
+			    .end().next().append($dragged.closest('table').parent());
+			  var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
+			  if ($dropSibs.length === 1) {
+			    $dropSibs.append(horizontalEdges);
+			  }
+		    }
+		    // secondly, deal with the hierarchy of dragged node
+		    var dragColspan = parseInt($dragZone.attr('colspan'));
+		    if (dragColspan > 2) {
+			  $dragZone.attr('colspan', dragColspan - 2)
+			    .parent().next().children().attr('colspan', dragColspan - 2)
+			    .end().next().children().slice(1, 3).remove();
+			  var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
+			  if ($dragSibs.length ===1) {
+			    $dragSibs.find('.horizontalEdge').remove();
+			  }
+		    } else {
+			  $dragZone.removeAttr('colspan')
+			    .find('.bottomEdge').remove()
+			    .end().end().siblings().remove();
+		    }
+		    $orgchart.triggerHandler({ 'type': 'nodedropped.orgchart', 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
+		  })
+		  .catch(function () {
+            console.log('Not allowed to move node to destination');
+          });
         });
       }
       // allow user to append dom modification after finishing node create of orgchart
