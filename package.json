@@ -2,9 +2,9 @@
   "name": "orgchart",
   "version": "2.0.8",
   "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
-  "main": "./dist/js/jquery.orgchart.js",
+  "main": "./dist/js/jquery.orgchart.min.js",
   "style": [
-    "./dist/css/jquery.orgchart.css"
+    "./dist/css/jquery.orgchart.min.css"
   ],
   "scripts": {
     "test": "mocha ./test/**/*-tests.js",
