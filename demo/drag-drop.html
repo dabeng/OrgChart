@@ -55,10 +55,10 @@
       }
     });
 
-    oc.$chart.on('nodedropped.orgchart', function(event) {
-      console.log('draggedNode:' + event.draggedNode.children('.title').text()
-        + ', dragZone:' + event.dragZone.children('.title').text()
-        + ', dropZone:' + event.dropZone.children('.title').text()
+    oc.$chart.on('nodedrop.orgchart', function(event, extraParams) {
+      console.log('draggedNode:' + extraParams.draggedNode.children('.title').text()
+        + ', dragZone:' + extraParams.dragZone.children('.title').text()
+        + ', dropZone:' + extraParams.dropZone.children('.title').text()
       );
     });
 

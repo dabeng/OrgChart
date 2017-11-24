@@ -546,10 +546,10 @@ This method allow you to export current orgchart as png or pdf file.
 ### Events
 <table>
   <thead>
-    <tr><th>Event Type</th><th>Attached Data</th><th>Description</th></tr>
+    <tr><th>Event Type</th><th>Additional Parameters</th><th>Description</th></tr>
   </thead>
   <tbody>
-    <tr><td>nodedropped.orgchart</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td></tr>
+    <tr><td>nodedrop.orgchart</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td></tr>
     <tr><td>init.orgchart</td><td>chart</td><td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td></tr>
   </tbody>
 </table>

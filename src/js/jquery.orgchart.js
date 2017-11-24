@@ -973,8 +973,12 @@
           var $dropZone = $(this);
           var $orgchart = $dropZone.closest('.orgchart');
           var $dragged = $orgchart.data('dragged');
-          $orgchart.find('.allowedDrop').removeClass('allowedDrop');
           var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
+          var dropEvent = $.Event('nodedrop.orgchart');
+          $orgchart.trigger(dropEvent, { 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
+          if (dropEvent.isDefaultPrevented()) {
+            return;
+          }
           // firstly, deal with the hierarchy of drop zone
           if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
             $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
@@ -1012,7 +1016,6 @@
               .find('.bottomEdge').remove()
               .end().end().siblings().remove();
           }
-          $orgchart.triggerHandler({ 'type': 'nodedropped.orgchart', 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
         });
       }
       // allow user to append dom modification after finishing node create of orgchart
