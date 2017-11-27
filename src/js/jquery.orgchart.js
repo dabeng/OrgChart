@@ -308,20 +308,19 @@
     setChartScale: function ($chart, newScale) {
       var opts = $chart.data('options');
       var lastTf = $chart.css('transform');
-      var matrix = '';
-      var targetScale = 1;
       if (lastTf === 'none') {
         $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
       } else {
-        matrix = lastTf.split(',');
-        if (lastTf.indexOf('3d') === -1) {
-          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+        var matrix = lastTf.split('(')[1]
+          .split(')')[0]
+          .split(',');
+        
+        var currentScale = Math.sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+        var targetScale = Math.abs(currentScale * newScale);
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          if (lastTf.indexOf('3d') === -1) {
             $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
-          }
-        } else {
-          targetScale = Math.abs(window.parseFloat(matrix[1]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          } else {
             $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
           }
         }
