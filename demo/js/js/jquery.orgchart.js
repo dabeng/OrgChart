@@ -411,10 +411,7 @@
       } else {
         $target = $node;
         if ($target.length) {
-          if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) ||
-            ($target.closest('table').parent().length && $target.closest('table').parent().is('.hidden')) ||
-            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('verticalNodes').is('.hidden')))
-          )) {
+          if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) || ($target.closest('.table').parent().length && $target.closest('.table').parent().is('.hidden')))) {
             return { 'exist': true, 'visible': true };
           }
           return { 'exist': true, 'visible': false };
@@ -482,14 +479,6 @@
       this.repaint($parent[0]);
       $parent.addClass('sliding').removeClass('slide-down').one('transitionend', { 'node': $node }, this.showParentEnd.bind(this));
     },
-    stopAjax: function ($nodeLevel) {
-      if ($nodeLevel.find('.spinner').length) {
-        $nodeLevel.closest('.orgchart').data('inAjax', false);
-      }
-    },
-    isVisibleNode: function (index, elem) {
-      return this.getNodeState($(elem)).visible;
-    },
     //
     hideChildrenEnd: function (event) {
       event.data.visibleNodes.removeClass('sliding');
@@ -504,6 +493,14 @@
         this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
       }
     },
+    stopAjax: function ($nodeLevel) {
+      if ($nodeLevel.find('.spinner').length) {
+        $nodeLevel.closest('.orgchart').data('inAjax', false);
+      }
+    },
+    isVisibleNode: function (index, elem) {
+      return this.getNodeState($(elem)).visible;
+    },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
       var $lowerLevel = $node.closest('tr').siblings();
@@ -513,7 +510,6 @@
       if (!isVerticalDesc) {
         $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
       }
-      this.repaint($visibleNodes.get(0));
       $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'visibleNodes': $visibleNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
     },
     // show the children nodes of the specified node
@@ -523,7 +519,7 @@
       var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
       var $descendants = isVerticalDesc
         ? $levels.removeClass('hidden').find('.node').filter(this.isVisibleNode.bind(this))
-        : $levels.removeClass('hidden').eq(2).children().find('.node:first').filter(this.isVisibleNode.bind(this));
+        : $levels.removeClass('hidden').eq(2).children().find('.node:first');
       // the two following statements are used to enforce browser to repaint
       this.repaint($descendants.get(0));
       $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
@@ -532,25 +528,6 @@
           that.switchVerticalArrow($node.children('.bottomEdge'));
         }
       });
-    },
-    //
-    hideSiblingsEnd: function (event) {
-      var $node = event.data.node;
-      var $nodeContainer = event.data.nodeContainer;
-      var direction = event.data.direction;
-      event.data.lines.removeAttr('style');
-      var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
-      $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
-        .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
-      event.data.animatedNodes.removeClass('sliding');
-      $siblings.find('.node:gt(0)').filter(this.isVisibleNode.bind(this))
-        .removeClass('slide-left slide-right').addClass('slide-up');
-      $siblings.find('.lines, .nodes, .verticalNodes').addClass('hidden')
-        .end().addClass('hidden');
-
-      if (this.isInAction($node)) {
-        this.switchHorizontalArrow($node);
-      }
     },
     // hide the sibling nodes of the specified node
     hideSiblings: function ($node, direction) {
@@ -571,16 +548,21 @@
       }
       var $animatedNodes = $nodeContainer.siblings().find('.sliding');
       var $lines = $animatedNodes.closest('.nodes').prevAll('.lines').css('visibility', 'hidden');
-      $animatedNodes.eq(0).one('transitionend', { 'node': $node, 'nodeContainer': $nodeContainer, 'direction': direction, 'animatedNodes': $animatedNodes, 'lines': $lines }, this.hideSiblingsEnd.bind(this));
-    },
-    //
-    showSiblingsEnd: function (event) {
-      var $node = event.data.node;
-      event.data.visibleNodes.removeClass('sliding');
-      if (this.isInAction($node)) {
-        this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-      }
+      $animatedNodes.eq(0).one('transitionend', function() {
+        $lines.removeAttr('style');
+        var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
+        $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
+          .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
+        $animatedNodes.removeClass('sliding');
+        $siblings.find('.node:visible:gt(0)')
+          .removeClass('slide-left slide-right').addClass('slide-up')
+          .end().find('.lines, .nodes, .verticalNodes').addClass('hidden')
+          .end().addClass('hidden');
+
+        if (that.isInAction($node)) {
+          that.switchHorizontalArrow($node);
+        }
+      });
     },
     // show the sibling nodes of the specified node
     showSiblings: function ($node, direction) {
@@ -613,10 +595,13 @@
         });
       }
       // lastly, show the sibling nodes with animation
-      var $visibleNodes = $siblings.find('.node').filter(this.isVisibleNode.bind(this));
-      this.repaint($visibleNodes.get(0));
-      $visibleNodes.addClass('sliding').removeClass('slide-left slide-right');
-      $visibleNodes.eq(0).one('transitionend', { 'node': $node, 'visibleNodes': $visibleNodes }, this.showSiblingsEnd.bind(this));
+      $siblings.find('.node').filter(this.isVisibleNode.bind(this)).addClass('sliding').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
+        $siblings.find('.node').filter(that.isVisibleNode.bind(that)).removeClass('sliding');
+        if (that.isInAction($node)) {
+          that.switchHorizontalArrow($node);
+          $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+      });
     },
     // start up loading status for requesting new nodes
     startLoading: function ($arrow, $node, options) {
@@ -798,7 +783,7 @@
         var childrenState = that.getNodeState($node, 'children');
         if (childrenState.exist) {
           var $children = $node.closest('tr').siblings(':last');
-          if ($children.find('.sliding').length) { return; }
+          if ($children.find('.node:visible').is('.sliding')) { return; }
           // hide the descendant nodes of the specified node
           if (childrenState.visible) {
             that.hideChildren($node);
@@ -1263,14 +1248,14 @@
       } else {
         $mask.removeClass('hidden');
       }
-      var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:not(".hidden")').get(0);
+      var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
       var flag = that.options.direction === 'l2r' || that.options.direction === 'r2l';
       html2canvas(sourceChart, {
         'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
         'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
         'onclone': function (cloneDoc) {
           $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-            .find('.orgchart:not(".hidden"):first').css('transform', '');
+            .find('.orgchart:visible:first').css('transform', '');
         },
         'onrendered': function (canvas) {
           $chartContainer.find('.mask').addClass('hidden');
