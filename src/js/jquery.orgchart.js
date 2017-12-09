@@ -1090,7 +1090,7 @@
         var $nodeLayer;
         if (isVerticalLayer) {
           $nodeLayer = $('<ul>');
-          if (isHidden) {
+          if (isHidden && opts.depth + 1 !== opts.verticalDepth) {
             $nodeLayer.addClass(isHidden);
           }
           if (level + 2 === opts.verticalDepth) {
