@@ -121,7 +121,7 @@
               if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
                 that.options.initCompleted(that.$chart);
                 var initEvent = $.Event('init.orgchart');
-                $chart.trigger(initEvent);
+                that.$chart.trigger(initEvent);
                 break initTime;
               }
             }
