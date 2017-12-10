@@ -88,15 +88,7 @@
 
       // append the export button
       if (this.options.exportButton && !$chartContainer.find('.oc-export-btn').length) {
-        var $exportBtn = $('<button>', {
-          'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
-          'text': 'Export',
-          'click': function(e) {
-            e.preventDefault();
-            that.export();
-          }
-        });
-        $chartContainer.append($exportBtn);
+        this.attachExportButton();
       }
 
       if (this.options.pan) {
@@ -131,6 +123,18 @@
       mo.observe(this.$chartContainer[0], { childList: true });
     },
     //
+    attachExportButton: function () {
+      var that = this;
+      var $exportBtn = $('<button>', {
+        'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
+        'text': 'Export',
+        'click': function(e) {
+          e.preventDefault();
+          that.export();
+        }
+      });
+      this.$chartContainer.append($exportBtn);
+    },
     setOptions: function (opts, val) {
       if (typeof opts === 'string') {
         if (opts === 'pan') {
@@ -625,27 +629,27 @@
       $visibleNodes.eq(0).one('transitionend', { 'node': $node, 'visibleNodes': $visibleNodes }, this.showSiblingsEnd.bind(this));
     },
     // start up loading status for requesting new nodes
-    startLoading: function ($arrow, $node, options) {
-      var $chart = $node.closest('.orgchart');
+    startLoading: function ($edge) {
+      var $chart = this.$chart;
       if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
         return false;
       }
 
-      $arrow.addClass('hidden');
-      $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
-      $node.children().not('.spinner').css('opacity', 0.2);
+      $edge.addClass('hidden');
+      $edge.parent().append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>')
+        .children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
-      $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', true);
+      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
       return true;
     },
     // terminate loading status for requesting new nodes
-    endLoading: function ($arrow, $node, options) {
-      var $chart = $node.closest('div.orgchart');
-      $arrow.removeClass('hidden');
+    endLoading: function ($edge) {
+      var $node = $edge.parent();
+      $edge.removeClass('hidden');
       $node.find('.spinner').remove();
       $node.children().removeAttr('style');
-      $chart.data('inAjax', false);
-      $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', false);
+      this.$chart.data('inAjax', false);
+      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', false);
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
@@ -688,6 +692,161 @@
         node.style.offsetWidth = node.offsetWidth;
       }
     },
+    //
+    nodeEnterLeaveHandler: function (event) {
+      var $node = $(event.delegateTarget), flag = false;
+      var $topEdge = $node.children('.topEdge');
+      var $rightEdge = $node.children('.rightEdge');
+      var $bottomEdge = $node.children('.bottomEdge');
+      var $leftEdge = $node.children('.leftEdge');
+      if (event.type === 'mouseenter') {
+        if ($topEdge.length) {
+          flag = this.getNodeState($node, 'parent').visible;
+          $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
+        }
+        if ($bottomEdge.length) {
+          flag = this.getNodeState($node, 'children').visible;
+          $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
+        }
+        if ($leftEdge.length) {
+          this.switchHorizontalArrow($node);
+        }
+      } else {
+        $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
+      }
+    },
+    //
+    nodeClickHandler: function (event) {
+      this.$chart.find('.focused').removeClass('focused');
+      $(event.delegateTarget).addClass('focused');
+    },
+    // load new nodes by ajax
+    loadNodes: function (rel, url, $edge) {
+      var that = this;
+      var opts = this.options;
+      $.ajax({ 'url': url, 'dataType': 'json' })
+      .done(function (data) {
+        if (that.$chart.data('inAjax')) {
+          if (rel === 'parent') {
+            if (!$.isEmptyObject(data)) {
+              that.addParent($edge.parent(), data, opts);
+            }
+          } else if (rel === 'children') {
+            if (data.children.length) {
+              that.addChildren($edge.parent(), data, $.extend({}, opts, { depth: 0 }));
+            }
+          } else {
+            if (data.siblings || data.children) {
+              that.addSiblings($edge.parent(), data, opts);
+            }
+          }
+        }
+      })
+      .fail(function () {
+        console.log('Failed to get ' + rel + ' data');
+      })
+      .always(function () {
+        that.endLoading($edge);
+      });
+    },
+    //
+    topEdgeClickHandler: function (event) {
+      event.stopPropagation();
+      var that = this;
+      var $topEdge = $(event.target);
+      var $node = $(event.delegateTarget);
+      var parentState = this.getNodeState($node, 'parent');
+      if (parentState.exist) {
+        var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
+        if ($parent.is('.sliding')) { return; }
+        // hide the ancestor nodes and sibling nodes of the specified node
+        if (parentState.visible) {
+          this.hideParent($node);
+          $parent.one('transitionend', function() {
+            if (that.isInAction($node)) {
+              that.switchVerticalArrow($topEdge);
+              that.switchHorizontalArrow($node);
+            }
+          });
+        } else { // show the ancestors and siblings
+          this.showParent($node);
+        }
+      } else { // load the new parent node of the specified node by ajax request
+        // start up loading status
+        if (this.startLoading($topEdge)) {
+          var opts = this.options;
+          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(event.data.nodeData) : opts.ajaxURL.parent + $node[0].id;
+          this.loadNodes('parent', url, $topEdge);
+        }
+      }
+    },
+    //
+    bottomEdgeClickHandler: function (event) {
+      event.stopPropagation();
+      var $bottomEdge = $(event.target);
+      var $node = $(event.delegateTarget);
+      var childrenState = this.getNodeState($node, 'children');
+      if (childrenState.exist) {
+        var $children = $node.closest('tr').siblings(':last');
+        if ($children.find('.sliding').length) { return; }
+        // hide the descendant nodes of the specified node
+        if (childrenState.visible) {
+          this.hideChildren($node);
+        } else { // show the descendants
+          this.showChildren($node);
+        }
+      } else { // load the new children nodes of the specified node by ajax request
+        if (this.startLoading($bottomEdge)) {
+          var opts = this.options;
+          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(event.data.nodeData) : opts.ajaxURL.children + $node[0].id;
+          this.loadNodes('children', url, $bottomEdge);
+        }
+      }
+    },
+    //
+    hEdgeClickHandler: function (event) {
+      event.stopPropagation();
+      var $hEdge = $(event.target);
+      var $node = $(event.delegateTarget);
+      var opts = this.options;
+      var siblingsState = this.getNodeState($node, 'siblings');
+      if (siblingsState.exist) {
+        var $siblings = $node.closest('table').parent().siblings();
+        if ($siblings.find('.sliding').length) { return; }
+        if (opts.toggleSiblingsResp) {
+          var $prevSib = $node.closest('table').parent().prev();
+          var $nextSib = $node.closest('table').parent().next();
+          if ($hEdge.is('.leftEdge')) {
+            if ($prevSib.is('.hidden')) {
+              this.showSiblings($node, 'left');
+            } else {
+              this.hideSiblings($node, 'left');
+            }
+          } else {
+            if ($nextSib.is('.hidden')) {
+              this.showSiblings($node, 'right');
+            } else {
+              this.hideSiblings($node, 'right');
+            }
+          }
+        } else {
+          if (siblingsState.visible) {
+            this.hideSiblings($node);
+          } else {
+            this.showSiblings($node);
+          }
+        }
+      } else {
+        // load the new sibling nodes of the specified node by ajax request
+        if (this.startLoading($hEdge)) {
+          var nodeId = $node[0].id;
+          var url = (this.getNodeState($node, 'parent').exist) ?
+            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(event.data.nodeData) : opts.ajaxURL.siblings + nodeId) :
+            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(event.data.nodeData) : opts.ajaxURL.families + nodeId);
+          this.loadNodes('siblings', url, $hEdge);
+        }
+      }
+    },
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
@@ -726,111 +885,11 @@
         }
       }
 
-      $nodeDiv.on('mouseenter mouseleave', function(event) {
-        var $node = $(this), flag = false;
-        var $topEdge = $node.children('.topEdge');
-        var $rightEdge = $node.children('.rightEdge');
-        var $bottomEdge = $node.children('.bottomEdge');
-        var $leftEdge = $node.children('.leftEdge');
-        if (event.type === 'mouseenter') {
-          if ($topEdge.length) {
-            flag = that.getNodeState($node, 'parent').visible;
-            $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
-          }
-          if ($bottomEdge.length) {
-            flag = that.getNodeState($node, 'children').visible;
-            $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
-          }
-          if ($leftEdge.length) {
-            that.switchHorizontalArrow($node);
-          }
-        } else {
-          $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
-        }
-      });
-
-      // define click event handler
-      $nodeDiv.on('click', function(event) {
-        $(this).closest('.orgchart').find('.focused').removeClass('focused');
-        $(this).addClass('focused');
-      });
-
-      // define click event handler for the top edge
-      $nodeDiv.on('click', '.topEdge', function(event) {
-        event.stopPropagation();
-        var $that = $(this);
-        var $node = $that.parent();
-        var parentState = that.getNodeState($node, 'parent');
-        if (parentState.exist) {
-          var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
-          if ($parent.is('.sliding')) { return; }
-          // hide the ancestor nodes and sibling nodes of the specified node
-          if (parentState.visible) {
-            that.hideParent($node);
-            $parent.one('transitionend', function() {
-              if (that.isInAction($node)) {
-                that.switchVerticalArrow($that);
-                that.switchHorizontalArrow($node);
-              }
-            });
-          } else { // show the ancestors and siblings
-            that.showParent($node);
-          }
-        } else {
-          // load the new parent node of the specified node by ajax request
-          var nodeId = $that.parent()[0].id;
-          // start up loading status
-          if (that.startLoading($that, $node, opts)) {
-          // load new nodes
-            $.ajax({ 'url': $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(nodeData) : opts.ajaxURL.parent + nodeId, 'dataType': 'json' })
-            .done(function(data) {
-              if ($node.closest('.orgchart').data('inAjax')) {
-                if (!$.isEmptyObject(data)) {
-                  that.addParent($node, data, opts);
-                }
-              }
-            })
-            .fail(function() { console.log('Failed to get parent node data'); })
-            .always(function() { that.endLoading($that, $node, opts); });
-          }
-        }
-      });
-
-      // bind click event handler for the bottom edge
-      $nodeDiv.on('click', '.bottomEdge', function(event) {
-        event.stopPropagation();
-        var $that = $(this);
-        var $node = $that.parent();
-        var childrenState = that.getNodeState($node, 'children');
-        if (childrenState.exist) {
-          var $children = $node.closest('tr').siblings(':last');
-          if ($children.find('.sliding').length) { return; }
-          // hide the descendant nodes of the specified node
-          if (childrenState.visible) {
-            that.hideChildren($node);
-          } else { // show the descendants
-            that.showChildren($node);
-          }
-        } else { // load the new children nodes of the specified node by ajax request
-          var nodeId = $that.parent()[0].id;
-          if (that.startLoading($that, $node, opts)) {
-            $.ajax({ 'url': $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(nodeData) : opts.ajaxURL.children + nodeId, 'dataType': 'json' })
-            .done(function(data, textStatus, jqXHR) {
-              if ($node.closest('.orgchart').data('inAjax')) {
-                if (data.children.length) {
-                  that.addChildren($node, data, $.extend({}, opts, { depth: 0 }));
-                }
-              }
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              console.log('Failed to get children nodes data');
-            })
-            .always(function() {
-              that.endLoading($that, $node, opts);
-            });
-          }
-        }
-      });
+      $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
+      $nodeDiv.on('click', this.nodeClickHandler.bind(this));
+      $nodeDiv.on('click', '.topEdge', { 'nodeData': nodeData }, this.topEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': nodeData }, this.bottomEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': nodeData }, this.hEdgeClickHandler.bind(this));
 
       // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
       $nodeDiv.on('click', '.toggleBtn', function(event) {
@@ -856,62 +915,6 @@
         }
       });
 
-      // bind click event handler for the left and right edges
-      $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
-        event.stopPropagation();
-        var $that = $(this);
-        var $node = $that.parent();
-        var siblingsState = that.getNodeState($node, 'siblings');
-        if (siblingsState.exist) {
-          var $siblings = $node.closest('table').parent().siblings();
-          if ($siblings.find('.sliding').length) { return; }
-          if (opts.toggleSiblingsResp) {
-            var $prevSib = $node.closest('table').parent().prev();
-            var $nextSib = $node.closest('table').parent().next();
-            if ($that.is('.leftEdge')) {
-              if ($prevSib.is('.hidden')) {
-                that.showSiblings($node, 'left');
-              } else {
-                that.hideSiblings($node, 'left');
-              }
-            } else {
-              if ($nextSib.is('.hidden')) {
-                that.showSiblings($node, 'right');
-              } else {
-                that.hideSiblings($node, 'right');
-              }
-            }
-          } else {
-            if (siblingsState.visible) {
-              that.hideSiblings($node);
-            } else {
-              that.showSiblings($node);
-            }
-          }
-        } else {
-          // load the new sibling nodes of the specified node by ajax request
-          var nodeId = $that.parent()[0].id;
-          var url = (that.getNodeState($node, 'parent').exist) ?
-            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(nodeData) : opts.ajaxURL.siblings + nodeId) :
-            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(nodeData) : opts.ajaxURL.families + nodeId);
-          if (that.startLoading($that, $node, opts)) {
-            $.ajax({ 'url': url, 'dataType': 'json' })
-            .done(function(data, textStatus, jqXHR) {
-              if ($node.closest('.orgchart').data('inAjax')) {
-                if (data.siblings || data.children) {
-                  that.addSiblings($node, data, opts);
-                }
-              }
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-              console.log('Failed to get sibling nodes data');
-            })
-            .always(function() {
-              that.endLoading($that, $node, opts);
-            });
-          }
-        }
-      });
       if (opts.draggable) {
         $nodeDiv.on('dragstart', function(event) {
           var origEvent = event.originalEvent;
