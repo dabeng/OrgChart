@@ -1068,7 +1068,7 @@
           if (isVerticalNode) {
             $nodeWrapper.append($nodeDiv);
           }else {
-            $nodeWrapper.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
+            $nodeWrapper.append($('<tr/>').append($('<td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td>').append($nodeDiv)));
           }
           if (callback) {
             callback();
@@ -1151,7 +1151,7 @@
       nodeData.relationship = nodeData.relationship || '001';
       $.when(this.createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
         .done(function($nodeDiv) {
-          $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
+          $table.append($('<tr class="hidden">').append($('<td colspan="2">').append($nodeDiv.removeClass('slide-up').addClass('slide-down'))));
           $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
           var linesRow = '<td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td>';
           $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
