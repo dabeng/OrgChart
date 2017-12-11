@@ -847,6 +847,166 @@
         }
       }
     },
+    // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
+    toggleVNodes: function (event) {
+      var $toggleBtn = $(event.target);
+      var $descWrapper = $toggleBtn.parent().next();
+      var $descendants = $descWrapper.find('.node');
+      var $children = $descWrapper.children().children('.node');
+      if ($children.is('.sliding')) { return; }
+      $toggleBtn.toggleClass('fa-plus-square fa-minus-square');
+      if ($descendants.eq(0).is('.slide-up')) {
+        $descWrapper.removeClass('hidden');
+        this.repaint($children.get(0));
+        $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
+          $children.removeClass('sliding');
+        });
+      } else {
+        $descendants.addClass('sliding slide-up').eq(0).one('transitionend', function() {
+          $descendants.removeClass('sliding');
+          $descendants.closest('ul').addClass('hidden');
+        });
+        $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
+      }
+    },
+    //
+    createGhostNode: function (event) {
+      var $nodeDiv = $(event.target);
+      var opts = this.options;
+      var origEvent = event.originalEvent;
+      var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
+      if (isFirefox) {
+        origEvent.dataTransfer.setData('text/html', 'hack for firefox');
+      }
+      var ghostNode, nodeCover;
+      if (!document.querySelector('.ghost-node')) {
+        ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        ghostNode.classList.add('ghost-node');
+        nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        ghostNode.appendChild(nodeCover);
+        $nodeDiv.closest('.orgchart').append(ghostNode);
+      } else {
+        ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
+        nodeCover = $(ghostNode).children().get(0);
+      }
+      var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
+      var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
+      ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
+      ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+      nodeCover.setAttribute('x',5 * scale);
+      nodeCover.setAttribute('y',5 * scale);
+      nodeCover.setAttribute('width', 120 * scale);
+      nodeCover.setAttribute('height', 40 * scale);
+      nodeCover.setAttribute('rx', 4 * scale);
+      nodeCover.setAttribute('ry', 4 * scale);
+      nodeCover.setAttribute('stroke-width', 1 * scale);
+      var xOffset = origEvent.offsetX * scale;
+      var yOffset = origEvent.offsetY * scale;
+      if (opts.direction === 'l2r') {
+        xOffset = origEvent.offsetY * scale;
+        yOffset = origEvent.offsetX * scale;
+      } else if (opts.direction === 'r2l') {
+        xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetY * scale;
+        yOffset = origEvent.offsetX * scale;
+      } else if (opts.direction === 'b2t') {
+        xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetX * scale;
+        yOffset = $nodeDiv.outerHeight(false) - origEvent.offsetY * scale;
+      }
+      if (isFirefox) { // hack for old version of Firefox(< 48.0)
+        nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
+        nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
+        var ghostNodeWrapper = document.createElement('img');
+        ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
+        origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
+      } else {
+        origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
+      }
+    },
+    //
+    filterAllowedDropNodes: function ($dragged) {
+      var opts = this.options;
+      var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
+      var $dragHier = $dragged.closest('table').find('.node');
+      this.$chart.data('dragged', $dragged)
+        .find('.node').each(function (index, node) {
+          if ($dragHier.index(node) === -1) {
+            if (opts.dropCriteria) {
+              if (opts.dropCriteria($dragged, $dragZone, $(node))) {
+                $(node).addClass('allowedDrop');
+              }
+            } else {
+              $(node).addClass('allowedDrop');
+            }
+          }
+        });
+    },
+    //
+    dragstartHandler: function (event) {
+      // if users enable zoom or direction options
+      if (this.$chart.css('transform') !== 'none') {
+        this.createGhostNode(event);
+      }
+      this.filterAllowedDropNodes($(event.target));
+    },
+    //
+    dragoverHandler: function (event) {
+      event.preventDefault();
+      if (!$(event.delegateTarget).is('.allowedDrop')) {
+        event.originalEvent.dataTransfer.dropEffect = 'none';
+      }
+    },
+    //
+    dragendHandler: function (event) {
+      this.$chart.find('.allowedDrop').removeClass('allowedDrop');
+    },
+    //
+    dropHandler: function (event) {
+      var $dropZone = $(event.delegateTarget);
+      var $dragged = this.$chart.data('dragged');
+      var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
+      var dropEvent = $.Event('nodedrop.orgchart');
+      this.$chart.trigger(dropEvent, { 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
+      if (dropEvent.isDefaultPrevented()) {
+        return;
+      }
+      // firstly, deal with the hierarchy of drop zone
+      if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
+        $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+          .parent().attr('colspan', 2)
+          .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
+          + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
+          + '<tr class="nodes"></tr>')
+          .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
+      } else {
+        var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+        var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
+        $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+        if (!$dragged.find('.horizontalEdge').length) {
+          $dragged.append(horizontalEdges);
+        }
+        $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
+          .end().next().append($dragged.closest('table').parent());
+        var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
+        if ($dropSibs.length === 1) {
+          $dropSibs.append(horizontalEdges);
+        }
+      }
+      // secondly, deal with the hierarchy of dragged node
+      var dragColspan = parseInt($dragZone.attr('colspan'));
+      if (dragColspan > 2) {
+        $dragZone.attr('colspan', dragColspan - 2)
+          .parent().next().children().attr('colspan', dragColspan - 2)
+          .end().next().children().slice(1, 3).remove();
+        var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
+        if ($dragSibs.length ===1) {
+          $dragSibs.find('.horizontalEdge').remove();
+        }
+      } else {
+        $dragZone.removeAttr('colspan')
+          .find('.bottomEdge').remove()
+          .end().end().siblings().remove();
+      }
+    },
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
@@ -890,158 +1050,13 @@
       $nodeDiv.on('click', '.topEdge', { 'nodeData': nodeData }, this.topEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.bottomEdge', { 'nodeData': nodeData }, this.bottomEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': nodeData }, this.hEdgeClickHandler.bind(this));
-
-      // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
-      $nodeDiv.on('click', '.toggleBtn', function(event) {
-        var $this = $(this);
-        var $descWrapper = $this.parent().next();
-        var $descendants = $descWrapper.find('.node');
-        var $children = $descWrapper.children().children('.node');
-        if ($children.is('.sliding')) { return; }
-        $this.toggleClass('fa-plus-square fa-minus-square');
-        if ($descendants.eq(0).is('.slide-up')) {
-          $descWrapper.removeClass('hidden');
-          that.repaint($children.get(0));
-          $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
-            $children.removeClass('sliding');
-          });
-        } else {
-          $descendants.addClass('sliding slide-up').eq(0).one('transitionend', function() {
-            $descendants.removeClass('sliding');
-            // $descWrapper.addClass('hidden');
-            $descendants.closest('ul').addClass('hidden');
-          });
-          $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
-        }
-      });
+      $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
 
       if (opts.draggable) {
-        $nodeDiv.on('dragstart', function(event) {
-          var origEvent = event.originalEvent;
-          var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
-          if (isFirefox) {
-            origEvent.dataTransfer.setData('text/html', 'hack for firefox');
-          }
-          // if users enable zoom or direction options
-          if ($nodeDiv.closest('.orgchart').css('transform') !== 'none') {
-            var ghostNode, nodeCover;
-            if (!document.querySelector('.ghost-node')) {
-              ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-              ghostNode.classList.add('ghost-node');
-              nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
-              ghostNode.appendChild(nodeCover);
-              $nodeDiv.closest('.orgchart').append(ghostNode);
-            } else {
-              ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
-              nodeCover = $(ghostNode).children().get(0);
-            }
-            var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
-            var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
-            ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
-            ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
-            nodeCover.setAttribute('x',5 * scale);
-            nodeCover.setAttribute('y',5 * scale);
-            nodeCover.setAttribute('width', 120 * scale);
-            nodeCover.setAttribute('height', 40 * scale);
-            nodeCover.setAttribute('rx', 4 * scale);
-            nodeCover.setAttribute('ry', 4 * scale);
-            nodeCover.setAttribute('stroke-width', 1 * scale);
-            var xOffset = origEvent.offsetX * scale;
-            var yOffset = origEvent.offsetY * scale;
-            if (opts.direction === 'l2r') {
-              xOffset = origEvent.offsetY * scale;
-              yOffset = origEvent.offsetX * scale;
-            } else if (opts.direction === 'r2l') {
-              xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetY * scale;
-              yOffset = origEvent.offsetX * scale;
-            } else if (opts.direction === 'b2t') {
-              xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetX * scale;
-              yOffset = $nodeDiv.outerHeight(false) - origEvent.offsetY * scale;
-            }
-            if (isFirefox) { // hack for old version of Firefox(< 48.0)
-              nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
-              nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
-              var ghostNodeWrapper = document.createElement('img');
-              ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
-              origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
-            } else {
-              origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
-            }
-          }
-          var $dragged = $(this);
-          var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
-          var $dragHier = $dragged.closest('table').find('.node');
-          $dragged.closest('.orgchart')
-            .data('dragged', $dragged)
-            .find('.node').each(function(index, node) {
-              if ($dragHier.index(node) === -1) {
-                if (opts.dropCriteria) {
-                  if (opts.dropCriteria($dragged, $dragZone, $(node))) {
-                    $(node).addClass('allowedDrop');
-                  }
-                } else {
-                  $(node).addClass('allowedDrop');
-                }
-              }
-            });
-        })
-        .on('dragover', function(event) {
-          event.preventDefault();
-          if (!$(this).is('.allowedDrop')) {
-            event.originalEvent.dataTransfer.dropEffect = 'none';
-          }
-        })
-        .on('dragend', function(event) {
-          $(this).closest('.orgchart').find('.allowedDrop').removeClass('allowedDrop');
-        })
-        .on('drop', function(event) {
-          var $dropZone = $(this);
-          var $orgchart = $dropZone.closest('.orgchart');
-          var $dragged = $orgchart.data('dragged');
-          var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
-          var dropEvent = $.Event('nodedrop.orgchart');
-          $orgchart.trigger(dropEvent, { 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
-          if (dropEvent.isDefaultPrevented()) {
-            return;
-          }
-          // firstly, deal with the hierarchy of drop zone
-          if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
-            $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
-              .parent().attr('colspan', 2)
-              .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
-              + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
-              + '<tr class="nodes"></tr>')
-              .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
-          } else {
-            var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
-            var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
-            $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
-            if (!$dragged.find('.horizontalEdge').length) {
-              $dragged.append(horizontalEdges);
-            }
-            $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
-              .end().next().append($dragged.closest('table').parent());
-            var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
-            if ($dropSibs.length === 1) {
-              $dropSibs.append(horizontalEdges);
-            }
-          }
-          // secondly, deal with the hierarchy of dragged node
-          var dragColspan = parseInt($dragZone.attr('colspan'));
-          if (dragColspan > 2) {
-            $dragZone.attr('colspan', dragColspan - 2)
-              .parent().next().children().attr('colspan', dragColspan - 2)
-              .end().next().children().slice(1, 3).remove();
-            var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
-            if ($dragSibs.length ===1) {
-              $dragSibs.find('.horizontalEdge').remove();
-            }
-          } else {
-            $dragZone.removeAttr('colspan')
-              .find('.bottomEdge').remove()
-              .end().end().siblings().remove();
-          }
-        });
+        $nodeDiv.on('dragstart', this.dragstartHandler.bind(this))
+        .on('dragover', this.dragoverHandler.bind(this))
+        .on('dragend', this.dragendHandler.bind(this))
+        .on('drop', this.dropHandler.bind(this));
       }
       // allow user to append dom modification after finishing node create of orgchart
       if (opts.createNode) {
