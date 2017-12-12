@@ -1106,11 +1106,11 @@
           $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="downLine"></div></td></tr>');
         }
         // draw the lines close to children nodes
-        var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine">&nbsp;</td>';
+        var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine"></td>';
         for (var i=1; i<$childNodes.length; i++) {
-          lineLayer += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
+          lineLayer += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
         }
-        lineLayer += '<td class="leftLine">&nbsp;</td></tr>';
+        lineLayer += '<td class="leftLine"></td></tr>';
         var $nodeLayer;
         if (isVerticalLayer) {
           $nodeLayer = $('<ul>');

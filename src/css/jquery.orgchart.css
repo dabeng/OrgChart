@@ -120,6 +120,11 @@
   padding: 0;
 }
 
+.orgchart .lines:nth-child(3) td {
+  box-sizing: border-box;
+  height: 20px;
+}
+
 .orgchart .lines .topLine {
   border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
