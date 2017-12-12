@@ -152,7 +152,7 @@ var oc = $('#chartContainerId').orgchart(options);
   // First character stands for wether current node has parent node;
   // Scond character stands for wether current node has siblings nodes;
   // Third character stands for wether current node has children node.
-  'children': [ // The property stands for nested nodes. "children" is just default name you can override.
+  'children': [ // The property stands for nested nodes.
     { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': '110' },
     { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': '111',
       'children': [
