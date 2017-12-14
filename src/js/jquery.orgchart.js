@@ -974,7 +974,7 @@
         $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
           .parent().attr('colspan', 2)
           .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
-          + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
+          + '<tr class="lines"><td class="rightLine"></td><td class="leftLine"></td></tr>'
           + '<tr class="nodes"></tr>')
           .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
       } else {
@@ -984,7 +984,7 @@
         if (!$dragged.find('.horizontalEdge').length) {
           $dragged.append(horizontalEdges);
         }
-        $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
+        $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine"></td><td class="rightLine topLine"></td>')
           .end().next().append($dragged.closest('table').parent());
         var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
         if ($dropSibs.length === 1) {
@@ -1168,7 +1168,7 @@
         .done(function($nodeDiv) {
           $table.append($('<tr class="hidden">').append($('<td colspan="2">').append($nodeDiv.removeClass('slide-up').addClass('slide-down'))));
           $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
-          var linesRow = '<td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td>';
+          var linesRow = '<td class="rightLine"></td><td class="leftLine"></td>';
           $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
           var $chart = that.$chart;
           $chart.prepend($table)
@@ -1194,7 +1194,7 @@
     complementLine: function ($oneSibling, siblingCount, existingSibligCount) {
       var lines = '';
       for (var i = 0; i < existingSibligCount; i++) {
-        lines += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
+        lines += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
       }
       $oneSibling.parent().prevAll('tr:gt(0)').children().attr('colspan', siblingCount * 2)
         .end().next().children(':first').after(lines);
