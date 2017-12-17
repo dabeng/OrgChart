@@ -60,7 +60,22 @@
         }
       });
       if (typeof MutationObserver !== 'undefined') {
-        this.triggerInitEvent();
+        var mo = new MutationObserver(function (mutations) {
+          mo.disconnect();
+          initTime:
+          for (var i = 0; i < mutations.length; i++) {
+            for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+              if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
+                if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
+                  that.options.initCompleted($chart);
+                  $chart.triggerHandler({ 'type': 'init.orgchart' });
+                  break initTime;
+                }
+              }
+            }
+          }
+        });
+      mo.observe($chartContainer[0], { childList: true });
       }
       if ($.type(data) === 'object') {
         if (data instanceof $) { // ul datasource
@@ -88,7 +103,15 @@
 
       // append the export button
       if (this.options.exportButton && !$chartContainer.find('.oc-export-btn').length) {
-        this.attachExportButton();
+        var $exportBtn = $('<button>', {
+          'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
+          'text': 'Export',
+          'click': function(e) {
+            e.preventDefault();
+            that.export();
+          }
+        });
+        $chartContainer.append($exportBtn);
       }
 
       if (this.options.pan) {
@@ -102,39 +125,6 @@
       return this;
     },
     //
-    triggerInitEvent: function () {
-      var that = this;
-      var mo = new MutationObserver(function (mutations) {
-        mo.disconnect();
-        initTime:
-        for (var i = 0; i < mutations.length; i++) {
-          for (var j = 0; j < mutations[i].addedNodes.length; j++) {
-            if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
-              if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
-                that.options.initCompleted(that.$chart);
-                var initEvent = $.Event('init.orgchart');
-                that.$chart.trigger(initEvent);
-                break initTime;
-              }
-            }
-          }
-        }
-      });
-      mo.observe(this.$chartContainer[0], { childList: true });
-    },
-    //
-    attachExportButton: function () {
-      var that = this;
-      var $exportBtn = $('<button>', {
-        'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
-        'text': 'Export',
-        'click': function(e) {
-          e.preventDefault();
-          that.export();
-        }
-      });
-      this.$chartContainer.append($exportBtn);
-    },
     setOptions: function (opts, val) {
       if (typeof opts === 'string') {
         if (opts === 'pan') {
@@ -318,19 +308,20 @@
     setChartScale: function ($chart, newScale) {
       var opts = $chart.data('options');
       var lastTf = $chart.css('transform');
+      var matrix = '';
+      var targetScale = 1;
       if (lastTf === 'none') {
         $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
       } else {
-        var matrix = lastTf.split('(')[1]
-          .split(')')[0]
-          .split(',');
-        
-        var currentScale = Math.sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-        var targetScale = Math.abs(currentScale * newScale);
-        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
-          if (lastTf.indexOf('3d') === -1) {
+        matrix = lastTf.split(',');
+        if (lastTf.indexOf('3d') === -1) {
+          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
+          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
-          } else {
+          }
+        } else {
+          targetScale = Math.abs(window.parseFloat(matrix[1]) * newScale);
+          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
           }
         }
@@ -420,10 +411,7 @@
       } else {
         $target = $node;
         if ($target.length) {
-          if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) ||
-            ($target.closest('table').parent().length && $target.closest('table').parent().is('.hidden')) ||
-            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('verticalNodes').is('.hidden')))
-          )) {
+          if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) || ($target.closest('.table').parent().length && $target.closest('.table').parent().is('.hidden')))) {
             return { 'exist': true, 'visible': true };
           }
           return { 'exist': true, 'visible': false };
@@ -491,14 +479,6 @@
       this.repaint($parent[0]);
       $parent.addClass('sliding').removeClass('slide-down').one('transitionend', { 'node': $node }, this.showParentEnd.bind(this));
     },
-    stopAjax: function ($nodeLevel) {
-      if ($nodeLevel.find('.spinner').length) {
-        $nodeLevel.closest('.orgchart').data('inAjax', false);
-      }
-    },
-    isVisibleNode: function (index, elem) {
-      return this.getNodeState($(elem)).visible;
-    },
     //
     hideChildrenEnd: function (event) {
       event.data.visibleNodes.removeClass('sliding');
@@ -513,6 +493,14 @@
         this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
       }
     },
+    stopAjax: function ($nodeLevel) {
+      if ($nodeLevel.find('.spinner').length) {
+        $nodeLevel.closest('.orgchart').data('inAjax', false);
+      }
+    },
+    isVisibleNode: function (index, elem) {
+      return this.getNodeState($(elem)).visible;
+    },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
       var $lowerLevel = $node.closest('tr').siblings();
@@ -522,16 +510,7 @@
       if (!isVerticalDesc) {
         $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
       }
-      this.repaint($visibleNodes.get(0));
       $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'visibleNodes': $visibleNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
-    },
-    //
-    showChildrenEnd: function (event) {
-      var $node = event.data.node;
-      event.data.descendants.removeClass('sliding');
-      if (this.isInAction($node)) {
-        this.switchVerticalArrow($node.children('.bottomEdge'));
-      }
     },
     // show the children nodes of the specified node
     showChildren: function ($node) {
@@ -540,29 +519,15 @@
       var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
       var $descendants = isVerticalDesc
         ? $levels.removeClass('hidden').find('.node').filter(this.isVisibleNode.bind(this))
-        : $levels.removeClass('hidden').eq(2).children().find('.node:first').filter(this.isVisibleNode.bind(this));
+        : $levels.removeClass('hidden').eq(2).children().find('.node:first');
       // the two following statements are used to enforce browser to repaint
       this.repaint($descendants.get(0));
-      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'node': $node, 'descendants': $descendants }, this.showChildrenEnd.bind(this));
-    },
-    //
-    hideSiblingsEnd: function (event) {
-      var $node = event.data.node;
-      var $nodeContainer = event.data.nodeContainer;
-      var direction = event.data.direction;
-      event.data.lines.removeAttr('style');
-      var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
-      $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
-        .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
-      event.data.animatedNodes.removeClass('sliding');
-      $siblings.find('.node:gt(0)').filter(this.isVisibleNode.bind(this))
-        .removeClass('slide-left slide-right').addClass('slide-up');
-      $siblings.find('.lines, .nodes, .verticalNodes').addClass('hidden')
-        .end().addClass('hidden');
-
-      if (this.isInAction($node)) {
-        this.switchHorizontalArrow($node);
-      }
+      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
+        $descendants.removeClass('sliding');
+        if (that.isInAction($node)) {
+          that.switchVerticalArrow($node.children('.bottomEdge'));
+        }
+      });
     },
     // hide the sibling nodes of the specified node
     hideSiblings: function ($node, direction) {
@@ -583,20 +548,21 @@
       }
       var $animatedNodes = $nodeContainer.siblings().find('.sliding');
       var $lines = $animatedNodes.closest('.nodes').prevAll('.lines').css('visibility', 'hidden');
-      $animatedNodes.eq(0).one('transitionend', { 'node': $node, 'nodeContainer': $nodeContainer, 'direction': direction, 'animatedNodes': $animatedNodes, 'lines': $lines }, this.hideSiblingsEnd.bind(this));
-    },
-    //
-    showSiblingsEnd: function (event) {
-      var $node = event.data.node;
-      event.data.visibleNodes.removeClass('sliding');
-      if (this.isInAction($node)) {
-        this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
-      }
-    },
-    //
-    showRelatedParentEnd: function(event) {
-      $(event.target).removeClass('sliding');
+      $animatedNodes.eq(0).one('transitionend', function() {
+        $lines.removeAttr('style');
+        var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
+        $nodeContainer.closest('.nodes').prev().children(':not(.hidden)')
+          .slice(1, direction ? $siblings.length * 2 + 1 : -1).addClass('hidden');
+        $animatedNodes.removeClass('sliding');
+        $siblings.find('.node:visible:gt(0)')
+          .removeClass('slide-left slide-right').addClass('slide-up')
+          .end().find('.lines, .nodes, .verticalNodes').addClass('hidden')
+          .end().addClass('hidden');
+
+        if (that.isInAction($node)) {
+          that.switchHorizontalArrow($node);
+        }
+      });
     },
     // show the sibling nodes of the specified node
     showSiblings: function ($node, direction) {
@@ -624,36 +590,41 @@
         $upperLevel.removeClass('hidden');
         var parent = $upperLevel.find('.node')[0];
         this.repaint(parent);
-        $(parent).addClass('sliding').removeClass('slide-down').one('transitionend', this.showRelatedParentEnd);
+        $(parent).addClass('sliding').removeClass('slide-down').one('transitionend', function() {
+          $(this).removeClass('sliding');
+        });
       }
       // lastly, show the sibling nodes with animation
-      var $visibleNodes = $siblings.find('.node').filter(this.isVisibleNode.bind(this));
-      this.repaint($visibleNodes.get(0));
-      $visibleNodes.addClass('sliding').removeClass('slide-left slide-right');
-      $visibleNodes.eq(0).one('transitionend', { 'node': $node, 'visibleNodes': $visibleNodes }, this.showSiblingsEnd.bind(this));
+      $siblings.find('.node').filter(this.isVisibleNode.bind(this)).addClass('sliding').removeClass('slide-left slide-right').eq(-1).one('transitionend', function() {
+        $siblings.find('.node').filter(that.isVisibleNode.bind(that)).removeClass('sliding');
+        if (that.isInAction($node)) {
+          that.switchHorizontalArrow($node);
+          $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+      });
     },
     // start up loading status for requesting new nodes
-    startLoading: function ($edge) {
-      var $chart = this.$chart;
+    startLoading: function ($arrow, $node, options) {
+      var $chart = $node.closest('.orgchart');
       if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
         return false;
       }
 
-      $edge.addClass('hidden');
-      $edge.parent().append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>')
-        .children().not('.spinner').css('opacity', 0.2);
+      $arrow.addClass('hidden');
+      $node.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
+      $node.children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
-      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
+      $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', true);
       return true;
     },
     // terminate loading status for requesting new nodes
-    endLoading: function ($edge) {
-      var $node = $edge.parent();
-      $edge.removeClass('hidden');
+    endLoading: function ($arrow, $node, options) {
+      var $chart = $node.closest('div.orgchart');
+      $arrow.removeClass('hidden');
       $node.find('.spinner').remove();
       $node.children().removeAttr('style');
-      this.$chart.data('inAjax', false);
-      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', false);
+      $chart.data('inAjax', false);
+      $('.oc-export-btn' + (options.chartClass !== '' ? '.' + options.chartClass : '')).prop('disabled', false);
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
@@ -696,328 +667,6 @@
         node.style.offsetWidth = node.offsetWidth;
       }
     },
-    //
-    nodeEnterLeaveHandler: function (event) {
-      var $node = $(event.delegateTarget), flag = false;
-      var $topEdge = $node.children('.topEdge');
-      var $rightEdge = $node.children('.rightEdge');
-      var $bottomEdge = $node.children('.bottomEdge');
-      var $leftEdge = $node.children('.leftEdge');
-      if (event.type === 'mouseenter') {
-        if ($topEdge.length) {
-          flag = this.getNodeState($node, 'parent').visible;
-          $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
-        }
-        if ($bottomEdge.length) {
-          flag = this.getNodeState($node, 'children').visible;
-          $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
-        }
-        if ($leftEdge.length) {
-          this.switchHorizontalArrow($node);
-        }
-      } else {
-        $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
-      }
-    },
-    //
-    nodeClickHandler: function (event) {
-      this.$chart.find('.focused').removeClass('focused');
-      $(event.delegateTarget).addClass('focused');
-    },
-    // load new nodes by ajax
-    loadNodes: function (rel, url, $edge) {
-      var that = this;
-      var opts = this.options;
-      $.ajax({ 'url': url, 'dataType': 'json' })
-      .done(function (data) {
-        if (that.$chart.data('inAjax')) {
-          if (rel === 'parent') {
-            if (!$.isEmptyObject(data)) {
-              that.addParent($edge.parent(), data, opts);
-            }
-          } else if (rel === 'children') {
-            if (data.children.length) {
-              that.addChildren($edge.parent(), data, $.extend({}, opts, { depth: 0 }));
-            }
-          } else {
-            if (data.siblings || data.children) {
-              that.addSiblings($edge.parent(), data, opts);
-            }
-          }
-        }
-      })
-      .fail(function () {
-        console.log('Failed to get ' + rel + ' data');
-      })
-      .always(function () {
-        that.endLoading($edge);
-      });
-    },
-    //
-    HideFirstParentEnd: function (event) {
-      var $topEdge = event.data.topEdge;
-      var $node = $topEdge.parent();
-      if (this.isInAction($node)) {
-        this.switchVerticalArrow($topEdge);
-        this.switchHorizontalArrow($node);
-      }
-    },
-    //
-    topEdgeClickHandler: function (event) {
-      event.stopPropagation();
-      var that = this;
-      var $topEdge = $(event.target);
-      var $node = $(event.delegateTarget);
-      var parentState = this.getNodeState($node, 'parent');
-      if (parentState.exist) {
-        var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
-        if ($parent.is('.sliding')) { return; }
-        // hide the ancestor nodes and sibling nodes of the specified node
-        if (parentState.visible) {
-          this.hideParent($node);
-          $parent.one('transitionend', { 'topEdge': $topEdge }, this.HideFirstParentEnd.bind(this));
-        } else { // show the ancestors and siblings
-          this.showParent($node);
-        }
-      } else { // load the new parent node of the specified node by ajax request
-        // start up loading status
-        if (this.startLoading($topEdge)) {
-          var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(event.data.nodeData) : opts.ajaxURL.parent + $node[0].id;
-          this.loadNodes('parent', url, $topEdge);
-        }
-      }
-    },
-    //
-    bottomEdgeClickHandler: function (event) {
-      event.stopPropagation();
-      var $bottomEdge = $(event.target);
-      var $node = $(event.delegateTarget);
-      var childrenState = this.getNodeState($node, 'children');
-      if (childrenState.exist) {
-        var $children = $node.closest('tr').siblings(':last');
-        if ($children.find('.sliding').length) { return; }
-        // hide the descendant nodes of the specified node
-        if (childrenState.visible) {
-          this.hideChildren($node);
-        } else { // show the descendants
-          this.showChildren($node);
-        }
-      } else { // load the new children nodes of the specified node by ajax request
-        if (this.startLoading($bottomEdge)) {
-          var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(event.data.nodeData) : opts.ajaxURL.children + $node[0].id;
-          this.loadNodes('children', url, $bottomEdge);
-        }
-      }
-    },
-    //
-    hEdgeClickHandler: function (event) {
-      event.stopPropagation();
-      var $hEdge = $(event.target);
-      var $node = $(event.delegateTarget);
-      var opts = this.options;
-      var siblingsState = this.getNodeState($node, 'siblings');
-      if (siblingsState.exist) {
-        var $siblings = $node.closest('table').parent().siblings();
-        if ($siblings.find('.sliding').length) { return; }
-        if (opts.toggleSiblingsResp) {
-          var $prevSib = $node.closest('table').parent().prev();
-          var $nextSib = $node.closest('table').parent().next();
-          if ($hEdge.is('.leftEdge')) {
-            if ($prevSib.is('.hidden')) {
-              this.showSiblings($node, 'left');
-            } else {
-              this.hideSiblings($node, 'left');
-            }
-          } else {
-            if ($nextSib.is('.hidden')) {
-              this.showSiblings($node, 'right');
-            } else {
-              this.hideSiblings($node, 'right');
-            }
-          }
-        } else {
-          if (siblingsState.visible) {
-            this.hideSiblings($node);
-          } else {
-            this.showSiblings($node);
-          }
-        }
-      } else {
-        // load the new sibling nodes of the specified node by ajax request
-        if (this.startLoading($hEdge)) {
-          var nodeId = $node[0].id;
-          var url = (this.getNodeState($node, 'parent').exist) ?
-            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(event.data.nodeData) : opts.ajaxURL.siblings + nodeId) :
-            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(event.data.nodeData) : opts.ajaxURL.families + nodeId);
-          this.loadNodes('siblings', url, $hEdge);
-        }
-      }
-    },
-    //
-    expandVNodesEnd: function (event) {
-      event.data.vNodes.removeClass('sliding');
-    },
-    //
-    collapseVNodesEnd: function (event) {
-      event.data.vNodes.removeClass('sliding').closest('ul').addClass('hidden');
-    },
-    // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
-    toggleVNodes: function (event) {
-      var $toggleBtn = $(event.target);
-      var $descWrapper = $toggleBtn.parent().next();
-      var $descendants = $descWrapper.find('.node');
-      var $children = $descWrapper.children().children('.node');
-      if ($children.is('.sliding')) { return; }
-      $toggleBtn.toggleClass('fa-plus-square fa-minus-square');
-      if ($descendants.eq(0).is('.slide-up')) {
-        $descWrapper.removeClass('hidden');
-        this.repaint($children.get(0));
-        $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
-      } else {
-        $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
-        $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
-      }
-    },
-    //
-    createGhostNode: function (event) {
-      var $nodeDiv = $(event.target);
-      var opts = this.options;
-      var origEvent = event.originalEvent;
-      var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
-      if (isFirefox) {
-        origEvent.dataTransfer.setData('text/html', 'hack for firefox');
-      }
-      var ghostNode, nodeCover;
-      if (!document.querySelector('.ghost-node')) {
-        ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        ghostNode.classList.add('ghost-node');
-        nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
-        ghostNode.appendChild(nodeCover);
-        $nodeDiv.closest('.orgchart').append(ghostNode);
-      } else {
-        ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
-        nodeCover = $(ghostNode).children().get(0);
-      }
-      var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
-      var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
-      ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
-      ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
-      nodeCover.setAttribute('x',5 * scale);
-      nodeCover.setAttribute('y',5 * scale);
-      nodeCover.setAttribute('width', 120 * scale);
-      nodeCover.setAttribute('height', 40 * scale);
-      nodeCover.setAttribute('rx', 4 * scale);
-      nodeCover.setAttribute('ry', 4 * scale);
-      nodeCover.setAttribute('stroke-width', 1 * scale);
-      var xOffset = origEvent.offsetX * scale;
-      var yOffset = origEvent.offsetY * scale;
-      if (opts.direction === 'l2r') {
-        xOffset = origEvent.offsetY * scale;
-        yOffset = origEvent.offsetX * scale;
-      } else if (opts.direction === 'r2l') {
-        xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetY * scale;
-        yOffset = origEvent.offsetX * scale;
-      } else if (opts.direction === 'b2t') {
-        xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetX * scale;
-        yOffset = $nodeDiv.outerHeight(false) - origEvent.offsetY * scale;
-      }
-      if (isFirefox) { // hack for old version of Firefox(< 48.0)
-        nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
-        nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
-        var ghostNodeWrapper = document.createElement('img');
-        ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
-        origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
-      } else {
-        origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
-      }
-    },
-    //
-    filterAllowedDropNodes: function ($dragged) {
-      var opts = this.options;
-      var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
-      var $dragHier = $dragged.closest('table').find('.node');
-      this.$chart.data('dragged', $dragged)
-        .find('.node').each(function (index, node) {
-          if ($dragHier.index(node) === -1) {
-            if (opts.dropCriteria) {
-              if (opts.dropCriteria($dragged, $dragZone, $(node))) {
-                $(node).addClass('allowedDrop');
-              }
-            } else {
-              $(node).addClass('allowedDrop');
-            }
-          }
-        });
-    },
-    //
-    dragstartHandler: function (event) {
-      // if users enable zoom or direction options
-      if (this.$chart.css('transform') !== 'none') {
-        this.createGhostNode(event);
-      }
-      this.filterAllowedDropNodes($(event.target));
-    },
-    //
-    dragoverHandler: function (event) {
-      event.preventDefault();
-      if (!$(event.delegateTarget).is('.allowedDrop')) {
-        event.originalEvent.dataTransfer.dropEffect = 'none';
-      }
-    },
-    //
-    dragendHandler: function (event) {
-      this.$chart.find('.allowedDrop').removeClass('allowedDrop');
-    },
-    //
-    dropHandler: function (event) {
-      var $dropZone = $(event.delegateTarget);
-      var $dragged = this.$chart.data('dragged');
-      var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
-      var dropEvent = $.Event('nodedrop.orgchart');
-      this.$chart.trigger(dropEvent, { 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
-      if (dropEvent.isDefaultPrevented()) {
-        return;
-      }
-      // firstly, deal with the hierarchy of drop zone
-      if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
-        $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
-          .parent().attr('colspan', 2)
-          .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
-          + '<tr class="lines"><td class="rightLine"></td><td class="leftLine"></td></tr>'
-          + '<tr class="nodes"></tr>')
-          .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
-      } else {
-        var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
-        var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
-        $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
-        if (!$dragged.find('.horizontalEdge').length) {
-          $dragged.append(horizontalEdges);
-        }
-        $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine"></td><td class="rightLine topLine"></td>')
-          .end().next().append($dragged.closest('table').parent());
-        var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
-        if ($dropSibs.length === 1) {
-          $dropSibs.append(horizontalEdges);
-        }
-      }
-      // secondly, deal with the hierarchy of dragged node
-      var dragColspan = parseInt($dragZone.attr('colspan'));
-      if (dragColspan > 2) {
-        $dragZone.attr('colspan', dragColspan - 2)
-          .parent().next().children().attr('colspan', dragColspan - 2)
-          .end().next().children().slice(1, 3).remove();
-        var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
-        if ($dragSibs.length ===1) {
-          $dragSibs.find('.horizontalEdge').remove();
-        }
-      } else {
-        $dragZone.removeAttr('colspan')
-          .find('.bottomEdge').remove()
-          .end().end().siblings().remove();
-      }
-    },
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
@@ -1056,18 +705,319 @@
         }
       }
 
-      $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
-      $nodeDiv.on('click', this.nodeClickHandler.bind(this));
-      $nodeDiv.on('click', '.topEdge', { 'nodeData': nodeData }, this.topEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': nodeData }, this.bottomEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': nodeData }, this.hEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
+      $nodeDiv.on('mouseenter mouseleave', function(event) {
+        var $node = $(this), flag = false;
+        var $topEdge = $node.children('.topEdge');
+        var $rightEdge = $node.children('.rightEdge');
+        var $bottomEdge = $node.children('.bottomEdge');
+        var $leftEdge = $node.children('.leftEdge');
+        if (event.type === 'mouseenter') {
+          if ($topEdge.length) {
+            flag = that.getNodeState($node, 'parent').visible;
+            $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
+          }
+          if ($bottomEdge.length) {
+            flag = that.getNodeState($node, 'children').visible;
+            $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
+          }
+          if ($leftEdge.length) {
+            that.switchHorizontalArrow($node);
+          }
+        } else {
+          $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
+        }
+      });
 
+      // define click event handler
+      $nodeDiv.on('click', function(event) {
+        $(this).closest('.orgchart').find('.focused').removeClass('focused');
+        $(this).addClass('focused');
+      });
+
+      // define click event handler for the top edge
+      $nodeDiv.on('click', '.topEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var parentState = that.getNodeState($node, 'parent');
+        if (parentState.exist) {
+          var $parent = $node.closest('table').closest('tr').siblings(':first').find('.node');
+          if ($parent.is('.sliding')) { return; }
+          // hide the ancestor nodes and sibling nodes of the specified node
+          if (parentState.visible) {
+            that.hideParent($node);
+            $parent.one('transitionend', function() {
+              if (that.isInAction($node)) {
+                that.switchVerticalArrow($that);
+                that.switchHorizontalArrow($node);
+              }
+            });
+          } else { // show the ancestors and siblings
+            that.showParent($node);
+          }
+        } else {
+          // load the new parent node of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          // start up loading status
+          if (that.startLoading($that, $node, opts)) {
+          // load new nodes
+            $.ajax({ 'url': $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(nodeData) : opts.ajaxURL.parent + nodeId, 'dataType': 'json' })
+            .done(function(data) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (!$.isEmptyObject(data)) {
+                  that.addParent($node, data, opts);
+                }
+              }
+            })
+            .fail(function() { console.log('Failed to get parent node data'); })
+            .always(function() { that.endLoading($that, $node, opts); });
+          }
+        }
+      });
+
+      // bind click event handler for the bottom edge
+      $nodeDiv.on('click', '.bottomEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var childrenState = that.getNodeState($node, 'children');
+        if (childrenState.exist) {
+          var $children = $node.closest('tr').siblings(':last');
+          if ($children.find('.node:visible').is('.sliding')) { return; }
+          // hide the descendant nodes of the specified node
+          if (childrenState.visible) {
+            that.hideChildren($node);
+          } else { // show the descendants
+            that.showChildren($node);
+          }
+        } else { // load the new children nodes of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          if (that.startLoading($that, $node, opts)) {
+            $.ajax({ 'url': $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(nodeData) : opts.ajaxURL.children + nodeId, 'dataType': 'json' })
+            .done(function(data, textStatus, jqXHR) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (data.children.length) {
+                  that.addChildren($node, data, $.extend({}, opts, { depth: 0 }));
+                }
+              }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              console.log('Failed to get children nodes data');
+            })
+            .always(function() {
+              that.endLoading($that, $node, opts);
+            });
+          }
+        }
+      });
+
+      // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
+      $nodeDiv.on('click', '.toggleBtn', function(event) {
+        var $this = $(this);
+        var $descWrapper = $this.parent().next();
+        var $descendants = $descWrapper.find('.node');
+        var $children = $descWrapper.children().children('.node');
+        if ($children.is('.sliding')) { return; }
+        $this.toggleClass('fa-plus-square fa-minus-square');
+        if ($descendants.eq(0).is('.slide-up')) {
+          $descWrapper.removeClass('hidden');
+          that.repaint($children.get(0));
+          $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
+            $children.removeClass('sliding');
+          });
+        } else {
+          $descendants.addClass('sliding slide-up').eq(0).one('transitionend', function() {
+            $descendants.removeClass('sliding');
+            // $descWrapper.addClass('hidden');
+            $descendants.closest('ul').addClass('hidden');
+          });
+          $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
+        }
+      });
+
+      // bind click event handler for the left and right edges
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', function(event) {
+        event.stopPropagation();
+        var $that = $(this);
+        var $node = $that.parent();
+        var siblingsState = that.getNodeState($node, 'siblings');
+        if (siblingsState.exist) {
+          var $siblings = $node.closest('table').parent().siblings();
+          if ($siblings.find('.sliding').length) { return; }
+          if (opts.toggleSiblingsResp) {
+            var $prevSib = $node.closest('table').parent().prev();
+            var $nextSib = $node.closest('table').parent().next();
+            if ($that.is('.leftEdge')) {
+              if ($prevSib.is('.hidden')) {
+                that.showSiblings($node, 'left');
+              } else {
+                that.hideSiblings($node, 'left');
+              }
+            } else {
+              if ($nextSib.is('.hidden')) {
+                that.showSiblings($node, 'right');
+              } else {
+                that.hideSiblings($node, 'right');
+              }
+            }
+          } else {
+            if (siblingsState.visible) {
+              that.hideSiblings($node);
+            } else {
+              that.showSiblings($node);
+            }
+          }
+        } else {
+          // load the new sibling nodes of the specified node by ajax request
+          var nodeId = $that.parent()[0].id;
+          var url = (that.getNodeState($node, 'parent').exist) ?
+            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(nodeData) : opts.ajaxURL.siblings + nodeId) :
+            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(nodeData) : opts.ajaxURL.families + nodeId);
+          if (that.startLoading($that, $node, opts)) {
+            $.ajax({ 'url': url, 'dataType': 'json' })
+            .done(function(data, textStatus, jqXHR) {
+              if ($node.closest('.orgchart').data('inAjax')) {
+                if (data.siblings || data.children) {
+                  that.addSiblings($node, data, opts);
+                }
+              }
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+              console.log('Failed to get sibling nodes data');
+            })
+            .always(function() {
+              that.endLoading($that, $node, opts);
+            });
+          }
+        }
+      });
       if (opts.draggable) {
-        $nodeDiv.on('dragstart', this.dragstartHandler.bind(this))
-        .on('dragover', this.dragoverHandler.bind(this))
-        .on('dragend', this.dragendHandler.bind(this))
-        .on('drop', this.dropHandler.bind(this));
+        $nodeDiv.on('dragstart', function(event) {
+          var origEvent = event.originalEvent;
+          var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
+          if (isFirefox) {
+            origEvent.dataTransfer.setData('text/html', 'hack for firefox');
+          }
+          // if users enable zoom or direction options
+          if ($nodeDiv.closest('.orgchart').css('transform') !== 'none') {
+            var ghostNode, nodeCover;
+            if (!document.querySelector('.ghost-node')) {
+              ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+              ghostNode.classList.add('ghost-node');
+              nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
+              ghostNode.appendChild(nodeCover);
+              $nodeDiv.closest('.orgchart').append(ghostNode);
+            } else {
+              ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
+              nodeCover = $(ghostNode).children().get(0);
+            }
+            var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
+            var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
+            ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
+            ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+            nodeCover.setAttribute('x',5 * scale);
+            nodeCover.setAttribute('y',5 * scale);
+            nodeCover.setAttribute('width', 120 * scale);
+            nodeCover.setAttribute('height', 40 * scale);
+            nodeCover.setAttribute('rx', 4 * scale);
+            nodeCover.setAttribute('ry', 4 * scale);
+            nodeCover.setAttribute('stroke-width', 1 * scale);
+            var xOffset = origEvent.offsetX * scale;
+            var yOffset = origEvent.offsetY * scale;
+            if (opts.direction === 'l2r') {
+              xOffset = origEvent.offsetY * scale;
+              yOffset = origEvent.offsetX * scale;
+            } else if (opts.direction === 'r2l') {
+              xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetY * scale;
+              yOffset = origEvent.offsetX * scale;
+            } else if (opts.direction === 'b2t') {
+              xOffset = $nodeDiv.outerWidth(false) - origEvent.offsetX * scale;
+              yOffset = $nodeDiv.outerHeight(false) - origEvent.offsetY * scale;
+            }
+            if (isFirefox) { // hack for old version of Firefox(< 48.0)
+              nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
+              nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
+              var ghostNodeWrapper = document.createElement('img');
+              ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
+              origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
+            } else {
+              origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
+            }
+          }
+          var $dragged = $(this);
+          var $dragZone = $dragged.closest('.nodes').siblings().eq(0).find('.node:first');
+          var $dragHier = $dragged.closest('table').find('.node');
+          $dragged.closest('.orgchart')
+            .data('dragged', $dragged)
+            .find('.node').each(function(index, node) {
+              if ($dragHier.index(node) === -1) {
+                if (opts.dropCriteria) {
+                  if (opts.dropCriteria($dragged, $dragZone, $(node))) {
+                    $(node).addClass('allowedDrop');
+                  }
+                } else {
+                  $(node).addClass('allowedDrop');
+                }
+              }
+            });
+        })
+        .on('dragover', function(event) {
+          event.preventDefault();
+          if (!$(this).is('.allowedDrop')) {
+            event.originalEvent.dataTransfer.dropEffect = 'none';
+          }
+        })
+        .on('dragend', function(event) {
+          $(this).closest('.orgchart').find('.allowedDrop').removeClass('allowedDrop');
+        })
+        .on('drop', function(event) {
+          var $dropZone = $(this);
+          var $orgchart = $dropZone.closest('.orgchart');
+          var $dragged = $orgchart.data('dragged');
+          var $dragZone = $dragged.closest('.nodes').siblings().eq(0).children();
+          var dropEvent = $.Event('nodedrop.orgchart');
+          $orgchart.trigger(dropEvent, { 'draggedNode': $dragged, 'dragZone': $dragZone.children(), 'dropZone': $dropZone });
+          if (dropEvent.isDefaultPrevented()) {
+            return;
+          }
+          // firstly, deal with the hierarchy of drop zone
+          if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
+            $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+              .parent().attr('colspan', 2)
+              .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
+              + '<tr class="lines"><td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td></tr>'
+              + '<tr class="nodes"></tr>')
+              .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
+          } else {
+            var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
+            var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
+            $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
+            if (!$dragged.find('.horizontalEdge').length) {
+              $dragged.append(horizontalEdges);
+            }
+            $dropZone.closest('tr').siblings().eq(1).children(':last').before('<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>')
+              .end().next().append($dragged.closest('table').parent());
+            var $dropSibs = $dragged.closest('table').parent().siblings().find('.node:first');
+            if ($dropSibs.length === 1) {
+              $dropSibs.append(horizontalEdges);
+            }
+          }
+          // secondly, deal with the hierarchy of dragged node
+          var dragColspan = parseInt($dragZone.attr('colspan'));
+          if (dragColspan > 2) {
+            $dragZone.attr('colspan', dragColspan - 2)
+              .parent().next().children().attr('colspan', dragColspan - 2)
+              .end().next().children().slice(1, 3).remove();
+            var $dragSibs = $dragZone.parent().siblings('.nodes').children().find('.node:first');
+            if ($dragSibs.length ===1) {
+              $dragSibs.find('.horizontalEdge').remove();
+            }
+          } else {
+            $dragZone.removeAttr('colspan')
+              .find('.bottomEdge').remove()
+              .end().end().siblings().remove();
+          }
+        });
       }
       // allow user to append dom modification after finishing node create of orgchart
       if (opts.createNode) {
@@ -1094,7 +1044,7 @@
           if (isVerticalNode) {
             $nodeWrapper.append($nodeDiv);
           }else {
-            $nodeWrapper.append($('<tr/>').append($('<td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td>').append($nodeDiv)));
+            $nodeWrapper.append($nodeDiv.wrap('<tr><td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td></tr>').closest('tr'));
           }
           if (callback) {
             callback();
@@ -1117,15 +1067,15 @@
           $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="downLine"></div></td></tr>');
         }
         // draw the lines close to children nodes
-        var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine"></td>';
+        var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine">&nbsp;</td>';
         for (var i=1; i<$childNodes.length; i++) {
-          lineLayer += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
+          lineLayer += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
         }
-        lineLayer += '<td class="leftLine"></td></tr>';
+        lineLayer += '<td class="leftLine">&nbsp;</td></tr>';
         var $nodeLayer;
         if (isVerticalLayer) {
           $nodeLayer = $('<ul>');
-          if (isHidden && opts.depth + 1 !== opts.verticalDepth) {
+          if (isHidden) {
             $nodeLayer.addClass(isHidden);
           }
           if (level + 2 === opts.verticalDepth) {
@@ -1177,9 +1127,9 @@
       nodeData.relationship = nodeData.relationship || '001';
       $.when(this.createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
         .done(function($nodeDiv) {
-          $table.append($('<tr class="hidden">').append($('<td colspan="2">').append($nodeDiv.removeClass('slide-up').addClass('slide-down'))));
+          $table.append($nodeDiv.removeClass('slide-up').addClass('slide-down').wrap('<tr class="hidden"><td colspan="2"></td></tr>').closest('tr'));
           $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
-          var linesRow = '<td class="rightLine"></td><td class="leftLine"></td>';
+          var linesRow = '<td class="rightLine">&nbsp;</td><td class="leftLine">&nbsp;</td>';
           $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
           var $chart = that.$chart;
           $chart.prepend($table)
@@ -1205,7 +1155,7 @@
     complementLine: function ($oneSibling, siblingCount, existingSibligCount) {
       var lines = '';
       for (var i = 0; i < existingSibligCount; i++) {
-        lines += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
+        lines += '<td class="leftLine topLine">&nbsp;</td><td class="rightLine topLine">&nbsp;</td>';
       }
       $oneSibling.parent().prevAll('tr:gt(0)').children().attr('colspan', siblingCount * 2)
         .end().next().children(':first').after(lines);
@@ -1298,14 +1248,14 @@
       } else {
         $mask.removeClass('hidden');
       }
-      var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:not(".hidden")').get(0);
+      var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
       var flag = that.options.direction === 'l2r' || that.options.direction === 'r2l';
       html2canvas(sourceChart, {
         'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
         'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
         'onclone': function (cloneDoc) {
           $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-            .find('.orgchart:not(".hidden"):first').css('transform', '');
+            .find('.orgchart:visible:first').css('transform', '');
         },
         'onrendered': function (canvas) {
           $chartContainer.find('.mask').addClass('hidden');

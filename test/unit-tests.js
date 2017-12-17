@@ -11,7 +11,7 @@ global.document = dom.window.document;
 var $ = require('jquery');
 require('../src/js/jquery.orgchart');
 
-describe('orgchart', function () {
+describe('orgchart -- unit tests', function () {
 
   var $container = $('#chart-container'),
   ds = {
@@ -22,20 +22,21 @@ describe('orgchart', function () {
       { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
       { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
         'children': [
-          { 'id': '5', 'name': 'Tie Hua', 'title': 'senior engineer' },
-          { 'id': '6', 'name': 'Hei Hei', 'title': 'senior engineer',
+          { 'id': '6', 'name': 'Tie Hua', 'title': 'senior engineer' },
+          { 'id': '7', 'name': 'Hei Hei', 'title': 'senior engineer',
             'children': [
-              { 'id': '8', 'name': 'Dan Dan', 'title': 'engineer',
+              { 'id': '9', 'name': 'Dan Dan', 'title': 'engineer',
                 'children' : [
-                  { 'id': '9', 'name': 'Er Dan', 'title': 'intern' }
+                  { 'id': '10', 'name': 'Er Dan', 'title': 'intern' }
                 ]
               }
             ]
           },
-          { 'id': '7', 'name': 'Pang Pang', 'title': 'senior engineer' }
+          { 'id': '8', 'name': 'Pang Pang', 'title': 'senior engineer' }
         ]
       },
-      { 'id': '4', 'name': 'Hong Miao', 'title': 'department manager' }
+      { 'id': '4', 'name': 'Hong Miao', 'title': 'department manager' },
+      { 'id': '5', 'name': 'Chun Miao', 'title': 'department manager' }
     ]
   },
   oc = {},
@@ -45,26 +46,28 @@ describe('orgchart', function () {
       { id: '2' },
       { id: '3',
         children: [
-          { id: '5' },
-          { id: '6',
+          { id: '6' },
+          { id: '7',
             children: [
-              { id: '8',
+              { id: '9',
                 children: [
-                  { id: '9' }
+                  { id: '10' }
                 ]
               }
             ]
           },
-          { id: '7' }
+          { id: '8' }
         ]
       },
-      { id: '4' }
+      { id: '4' },
+      { id: '5' }
     ]
   },
   $root,
   $bomiao,
   $sumiao,
   $hongmiao,
+  $chunmiao,
   $tiehua,
   $heihei,
   $pangpang,
@@ -80,15 +83,16 @@ describe('orgchart', function () {
     $bomiao = $('#2'),
     $sumiao = $('#3'),
     $hongmiao = $('#4'),
-    $tiehua = $('#5'),
-    $heihei = $('#6'),
-    $pangpang = $('#7'),
-    $dandan = $('#8'),
-    $erdan = $('#9');
+    $chunmiao = $('#5'),
+    $tiehua = $('#6'),
+    $heihei = $('#7'),
+    $pangpang = $('#8'),
+    $dandan = $('#9'),
+    $erdan = $('#10');
   });
     
   afterEach(function () {
-    $root = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = null;
+    $root = $bomiao = $sumiao = $hongmiao = $chunmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = null;
     $container.empty();
   });
 
@@ -151,12 +155,12 @@ describe('orgchart', function () {
     oc.getRelatedNodes($('.node:first'), 'child').should.deep.equal($());
 
     oc.getRelatedNodes($root, 'parent').should.deep.equal($());
-    oc.getRelatedNodes($root, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0]]);
+    oc.getRelatedNodes($root, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0], $chunmiao[0]]);
     oc.getRelatedNodes($root, 'siblings').should.deep.equal($());
 
     oc.getRelatedNodes($bomiao, 'parent').should.deep.equal($root);
     oc.getRelatedNodes($bomiao, 'children').should.have.lengthOf(0);
-    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0]]);
+    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0], $chunmiao[0]]);
   });
 
   it('hideParent() works well', function () {
