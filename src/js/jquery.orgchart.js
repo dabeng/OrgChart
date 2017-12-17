@@ -526,6 +526,14 @@
       this.repaint($visibleNodes.get(0));
       $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'visibleNodes': $visibleNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
     },
+    //
+    showChildrenEnd: function (event) {
+      var $node = event.data.node;
+      event.data.descendants.removeClass('sliding');
+      if (this.isInAction($node)) {
+        this.switchVerticalArrow($node.children('.bottomEdge'));
+      }
+    },
     // show the children nodes of the specified node
     showChildren: function ($node) {
       var that = this;
@@ -536,12 +544,7 @@
         : $levels.removeClass('hidden').eq(2).children().find('.node:first').filter(this.isVisibleNode.bind(this));
       // the two following statements are used to enforce browser to repaint
       this.repaint($descendants.get(0));
-      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
-        $descendants.removeClass('sliding');
-        if (that.isInAction($node)) {
-          that.switchVerticalArrow($node.children('.bottomEdge'));
-        }
-      });
+      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'node': $node, 'descendants': $descendants }, this.showChildrenEnd.bind(this));
     },
     //
     hideSiblingsEnd: function (event) {
@@ -592,6 +595,10 @@
         $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
       }
     },
+    //
+    showRelatedParentEnd: function(event) {
+      $(event.target).removeClass('sliding');
+    },
     // show the sibling nodes of the specified node
     showSiblings: function ($node, direction) {
       var that = this;
@@ -618,9 +625,7 @@
         $upperLevel.removeClass('hidden');
         var parent = $upperLevel.find('.node')[0];
         this.repaint(parent);
-        $(parent).addClass('sliding').removeClass('slide-down').one('transitionend', function() {
-          $(this).removeClass('sliding');
-        });
+        $(parent).addClass('sliding').removeClass('slide-down').one('transitionend', this.showRelatedParentEnd);
       }
       // lastly, show the sibling nodes with animation
       var $visibleNodes = $siblings.find('.node').filter(this.isVisibleNode.bind(this));
@@ -750,6 +755,15 @@
       });
     },
     //
+    HideFirstParentEnd: function (event) {
+      var $topEdge = event.data.topEdge;
+      var $node = $topEdge.parent();
+      if (this.isInAction($node)) {
+        this.switchVerticalArrow($topEdge);
+        this.switchHorizontalArrow($node);
+      }
+    },
+    //
     topEdgeClickHandler: function (event) {
       event.stopPropagation();
       var that = this;
@@ -762,12 +776,7 @@
         // hide the ancestor nodes and sibling nodes of the specified node
         if (parentState.visible) {
           this.hideParent($node);
-          $parent.one('transitionend', function() {
-            if (that.isInAction($node)) {
-              that.switchVerticalArrow($topEdge);
-              that.switchHorizontalArrow($node);
-            }
-          });
+          $parent.one('transitionend', { 'topEdge': $topEdge }, this.HideFirstParentEnd.bind(this));
         } else { // show the ancestors and siblings
           this.showParent($node);
         }
@@ -847,6 +856,14 @@
         }
       }
     },
+    //
+    expandVNodesEnd: function (event) {
+      event.data.vNodes.removeClass('sliding');
+    },
+    //
+    collapseVNodesEnd: function (event) {
+      event.data.vNodes.removeClass('sliding').closest('ul').addClass('hidden');
+    },
     // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
     toggleVNodes: function (event) {
       var $toggleBtn = $(event.target);
@@ -858,14 +875,9 @@
       if ($descendants.eq(0).is('.slide-up')) {
         $descWrapper.removeClass('hidden');
         this.repaint($children.get(0));
-        $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', function() {
-          $children.removeClass('sliding');
-        });
+        $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
       } else {
-        $descendants.addClass('sliding slide-up').eq(0).one('transitionend', function() {
-          $descendants.removeClass('sliding');
-          $descendants.closest('ul').addClass('hidden');
-        });
+        $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
         $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
       }
     },
