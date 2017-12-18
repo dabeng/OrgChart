@@ -10,7 +10,8 @@
     "test": "mocha ./test/**/*-tests.js",
     "debug": "mocha ./test/**/*-tests.js --inspect-brk",
     "build": "gulp build",
-    "start": "gulp serve"
+    "start": "gulp serve",
+    "e2e": "testcafe chrome test/e2e/"
   },
   "repository": {
     "type": "git",
@@ -57,6 +58,7 @@
     "merge-stream": "^1.0.1",
     "mocha": "^3.4.2",
     "sinon": "^4.1.2",
-    "sinon-chai": "^2.14.0"
+    "sinon-chai": "^2.14.0",
+    "testcafe": "^0.18.5"
   }
 }
