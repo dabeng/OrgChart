@@ -1,11 +1,14 @@
 import { Selector } from 'testcafe';
 
-fixture `Getting Started`
-  .page `localhost:3000/local-datasource.html`;
+fixture `Local Datasource`
+  .page `127.0.0.1:3000/local-datasource.html`;
 
-test('My first test', async t => {
+test('bottomEdge of root node', async t => {
   await t
       .hover(Selector('#n1'))
       .click(Selector('#n1').find('.bottomEdge'))
-      .expect(Selector('#n3').visible).notOk();
+      .expect(Selector('#n3').visible).notOk()
+      .hover(Selector('#n1'))
+      .click(Selector('#n1').find('.bottomEdge'))
+      .expect(Selector('#n3').visible).ok();
 });
