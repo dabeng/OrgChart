@@ -344,8 +344,8 @@
         'name': $li.contents().eq(0).text().trim(),
         'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('ul').length ? 1 : 0)
       };
-      if ($li[0].id) {
-        subObj.id = $li[0].id;
+      if ($li.attr('data-id')) {
+        subObj.id = $li.attr('data-id');
       }
       $li.children('ul').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
@@ -383,8 +383,15 @@
         if (!this.$chart.find('.node').length) {
           return 'Error: nodes do not exist'
         } else {
-          if (!this.$chart.find('.node')[0].id) {
-            return 'Error: Nodes of orghcart to be exported must have id attribute!';
+          var valid = true;
+          this.$chart.find('.node').each(function () {
+            if (!this.id) {
+              valid = false;
+              return false;
+            }
+          });
+          if (!valid) {
+            return 'Error: All nodes of orghcart to be exported must have data-id attribute!';
           }
         }
       }

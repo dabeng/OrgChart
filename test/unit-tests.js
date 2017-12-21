@@ -15,55 +15,45 @@ describe('orgchart -- unit tests', function () {
 
   var $container = $('#chart-container'),
   ds = {
-    'id': '1',
+    'id': 'n1',
     'name': 'Lao Lao',
     'title': 'general manager',
     'children': [
-      { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
-      { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+      { 'id': 'n2', 'name': 'Bo Miao', 'title': 'department manager' },
+      { 'id': 'n3', 'name': 'Su Miao', 'title': 'department manager',
         'children': [
-          { 'id': '6', 'name': 'Tie Hua', 'title': 'senior engineer' },
-          { 'id': '7', 'name': 'Hei Hei', 'title': 'senior engineer',
+          { 'id': 'n5', 'name': 'Tie Hua', 'title': 'senior engineer' },
+          { 'id': 'n6', 'name': 'Hei Hei', 'title': 'senior engineer',
             'children': [
-              { 'id': '9', 'name': 'Dan Dan', 'title': 'engineer',
-                'children' : [
-                  { 'id': '10', 'name': 'Er Dan', 'title': 'intern' }
-                ]
-              }
+              { 'id': 'n8', 'name': 'Dan Dan', 'title': 'engineer' }
             ]
           },
-          { 'id': '8', 'name': 'Pang Pang', 'title': 'senior engineer' }
+          { 'id': 'n7', 'name': 'Pang Pang', 'title': 'senior engineer' }
         ]
       },
-      { 'id': '4', 'name': 'Hong Miao', 'title': 'department manager' },
-      { 'id': '5', 'name': 'Chun Miao', 'title': 'department manager' }
+      { 'id': 'n4', 'name': 'Hong Miao', 'title': 'department manager' }
     ]
   },
   oc = {},
   hierarchy = {
-    id: '1',
+    id: 'n1',
     children: [
-      { id: '2' },
-      { id: '3',
+      { id: 'n2' },
+      { id: 'n3',
         children: [
-          { id: '6' },
-          { id: '7',
+          { id: 'n5' },
+          { id: 'n6',
             children: [
-              { id: '9',
-                children: [
-                  { id: '10' }
-                ]
-              }
+              { id: 'n8' }
             ]
           },
-          { id: '8' }
+          { id: 'n7' }
         ]
       },
-      { id: '4' },
-      { id: '5' }
+      { id: 'n4' }
     ]
   },
-  $root,
+  $laolao,
   $bomiao,
   $sumiao,
   $hongmiao,
@@ -71,28 +61,25 @@ describe('orgchart -- unit tests', function () {
   $tiehua,
   $heihei,
   $pangpang,
-  $dandan,
-  $erdan;
+  $dandan;
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
       'data': ds,
       'nodeContent': 'title'
     }),
-    $root = $('#1'),
-    $bomiao = $('#2'),
-    $sumiao = $('#3'),
-    $hongmiao = $('#4'),
-    $chunmiao = $('#5'),
-    $tiehua = $('#6'),
-    $heihei = $('#7'),
-    $pangpang = $('#8'),
-    $dandan = $('#9'),
-    $erdan = $('#10');
+    $laolao = $('#n1'),
+    $bomiao = $('#n2'),
+    $sumiao = $('#n3'),
+    $hongmiao = $('#n4'),
+    $tiehua = $('#n5'),
+    $heihei = $('#n6'),
+    $pangpang = $('#n7'),
+    $dandan = $('#n8');
   });
     
   afterEach(function () {
-    $root = $bomiao = $sumiao = $hongmiao = $chunmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = null;
+    $laolao = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = null;
     $container.empty();
   });
 
@@ -119,9 +106,9 @@ describe('orgchart -- unit tests', function () {
 
   it('getNodeState() works well', function () {
     oc.init({ 'depth': 2 }).$chart.on('init.orgchart', function () {
-      oc.getNodeState($root, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
-      oc.getNodeState($root, 'children').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($root, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($laolao, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
+      oc.getNodeState($laolao, 'children').should.deep.equal({ 'exist': true, 'visible': true });
+      oc.getNodeState($laolao, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
 
       oc.getNodeState($bomiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
       oc.getNodeState($bomiao, 'children').should.deep.equal({ 'exist': false, 'visible': false });
@@ -154,13 +141,13 @@ describe('orgchart -- unit tests', function () {
     oc.getRelatedNodes($('td:first'), 'children').should.deep.equal($());
     oc.getRelatedNodes($('.node:first'), 'child').should.deep.equal($());
 
-    oc.getRelatedNodes($root, 'parent').should.deep.equal($());
-    oc.getRelatedNodes($root, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0], $chunmiao[0]]);
-    oc.getRelatedNodes($root, 'siblings').should.deep.equal($());
+    oc.getRelatedNodes($laolao, 'parent').should.deep.equal($());
+    oc.getRelatedNodes($laolao, 'children').toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0]]);
+    oc.getRelatedNodes($laolao, 'siblings').should.deep.equal($());
 
-    oc.getRelatedNodes($bomiao, 'parent').should.deep.equal($root);
+    oc.getRelatedNodes($bomiao, 'parent').should.deep.equal($laolao);
     oc.getRelatedNodes($bomiao, 'children').should.have.lengthOf(0);
-    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0], $chunmiao[0]]);
+    oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0]]);
   });
 
   it('hideParent() works well', function () {
@@ -168,18 +155,18 @@ describe('orgchart -- unit tests', function () {
     oc.hideParent($heihei);
     spy.should.have.been.callCount(2);
     oc.hideParentEnd({ 'target': $sumiao[0], 'data': { 'upperLevel': $heihei.closest('.nodes').siblings() } });
-    oc.hideParentEnd({ 'target': $root[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
+    oc.hideParentEnd({ 'target': $laolao[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
 
     $heihei.parents('.nodes').each(function () {
       $(this).siblings().filter('.hidden').should.lengthOf(3);
     });
     $sumiao.is('.slide-down').should.be.true;
-    $root.is('.slide-down').should.be.true;
+    $laolao.is('.slide-down').should.be.true;
   });
 
   it('showParent() works well', function () {
     var spy = sinon.spy(oc, 'repaint');
-    $root.add($sumiao).closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
+    $laolao.add($sumiao).closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
     oc.showParent($heihei);
     spy.should.have.been.called;
     var $upperLevel = $heihei.closest('.nodes').siblings();
@@ -196,13 +183,17 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('hideChildren() works well', function () {
-    oc.hideChildren($heihei);
-    $heihei.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(4);
+    oc.hideChildren($sumiao);
+    $sumiao.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(4);
+    $tiehua.is('.sliding,.slide-up').should.be.true;
+    $heihei.is('.sliding,.slide-up').should.be.true;
+    $pangpang.is('.sliding,.slide-up').should.be.true;
     $dandan.is('.sliding,.slide-up').should.be.true;
-    $erdan.is('.sliding,.slide-up').should.be.true;
-    oc.hideChildrenEnd({ 'data': { 'visibleNodes': $dandan.add($erdan), 'lowerLevel': $heihei.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $heihei } });
+    oc.hideChildrenEnd({ 'data': { 'visibleNodes': $([$tiehua[0], $heihei[0], $pangpang[0], $dandan[0]]), 'lowerLevel': $sumiao.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $sumiao } });
+    $tiehua.is('.sliding').should.be.false;
+    $heihei.is('.sliding').should.be.false;
+    $pangpang.is('.sliding').should.be.false;
     $dandan.is('.sliding').should.be.false;
-    $erdan.is('.sliding').should.be.false;
   });
 
 });
