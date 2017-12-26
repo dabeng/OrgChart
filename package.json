@@ -11,7 +11,8 @@
     "debug": "mocha ./test/**/*-tests.js --inspect-brk",
     "build": "gulp build",
     "start": "gulp serve",
-    "e2e": "testcafe chrome test/e2e/"
+    "e2e": "testcafe chrome test/e2e/",
+    "e2e:debug": "testcafe --inspect-brk chrome test/e2e"
   },
   "repository": {
     "type": "git",
