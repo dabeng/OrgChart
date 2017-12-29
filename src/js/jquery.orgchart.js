@@ -1041,7 +1041,8 @@
         $nodeDiv.append(opts.nodeTemplate(nodeData));
       } else {
         var isSetNodeContent = typeof opts.nodeContent !== 'undefined';
-        $nodeDiv.append('<div class="title ' + (isSetNodeContent ? 'withContent': '') + '">' + nodeData[opts.nodeTitle] + '</div>')
+        $nodeDiv.addClass(isSetNodeContent ? 'withContent': '')
+          .append('<div class="title ' + (isSetNodeContent ? 'withContent': '') + '">' + nodeData[opts.nodeTitle] + '</div>')
           .append(isSetNodeContent ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
       }
       // append 4 direction arrows or expand/collapse buttons

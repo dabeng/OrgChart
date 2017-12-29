@@ -162,8 +162,12 @@
 }
 
 .orgchart.l2r .node, .orgchart.r2l .node {
-  width: 50px;
+  width: 30px;
   height: 130px;
+}
+
+.orgchart.l2r .withContent, .orgchart.r2l .withContent {
+  width: 50px;
 }
 
 .orgchart .node>.spinner {
