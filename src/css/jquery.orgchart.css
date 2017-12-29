@@ -217,6 +217,9 @@
 
 .orgchart.b2t .node .title {
   transform: rotate(-180deg);
+}
+
+.orgchart.b2t .node .withContent {
   transform-origin: center bottom;
 }
 
