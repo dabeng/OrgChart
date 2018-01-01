@@ -1,7 +1,7 @@
 import Page from './page-model';
 
 fixture `Local Datasource`
-  .page `127.0.0.1:3000/local-datasource.html`;
+  .page `../../../demo/local-datasource.html`;
 
 const page = new Page();
 const laolao = page.laolao;

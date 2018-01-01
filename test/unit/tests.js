@@ -9,7 +9,7 @@ var dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div>
 global.window = dom.window;
 global.document = dom.window.document;
 var $ = require('jquery');
-require('../src/js/jquery.orgchart');
+require('../../src/js/jquery.orgchart');
 
 describe('orgchart -- unit tests', function () {
 
