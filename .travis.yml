@@ -1,7 +1,7 @@
 language: node_js
 node_js: "stable"
 
- before_install:
+before_install:
     - stty cols 80
 
 dist: trusty
@@ -11,9 +11,9 @@ addons:
   firefox: latest
   apt:
     sources:
-     - google-chrome
+      - google-chrome
     packages:
-     - google-chrome-stable fluxbox
+      - google-chrome-stable fluxbox
 
 before_script:
   - "export DISPLAY=:99.0"

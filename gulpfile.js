@@ -80,6 +80,7 @@ gulp.task('e2e-tests', ['integration-tests', 'addAssets'], function () {
 
 gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
   return gulp.src(paths.srcJS)
+    .pipe(gulp.dest(paths.distJSFolder))
     .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(rename('jquery.orgchart.min.js'))
@@ -105,6 +106,7 @@ gulp.task('csslint', function() {
 
 gulp.task('css', ['cleanupCSS', 'csslint'], function () {
   return gulp.src(paths.srcCSS)
+    .pipe(gulp.dest(paths.distCSSFolder))
     .pipe(sourcemaps.init())
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))
