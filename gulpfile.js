@@ -31,17 +31,17 @@ var paths = {
   distJSFolder: 'dist/js'
 };
 
-gulp.task('cleanupJS', function() {
-  del([paths.distJSFolder + '/**']);
+gulp.task('unit-tests', function () {
+  return gulp.src(['test/unit/*.js'], {read: false})
+    .pipe(mocha({reporter: 'spec'}));
 });
 
-gulp.task('eslint', function () {
-  return gulp.src(paths.srcJS)
-    .pipe(eslint.format())
-    .pipe(eslint.failOnError());
+gulp.task('integration-tests', ['unit-tests'], function () {
+  return gulp.src(['test/integration/*.js'], {read: false})
+    .pipe(mocha({reporter: 'spec'}));
 });
 
-gulp.task('addAssets', function() {
+gulp.task('addAssets', ['integration-tests'], function () {
   var fontawesomeCSS = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
     .pipe(gulp.dest(paths.demoCSSFolder));
 
@@ -63,19 +63,19 @@ gulp.task('addAssets', function() {
   return merge(fontawesomeCSS, fontawesomeFonts, jsFiles, cssFiles);
 });
 
-gulp.task('unit-tests', function () {
-  return gulp.src(['test/unit/*.js'], {read: false})
-    .pipe(mocha({reporter: 'spec'}));
-});
-
-gulp.task('integration-tests', ['unit-tests'], function () {
-  return gulp.src(['test/integration/*.js'], {read: false})
-    .pipe(mocha({reporter: 'spec'}));
-});
-
-gulp.task('e2e-tests', ['integration-tests', 'addAssets'], function () {
+gulp.task('e2e-tests', ['addAssets'], function () {
   return gulp.src('test/e2e/**/test.js')
     .pipe(testcafe({ browsers: ['chrome:headless', 'firefox:headless'] }));
+});
+
+gulp.task('cleanupJS', function() {
+  del([paths.distJSFolder + '/**']);
+});
+
+gulp.task('eslint', function () {
+  return gulp.src(paths.srcJS)
+    .pipe(eslint.format())
+    .pipe(eslint.failOnError());
 });
 
 gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
