@@ -9,12 +9,13 @@ var merge = require('merge-stream');
 var csslint = require('gulp-csslint');
 var cleanCSS = require('gulp-clean-css');
 var sourcemaps = require('gulp-sourcemaps');
+var testcafe = require('gulp-testcafe');
 var paths = {
   src: 'src',
   srcFiles: 'src/**/*',
   srcHTML: 'src/**/*.html',
-  srcCSS: 'src/**/*.css',
-  srcJS: 'src/**/*.js',
+  srcCSS: 'src/css/*.css',
+  srcJS: 'src/js/*.js',
   demo: 'demo',
   demoFiles: 'demo/**/*',
   demoHTML: 'demo/**/*.html',
@@ -30,8 +31,45 @@ var paths = {
   distJSFolder: 'dist/js'
 };
 
+gulp.task('unit-tests', function () {
+  return gulp.src(['test/unit/*.js'], {read: false})
+    .pipe(mocha({reporter: 'spec'}));
+});
+
+gulp.task('integration-tests', ['unit-tests'], function () {
+  return gulp.src(['test/integration/*.js'], {read: false})
+    .pipe(mocha({reporter: 'spec'}));
+});
+
+gulp.task('addAssets', ['integration-tests'], function () {
+  var fontawesomeCSS = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
+    .pipe(gulp.dest(paths.demoCSSFolder));
+
+  var fontawesomeFonts = gulp.src('node_modules/font-awesome/fonts/*')
+    .pipe(gulp.dest(paths.demo + '/fonts'));
+
+  var jsFiles = gulp.src([
+      paths.srcJS,
+      'node_modules/jquery/dist/jquery.min.js',
+      'node_modules/jquery-mockjax/dist/jquery.mockjax.min.js',
+      'node_modules/html2canvas/dist/html2canvas.min.js',
+      'node_modules/jspdf/dist/jspdf.min.js'
+    ])
+    .pipe(gulp.dest(paths.demoJSFolder));
+
+  var cssFiles = gulp.src(paths.srcCSS)
+    .pipe(gulp.dest(paths.demoCSSFolder));
+
+  return merge(fontawesomeCSS, fontawesomeFonts, jsFiles, cssFiles);
+});
+
+gulp.task('e2e-tests', ['addAssets'], function () {
+  return gulp.src('test/e2e/**/test.js')
+    .pipe(testcafe({ browsers: ['chrome:headless', 'firefox:headless'] }));
+});
+
 gulp.task('cleanupJS', function() {
-  del([paths.demoJSFolder + '/*orgchart*', paths.distJSFolder]);
+  del([paths.distJSFolder + '/**']);
 });
 
 gulp.task('eslint', function () {
@@ -40,23 +78,18 @@ gulp.task('eslint', function () {
     .pipe(eslint.failOnError());
 });
 
-gulp.task('test', function () {
-  return gulp.src(['test/**/*-tests.js'], {read: false})
-    .pipe(mocha({reporter: 'spec'}));
-});
-
-gulp.task('js', ['cleanupJS', 'eslint', 'test'], function () {
+gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
   return gulp.src(paths.srcJS)
+    .pipe(gulp.dest(paths.distJSFolder))
     .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(rename('jquery.orgchart.min.js'))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest(paths.demoJSFolder))
     .pipe(gulp.dest(paths.distJSFolder));
 });
 
 gulp.task('cleanupCSS', function() {
-  del([paths.demoCSSFolder + '/*orgchart*', paths.distCSSFolder]);
+  del([paths.distCSSFolder + '/**']);
 });
 
 gulp.task('csslint', function() {
@@ -73,30 +106,12 @@ gulp.task('csslint', function() {
 
 gulp.task('css', ['cleanupCSS', 'csslint'], function () {
   return gulp.src(paths.srcCSS)
+    .pipe(gulp.dest(paths.distCSSFolder))
     .pipe(sourcemaps.init())
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest(paths.demoCSSFolder))
     .pipe(gulp.dest(paths.distCSSFolder));
-});
-
-gulp.task('vendorAssets', function() {
-  var fontawesomeCSS = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
-    .pipe(gulp.dest(paths.demoCSSFolder));
-
-  var fontawesomeFonts = gulp.src('node_modules/font-awesome/fonts/*')
-    .pipe(gulp.dest(paths.demo + '/fonts'));
-
-  var vendorJS = gulp.src([
-      'node_modules/jquery/dist/jquery.min.js',
-      'node_modules/jquery-mockjax/dist/jquery.mockjax.min.js',
-      'node_modules/html2canvas/dist/html2canvas.min.js',
-      'node_modules/jspdf/dist/jspdf.min.js'
-    ])
-    .pipe(gulp.dest(paths.demoJSFolder));
-
-  return merge(fontawesomeCSS, fontawesomeFonts, vendorJS);
 });
 
 gulp.task('build', ['js', 'css']);
@@ -106,7 +121,7 @@ gulp.task('reload', function (done) {
   done();
 });
 
-gulp.task('serve', ['build', 'vendorAssets'], function() {
+gulp.task('serve', ['build'], function () {
   browserSync.init({
     server: {
       baseDir: paths.demo

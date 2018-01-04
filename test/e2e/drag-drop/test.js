@@ -2,7 +2,7 @@ import { Selector } from 'testcafe';
 import Page from './page-model';
 
 fixture `Drag & Drop`
-  .page `127.0.0.1:3000/drag-drop.html`;
+  .page `../../../demo/drag-drop.html`;
 
 const page = new Page();
 const laolao = page.laolao;
@@ -17,7 +17,7 @@ const dandan = page.dandan;
 
 const findNextNode = node => node.parent(3).nextSibling().find('.title').textContent;
 const findOnlyChild = node => node.parent(1).sibling(':last-child').find('.title').textContent;
-const getChildrenCount = node => node.parent(1).sibling(':last-child').child('td').count;
+const getChildrenCount = node => node.parent(1).sibling(':last-child').childElementCount;
 const getDescendantsCount = node => node.parent(1).sibling(':last-child').find('.node').count;
 
 test('drag lixin onto hongmiao', async t => {
