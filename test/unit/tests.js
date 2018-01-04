@@ -183,17 +183,44 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('hideChildren() works well', function () {
+    var spy = sinon.spy(oc, 'repaint');
     oc.hideChildren($sumiao);
+    spy.should.have.been.called;
     $sumiao.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(4);
     $tiehua.is('.sliding,.slide-up').should.be.true;
     $heihei.is('.sliding,.slide-up').should.be.true;
     $pangpang.is('.sliding,.slide-up').should.be.true;
     $dandan.is('.sliding,.slide-up').should.be.true;
-    oc.hideChildrenEnd({ 'data': { 'visibleNodes': $([$tiehua[0], $heihei[0], $pangpang[0], $dandan[0]]), 'lowerLevel': $sumiao.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $sumiao } });
+    oc.hideChildrenEnd({ 'data': { 'animatedNodes': $([$tiehua[0], $heihei[0], $pangpang[0], $dandan[0]]), 'lowerLevel': $sumiao.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $sumiao } });
     $tiehua.is('.sliding').should.be.false;
     $heihei.is('.sliding').should.be.false;
     $pangpang.is('.sliding').should.be.false;
     $dandan.is('.sliding').should.be.false;
+  });
+
+  it('showChildren() works well', function () {
+    var spy = sinon.spy(oc, 'repaint');
+    $sumiao.closest('tr').siblings('.nodes').find('.node').addClass('sliding slide-up');
+    $sumiao.closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
+    oc.showChildren($sumiao);
+    spy.should.have.been.calledWith($tiehua[0]);
+    $tiehua.is('.sliding:not(.slide-up)').should.be.true;
+    $heihei.is('.sliding:not(.slide-up)').should.be.true;
+    $pangpang.is('.sliding:not(.slide-up)').should.be.true;
+    $dandan.is('.sliding,.slide-up').should.be.true;
+
+  });
+
+  it('showChildrenEnd() works well', function () {
+    var spy = sinon.spy(oc, 'showChildrenEnd');
+    var spy2 = sinon.spy(oc, 'isInAction');
+    var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+    $tiehua.addClass('sliding').one('transitionend', { 'node': $sumiao, 'animatedNodes': $tiehua }, spy.bind(oc));
+    $tiehua.trigger('transitionend');
+    spy.should.have.been.called;
+    $tiehua.is('.sliding').should.be.false;
+    spy2.should.have.been.calledWith($sumiao);
+    spy3.should.not.have.been.called;
   });
 
 });

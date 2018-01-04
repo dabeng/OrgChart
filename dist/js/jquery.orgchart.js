@@ -509,11 +509,11 @@
     },
     //
     hideChildrenEnd: function (event) {
-      event.data.visibleNodes.removeClass('sliding');
+      event.data.animatedNodes.removeClass('sliding');
       if (event.data.isVerticalDesc) {
         event.data.lowerLevel.addClass('hidden');
       } else {
-        event.data.visibleNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
+        event.data.animatedNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
           .siblings('.nodes').addClass('hidden');
         event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
       }
@@ -525,18 +525,18 @@
     hideChildren: function ($node) {
       var $lowerLevel = $node.closest('tr').siblings();
       this.stopAjax($lowerLevel.last());
-      var $visibleNodes = $lowerLevel.last().find('.node').filter(this.isVisibleNode.bind(this));
+      var $animatedNodes = $lowerLevel.last().find('.node').filter(this.isVisibleNode.bind(this));
       var isVerticalDesc = $lowerLevel.last().is('.verticalNodes') ? true : false;
       if (!isVerticalDesc) {
-        $visibleNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
+        $animatedNodes.closest('table').closest('tr').prevAll('.lines').css('visibility', 'hidden');
       }
-      this.repaint($visibleNodes.get(0));
-      $visibleNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'visibleNodes': $visibleNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
+      this.repaint($animatedNodes.get(0));
+      $animatedNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'animatedNodes': $animatedNodes, 'lowerLevel': $lowerLevel, 'isVerticalDesc': isVerticalDesc, 'node': $node }, this.hideChildrenEnd.bind(this));
     },
     //
     showChildrenEnd: function (event) {
       var $node = event.data.node;
-      event.data.descendants.removeClass('sliding');
+      event.data.animatedNodes.removeClass('sliding');
       if (this.isInAction($node)) {
         this.switchVerticalArrow($node.children('.bottomEdge'));
       }
@@ -546,12 +546,12 @@
       var that = this;
       var $levels = $node.closest('tr').siblings();
       var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
-      var $descendants = isVerticalDesc
+      var $animatedNodes = isVerticalDesc
         ? $levels.removeClass('hidden').find('.node').filter(this.isVisibleNode.bind(this))
         : $levels.removeClass('hidden').eq(2).children().find('.node:first').filter(this.isVisibleNode.bind(this));
       // the two following statements are used to enforce browser to repaint
-      this.repaint($descendants.get(0));
-      $descendants.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'node': $node, 'descendants': $descendants }, this.showChildrenEnd.bind(this));
+      this.repaint($animatedNodes.get(0));
+      $animatedNodes.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'node': $node, 'animatedNodes': $animatedNodes }, this.showChildrenEnd.bind(this));
     },
     //
     hideSiblingsEnd: function (event) {
