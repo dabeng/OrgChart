@@ -1,7 +1,7 @@
 var chai = require("chai");
 var sinon = require("sinon");
 var sinonChai = require("sinon-chai");
-chai.should();
+var should = chai.should();
 chai.use(sinonChai);
 var jsdom = require("jsdom");
 var { JSDOM } = jsdom;
@@ -83,11 +83,11 @@ describe('orgchart -- unit tests', function () {
     $container.empty();
   });
 
-  it('loopChart() works well', function () {
+  it('loopChart()', function () {
     oc.loopChart($('.orgchart')).should.deep.equal(hierarchy);
   });
 
-  it('getHierarchy() works well', function () {
+  it('getHierarchy()', function () {
     oc.getHierarchy().should.deep.equal(hierarchy);
 
     var oc2 = $('#chart-container').orgchart({
@@ -104,7 +104,7 @@ describe('orgchart -- unit tests', function () {
     oc2.getHierarchy().should.include('Error');
   });
 
-  it('getNodeState() works well', function () {
+  it('getNodeState()', function () {
     oc.init({ 'depth': 2 }).$chart.on('init.orgchart', function () {
       oc.getNodeState($laolao, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
       oc.getNodeState($laolao, 'children').should.deep.equal({ 'exist': true, 'visible': true });
@@ -136,7 +136,7 @@ describe('orgchart -- unit tests', function () {
     });
   });
 
-  it('getRelatedNodes() works well', function () {
+  it('getRelatedNodes()', function () {
     oc.getRelatedNodes().should.deep.equal($());
     oc.getRelatedNodes($('td:first'), 'children').should.deep.equal($());
     oc.getRelatedNodes($('.node:first'), 'child').should.deep.equal($());
@@ -150,21 +150,31 @@ describe('orgchart -- unit tests', function () {
     oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0]]);
   });
 
-  it('hideParent() works well', function () {
-    var spy = sinon.spy(oc, 'hideSiblings');
+  it('hideParent()', function () {
+    var spy  = sinon.spy(oc, 'hideParent');
+    var spy2  = sinon.spy(oc, 'hideSiblings');
     oc.hideParent($heihei);
     spy.should.have.been.callCount(2);
-    oc.hideParentEnd({ 'target': $sumiao[0], 'data': { 'upperLevel': $heihei.closest('.nodes').siblings() } });
-    oc.hideParentEnd({ 'target': $laolao[0], 'data': { 'upperLevel': $sumiao.closest('.nodes').siblings() } });
-
-    $heihei.parents('.nodes').each(function () {
-      $(this).siblings().filter('.hidden').should.lengthOf(3);
-    });
-    $sumiao.is('.slide-down').should.be.true;
-    $laolao.is('.slide-down').should.be.true;
+    spy.getCall(0).should.have.been.calledWithMatch($heihei);
+    spy.getCall(1).should.have.been.calledWithMatch($sumiao);
+    spy2.should.have.been.callCount(2);
+    spy2.getCall(0).should.have.been.calledWithMatch($heihei);
+    spy2.getCall(1).should.have.been.calledWithMatch($sumiao);
   });
 
-  it('showParent() works well', function () {
+  it('hideParentEnd()', function () {
+    var spy = sinon.spy(oc, 'hideParentEnd');
+    var $upperLevel = $heihei.closest('.nodes').siblings();
+    $sumiao.addClass('sliding slide-down').one('transitionend', { 'upperLevel': $upperLevel }, spy.bind(oc));
+    $sumiao.trigger('transitionend');
+    spy.should.have.been.called;
+    $sumiao.is('sliding').should.be.false;
+    $upperLevel.filter('.hidden').should.lengthOf(3);
+    should.equal($upperLevel.eq(1).attr('style'), undefined);
+    should.equal($upperLevel.eq(2).attr('style'), undefined);
+  });
+
+  it('showParent()', function () {
     var spy = sinon.spy(oc, 'repaint');
     $laolao.add($sumiao).closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
     oc.showParent($heihei);
@@ -177,12 +187,21 @@ describe('orgchart -- unit tests', function () {
     $lines.filter('.hidden').should.lengthOf($lines.length - 2);
     $sumiao.is('.sliding').should.be.true;
     $sumiao.is('.slide-down').should.be.false;
-
-    oc.showParentEnd({ 'target': $sumiao[0], 'data': { 'node': $heihei } });
-    $sumiao.is('.sliding').should.be.false;
   });
 
-  it('hideChildren() works well', function () {
+  it('showParentEnd()', function () {
+    var spy = sinon.spy(oc, 'showParentEnd');
+    var spy2 = sinon.spy(oc, 'isInAction');
+    var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+    $sumiao.addClass('sliding').removeClass('slide-down').one('transitionend', { 'node': $heihei }, spy.bind(oc));
+    $sumiao.trigger('transitionend');
+    spy.should.have.been.called;
+    $sumiao.is('.sliding').should.be.false;
+    spy2.should.have.been.calledWith($heihei);
+    spy3.should.not.have.been.called;
+  });
+
+  it('hideChildren()', function () {
     var spy = sinon.spy(oc, 'repaint');
     oc.hideChildren($sumiao);
     spy.should.have.been.called;
@@ -191,14 +210,27 @@ describe('orgchart -- unit tests', function () {
     $heihei.is('.sliding,.slide-up').should.be.true;
     $pangpang.is('.sliding,.slide-up').should.be.true;
     $dandan.is('.sliding,.slide-up').should.be.true;
-    oc.hideChildrenEnd({ 'data': { 'animatedNodes': $([$tiehua[0], $heihei[0], $pangpang[0], $dandan[0]]), 'lowerLevel': $sumiao.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $sumiao } });
-    $tiehua.is('.sliding').should.be.false;
-    $heihei.is('.sliding').should.be.false;
-    $pangpang.is('.sliding').should.be.false;
-    $dandan.is('.sliding').should.be.false;
   });
 
-  it('showChildren() works well', function () {
+  it('hideChildrenEnd()', function () {
+    var spy = sinon.spy(oc, 'hideChildrenEnd');
+    var spy2 = sinon.spy(oc, 'isInAction');
+    var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+    $tiehua.addClass('sliding slide-up').one('transitionend', { 'animatedNodes': $tiehua, 'lowerLevel': $sumiao.closest('tr').siblings(), 'isVerticalDesc': false, 'node': $sumiao }, spy.bind(oc));
+    $tiehua.trigger('transitionend');
+    spy.should.have.been.called;
+    $tiehua.is('.sliding').should.be.false;
+    $tiehua.closest('.nodes').is('.hidden').should.be.true;
+    var $lines = $tiehua.closest('.nodes').prevAll('.lines');
+    should.equal($lines.eq(0).attr('style'), undefined);
+    $lines.eq(0).is('.hidden').should.be.true;
+    should.equal($lines.eq(1).attr('style'), undefined);
+    $lines.eq(1).is('.hidden').should.be.true;
+    spy2.should.have.been.calledWith($sumiao);
+    spy3.should.not.have.been.called;
+  });
+
+  it('showChildren()', function () {
     var spy = sinon.spy(oc, 'repaint');
     $sumiao.closest('tr').siblings('.nodes').find('.node').addClass('sliding slide-up');
     $sumiao.closest('tr').nextUntil('.nodes').addBack().addClass('hidden');
@@ -211,7 +243,7 @@ describe('orgchart -- unit tests', function () {
 
   });
 
-  it('showChildrenEnd() works well', function () {
+  it('showChildrenEnd()', function () {
     var spy = sinon.spy(oc, 'showChildrenEnd');
     var spy2 = sinon.spy(oc, 'isInAction');
     var spy3 = sinon.spy(oc, 'switchVerticalArrow');
@@ -221,6 +253,22 @@ describe('orgchart -- unit tests', function () {
     $tiehua.is('.sliding').should.be.false;
     spy2.should.have.been.calledWith($sumiao);
     spy3.should.not.have.been.called;
+  });
+
+  it('hideSiblings($node)', function () {
+    oc.hideSiblings($heihei);
+    $tiehua.is('.sliding.slide-right').should.be.true;
+    $pangpang.is('.sliding.slide-left').should.be.true;
+  });
+
+  it('hideSiblings($node)', function () {
+    oc.hideSiblings($tiehua);
+    $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
+  });
+
+  it('hideSiblings($node)', function () {
+    oc.hideSiblings($pangpang);
+    $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
   });
 
 });
