@@ -65,7 +65,7 @@ gulp.task('addAssets', ['integration-tests'], function () {
 
 gulp.task('e2e-tests', ['addAssets'], function () {
   return gulp.src('test/e2e/**/test.js')
-    .pipe(testcafe({ browsers: ['chrome:headless', 'firefox:headless'] }));
+    .pipe(testcafe({ browsers: ['firefox:headless'] }));
 });
 
 gulp.task('cleanupJS', function() {

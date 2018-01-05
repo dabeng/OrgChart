@@ -513,8 +513,7 @@
       if (event.data.isVerticalDesc) {
         event.data.lowerLevel.addClass('hidden');
       } else {
-        event.data.animatedNodes.closest('table').closest('tr').prevAll('.lines').removeAttr('style').addClass('hidden')
-          .siblings('.nodes').addClass('hidden');
+        event.data.animatedNodes.closest('.nodes').prevAll('.lines').removeAttr('style').addBack().addClass('hidden');
         event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
       }
       if (this.isInAction(event.data.node)) {
