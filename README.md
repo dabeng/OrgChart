@@ -34,8 +34,8 @@ $ npm install orgchart
 ```
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
-## Demo
-### [online demos](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)
+## [Demo](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)
+### online demos
 - [using ul datasource](https://rawgit.com/dabeng/OrgChart/master/demo/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 
 - [using local datasource](https://rawgit.com/dabeng/OrgChart/master/demo/local-datasource.html)
