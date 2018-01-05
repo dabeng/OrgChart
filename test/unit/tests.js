@@ -255,20 +255,46 @@ describe('orgchart -- unit tests', function () {
     spy3.should.not.have.been.called;
   });
 
-  it('hideSiblings($node)', function () {
-    oc.hideSiblings($heihei);
-    $tiehua.is('.sliding.slide-right').should.be.true;
-    $pangpang.is('.sliding.slide-left').should.be.true;
-  });
+  describe('hideSiblings()', function () {
+    context('when passing only one parameter -- node', function () {
+      it('should hide all the sliding nodes', function () {
+        oc.hideSiblings($heihei);
+        $tiehua.is('.sliding.slide-right').should.be.true;
+        $pangpang.is('.sliding.slide-left').should.be.true;
+        $heihei.closest('.nodes').prevAll('.lines').filter(function () {
+          return $(this).css('visibility') === 'hidden';
+        }).should.lengthOf(2);
+      });
+      it('should hide all the sibling nodes and their descendants', function () {
+        oc.hideSiblings($tiehua);
+        $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
+      });
+      it('should hide all the sibling nodes and their descendants', function () {
+        oc.hideSiblings($pangpang);
+        $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
+      });
+    });
 
-  it('hideSiblings($node)', function () {
-    oc.hideSiblings($tiehua);
-    $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
-  });
-
-  it('hideSiblings($node)', function () {
-    oc.hideSiblings($pangpang);
-    $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
+    context('when passing two parameters -- node and direction', function () {
+      it('hide the left side sibling nodes', function () {
+        oc.hideSiblings($heihei, 'left');
+        $tiehua.is('.sliding.slide-right').should.be.true;
+        $pangpang.is('.sliding').should.be.false;
+      });
+      it('hide the left side sibling nodes and their descendants', function () {
+        oc.hideSiblings($pangpang, 'left');
+        $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
+      });
+      it('hide the right side sibling nodes', function () {
+        oc.hideSiblings($heihei, 'right');
+        $pangpang.is('.sliding.slide-left').should.be.true;
+        $tiehua.is('.sliding').should.be.false;
+      });
+      it('hide the right side sibling nodes and their descendants', function () {
+        oc.hideSiblings($tiehua, 'right');
+        $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
+      });
+    });
   });
 
 });
