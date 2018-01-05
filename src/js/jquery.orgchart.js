@@ -664,7 +664,10 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
-      return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
+      if ($node.children('.edge')[0])
+            return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
+        else
+            return false;
     },
     //
     switchVerticalArrow: function ($arrow) {
