@@ -297,4 +297,69 @@ describe('orgchart -- unit tests', function () {
     });
   });
 
+  describe('hideSiblingsEnd()', function () {
+    context('when invoking transitionend event without specifying direction', function () {
+      it('clean up final classList for hidden siblings', function () {
+        var spy = sinon.spy(oc, 'hideSiblingsEnd');
+        var spy2 = sinon.spy(oc, 'isInAction');
+        var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+        var $lines = $heihei.closest('.nodes').prevAll('.lines');
+        var $nodeContainer = $heihei.closest('table').parent();
+        $tiehua.one('transitionend', {
+          'node': $heihei,
+          'nodeContainer': $nodeContainer,
+          'direction': undefined,
+          'animatedNodes': $tiehua.add($heihei),
+          'lines': $lines
+        }, spy.bind(oc));
+        $tiehua.trigger('transitionend');
+        spy.should.have.been.called;
+        $lines.filter(function () {
+          return $(this).attr('style') === undefined;
+        }).should.lengthOf(2);
+        $lines.eq(0).children().slice(1, -1).filter(function () {
+          return $(this).is('.hidden');
+        }).should.lengthOf(4);
+        $tiehua.is('.sibling').should.be.false;
+        $pangpang.is('.sibling').should.be.false;
+        $nodeContainer.siblings().filter(function () {
+          return $(this).is('.hidden');
+        }).should.lengthOf(2);
+        spy2.should.have.been.calledWith($heihei);
+        spy3.should.not.have.been.called;
+      });
+    });
+
+
+    context('when invoking transitionend event with specifying direction', function () {
+      it('clean up final classList for left side hidden siblings', function () {
+        var spy = sinon.spy(oc, 'hideSiblingsEnd');
+        var spy2 = sinon.spy(oc, 'isInAction');
+        var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+        var $lines = $heihei.closest('.nodes').prevAll('.lines');
+        var $nodeContainer = $heihei.closest('table').parent();
+        $tiehua.one('transitionend', {
+          'node': $heihei,
+          'nodeContainer': $nodeContainer,
+          'direction': 'left',
+          'animatedNodes': $tiehua,
+          'lines': $lines
+        }, spy.bind(oc));
+        $tiehua.trigger('transitionend');
+        spy.should.have.been.called;
+        $lines.filter(function () {
+          return $(this).attr('style') === undefined;
+        }).should.lengthOf(2);
+        $lines.eq(0).children().slice(1, 3).filter(function () {
+          return $(this).is('.hidden');
+        }).should.lengthOf(2);
+        $tiehua.is('.sibling').should.be.false;
+        $nodeContainer.siblings().eq(0).is('.hidden').should.be.true;
+        $nodeContainer.siblings().eq(1).is('.hidden').should.be.false;
+        spy2.should.have.been.calledWith($heihei);
+        spy3.should.not.have.been.called;
+      });
+    });    
+  });
+
 });
