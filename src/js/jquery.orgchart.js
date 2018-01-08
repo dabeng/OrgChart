@@ -1025,6 +1025,100 @@
           .end().end().siblings().remove();
       }
     },
+            //
+        touchstartHandler: function (event) {
+            console.log("orgChart: touchstart 1: touchHandled=" + this.touchHandled + ", touchMoved=" + this.touchMoved + ", target=" + event.target.innerText);
+            if (this.touchHandled)
+                return;
+            this.touchHandled = true;
+            this.touchMoved = false;     // this is so we can work out later if this was a 'press' or a 'drag' touch
+            event.preventDefault();
+        },
+        //
+        touchmoveHandler: function (event) {
+            if (!this.touchHandled)
+                return;
+            event.preventDefault();
+            if (!this.touchMoved) {
+                var nodeIsSelected = $(this).hasClass('focused');
+                console.log("orgChart: touchmove 1: " + event.touches.length + " touches, we have not moved, so simulate a drag start", event.touches);
+                // TODO: visualise the start of the drag (as would happen on desktop)
+                this.simulateMouseEvent(event, 'dragstart');
+            }
+            this.touchMoved = true;
+            var $touching = $(document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY));
+            var $touchingNode = $touching.closest('div.node');
+ 
+            if ($touchingNode.length > 0) {
+                var touchingNodeElement = $touchingNode[0];
+                // TODO: simulate the dragover visualisation
+                if ($touchingNode.is('.allowedDrop')) {
+                    console.log("orgChart: touchmove 2: this node (" + touchingNodeElement.id + ") is allowed to be a drop target");
+                    this.touchTargetNode = touchingNodeElement;
+                }
+                else {
+                    console.log("orgChart: touchmove 3: this node (" + touchingNodeElement.id + ") is NOT allowed to be a drop target");
+                    this.touchTargetNode = null;
+                }
+            }
+            else {
+                console.log("orgchart: touchmove 4: not touching a node");
+                this.touchTargetNode = null;
+            }
+        },
+        //
+        touchendHandler: function (event) {
+            console.log("orgChart: touchend 1: touchHandled=" + this.touchHandled + ", touchMoved=" + this.touchMoved + ", " + event.target.innerText + " ");
+            if (!this.touchHandled) {
+                console.log("orgChart: touchend 2: not handled by us, so aborting");
+                return;
+            }
+            if (this.touchMoved) {
+                // we've had movement, so this was a 'drag' touch
+                if (this.touchTargetNode) {
+                    console.log("orgChart: touchend 3: moved to a node, so simulating drop");
+                    var fakeEventForDropHandler = { delegateTarget: this.touchTargetNode };
+                    this.dropHandler(fakeEventForDropHandler);
+                    this.touchTargetNode = null;
+                }
+                console.log("orgChart: touchend 4: simulating dragend");
+                this.simulateMouseEvent(event, 'dragend');
+            }
+            else {
+                // we did not move, so assume this was a 'press' touch
+                console.log("orgChart: touchend 5: moved, so simulating click");
+                this.simulateMouseEvent(event, 'click');
+            }
+            this.touchHandled = false;
+        },
+        // simulate a mouse event (so we can fake them on a touch device)
+        simulateMouseEvent: function (event, simulatedType) {
+            // Ignore multi-touch events
+            if (event.originalEvent.touches.length > 1) {
+                return;
+            }
+            var touch = event.originalEvent.changedTouches[0];
+            var simulatedEvent = document.createEvent('MouseEvents');
+            simulatedEvent.initMouseEvent(
+                simulatedType,    // type
+                true,             // bubbles                    
+                true,             // cancelable                 
+                window,           // view                       
+                1,                // detail                     
+                touch.screenX,    // screenX                    
+                touch.screenY,    // screenY                    
+                touch.clientX,    // clientX                    
+                touch.clientY,    // clientY                    
+                false,            // ctrlKey                    
+                false,            // altKey                     
+                false,            // shiftKey                   
+                false,            // metaKey                    
+                0,                // button                     
+                null              // relatedTarget              
+            );
+            // Dispatch the simulated event to the target element
+            event.target.dispatchEvent(simulatedEvent);
+        },
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
@@ -1075,7 +1169,14 @@
         $nodeDiv.on('dragstart', this.dragstartHandler.bind(this))
         .on('dragover', this.dragoverHandler.bind(this))
         .on('dragend', this.dragendHandler.bind(this))
-        .on('drop', this.dropHandler.bind(this));
+        .on('drop', this.dropHandler.bind(this))
+        .on('touchstart', this.touchstartHandler.bind(this))
+                    .on('touchmove', this.touchmoveHandler.bind(this))
+                    .on('touchend', this.touchendHandler.bind(this));
+ 
+                this.touchHandled = false;
+                this.touchMoved = false;
+                this.touchTargetNode = null;
       }
       // allow user to append dom modification after finishing node create of orgchart
       if (opts.createNode) {
