@@ -208,11 +208,11 @@
           });
           oc.$chart.addClass('view-state');
         } else {
-          oc.addParent($chartContainer.find('.node:first'), { 'name': nodeVals[0], 'Id': getId() });
+          oc.addParent($chartContainer.find('.node:first'), { 'name': nodeVals[0], 'id': getId() });
         }
       } else if (nodeType.val() === 'siblings') {
         oc.addSiblings($node,
-          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
+          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'id': getId() }; })
         });
       } else {
         var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
@@ -220,12 +220,12 @@
           var rel = nodeVals.length > 1 ? '110' : '100';
           oc.addChildren($node, {
               'children': nodeVals.map(function(item) {
-                return { 'name': item, 'relationship': rel, 'Id': getId() };
+                return { 'name': item, 'relationship': rel, 'id': getId() };
               })
             }, $.extend({}, $chartContainer.find('.orgchart').data('options'), { depth: 0 }));
         } else {
           oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'),
-            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'Id': getId() }; })
+            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'id': getId() }; })
           });
         }
       }

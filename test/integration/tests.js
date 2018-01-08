@@ -15,55 +15,61 @@ describe('orgchart -- integration tests', function () {
 
   var $container = $('#chart-container'),
   ds = {
-    'id': '1',
+    'id': 'n1',
     'name': 'Lao Lao',
     'title': 'general manager',
     'children': [
-      { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
-      { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+      { 'id': 'n2', 'name': 'Bo Miao' },
+      { 'id': 'n3', 'name': 'Su Miao',
         'children': [
-          { 'id': '6', 'name': 'Tie Hua', 'title': 'senior engineer' },
-          { 'id': '7', 'name': 'Hei Hei', 'title': 'senior engineer',
-            'children': [
-              { 'id': '9', 'name': 'Dan Dan', 'title': 'engineer',
-                'children' : [
-                  { 'id': '10', 'name': 'Er Dan', 'title': 'intern' }
-                ]
-              }
+          { 'id': 'n5', 'name': 'Tie Hua',
+            'children' : [
+              { 'id': 'n8', 'name': 'Dan Dan' }
             ]
           },
-          { 'id': '8', 'name': 'Pang Pang', 'title': 'senior engineer' }
+          { 'id': 'n6', 'name': 'Hei Hei',
+            'children': [
+              { 'id': 'n9', 'name': 'Er Dan' }
+            ]
+          },
+          { 'id': 'n7', 'name': 'Pang Pang',
+            'children': [
+              { 'id': 'n10', 'name': 'San Dan' }
+            ]
+          }
         ]
       },
-      { 'id': '4', 'name': 'Hong Miao', 'title': 'department manager' },
-      { 'id': '5', 'name': 'Chun Miao', 'title': 'department manager' }
+      { 'id': 'n4', 'name': 'Hong Miao' },
     ]
   },
   oc = {},
   hierarchy = {
-    id: '1',
+    id: 'n1',
     children: [
-      { id: '2' },
-      { id: '3',
+      { id: 'n2' },
+      { id: 'n3',
         children: [
-          { id: '6' },
-          { id: '7',
+          { id: 'n5',
             children: [
-              { id: '9',
-                children: [
-                  { id: '10' }
-                ]
-              }
+              { id: 'n8' }
             ]
           },
-          { id: '8' }
+          { id: 'n6',
+            children: [
+              { id: 'n9'}
+            ]
+          },
+          { id: 'n7',
+            children: [
+              { id: 'n10' }
+            ]
+          }
         ]
       },
-      { id: '4' },
-      { id: '5' }
+      { id: 'n4' }
     ]
   },
-  $root,
+  $laolao,
   $bomiao,
   $sumiao,
   $hongmiao,
@@ -76,31 +82,35 @@ describe('orgchart -- integration tests', function () {
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
-      'data': ds,
-      'nodeContent': 'title'
+      'data': ds
     }),
-    $root = $('#1'),
-    $bomiao = $('#2'),
-    $sumiao = $('#3'),
-    $hongmiao = $('#4'),
-    $chunmiao = $('#5'),
-    $tiehua = $('#6'),
-    $heihei = $('#7'),
-    $pangpang = $('#8'),
-    $dandan = $('#9'),
-    $erdan = $('#10');
+    $laolao = $('#n1'),
+    $bomiao = $('#n2'),
+    $sumiao = $('#n3'),
+    $hongmiao = $('#n4'),
+    $tiehua = $('#n5'),
+    $heihei = $('#n6'),
+    $pangpang = $('#n7'),
+    $dandan = $('#n8'),
+    $erdan = $('#n9'),
+    $sandan = $('#n10');
   });
     
   afterEach(function () {
-    $root = $bomiao = $sumiao = $hongmiao = $chunmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = null;
+    $laolao = $bomiao = $sumiao = $hongmiao = $chunmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = $sandan = null;
     $container.empty();
+  });
+
+  it("Adding new root node", function () {
+    oc.addParent($laolao, { 'name': 'Lao Ye', 'id': 'n0' });
+    $laolao.closest('.nodes').prevAll().should.lengthOf(3);
+    oc.$chart.find('.node:first').should.deep.equal($('#n0'));
   });
 
   it("when one node's parent is hidden, its sibling branches are hidden too", function () {
     oc.hideParent($hongmiao);
     $bomiao.is('.slide-right').should.be.true;
     $sumiao.is('.slide-right').should.be.true;
-    $chunmiao.is('.slide-left').should.be.true;
     $sumiao.find('.slide-right').should.lengthOf($sumiao.find('.node').length);
   });
 
