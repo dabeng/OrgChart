@@ -22,13 +22,21 @@ describe('orgchart -- unit tests', function () {
       { 'id': 'n2', 'name': 'Bo Miao', 'title': 'department manager' },
       { 'id': 'n3', 'name': 'Su Miao', 'title': 'department manager',
         'children': [
-          { 'id': 'n5', 'name': 'Tie Hua', 'title': 'senior engineer' },
-          { 'id': 'n6', 'name': 'Hei Hei', 'title': 'senior engineer',
+          { 'id': 'n5', 'name': 'Tie Hua', 'title': 'senior engineer',
             'children': [
               { 'id': 'n8', 'name': 'Dan Dan', 'title': 'engineer' }
             ]
           },
-          { 'id': 'n7', 'name': 'Pang Pang', 'title': 'senior engineer' }
+          { 'id': 'n6', 'name': 'Hei Hei', 'title': 'senior engineer',
+            'children': [
+              { 'id': 'n9', 'name': 'Er Dan', 'title': 'engineer' }
+            ]
+          },
+          { 'id': 'n7', 'name': 'Pang Pang', 'title': 'senior engineer',
+            'children': [
+              { 'id': 'n10', 'name': 'San Dan', 'title': 'engineer' }
+            ]
+          }
         ]
       },
       { 'id': 'n4', 'name': 'Hong Miao', 'title': 'department manager' }
@@ -41,13 +49,21 @@ describe('orgchart -- unit tests', function () {
       { id: 'n2' },
       { id: 'n3',
         children: [
-          { id: 'n5' },
-          { id: 'n6',
+          { id: 'n5',
             children: [
               { id: 'n8' }
             ]
           },
-          { id: 'n7' }
+          { id: 'n6',
+            children: [
+              { id: 'n9' }
+            ]
+          },
+          { id: 'n7',
+            children: [
+              { id: 'n10' }
+            ]
+          }
         ]
       },
       { id: 'n4' }
@@ -61,7 +77,9 @@ describe('orgchart -- unit tests', function () {
   $tiehua,
   $heihei,
   $pangpang,
-  $dandan;
+  $dandan,
+  $erdan,
+  $sandan;
 
   beforeEach(function () {
     oc = $('#chart-container').orgchart({
@@ -76,10 +94,12 @@ describe('orgchart -- unit tests', function () {
     $heihei = $('#n6'),
     $pangpang = $('#n7'),
     $dandan = $('#n8');
+    $erdan = $('#n9');
+    $sandan = $('#n10');
   });
     
   afterEach(function () {
-    $laolao = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = null;
+    $laolao = $bomiao = $sumiao = $hongmiao = $tiehua = $heihei = $pangpang = $dandan = $erdan = $sandan = null;
     $container.empty();
   });
 
@@ -205,11 +225,11 @@ describe('orgchart -- unit tests', function () {
     var spy = sinon.spy(oc, 'repaint');
     oc.hideChildren($sumiao);
     spy.should.have.been.called;
-    $sumiao.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(4);
+    $sumiao.closest('table').find('.lines').filter('[style*="visibility: hidden"]').should.lengthOf(8);
     $tiehua.is('.sliding,.slide-up').should.be.true;
     $heihei.is('.sliding,.slide-up').should.be.true;
     $pangpang.is('.sliding,.slide-up').should.be.true;
-    $dandan.is('.sliding,.slide-up').should.be.true;
+    $erdan.is('.sliding,.slide-up').should.be.true;
   });
 
   it('hideChildrenEnd()', function () {
@@ -239,7 +259,7 @@ describe('orgchart -- unit tests', function () {
     $tiehua.is('.sliding:not(.slide-up)').should.be.true;
     $heihei.is('.sliding:not(.slide-up)').should.be.true;
     $pangpang.is('.sliding:not(.slide-up)').should.be.true;
-    $dandan.is('.sliding,.slide-up').should.be.true;
+    $erdan.is('.sliding,.slide-up').should.be.true;
 
   });
 
@@ -257,42 +277,30 @@ describe('orgchart -- unit tests', function () {
 
   describe('hideSiblings()', function () {
     context('when passing only one parameter -- node', function () {
-      it('should hide all the sliding nodes', function () {
+      it('should hide all the sibling nodes and their descendants', function () {
         oc.hideSiblings($heihei);
         $tiehua.is('.sliding.slide-right').should.be.true;
+        $dandan.is('.sliding.slide-right').should.be.true;
         $pangpang.is('.sliding.slide-left').should.be.true;
+        $sandan.is('.sliding.slide-left').should.be.true;
         $heihei.closest('.nodes').prevAll('.lines').filter(function () {
           return $(this).css('visibility') === 'hidden';
         }).should.lengthOf(2);
       });
-      it('should hide all the sibling nodes and their descendants', function () {
-        oc.hideSiblings($tiehua);
-        $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
-      });
-      it('should hide all the sibling nodes and their descendants', function () {
-        oc.hideSiblings($pangpang);
-        $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
-      });
     });
 
     context('when passing two parameters -- node and direction', function () {
-      it('hide the left side sibling nodes', function () {
+      it('hide the left side sibling nodes and their descendants', function () {
         oc.hideSiblings($heihei, 'left');
         $tiehua.is('.sliding.slide-right').should.be.true;
+        $dandan.is('.sliding.slide-right').should.be.true;
         $pangpang.is('.sliding').should.be.false;
       });
-      it('hide the left side sibling nodes and their descendants', function () {
-        oc.hideSiblings($pangpang, 'left');
-        $tiehua.add($heihei).add($dandan).filter('.sliding.slide-right').should.lengthOf(3);
-      });
-      it('hide the right side sibling nodes', function () {
+      it('hide the right side sibling nodes and their descendants', function () {
         oc.hideSiblings($heihei, 'right');
         $pangpang.is('.sliding.slide-left').should.be.true;
+        $sandan.is('.sliding.slide-left').should.be.true;
         $tiehua.is('.sliding').should.be.false;
-      });
-      it('hide the right side sibling nodes and their descendants', function () {
-        oc.hideSiblings($tiehua, 'right');
-        $heihei.add($pangpang).add($dandan).filter('.sliding.slide-left').should.lengthOf(3);
       });
     });
   });
@@ -305,11 +313,12 @@ describe('orgchart -- unit tests', function () {
         var spy3 = sinon.spy(oc, 'switchVerticalArrow');
         var $lines = $heihei.closest('.nodes').prevAll('.lines');
         var $nodeContainer = $heihei.closest('table').parent();
+        oc.hideSiblings($heihei);
         $tiehua.one('transitionend', {
           'node': $heihei,
           'nodeContainer': $nodeContainer,
           'direction': undefined,
-          'animatedNodes': $tiehua.add($heihei),
+          'animatedNodes': $tiehua,
           'lines': $lines
         }, spy.bind(oc));
         $tiehua.trigger('transitionend');
@@ -320,11 +329,12 @@ describe('orgchart -- unit tests', function () {
         $lines.eq(0).children().slice(1, -1).filter(function () {
           return $(this).is('.hidden');
         }).should.lengthOf(4);
-        $tiehua.is('.sibling').should.be.false;
-        $pangpang.is('.sibling').should.be.false;
-        $nodeContainer.siblings().filter(function () {
-          return $(this).is('.hidden');
-        }).should.lengthOf(2);
+        $tiehua.is('.slide-right:not(.sliding)').should.be.true;
+        $dandan.is('.slide-up:not(.sliding, .slide-right)').should.be.true;
+        $pangpang.is('.slide-left:not(.sibling)').should.be.true;
+        $sandan.is('.slide-up:not(.sliding, .slide-left)').should.be.true;
+        $nodeContainer.siblings('.hidden').should.lengthOf(2);
+        $nodeContainer.siblings().find('.lines.hidden, .nodes.hidden').should.lengthOf(6);
         spy2.should.have.been.calledWith($heihei);
         spy3.should.not.have.been.called;
       });
@@ -338,6 +348,7 @@ describe('orgchart -- unit tests', function () {
         var spy3 = sinon.spy(oc, 'switchVerticalArrow');
         var $lines = $heihei.closest('.nodes').prevAll('.lines');
         var $nodeContainer = $heihei.closest('table').parent();
+        oc.hideSiblings($heihei, 'left');
         $tiehua.one('transitionend', {
           'node': $heihei,
           'nodeContainer': $nodeContainer,
@@ -353,9 +364,46 @@ describe('orgchart -- unit tests', function () {
         $lines.eq(0).children().slice(1, 3).filter(function () {
           return $(this).is('.hidden');
         }).should.lengthOf(2);
-        $tiehua.is('.sibling').should.be.false;
-        $nodeContainer.siblings().eq(0).is('.hidden').should.be.true;
-        $nodeContainer.siblings().eq(1).is('.hidden').should.be.false;
+        $tiehua.is('.slide-right:not(.sliding)').should.be.true;
+        $dandan.is('.slide-up:not(.slide-right)').should.be.true;
+        $pangpang.is('.slide-left').should.be.false;
+        $sandan.is('.slide-up').should.be.false;
+        $nodeContainer.prevAll('.hidden').should.lengthOf(1);
+        $nodeContainer.prevAll().find('.lines.hidden, .nodes.hidden').should.lengthOf(3);
+        $nodeContainer.nextAll().find('.lines.hidden, .nodes.hidden').should.lengthOf(0);
+        spy2.should.have.been.calledWith($heihei);
+        spy3.should.not.have.been.called;
+      });
+
+      it('clean up final classList for right side hidden siblings', function () {
+        var spy = sinon.spy(oc, 'hideSiblingsEnd');
+        var spy2 = sinon.spy(oc, 'isInAction');
+        var spy3 = sinon.spy(oc, 'switchVerticalArrow');
+        var $lines = $heihei.closest('.nodes').prevAll('.lines');
+        var $nodeContainer = $heihei.closest('table').parent();
+        oc.hideSiblings($heihei, 'right');
+        $tiehua.one('transitionend', {
+          'node': $heihei,
+          'nodeContainer': $nodeContainer,
+          'direction': 'right',
+          'animatedNodes': $tiehua,
+          'lines': $lines
+        }, spy.bind(oc));
+        $tiehua.trigger('transitionend');
+        spy.should.have.been.called;
+        $lines.filter(function () {
+          return $(this).attr('style') === undefined;
+        }).should.lengthOf(2);
+        $lines.eq(0).children().slice(1, 3).filter(function () {
+          return $(this).is('.hidden');
+        }).should.lengthOf(2);
+        $tiehua.is('.slide-right').should.be.false;
+        $dandan.is('.slide-up').should.be.false;
+        $pangpang.is('.slide-left:not(.slidiing)').should.be.true;
+        $sandan.is('.slide-up:not(.slide-left)').should.be.true;
+        $nodeContainer.nextAll('.hidden').should.lengthOf(1);
+        $nodeContainer.nextAll().find('.lines.hidden, .nodes.hidden').should.lengthOf(3);
+        $nodeContainer.prevAll().find('.lines.hidden, .nodes.hidden').should.lengthOf(0);
         spy2.should.have.been.calledWith($heihei);
         spy3.should.not.have.been.called;
       });
