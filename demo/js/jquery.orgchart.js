@@ -1028,10 +1028,11 @@
     // create node
     createNode: function (nodeData, level, opts) {
       var that = this;
-      if (!nodeData.children) { nodeData.children = []; }
-      $.each(nodeData.children, function (index, child) {
-        child.parentId = nodeData.id;
-      });
+      if (nodeData.children) {
+        $.each(nodeData.children, function (index, child) {
+          child.parentId = nodeData.id;
+        });
+      }
       var dtd = $.Deferred();
       // construct the content of node
       var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
