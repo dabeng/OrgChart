@@ -1,7 +1,7 @@
 import Page from './page-model';
 
 fixture `Hybrid(horizontal + vertical) Chart`
-  .page `../../../demo/vertical-depth.html`;
+  .page `../../../demo/vertical-level.html`;
 
 const page = new Page();
 const sumiao = page.sumiao;

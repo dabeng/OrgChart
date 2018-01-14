@@ -49,8 +49,8 @@
       ]
     };
 
-    var showDescendents = function(node, depth) {
-      if (depth === 1) {
+    var showDescendents = function(node, visibleLevel) {
+      if (visibleLevel === 1) {
         return false;
       }
       $(node).closest('tr').siblings(':last').children().find('.node:first').each(function(index, node) {
@@ -60,12 +60,12 @@
           $children[0].style.offsetWidth = $children[0].offsetWidth;
         }
         $children.removeClass('slide-up');
-        showDescendents(node, depth--);
+        showDescendents(node, visibleLevel--);
       });
     };
 
     $('#chart-container').orgchart({
-      'depth': 2,
+      'visibleLevel': 2,
       'data' : datascource,
       'nodeContent': 'title',
       'createNode': function($node, data) {

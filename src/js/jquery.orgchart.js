@@ -24,7 +24,7 @@
       'nodeTitle': 'name',
       'nodeId': 'id',
       'toggleSiblingsResp': false,
-      'depth': 999,
+      'visibleLevel': 999,
       'chartClass': '',
       'exportButton': false,
       'exportFilename': 'OrgChart',
@@ -66,7 +66,7 @@
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($chart, this.buildJsonDS(data.children()), 0, this.options);
         } else { // local json datasource
-          this.buildHierarchy($chart, this.options.ajaxURL ? data : this.attachRel(data, '00'), 0, this.options);
+          this.buildHierarchy($chart, this.options.ajaxURL ? data : this.attachRel(data, '00'));
         }
       } else {
         $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
@@ -509,6 +509,7 @@
     },
     //
     hideChildrenEnd: function (event) {
+      var $node = event.data.node;
       event.data.animatedNodes.removeClass('sliding');
       if (event.data.isVerticalDesc) {
         event.data.lowerLevel.addClass('hidden');
@@ -516,8 +517,8 @@
         event.data.animatedNodes.closest('.nodes').prevAll('.lines').removeAttr('style').addBack().addClass('hidden');
         event.data.lowerLevel.last().find('.verticalNodes').addClass('hidden');
       }
-      if (this.isInAction(event.data.node)) {
-        this.switchVerticalArrow(event.data.node.children('.bottomEdge'));
+      if (this.isInAction($node)) {
+        this.switchVerticalArrow($node.children('.bottomEdge'));
       }
     },
     // recursively hide the descendant nodes of the specified node
@@ -672,7 +673,7 @@
     },
     //
     switchHorizontalArrow: function ($node) {
-      var opts = $node.closest('.orgchart').data('options');
+      var opts = this.options;
       if (opts.toggleSiblingsResp && (typeof opts.ajaxURL === 'undefined' || $node.closest('.nodes').data('siblingsLoaded'))) {
         var $prevSib = $node.closest('table').parent().prev();
         if ($prevSib.length) {
@@ -740,16 +741,14 @@
         if (that.$chart.data('inAjax')) {
           if (rel === 'parent') {
             if (!$.isEmptyObject(data)) {
-              that.addParent($edge.parent(), data, opts);
+              that.addParent($edge.parent(), data);
             }
           } else if (rel === 'children') {
             if (data.children.length) {
-              that.addChildren($edge.parent(), data, $.extend({}, opts, { depth: 0 }));
+              that.addChildren($edge.parent(), data[rel]);
             }
           } else {
-            if (data.siblings || data.children) {
-              that.addSiblings($edge.parent(), data, opts);
-            }
+            that.addSiblings($edge.parent(), data.siblings ? data.siblings : data);
           }
         }
       })
@@ -1117,29 +1116,40 @@
       // Dispatch the simulated event to the target element
       event.target.dispatchEvent(simulatedEvent);
     },
+    //
+    bindDragDrop: function ($node) {
+      $node.on('dragstart', this.dragstartHandler.bind(this))
+        .on('dragover', this.dragoverHandler.bind(this))
+        .on('dragend', this.dragendHandler.bind(this))
+        .on('drop', this.dropHandler.bind(this))
+        .on('touchstart', this.touchstartHandler.bind(this))
+        .on('touchmove', this.touchmoveHandler.bind(this))
+        .on('touchend', this.touchendHandler.bind(this));
+    },
     // create node
-    createNode: function (nodeData, level, opts) {
+    createNode: function (data) {
       var that = this;
-      if (nodeData.children) {
-        $.each(nodeData.children, function (index, child) {
-          child.parentId = nodeData.id;
+      var opts = this.options;
+      var level = data.level;
+      if (data.children) {
+        $.each(data.children, function (index, child) {
+          child.parentId = data.id;
         });
       }
-      var dtd = $.Deferred();
       // construct the content of node
-      var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (nodeData[opts.nodeId] ? ' id="' + nodeData[opts.nodeId] + '"' : '') + (nodeData.parentId ? ' data-parent="' + nodeData.parentId + '"' : '') + '>')
-        .addClass('node ' + (nodeData.className || '') +  (level >= opts.depth ? ' slide-up' : ''));
+      var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (data[opts.nodeId] ? ' id="' + data[opts.nodeId] + '"' : '') + (data.parentId ? ' data-parent="' + data.parentId + '"' : '') + '>')
+        .addClass('node ' + (data.className || '') +  (level > opts.visibleLevel ? ' slide-up' : ''));
       if (opts.nodeTemplate) {
-        $nodeDiv.append(opts.nodeTemplate(nodeData));
+        $nodeDiv.append(opts.nodeTemplate(data));
       } else {
-        $nodeDiv.append('<div class="title">' + nodeData[opts.nodeTitle] + '</div>')
-          .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (nodeData[opts.nodeContent] || '') + '</div>' : '');
+        $nodeDiv.append('<div class="title">' + data[opts.nodeTitle] + '</div>')
+          .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (data[opts.nodeContent] || '') + '</div>' : '');
       }
       // append 4 direction arrows or expand/collapse buttons
-      var flags = nodeData.relationship || '';
-      if (opts.verticalDepth && (level + 2) > opts.verticalDepth) {
-        if ((level + 1) >= opts.verticalDepth && Number(flags.substr(2,1))) {
-          var icon = level + 1  >= opts.depth ? 'plus' : 'minus';
+      var flags = data.relationship || '';
+      if (opts.verticalLevel && level >= opts.verticalLevel) {
+        if ((level + 1) > opts.verticalLevel && Number(flags.substr(2,1))) {
+          var icon = level + 1 > opts.visibleLevel ? 'plus' : 'minus';
           $nodeDiv.append('<i class="toggleBtn fa fa-' + icon + '-square"></i>');
         }
       } else {
@@ -1158,154 +1168,124 @@
 
       $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
       $nodeDiv.on('click', this.nodeClickHandler.bind(this));
-      $nodeDiv.on('click', '.topEdge', { 'nodeData': nodeData }, this.topEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': nodeData }, this.bottomEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': nodeData }, this.hEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.topEdge', { 'nodeData': data }, this.topEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': data }, this.bottomEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': data }, this.hEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
 
       if (opts.draggable) {
-        $nodeDiv.on('dragstart', this.dragstartHandler.bind(this))
-        .on('dragover', this.dragoverHandler.bind(this))
-        .on('dragend', this.dragendHandler.bind(this))
-        .on('drop', this.dropHandler.bind(this))
-        .on('touchstart', this.touchstartHandler.bind(this))
-        .on('touchmove', this.touchmoveHandler.bind(this))
-        .on('touchend', this.touchendHandler.bind(this));
+        this.bindDragDrop($nodeDiv);
         this.touchHandled = false;
         this.touchMoved = false;
         this.touchTargetNode = null;
       }
       // allow user to append dom modification after finishing node create of orgchart
       if (opts.createNode) {
-        opts.createNode($nodeDiv, nodeData);
+        opts.createNode($nodeDiv, data);
       }
-      dtd.resolve($nodeDiv);
-      return dtd.promise();
+
+      return $nodeDiv;
     },
     // recursively build the tree
-    buildHierarchy: function ($appendTo, nodeData, level, opts, callback) {
+    buildHierarchy: function ($appendTo, data) {
       var that = this;
-      var $nodeWrapper;
-      // Construct the node
-      var $childNodes = nodeData.children;
-      var hasChildren = $childNodes ? $childNodes.length : false;
-      var isVerticalNode = (opts.verticalDepth && (level + 1) >= opts.verticalDepth) ? true : false;
-      if (Object.keys(nodeData).length > 1) { // if nodeData has nested structure
-        $nodeWrapper = isVerticalNode ? $appendTo : $('<table>');
-        if (!isVerticalNode) {
-          $appendTo.append($nodeWrapper);
-        }
-        $.when(this.createNode(nodeData, level, opts))
-        .done(function($nodeDiv) {
-          if (isVerticalNode) {
-            $nodeWrapper.append($nodeDiv);
-          }else {
-            $nodeWrapper.append($('<tr/>').append($('<td' + (hasChildren ? ' colspan="' + $childNodes.length * 2 + '"' : '') + '></td>').append($nodeDiv)));
-          }
-          if (callback) {
-            callback();
-          }
-        })
-        .fail(function() {
-          console.log('Failed to creat node')
-        });
+      var opts = this.options;
+      var level = 0;
+      if (data.level) {
+        level = data.level;
+      } else {
+        level = data.level = $appendTo.parentsUntil('.orgchart', '.nodes').length + 1;
       }
-      // Construct the inferior nodes and connectiong lines
+      // Construct the node
+      var childrenData = data.children;
+      var hasChildren = childrenData ? childrenData.length : false;
+      var $nodeWrapper;
+      if (Object.keys(data).length > 2) {
+        var $nodeDiv = this.createNode(data);
+        if (opts.verticalLevel && level >= opts.verticalLevel) {
+          $appendTo.append($nodeDiv);
+        }else {
+          $nodeWrapper = $('<table>');
+          $appendTo.append($nodeWrapper.append($('<tr/>').append($('<td' + (hasChildren ? ' colspan="' + childrenData.length * 2 + '"' : '') + '></td>').append($nodeDiv))));
+        }
+      }
+      // Construct the lower level(two "connectiong lines" rows and "inferior nodes" row)
       if (hasChildren) {
-        if (Object.keys(nodeData).length === 1) { // if nodeData is just an array
-          $nodeWrapper = $appendTo;
-        }
-        var isHidden = (level + 1 >= opts.depth || nodeData.collapsed) ? ' hidden' : '';
-        var isVerticalLayer = (opts.verticalDepth && (level + 2) >= opts.verticalDepth) ? true : false;
-
-        // draw the line close to parent node
-        if (!isVerticalLayer) {
-          $nodeWrapper.append('<tr class="lines' + isHidden + '"><td colspan="' + $childNodes.length * 2 + '"><div class="downLine"></div></td></tr>');
-        }
-        // draw the lines close to children nodes
-        var lineLayer = '<tr class="lines' + isHidden + '"><td class="rightLine"></td>';
-        for (var i=1; i<$childNodes.length; i++) {
-          lineLayer += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
-        }
-        lineLayer += '<td class="leftLine"></td></tr>';
-        var $nodeLayer;
+        var isHidden = (level + 1 > opts.visibleLevel || data.collapsed) ? ' hidden' : '';
+        var isVerticalLayer = (opts.verticalLevel && (level + 1) >= opts.verticalLevel) ? true : false;
+        var $nodesLayer;
         if (isVerticalLayer) {
-          $nodeLayer = $('<ul>');
-          if (isHidden && opts.depth + 1 !== opts.verticalDepth) {
-            $nodeLayer.addClass(isHidden);
+          $nodesLayer = $('<ul>');
+          if (isHidden && level + 1 > opts.verticalLevel) {
+            $nodesLayer.addClass(isHidden);
           }
-          if (level + 2 === opts.verticalDepth) {
-            $nodeWrapper.append('<tr class="verticalNodes' + isHidden + '"><td></td></tr>')
-              .find('.verticalNodes').children().append($nodeLayer);
+          if (level + 1 === opts.verticalLevel) {
+            $appendTo.children('table').append('<tr class="verticalNodes' + isHidden + '"><td></td></tr>')
+              .find('.verticalNodes').children().append($nodesLayer);
           } else {
-            $nodeWrapper.append($nodeLayer);
+            $appendTo.append($nodesLayer);
           }
         } else {
-          $nodeLayer = $('<tr class="nodes' + isHidden + '">');
-          $nodeWrapper.append(lineLayer).append($nodeLayer);
+          var $upperLines = $('<tr class="lines' + isHidden + '"><td colspan="' + childrenData.length * 2 + '"><div class="downLine"></div></td></tr>');
+          var lowerLines = '<tr class="lines' + isHidden + '"><td class="rightLine"></td>';
+          for (var i=1; i<childrenData.length; i++) {
+            lowerLines += '<td class="leftLine topLine"></td><td class="rightLine topLine"></td>';
+          }
+          lowerLines += '<td class="leftLine"></td></tr>';
+          $nodesLayer = $('<tr class="nodes' + isHidden + '">');
+          if (Object.keys(data).length === 2) {
+            $appendTo.append($upperLines).append(lowerLines).append($nodesLayer);
+          } else {
+            $nodeWrapper.append($upperLines).append(lowerLines).append($nodesLayer);
+          }
         }
         // recurse through children nodes
-        $.each($childNodes, function() {
+        $.each(childrenData, function () {
           var $nodeCell = isVerticalLayer ? $('<li>') : $('<td colspan="2">');
-          $nodeLayer.append($nodeCell);
-          that.buildHierarchy($nodeCell, this, level + 1, opts, callback);
+          $nodesLayer.append($nodeCell);
+          this.level = level + 1;
+          that.buildHierarchy($nodeCell, this);
         });
       }
     },
     // build the child nodes of specific node
-    buildChildNode: function ($appendTo, nodeData, opts, callback) {
-      var opts = opts || $appendTo.closest('.orgchart').data('options');
-      var data = nodeData.children || nodeData.siblings;
+    buildChildNode: function ($appendTo, data) {
       $appendTo.find('td:first').attr('colspan', data.length * 2);
-      this.buildHierarchy($appendTo, { 'children': data }, 0, opts, callback);
+      this.buildHierarchy($appendTo, { 'children': data });
     },
     // exposed method
-    addChildren: function ($node, data, opts) {
-      var that = this;
-      var opts = opts || $node.closest('.orgchart').data('options');
-      var count = 0;
-      this.buildChildNode($node.closest('table'), data, opts, function() {
-        if (++count === data.children.length) {
-          if (!$node.children('.bottomEdge').length) {
-            $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
-          }
-          if (!$node.find('.symbol').length) {
-            $node.children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
-          }
-          that.showChildren($node);
-        }
-      });
+    addChildren: function ($node, data) {
+      this.buildChildNode($node.closest('table'), data);
+      if (!$node.children('.bottomEdge').length) {
+        $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
+      }
+      if (!$node.find('.symbol').length) {
+        $node.children('.title').prepend('<i class="fa '+ this.options.parentNodeSymbol + ' symbol"></i>');
+      }
+      if (this.isInAction($node)) {
+        this.switchVerticalArrow($node.children('.bottomEdge'));
+      }
     },
     // build the parent node of specific node
-    buildParentNode: function ($currentRoot, nodeData, opts, callback) {
-      var that = this;
-      var $table = $('<table>');
-      nodeData.relationship = nodeData.relationship || '001';
-      $.when(this.createNode(nodeData, 0, opts || $currentRoot.closest('.orgchart').data('options')))
-        .done(function($nodeDiv) {
-          $table.append($('<tr class="hidden">').append($('<td colspan="2">').append($nodeDiv.removeClass('slide-up').addClass('slide-down'))));
-          $table.append('<tr class="lines hidden"><td colspan="2"><div class="downLine"></div></td></tr>');
-          var linesRow = '<td class="rightLine"></td><td class="leftLine"></td>';
-          $table.append('<tr class="lines hidden">' + linesRow + '</tr>');
-          var $chart = that.$chart;
-          $chart.prepend($table)
-            .children('table:first').append('<tr class="nodes"><td colspan="2"></td></tr>')
-            .children('tr:last').children().append($chart.children('table').last());
-          callback();
-        })
-        .fail(function() {
-          console.log('Failed to create parent node');
-        });
+    buildParentNode: function ($currentRoot, data) {
+      data.relationship = data.relationship || '001';
+      var $table = $('<table>')
+        .append($('<tr>').append($('<td colspan="2">').append(this.createNode(data))))
+        .append('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>')
+        .append('<tr class="lines"><td class="rightLine"></td><td class="leftLine"></td></tr>');
+      this.$chart.prepend($table)
+        .children('table:first').append('<tr class="nodes"><td colspan="2"></td></tr>')
+        .children('tr:last').children().append(this.$chart.children('table').last());
     },
     // exposed method
-    addParent: function ($currentRoot, data, opts) {
-      var that = this;
-      this.buildParentNode($currentRoot, data, opts, function() {
-        if (!$currentRoot.children('.topEdge').length) {
-          $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
-        }
-        that.showParent($currentRoot);
-      });
+    addParent: function ($currentRoot, data) {
+      this.buildParentNode($currentRoot, data);
+      if (!$currentRoot.children('.topEdge').length) {
+        $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
+      }
+      if (this.isInAction($currentRoot)) {
+        this.switchVerticalArrow($currentRoot.children('.topEdge'));
+      }
     },
     // subsequent processing of build sibling nodes
     complementLine: function ($oneSibling, siblingCount, existingSibligCount) {
@@ -1317,10 +1297,8 @@
         .end().next().children(':first').after(lines);
     },
     // build the sibling nodes of specific node
-    buildSiblingNode: function ($nodeChart, nodeData, opts, callback) {
-      var that = this;
-      var opts = opts || $nodeChart.closest('.orgchart').data('options');
-      var newSiblingCount = nodeData.siblings ? nodeData.siblings.length : nodeData.children.length;
+    buildSiblingNode: function ($nodeChart, data) {
+      var newSiblingCount = $.isArray(data) ? data.length : data.children.length;
       var existingSibligCount = $nodeChart.parent().is('td') ? $nodeChart.closest('tr').children().length : 1;
       var siblingCount = existingSibligCount + newSiblingCount;
       var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;
@@ -1328,48 +1306,30 @@
       if ($nodeChart.parent().is('td')) {
         var $parent = $nodeChart.closest('tr').prevAll('tr:last');
         $nodeChart.closest('tr').prevAll('tr:lt(2)').remove();
-        var childCount = 0;
-        this.buildChildNode($nodeChart.parent().closest('table'), nodeData, opts, function() {
-          if (++childCount === newSiblingCount) {
-            var $siblingTds = $nodeChart.parent().closest('table').children('tr:last').children('td');
-            if (existingSibligCount > 1) {
-              that.complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().addBack().unwrap()), siblingCount, existingSibligCount);
-              $siblingTds.addClass('hidden').find('.node').addClass('slide-left');
-            } else {
-              that.complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
-              $siblingTds.not(':eq(' + insertPostion + 1 + ')').addClass('hidden')
-                .slice(0, insertPostion).find('.node').addClass('slide-right')
-                .end().end().slice(insertPostion).find('.node').addClass('slide-left');
-            }
-            callback();
-          }
-        });
+        this.buildChildNode($nodeChart.parent().closest('table'), data);
+        var $siblingTds = $nodeChart.parent().closest('table').children('tr:last').children('td');
+        if (existingSibligCount > 1) {
+          this.complementLine($siblingTds.eq(0).before($nodeChart.closest('td').siblings().addBack().unwrap()), siblingCount, existingSibligCount);
+        } else {
+          this.complementLine($siblingTds.eq(insertPostion).after($nodeChart.closest('td').unwrap()), siblingCount, 1);
+        }
       } else { // build the sibling nodes and parent node for the specific ndoe
-        var nodeCount = 0;
-        this.buildHierarchy($nodeChart.closest('.orgchart'), nodeData, 0, opts, function() {
-          if (++nodeCount === siblingCount) {
-            that.complementLine($nodeChart.next().children('tr:last')
-              .children().eq(insertPostion).after($('<td colspan="2">')
-              .append($nodeChart)), siblingCount, 1);
-            $nodeChart.closest('tr').siblings().eq(0).addClass('hidden').find('.node').addClass('slide-down');
-            $nodeChart.parent().siblings().addClass('hidden')
-              .slice(0, insertPostion).find('.node').addClass('slide-right')
-              .end().end().slice(insertPostion).find('.node').addClass('slide-left');
-            callback();
-          }
-        });
+        this.buildHierarchy($nodeChart.closest('.orgchart'), data);
+        this.complementLine($nodeChart.next().children('tr:last').children().eq(insertPostion).after($('<td colspan="2">').append($nodeChart)),
+          siblingCount, 1);
       }
     },
     //
-    addSiblings: function ($node, data, opts) {
-      var that = this;
-      this.buildSiblingNode($node.closest('table'), data, opts, function() {
-        $node.closest('.nodes').data('siblingsLoaded', true);
-        if (!$node.children('.leftEdge').length) {
-          $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
-        }
-        that.showSiblings($node);
-      });
+    addSiblings: function ($node, data) {
+      this.buildSiblingNode($node.closest('table'), data);
+      $node.closest('.nodes').data('siblingsLoaded', true);
+      if (!$node.children('.leftEdge').length) {
+        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
+      }
+      if (this.isInAction($node)) {
+        this.switchHorizontalArrow($node);
+        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+      }
     },
     //
     removeNodes: function ($node) {

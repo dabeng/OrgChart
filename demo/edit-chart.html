@@ -8,10 +8,11 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { background-color: #eee; height: 300px; }
+    #chart-container { background-color: #eee; height: 500px; }
     .orgchart { background: #fff; }
-    .orgchart.view-state .edge { display: none; }
+    .orgchart.edit-state .edge { display: none; }
     .orgchart .node { width: 150px; }
+    .orgchart .node .title { height: 30px; line-height: 30px; }
     .orgchart .node .title .symbol { margin-top: 1px; }
     #edit-panel {
       position: relative;
@@ -25,7 +26,7 @@
       background-color: #449d44;
     }
     #edit-panel .btn-inputs { font-size: 24px; }
-    #edit-panel.view-state>:not(#chart-state-panel) { display: none; }
+    #edit-panel.edit-state>:not(#chart-state-panel) { display: none; }
     #edit-panel label { font-weight: bold; }
     #edit-panel.edit-parent-node .selected-node-group { display: none; }
     #chart-state-panel, #selected-node, #btn-remove-input { margin-right: 20px; }
@@ -116,6 +117,7 @@
 
     var oc = $('#chart-container').orgchart({
       'data' : datascource,
+      'chartClass': 'edit-state',
       'exportButton': true,
       'exportFilename': 'SportsChart',
       'parentNodeSymbol': 'fa-th-large',
@@ -136,8 +138,8 @@
     });
 
     $('input[name="chart-state"]').on('click', function() {
-      $('.orgchart').toggleClass('view-state', this.value !== 'view');
-      $('#edit-panel').toggleClass('view-state', this.value === 'view');
+      $('.orgchart').toggleClass('edit-state', this.value !== 'view');
+      $('#edit-panel').toggleClass('edit-state', this.value === 'view');
       if ($(this).val() === 'edit') {
         $('.orgchart').find('tr').removeClass('hidden')
           .find('td').removeClass('hidden')
@@ -211,22 +213,24 @@
           oc.addParent($chartContainer.find('.node:first'), { 'name': nodeVals[0], 'id': getId() });
         }
       } else if (nodeType.val() === 'siblings') {
-        oc.addSiblings($node,
-          { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'id': getId() }; })
-        });
+        if ($node[0].id === oc.$chart.find('.node:first')[0].id) {
+          alert('You are not allowed to directly add sibling nodes to root node');
+          return;
+        }
+        oc.addSiblings($node, nodeVals.map(function (item) {
+            return { 'name': item, 'relationship': '110', 'id': getId() };
+          }));
       } else {
         var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
         if (!hasChild) {
           var rel = nodeVals.length > 1 ? '110' : '100';
-          oc.addChildren($node, {
-              'children': nodeVals.map(function(item) {
-                return { 'name': item, 'relationship': rel, 'id': getId() };
-              })
-            }, $.extend({}, $chartContainer.find('.orgchart').data('options'), { depth: 0 }));
+          oc.addChildren($node, nodeVals.map(function (item) {
+              return { 'name': item, 'relationship': rel, 'id': getId() };
+            }));
         } else {
-          oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'),
-            { 'siblings': nodeVals.map(function(item) { return { 'name': item, 'relationship': '110', 'id': getId() }; })
-          });
+          oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'), nodeVals.map(function (item) {
+              return { 'name': item, 'relationship': '110', 'id': getId() };
+            }));
         }
       }
     });

@@ -100,11 +100,11 @@ It's a so easy task, we just need to append id or className property to node dat
 
 In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
 
-- [I want a hybrid(horizontal + vertical) chart](https://rawgit.com/dabeng/OrgChart/master/demo/vertical-depth.html)
+- [I want a hybrid(horizontal + vertical) chart](https://rawgit.com/dabeng/OrgChart/master/demo/vertical-level.html)
 
 This feature is inspired by the issues([Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)). Thank [mfahadi](https://github.com/mfahadi) and [Destructrix](https://github.com/Destructrix) for their constructive suggestions:blush: Special thanks to [tedliang](https://github.com/tedliang) for his wonderful hybrid mode solution.
 
-From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalDepth" allows users to align child nodes vertically from the given depth.
+From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalLevel" allows users to align child nodes vertically from the given level.
 
 **Note**: currently, this option is incompatible with many other options or methods, like direction, drag&drop, addChildren(), removeNodes(), getHierarchy() and so on. These conflicts will be solved one by one in the later versions.
 
@@ -191,7 +191,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
     </tr>
     <tr>
-      <td>verticalDepth</td><td>integer</td><td>no</td><td></td><td>Users can make use of this option to align the nodes vertically from the specified depth.</td>
+      <td>verticalLevel</td><td>integer(>=2)</td><td>no</td><td></td><td>Users can make use of this option to align the nodes vertically from the specified level.</td>
     </tr>
     <tr>
       <td>toggleSiblingsResp</td><td>boolean</td><td>no</td><td>false</td><td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
@@ -200,7 +200,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety provides the URL to which ajax request for different nodes is sent.</td>
     </tr>
     <tr>
-      <td>depth</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+      <td>visibleLevel</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
     </tr>
     <tr>
       <td>nodeTitle</td><td>string</td><td>no</td><td>"name"</td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
@@ -251,7 +251,7 @@ I'm sure that you can grasp the key points of the methods below after you try ou
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required. Variable oc is the instance of class OrgChart.
 #### init(newOptions)
 It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
-#### addParent(data, opts)
+#### addParent(data)
 Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
@@ -259,11 +259,10 @@ Adds parent node(actullay it's always root node) for current orgchart.
   </thead>
   <tbody>
     <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building root node</td></tr>
-    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
   </tbody>
 </table>
 
-#### addSiblings($node, data, opts)
+#### addSiblings($node, data)
 Adds sibling nodes for designated node.
 <table>
   <thead>
@@ -271,12 +270,11 @@ Adds sibling nodes for designated node.
   </thead>
   <tbody>
     <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add sibling nodes based on this node</td></tr>
-    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building sibling nodes</td></tr>
-    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
+    <tr><td>data</td><td>array</td><td>yes</td><td></td><td>datasource for building sibling nodes</td></tr>
   </tbody>
 </table>
 
-#### addChildren($node, data, opts）
+#### addChildren($node, data)
 Adds child nodes for designed node.
 <table>
   <thead>
@@ -284,8 +282,7 @@ Adds child nodes for designed node.
   </thead>
   <tbody>
     <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add child nodes based on this node</td></tr>
-    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building child nodes</td></tr>
-    <tr><td>opts</td><td>json object</td><td>no</td><td>initial options of current orgchart</td><td>options used for overriding initial options</td></tr>
+    <tr><td>data</td><td>array</td><td>yes</td><td></td><td>datasource for building child nodes</td></tr>
   </tbody>
 </table>
 
