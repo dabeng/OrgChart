@@ -84,7 +84,7 @@ gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
     .pipe(sourcemaps.init())
     .pipe(uglify())
     .pipe(rename('jquery.orgchart.min.js'))
-    .pipe(sourcemaps.write())
+    .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(paths.distJSFolder));
 });
 
@@ -107,10 +107,8 @@ gulp.task('csslint', function() {
 gulp.task('css', ['cleanupCSS', 'csslint'], function () {
   return gulp.src(paths.srcCSS)
     .pipe(gulp.dest(paths.distCSSFolder))
-    .pipe(sourcemaps.init())
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))
-    .pipe(sourcemaps.write())
     .pipe(gulp.dest(paths.distCSSFolder));
 });
 
