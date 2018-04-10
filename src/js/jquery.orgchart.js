@@ -1064,9 +1064,9 @@
 
       if (!this.touchMoved) {
         console.log("orgChart: touchmove 1: " + event.touches.length + " touches, we have not moved, so this is the start of a drag");
-        // *** we do not bother with createGhostNode (dragstart does) since the touch event does not have a dataTransfer property
+        // we do not bother with createGhostNode (dragstart does) since the touch event does not have a dataTransfer property
         this.filterAllowedDropNodes($(event.currentTarget));        // will also set 'this.$chart.data('dragged')' for us
-        // create an image which can be used to illustrate the drag
+        // create an image which can be used to illustrate the drag (our own createGhostNode)
         this.touchDragImage = this.createDragImage(event, this.$chart.data('dragged')[0]);
       }
       this.touchMoved = true;
@@ -1079,13 +1079,15 @@
       if ($touchingNodes.length > 0) {
         var touchingNodeElement = $touchingNodes[0];
         if ($touchingNodes.is('.allowedDrop')) {
-            console.log("orgChart: touchmove 2: this node (" + touchingNodeElement.id + ") is allowed to be a drop target");
-            this.touchTargetNode = touchingNodeElement;
-        } else {
-            console.log("orgChart: touchmove 3: this node (" + touchingNodeElement.id + ") is NOT allowed to be a drop target");
-            this.touchTargetNode = null;
+          console.log("orgChart: touchmove 2: this node (" + touchingNodeElement.id + ") is allowed to be a drop target");
+          this.touchTargetNode = touchingNodeElement;
         }
-      } else {
+        else {
+          console.log("orgChart: touchmove 3: this node (" + touchingNodeElement.id + ") is NOT allowed to be a drop target");
+          this.touchTargetNode = null;
+        }
+      }
+      else {
         console.log("orgchart: touchmove 4: not touching a node");
         this.touchTargetNode = null;
       }
@@ -1436,6 +1438,7 @@
     //
     showDropZones: function (dragged) {
       // RW Enhancement: Highlight all the 'drop zones', and set dragged, so that the drop/enter can work out what happens later
+      // TODO: This assumes all nodes are droppable: it doesn't run the custom isDroppable function - it should!
       var orgChartObj = this;
       orgChartObj.$chart.find('.node')
         .each(function (index, node) {
