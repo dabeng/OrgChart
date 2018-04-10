@@ -3,16 +3,12 @@ var sinon = require("sinon");
 var sinonChai = require("sinon-chai");
 var should = chai.should();
 chai.use(sinonChai);
-var jsdom = require("jsdom");
-var { JSDOM } = jsdom;
-var dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div></body></html>');
-global.window = dom.window;
-global.document = dom.window.document;
+require('jsdom-global')();
 var $ = require('jquery');
 require('../../src/js/jquery.orgchart');
 
 describe('orgchart -- unit tests', function () {
-
+  document.body.innerHTML = '<div id="chart-container"></div>';
   var $container = $('#chart-container'),
   ds = {
     'id': 'n1',

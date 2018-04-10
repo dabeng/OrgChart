@@ -1,23 +1,18 @@
-var chai = require("chai");
-var sinon = require("sinon");
-var sinonChai = require("sinon-chai");
+var chai = require('chai');
+var sinon = require('sinon');
+var sinonChai = require('sinon-chai');
 var should = chai.should();
 chai.use(sinonChai);
-var jsdom = require("jsdom");
-var { JSDOM } = jsdom;
-var dom = new JSDOM('<!doctype html><html><body><div id="chart-container"></div></body></html>');
-global.window = dom.window;
-global.document = dom.window.document;
+require('jsdom-global')();
 var $ = require('jquery');
 require('../../src/js/jquery.orgchart');
 
 describe('orgchart -- integration tests', function () {
-
+  document.body.innerHTML = '<div id="chart-container"></div>';
   var $container = $('#chart-container'),
   ds = {
     'id': 'n1',
     'name': 'Lao Lao',
-    'title': 'general manager',
     'children': [
       { 'id': 'n2', 'name': 'Bo Miao' },
       { 'id': 'n3', 'name': 'Su Miao',
@@ -81,7 +76,7 @@ describe('orgchart -- integration tests', function () {
   $erdan;
 
   beforeEach(function () {
-    oc = $('#chart-container').orgchart({
+    oc = $container.orgchart({
       'data': ds
     }),
     $laolao = $('#n1'),
@@ -109,13 +104,13 @@ describe('orgchart -- integration tests', function () {
 
   describe('addChildren()', function () {
     it('Add child nodes to the leaf node', function () {
-      oc.addChildren($bomiao, { 'children': [{'name': 'Li Xin', 'id': 'n11' }] });
+      oc.addChildren($bomiao, [{'name': 'Li Xin', 'id': 'n11' }]);
       $bomiao.closest('tr').siblings().should.lengthOf(3);
       $bomiao.closest('tr').siblings('.nodes').find('.node').attr('id').should.equal('n11');
     });
 
     it('Add child nodes to the un-leaf node', function () {
-      oc.addChildren($sumiao, { 'children': [{'name': 'Li Xin', 'id': 'n11' }] });
+      oc.addChildren($sumiao, [{'name': 'Li Xin', 'id': 'n11' }]);
       $sumiao.closest('tr').siblings('.nodes').children().should.lengthOf(4);
       $sumiao.closest('tr').siblings('.nodes').children(':last').find('.node').attr('id').should.equal('n11');
     });
@@ -123,7 +118,7 @@ describe('orgchart -- integration tests', function () {
 
   describe('addSiblings()', function () {
     it('Just add sibling nodes', function () {
-      oc.addSiblings($sumiao, { 'siblings': [{'name': 'Li Xin', 'id': 'n11' }] });
+      oc.addSiblings($sumiao, [{'name': 'Li Xin', 'id': 'n11' }]);
       $laolao.closest('tr').siblings('.nodes').children().should.lengthOf(4);
       $laolao.closest('tr').siblings('.nodes').children(':last').find('.node').attr('id').should.equal('n11');
     });
