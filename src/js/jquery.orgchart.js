@@ -344,9 +344,9 @@
         'name': $li.contents().eq(0).text().trim(),
         'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('ul').length ? 1 : 0)
       };
-      if ($li.attr('data-id')) {
-        subObj.id = $li.attr('data-id');
-      }
+      $.each($li.data(), function(key, value) {
+         subObj[key] = value;
+      });
       $li.children('ul').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
         subObj.children.push(that.buildJsonDS($(this)));
