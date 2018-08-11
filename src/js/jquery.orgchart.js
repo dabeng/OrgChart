@@ -789,7 +789,7 @@
         // start up loading status
         if (this.startLoading($topEdge)) {
           var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(event.data.nodeData) : opts.ajaxURL.parent + $node[0].id;
+          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent($node.data('nodeData')) : opts.ajaxURL.parent + $node[0].id;
           this.loadNodes('parent', url, $topEdge);
         }
       }
@@ -812,7 +812,7 @@
       } else { // load the new children nodes of the specified node by ajax request
         if (this.startLoading($bottomEdge)) {
           var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(event.data.nodeData) : opts.ajaxURL.children + $node[0].id;
+          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children($node.data('nodeData')) : opts.ajaxURL.children + $node[0].id;
           this.loadNodes('children', url, $bottomEdge);
         }
       }
@@ -855,8 +855,8 @@
         if (this.startLoading($hEdge)) {
           var nodeId = $node[0].id;
           var url = (this.getNodeState($node, 'parent').exist) ?
-            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(event.data.nodeData) : opts.ajaxURL.siblings + nodeId) :
-            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(event.data.nodeData) : opts.ajaxURL.families + nodeId);
+            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings($node.data('nodeData')) : opts.ajaxURL.siblings + nodeId) :
+            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families($node.data('nodeData')) : opts.ajaxURL.families + nodeId);
           this.loadNodes('siblings', url, $hEdge);
         }
       }
@@ -1145,6 +1145,10 @@
         $nodeDiv.append('<div class="title">' + data[opts.nodeTitle] + '</div>')
           .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (data[opts.nodeContent] || '') + '</div>' : '');
       }
+      //
+      var nodeData = $.extend({}, data);
+      delete nodeData.children;
+      $nodeDiv.data('nodeData', nodeData);
       // append 4 direction arrows or expand/collapse buttons
       var flags = data.relationship || '';
       if (opts.verticalLevel && level >= opts.verticalLevel) {
@@ -1168,9 +1172,9 @@
 
       $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
       $nodeDiv.on('click', this.nodeClickHandler.bind(this));
-      $nodeDiv.on('click', '.topEdge', { 'nodeData': data }, this.topEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': data }, this.bottomEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': data }, this.hEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.topEdge', this.topEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.bottomEdge', this.bottomEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', this.hEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
 
       if (opts.draggable) {
