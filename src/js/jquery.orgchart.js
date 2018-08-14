@@ -892,9 +892,6 @@
       var opts = this.options;
       var origEvent = event.originalEvent;
       var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
-      if (isFirefox) {
-        origEvent.dataTransfer.setData('text/html', 'hack for firefox');
-      }
       var ghostNode, nodeCover;
       if (!document.querySelector('.ghost-node')) {
         ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -907,9 +904,10 @@
         nodeCover = $(ghostNode).children().get(0);
       }
       var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
-      var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
-      ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
-      ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+      var isHorizontal = opts.direction === 't2b' || opts.direction === 'b2t';
+      var scale = Math.abs(window.parseFloat(isHorizontal ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
+      ghostNode.setAttribute('width', isHorizontal ? $nodeDiv.outerWidth(false) : $nodeDiv.outerHeight(false));
+      ghostNode.setAttribute('height', isHorizontal ? $nodeDiv.outerHeight(false) : $nodeDiv.outerWidth(false));
       nodeCover.setAttribute('x',5 * scale);
       nodeCover.setAttribute('y',5 * scale);
       nodeCover.setAttribute('width', 120 * scale);
@@ -959,6 +957,7 @@
     },
     //
     dragstartHandler: function (event) {
+      event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
       // if users enable zoom or direction options
       if (this.$chart.css('transform') !== 'none') {
         this.createGhostNode(event);
