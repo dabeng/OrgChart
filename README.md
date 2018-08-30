@@ -1,4 +1,3 @@
-# I come back
 ![OrgChart](http://dabeng.github.io/OrgChart/img/orgchart-heading.png)
 
 # [Native JavaScript(ES6) Version](http://github.com/dabeng/OrgChart.js)
@@ -35,7 +34,7 @@ $ npm install orgchart
 ```
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
-## [Demo](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)  &nbsp;&nbsp;&nbsp;&nbsp;  [All demos in one page](http://dabeng.github.io/OrgChart/)
+## [Demos on github](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)  &nbsp;&nbsp;&nbsp;&nbsp;  [Demos on codepen.io](https://codepen.io/collection/AWxGVb/)
 ### online demos
 - [using ul datasource](https://rawgit.com/dabeng/OrgChart/master/demo/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 
