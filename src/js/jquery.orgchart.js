@@ -973,7 +973,7 @@
         //to fix drag and drop on IE and Edge		
         event.preventDefault();
       }
-	  },
+    },
     //
     dragendHandler: function (event) {
       this.$chart.find('.allowedDrop').removeClass('allowedDrop');
