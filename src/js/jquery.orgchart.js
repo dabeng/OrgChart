@@ -966,11 +966,14 @@
     },
     //
     dragoverHandler: function (event) {
-      event.preventDefault();
       if (!$(event.delegateTarget).is('.allowedDrop')) {
         event.originalEvent.dataTransfer.dropEffect = 'none';
+      } else {
+        // default action for drag-and-drop of div is not to drop, so preventing default action for nodes which have allowedDrop class
+        //to fix drag and drop on IE and Edge		
+        event.preventDefault();
       }
-    },
+	  },
     //
     dragendHandler: function (event) {
       this.$chart.find('.allowedDrop').removeClass('allowedDrop');
