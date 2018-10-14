@@ -1336,9 +1336,10 @@
     },
     //
     removeNodes: function ($node) {
-      var $parent = $node.closest('table').parent();
-      var $sibs = $parent.parent().siblings();
-      if ($parent.is('td')) {
+      var isVerticalNode = $node.parents('.verticalNodes').length > 0 ? true : false
+      var $parent = isVerticalNode ? $node.parent() : $node.closest('table').parent();
+      var $sibs = isVerticalNode ? $parent.siblings() : $parent.parent().siblings();
+      if ($parent.is('td') || $parent.is('li')) {
         if (this.getNodeState($node, 'siblings').exist) {
           $sibs.eq(2).children('.topLine:lt(2)').remove();
           $sibs.slice(0, 2).children().attr('colspan', $sibs.eq(2).children().length);
