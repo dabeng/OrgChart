@@ -1269,6 +1269,59 @@
         this.switchVerticalArrow($node.children('.bottomEdge'));
       }
     },
+    // exposed method:Vertical nodes add child nodes
+    addNodeChildren: function ($node, data, level) {
+      this.buildNodeChildNode($node, data, level);
+      if (!$node.children('.bottomEdge').length) {
+          if(level <= 2){
+              $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
+          } else {
+              $node.append('<i class="toggleBtn fa fa-minus-square"></i>');
+          }
+      }
+      if (!$node.find('.symbol').length) {
+          $node.children('.title').prepend('<i class="fa '+ this.options.parentNodeSymbol + ' symbol"></i>');
+      }
+    },
+    buildNodeChildNode: function ($appendTo, data ,level) {
+      this.buildNodeHierarchy($appendTo, { 'children': data ,'level': level});
+    },
+    buildNodeHierarchy: function ($appendTo, data) {
+      var that = this;
+      var opts = this.options;
+      var level = 0;
+      if (data.level) {
+          level = data.level;
+      } else {
+          level = data.level = $appendTo.parentsUntil('.orgchart', '.nodes').length + 1;
+      }
+      // Construct the node
+      var childrenData = data.children;
+      var hasChildren = childrenData ? childrenData.length : false;
+      var $nodeDiv = this.createNode(data);
+      if (hasChildren) {
+          var isHidden = (level + 1 > opts.visibleLevel || data.collapsed) ? ' hidden' : '';
+          var isVerticalLayer = (opts.verticalLevel && (level + 1) >= opts.verticalLevel) ? true : false;
+          var $nodesLayer= $('<ul>');
+          if (isVerticalLayer) {
+              if (level + 1 <= opts.verticalLevel) {
+                  $appendTo.closest('table').append('<tr class="verticalNodes' + isHidden + '"><td></td></tr>')
+                      .find('.verticalNodes').children().append($nodesLayer);
+              } else {
+                  $appendTo.after($nodesLayer);
+              }
+          }
+          // recurse through children nodes
+          $.each(childrenData, function () {
+              var $nodeCell = isVerticalLayer ? $('<li>') : $('<td colspan="2">');
+              $nodesLayer.append($nodeCell);
+              this.level = level + 1;
+              that.buildNodeHierarchy($nodeCell, this);
+          });
+      } else {
+          $appendTo.append($nodeDiv);
+      }
+    },
     // build the parent node of specific node
     buildParentNode: function ($currentRoot, data) {
       data.relationship = data.relationship || '001';
