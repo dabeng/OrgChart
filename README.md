@@ -291,6 +291,19 @@ Adds child nodes for designed node.
   </tbody>
 </table>
 
+#### addNodeChildren($node, data, level)
+Adds child nodes for vertical node.
+<table>
+  <thead>
+    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add child nodes based on this node</td></tr>
+    <tr><td>data</td><td>array</td><td>yes</td><td></td><td>datasource for building child nodes</td></tr>
+    <tr><td>level</td><td>number</td><td>yes</td><td></td><td>The level of the current node,available from data</td></tr>
+  </tbody>
+</table>
+
 #### removeNodes($node）
 Removes the designated node and its descedant nodes.
 <table>
