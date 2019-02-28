@@ -35,7 +35,8 @@
       'pan': false,
       'zoom': false,
       'zoominLimit': 7,
-      'zoomoutLimit': 0.5
+      'zoomoutLimit': 0.5,
+      'zoombyMousePosition':false
     };
   };
   //
@@ -266,7 +267,7 @@
       var oc = e.data.oc;
       e.preventDefault();
       var newScale  = 1 + (e.originalEvent.deltaY > 0 ? -0.2 : 0.2);
-      oc.setChartScale(oc.$chart, newScale);
+      oc.setChartScale(oc.$chart, newScale,e);
     },
     //
     zoomStartHandler: function (e) {
@@ -290,9 +291,9 @@
         oc.$chart.data('pinching', false);
         var diff = oc.$chart.data('pinchDistEnd') - oc.$chart.data('pinchDistStart');
         if (diff > 0) {
-          oc.setChartScale(oc.$chart, 1.2);
+          oc.setChartScale(oc.$chart, 1.2,e);
         } else if (diff < 0) {
-          oc.setChartScale(oc.$chart, 0.8);
+          oc.setChartScale(oc.$chart, 0.8,e);
         }
       }
     },
@@ -315,24 +316,56 @@
       (e.touches[0].clientY - e.touches[1].clientY) * (e.touches[0].clientY - e.touches[1].clientY));
     },
     //
-    setChartScale: function ($chart, newScale) {
+    setChartScale: function ($chart, newScale,event) {
       var opts = $chart.data('options');
+      var byMouse = opts.zoombyMousePosition;
       var lastTf = $chart.css('transform');
       var matrix = '';
       var targetScale = 1;
-      if (lastTf === 'none') {
+      
+      var isMatrix3d = lastTf.indexOf('3d') >= 0;
+   
+      if (lastTf === 'none' && !byMouse) {
         $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
       } else {
+        if (lastTf === 'none') lastTf = "matrix(1,0,0,1,0,0)";
         matrix = lastTf.split(',');
-        if (lastTf.indexOf('3d') === -1) {
-          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
-            $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
-          }
-        } else {
-          targetScale = Math.abs(window.parseFloat(matrix[1]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
-            $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        var currentScale = isMatrix3d ? window.parseFloat(matrix[5]) : window.parseFloat(matrix[3]);
+        targetScale = Math.abs(currentScale * newScale);
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          if (byMouse) {
+            var e = event || window.event;
+            var scrollX = document.documentElement.scrollLeft || document.body.scrollLeft;
+            var scrollY = document.documentElement.scrollTop || document.body.scrollTop;
+            var x = e.pageX || e.clientX + scrollX;
+            var y = e.pageY || e.clientY + scrollY;
+            var cx = this.$chartContainer.offset().left;
+            var cy = this.$chartContainer.offset().top;
+            var zx = x-cx,zy = y-cy;  
+            var px = window.parseFloat(matrix[4]);
+            var py = window.parseFloat(matrix[5].split(")")[0]);
+
+            var ztx = (zx - px)/currentScale;
+            var zty = (zy - py)/currentScale;
+            
+            px = -ztx * targetScale + zx;
+            py = -zty * targetScale + zy;
+            
+            if (isMatrix3d) {
+              matrix[3] = px.toString();
+              matrix[7] = py.toString()+')';
+              $chart.css('transform',matrix.join(',') + ' scale3d(' + newScale + ',' + newScale + ')');
+            }
+            else {
+              matrix[4] = px.toString();
+              matrix[5] = py.toString()+')';
+              $chart.css('transform',matrix.join(',') + ' scale(' + newScale + ',' + newScale + ')');
+            }   
+          } else {
+            if (isMatrix3d) 
+              $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+            else 
+              $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
           }
         }
       }
