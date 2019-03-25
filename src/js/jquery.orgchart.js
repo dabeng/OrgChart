@@ -733,11 +733,17 @@
       $(event.delegateTarget).addClass('focused');
     },
     // load new nodes by ajax
-    loadNodes: function (rel, url, $edge) {
+      loadNodes: function (rel, url, $edge) {
       var that = this;
       var opts = this.options;
-      $.ajax({ 'url': url, 'dataType': 'json' })
-      .done(function (data) {
+      var def = null;
+      if(url.done){
+        def = url
+      }
+      else{
+        def = $.ajax({ 'url': url, 'dataType': 'json' })
+      }
+      def.done(function (data) {
         if (that.$chart.data('inAjax')) {
           if (rel === 'parent') {
             if (!$.isEmptyObject(data)) {
