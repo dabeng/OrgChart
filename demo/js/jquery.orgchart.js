@@ -400,17 +400,28 @@
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {
       var $target = {};
+      var isVerticalNode = $node.parent().is('li');
       var relation = relation || 'self';
       if (relation === 'parent') {
-        $target = $node.closest('.nodes').siblings(':first');
+        if (isVerticalNode) {
+          $target = $node.closest('ul').parents('ul');
+          if (!$target.length) {
+            $target = $node.closest('.nodes');
+            if (!$target.length) {
+              $target = $node.closest('.verticalNodes').siblings(':first');
+            }
+          }
+        } else {
+          $target = $node.closest('.nodes').siblings(':first');
+        }
         if ($target.length) {
-          if ($target.is('.hidden') || (!$target.is('.hidden') && $target.closest('.nodes').is('.hidden'))) {
+          if ($target.is('.hidden') || (!$target.is('.hidden') && $target.closest('.nodes').is('.hidden')) || (!$target.is('.hidden') && $target.closest('.verticalNodes').is('.hidden'))) {
             return { 'exist': true, 'visible': false };
           }
           return { 'exist': true, 'visible': true };
         }
       } else if (relation === 'children') {
-        $target = $node.closest('tr').siblings(':last');
+        $target = isVerticalNode ? $node.parent().children('ul') : $node.closest('tr').siblings(':last');
         if ($target.length) {
           if (!$target.is('.hidden')) {
             return { 'exist': true, 'visible': true };
@@ -418,9 +429,9 @@
           return { 'exist': true, 'visible': false };
         }
       } else if (relation === 'siblings') {
-        $target = $node.closest('table').parent().siblings();
-        if ($target.length) {
-          if (!$target.is('.hidden') && !$target.parent().is('.hidden')) {
+        $target = isVerticalNode ? $node.closest('ul') : $node.closest('table').parent().siblings();
+        if ($target.length && (!isVerticalNode || $target.children('li').length > 1)) {
+          if (!$target.is('.hidden') && !$target.parent().is('.hidden') && (!isVerticalNode || !$target.closest('.verticalNodes').is('.hidden'))) {
             return { 'exist': true, 'visible': true };
           }
           return { 'exist': true, 'visible': false };
@@ -430,7 +441,7 @@
         if ($target.length) {
           if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) ||
             ($target.closest('table').parent().length && $target.closest('table').parent().is('.hidden')) ||
-            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('verticalNodes').is('.hidden')))
+            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('.verticalNodes').is('.hidden')))
           )) {
             return { 'exist': true, 'visible': true };
           }
