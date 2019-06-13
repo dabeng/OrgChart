@@ -1046,7 +1046,7 @@
       this.touchMoved = true;
       var $touching = $(document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY));
       var $touchingNode = $touching.closest('div.node');
- 
+
       if ($touchingNode.length > 0) {
         var touchingNodeElement = $touchingNode[0];
         // TODO: simulate the dragover visualisation
@@ -1097,20 +1097,20 @@
       var simulatedEvent = document.createEvent('MouseEvents');
       simulatedEvent.initMouseEvent(
         simulatedType,    // type
-        true,             // bubbles                    
-        true,             // cancelable                 
-        window,           // view                       
-        1,                // detail                     
-        touch.screenX,    // screenX                    
-        touch.screenY,    // screenY                    
-        touch.clientX,    // clientX                    
-        touch.clientY,    // clientY                    
-        false,            // ctrlKey                    
-        false,            // altKey                     
-        false,            // shiftKey                   
-        false,            // metaKey                    
-        0,                // button                     
-        null              // relatedTarget              
+        true,             // bubbles
+        true,             // cancelable
+        window,           // view
+        1,                // detail
+        touch.screenX,    // screenX
+        touch.screenY,    // screenY
+        touch.clientX,    // clientX
+        touch.clientY,    // clientY
+        false,            // ctrlKey
+        false,            // altKey
+        false,            // shiftKey
+        false,            // metaKey
+        0,                // button
+        null              // relatedTarget
       );
       // Dispatch the simulated event to the target element
       event.target.dispatchEvent(simulatedEvent);
@@ -1336,10 +1336,9 @@
     },
     //
     removeNodes: function ($node) {
-      var isVerticalNode = $node.parents('.verticalNodes').length > 0 ? true : false
-      var $parent = isVerticalNode ? $node.parent() : $node.closest('table').parent();
-      var $sibs = isVerticalNode ? $parent.siblings() : $parent.parent().siblings();
-      if ($parent.is('td') || $parent.is('li')) {
+      var $parent = $node.closest('table').parent();
+      var $sibs = $parent.parent().siblings();
+      if ($parent.is('td')) {
         if (this.getNodeState($node, 'siblings').exist) {
           $sibs.eq(2).children('.topLine:lt(2)').remove();
           $sibs.slice(0, 2).children().attr('colspan', $sibs.eq(2).children().length);
@@ -1351,6 +1350,49 @@
         }
       } else {
         $parent.add($parent.siblings()).remove();
+      }
+    },
+    //
+    exportPDF: function(canvas, exportFilename){
+      var doc = {};
+      var docWidth = Math.floor(canvas.width);
+      var docHeight = Math.floor(canvas.height);
+
+      if (docWidth > docHeight) {
+        doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: [docWidth, docHeight]
+        });
+      } else {
+        doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: [docHeight, docWidth]
+        });
+      }
+      doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+      doc.save(exportFilename + '.pdf');
+    },
+    //
+    exportPNG: function(canvas, exportFilename){
+      var that = this;
+      var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+      var isFf = !!window.sidebar;
+      var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+      var $chartContainer = this.$chartContainer;
+
+      if ((!isWebkit && !isFf) || isEdge) {
+        window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
+      } else {
+        var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
+
+        if (!$chartContainer.find(selector).length) {
+          $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
+                                 + ' download="' + exportFilename + '.png"></a>');
+        }
+
+        $chartContainer.find(selector).attr('href', canvas.toDataURL())[0].click();
       }
     },
     //
@@ -1376,39 +1418,17 @@
         'onclone': function (cloneDoc) {
           $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
             .find('.orgchart:not(".hidden"):first').css('transform', '');
-        },
-        'onrendered': function (canvas) {
-          $chartContainer.find('.mask').addClass('hidden');
-          if (exportFileextension.toLowerCase() === 'pdf') {
-            var doc = {};
-            var docWidth = Math.floor(canvas.width * 0.2646);
-            var docHeight = Math.floor(canvas.height * 0.2646);
-            if (docWidth > docHeight) {
-              doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
-            } else {
-              doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
-            }
-            doc.addImage(canvas.toDataURL(), 'png', 0, 0);
-            doc.save(exportFilename + '.pdf');
-          } else {
-            var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-            var isFf = !!window.sidebar;
-            var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
-
-            if ((!isWebkit && !isFf) || isEdge) {
-              window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
-            } else {
-              var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
-              if (!$chartContainer.find(selector).length) {
-                $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
-                  + ' download="' + exportFilename + '.png"></a>');
-              }
-              $chartContainer.find(selector).attr('href', canvas.toDataURL())[0].click();
-            }
-          }
         }
       })
-      .then(function () {
+      .then(function (canvas) {
+        $chartContainer.find('.mask').addClass('hidden');
+
+        if (exportFileextension.toLowerCase() === 'pdf') {
+          that.exportPDF(canvas, exportFilename);
+        } else {
+          that.exportPNG(canvas, exportFilename);
+        }
+
         $chartContainer.removeClass('canvasContainer');
       }, function () {
         $chartContainer.removeClass('canvasContainer');
