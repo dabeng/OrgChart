@@ -1,7 +1,7 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/orgchart-heading.png)
 
 # [Vue.js Version](https://github.com/dabeng/vue-orgchart)
-# [Native JavaScript(ES6) Version](http://github.com/dabeng/OrgChart.js)
+# [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
 
 ## Foreword
