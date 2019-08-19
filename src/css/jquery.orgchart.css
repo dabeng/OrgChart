@@ -158,12 +158,11 @@
   padding: 3px;
   border: 2px dashed transparent;
   text-align: center;
-  width: 130px;
 }
 
 .orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
-  height: 130px;
+  height: 140px;
 }
 
 .orgchart .node>.spinner {
@@ -202,11 +201,13 @@
 }
 
 .orgchart .node .title {
+  box-sizing: border-box;
+  padding: 2px;
+  width: 130px;
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   height: 20px;
-  line-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -221,15 +222,13 @@
 }
 
 .orgchart.l2r .node .title {
-  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  transform: rotate(-90deg) translate(-45px, -45px) rotateY(180deg);
   transform-origin: bottom center;
-  width: 120px;
 }
 
 .orgchart.r2l .node .title {
-  transform: rotate(-90deg) translate(-40px, -40px);
+  transform: rotate(-90deg) translate(-45px, -45px);
   transform-origin: bottom center;
-  width: 120px;
 }
 
 .orgchart .node .title .symbol {
@@ -240,16 +239,14 @@
 
 .orgchart .node .content {
   box-sizing: border-box;
-  width: 100%;
+  padding: 2px;
   height: 20px;
-  font-size: 11px;
-  line-height: 18px;
+  font-size: 0.625rem;
   border: 1px solid rgba(217, 83, 79, 0.8);
   border-radius: 0 0 4px 4px;
   text-align: center;
   background-color: #fff;
   color: #333;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -260,15 +257,15 @@
 }
 
 .orgchart.l2r .node .content {
-  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  transform: rotate(-90deg) translate(-45px, -45px) rotateY(180deg);
   transform-origin: top center;
-  width: 120px;
+  width: 130px;
 }
 
 .orgchart.r2l .node .content {
-  transform: rotate(-90deg) translate(-40px, -40px);
+  transform: rotate(-90deg) translate(-45px, -45px);
   transform-origin: top center;
-  width: 120px;
+  width: 130px;
 }
 
 .orgchart .node .edge {
