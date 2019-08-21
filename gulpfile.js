@@ -36,12 +36,12 @@ gulp.task('unit-tests', function () {
     .pipe(mocha({reporter: 'spec'}));
 });
 
-gulp.task('integration-tests', ['unit-tests'], function () {
+gulp.task('integration-tests', gulp.series('unit-tests', function () {
   return gulp.src(['test/integration/*.js'], {read: false})
     .pipe(mocha({reporter: 'spec'}));
-});
+}));
 
-gulp.task('addAssets', ['integration-tests'], function () {
+gulp.task('addAssets', gulp.series('integration-tests', function () {
   var fontawesomeCSS = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
     .pipe(gulp.dest(paths.demoCSSFolder));
 
@@ -61,15 +61,15 @@ gulp.task('addAssets', ['integration-tests'], function () {
     .pipe(gulp.dest(paths.demoCSSFolder));
 
   return merge(fontawesomeCSS, fontawesomeFonts, jsFiles, cssFiles);
-});
+}));
 
-gulp.task('e2e-tests', ['addAssets'], function () {
+gulp.task('e2e-tests', gulp.series('addAssets', function () {
   return gulp.src('test/e2e/**/test.js')
     .pipe(testcafe({ browsers: ['chrome:headless', 'firefox:headless'] }));
-});
+}));
 
 gulp.task('cleanupJS', function() {
-  del([paths.distJSFolder + '/**']);
+  return del([paths.distJSFolder + '/**']);
 });
 
 gulp.task('eslint', function () {
@@ -78,7 +78,7 @@ gulp.task('eslint', function () {
     .pipe(eslint.failOnError());
 });
 
-gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
+gulp.task('js', gulp.series('cleanupJS', 'eslint', 'e2e-tests', function () {
   return gulp.src(paths.srcJS)
     .pipe(gulp.dest(paths.distJSFolder))
     .pipe(sourcemaps.init())
@@ -86,14 +86,14 @@ gulp.task('js', ['cleanupJS', 'eslint', 'e2e-tests'], function () {
     .pipe(rename('jquery.orgchart.min.js'))
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(paths.distJSFolder));
-});
+}));
 
 gulp.task('cleanupCSS', function() {
-  del([paths.distCSSFolder + '/**']);
+  return del([paths.distCSSFolder + '/**']);
 });
 
 gulp.task('csslint', function() {
-  gulp.src(paths.srcCSS)
+  return gulp.src(paths.srcCSS)
     .pipe(csslint({
       'adjoining-classes': false,
       'box-sizing': false,
@@ -104,27 +104,27 @@ gulp.task('csslint', function() {
     .pipe(csslint.formatter());
 });
 
-gulp.task('css', ['cleanupCSS', 'csslint'], function () {
+gulp.task('css', gulp.series('cleanupCSS', 'csslint', function () {
   return gulp.src(paths.srcCSS)
     .pipe(gulp.dest(paths.distCSSFolder))
     .pipe(cleanCSS())
     .pipe(rename('jquery.orgchart.min.css'))
     .pipe(gulp.dest(paths.distCSSFolder));
-});
+}));
 
-gulp.task('build', ['js', 'css']);
+gulp.task('build', gulp.series('js', 'css'));
 
 gulp.task('reload', function (done) {
   browserSync.reload();
   done();
 });
 
-gulp.task('serve', ['build'], function () {
+gulp.task('serve', gulp.series('build', function () {
   browserSync.init({
     server: {
       baseDir: paths.demo
     }
   });
-  gulp.watch(paths.srcFiles, ['build']);
-  gulp.watch(paths.demoFiles, ['reload']);
-});
+  gulp.watch(paths.srcFiles, gulp.series('build'));
+  gulp.watch(paths.demoFiles, gulp.series('reload'));
+}));
