@@ -1,15 +1,18 @@
 {
   "name": "orgchart",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
   "main": "./dist/js/jquery.orgchart.min.js",
   "style": [
     "./dist/css/jquery.orgchart.min.css"
   ],
   "scripts": {
-    "test": "gulp e2e-tests",
+    "test": "gulp test",
     "build": "gulp build",
     "start": "gulp serve"
+  },
+  "jest": {
+    "preset": "jest-puppeteer"
   },
   "repository": {
     "type": "git",
@@ -33,7 +36,6 @@
   "homepage": "https://github.com/dabeng/OrgChart#readme",
   "dependencies": {
     "font-awesome": "^4.6.3",
-    "gulp-cli": "^2.2.0",
     "html2canvas": "^0.5.0-beta4",
     "jquery": "^3.4.1",
     "jquery-mockjax": "^2.5.0",
@@ -42,21 +44,28 @@
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "chai": "^4.2.0",
+    "chromeless": "^1.5.2",
     "del": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^3.10.0",
     "gulp-csslint": "^1.0.1",
     "gulp-eslint": "^4.0.2",
     "gulp-inject": "^4.3.2",
+    "gulp-jest": "^4.0.3",
     "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-testcafe": "^0.9.2",
     "gulp-uglify": "^3.0.2",
+    "jest": "^24.9.0",
+    "jest-cli": "^24.9.0",
+    "jest-image-snapshot": "^2.11.0",
+    "jest-puppeteer": "^4.3.0",
     "jsdom": "^11.12.0",
     "jsdom-global": "^3.0.2",
     "merge-stream": "^1.0.1",
     "mocha": "^6.2.0",
+    "puppeteer": "^1.20.0",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0",
     "testcafe": "^15.1.317922"
