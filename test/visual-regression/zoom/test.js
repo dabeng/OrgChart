@@ -1,9 +1,19 @@
-const { toMatchImageSnapshot } = require("jest-image-snapshot");
+const { toMatchImageSnapshot } = require('jest-image-snapshot');
 
 expect.extend({ toMatchImageSnapshot });
 
+const config = {
+  failureThreshold: 0.01,
+  failureThresholdType: 'percent'
+};
+
 describe('orgchart -- visual regression tests', () => {
   beforeAll(async () => {
+    await page.setViewport({
+      width: 1680,
+      height: 450,
+      deviceScaleFactor: 1,
+    });
     await page.goto(
       `file:${require('path').join(__dirname, '../../../demo/pan-zoom.html')}`
     );
@@ -18,7 +28,7 @@ describe('orgchart -- visual regression tests', () => {
       el.dispatchEvent(syntheticEvent);
     });
     const image = await page.screenshot();
-    expect(image).toMatchImageSnapshot();
+    expect(image).toMatchImageSnapshot(config);
   });
 
   it('zoomout correctly', async () => {
@@ -31,6 +41,6 @@ describe('orgchart -- visual regression tests', () => {
       el.dispatchEvent(syntheticEvent);
     });
     const image = await page.screenshot();
-    expect(image).toMatchImageSnapshot();
+    expect(image).toMatchImageSnapshot(config);
   });
 });
