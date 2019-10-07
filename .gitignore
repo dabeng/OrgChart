@@ -1,7 +1,19 @@
-# Folders to ignore
+# compiled output
+/dist
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Bower dependency directory (https://bower.io/)
 bower_components
-node_modules
 
-
-# Numerous always-ignore extensions
+# Logs
+logs
 *.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# System Files
+.DS_Store
