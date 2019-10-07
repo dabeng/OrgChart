@@ -55,7 +55,7 @@
     "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp-testcafe": "^0.9.2",
+    "gulp-testcafe": "^1.0.0",
     "gulp-uglify": "^3.0.2",
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",

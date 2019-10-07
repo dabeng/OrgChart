@@ -1,6 +1,5 @@
 # compiled output
 /dist
-/demo
 
 # Coverage directory used by tools like istanbul
 coverage
