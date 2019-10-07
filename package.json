@@ -36,9 +36,9 @@
   "homepage": "https://github.com/dabeng/OrgChart#readme",
   "dependencies": {
     "font-awesome": "^4.6.3",
-    "html2canvas": "^0.5.0-beta4",
     "jquery": "^3.4.1",
     "jquery-mockjax": "^2.5.0",
+    "html2canvas": "^1.0.0-rc.5",
     "jspdf": "^1.5.3"
   },
   "devDependencies": {
