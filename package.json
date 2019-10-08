@@ -36,15 +36,14 @@
   "homepage": "https://github.com/dabeng/OrgChart#readme",
   "dependencies": {
     "font-awesome": "^4.6.3",
+    "html2canvas": "^1.0.0-rc.5",
     "jquery": "^3.4.1",
     "jquery-mockjax": "^2.5.0",
-    "html2canvas": "^1.0.0-rc.5",
     "jspdf": "^1.5.3"
   },
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "chai": "^4.2.0",
-    "chromeless": "^1.5.2",
     "del": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^3.10.0",
@@ -55,7 +54,7 @@
     "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp-testcafe": "^1.0.0",
+    "gulp-testcafe": "^0.9.2",
     "gulp-uglify": "^3.0.2",
     "jest": "^24.9.0",
     "jest-cli": "^24.9.0",
@@ -68,6 +67,6 @@
     "puppeteer": "^1.20.0",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0",
-    "testcafe": "^15.1.317922"
+    "testcafe": "^1.5.0"
   }
 }
