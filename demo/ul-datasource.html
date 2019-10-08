@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #ul-data {
+      position: relative;
+      top: -60px;
+      display: inline-block;
+      margin-left: 10%;
+      width: 30%;
+      margin-right: 6%;
+    }
+    #chart-container { display: inline-block; width: 50%; }
+    #ul-data li { font-size: 32px; }
+  </style>
+</head>
+<body>
+  <ul id="ul-data">
+    <li>Lao Lao
+      <ul>
+        <li>Bo Miao</li>
+        <li>Su Miao
+          <ul>
+            <li>Tie Hua</li>
+            <li>Hei Hei
+              <ul>
+                <li>Pang Pang</li>
+                <li>Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      $('#chart-container').orgchart({
+        'data' : $('#ul-data')
+      });
+
+    });
+  </script>
+  </body>
+</html>

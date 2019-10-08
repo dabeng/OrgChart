@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+.orgchart .linkNode {
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  text-align: center;
+  width: 130px;
+}
+
+.orgchart .linkNode .linkLine {
+  background-color: rgba(217, 83, 79, 0.8);
+  height: 50px;
+  width: 2px;
+  margin: 0 auto;
+}
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datascource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Li Xin', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Fei Fei', 'title': 'engineer' },
+                { 'name': 'Xuan Xuan', 'title': 'engineer' }
+              ]
+            }
+          ]
+        },
+        { 'name': 'Su Miao', 'title': 'department manager', 'linkNode': true,
+          'children': [
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Dan Dan', 'title': 'engineer' },
+                { 'name': 'Zai Zai', 'title': 'engineer' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title'
+    });
+
+  });
+  </script>
+  </body>
+</html>

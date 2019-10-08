@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datasource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'office': '白城',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager', 'office': '北京' },
+        { 'name': 'Su Miao', 'title': 'department manager', 'office': '北戴河',
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer', 'office': '北戴河' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer', 'office': '北戴河' }
+          ]
+        },
+        { 'name': 'Yu Jie', 'title': 'department manager', 'office': '长春' },
+        { 'name': 'Yu Li', 'title': 'department manager', 'office': '长春' },
+        { 'name': 'Hong Miao', 'title': 'department manager', 'office': '长春' },
+        { 'name': 'Yu Wei', 'title': 'department manager', 'office': '长春' },
+        { 'name': 'Chun Miao', 'title': 'department manager', 'office': '长春' },
+        { 'name': 'Yu Tie', 'title': 'department manager', 'office': '长春' }
+      ]
+    };
+
+    var nodeTemplate = function(data) {
+      return `
+        <span class="office">${data.office}</span>
+        <div class="title">${data.name}</div>
+        <div class="content">${data.title}</div>
+      `;
+    };
+
+    var oc = $('#chart-container').orgchart({
+      'data' : datasource,
+      'nodeTemplate': nodeTemplate
+    });
+
+  });
+  </script>
+  </body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart { background: #fff; }
+    .orgchart .node.matched { background-color: rgba(238, 217, 54, 0.5); }
+    #edit-panel {
+      text-align: center;
+      position: relative;
+      left: 10px;
+      width: calc(100% - 40px);
+      border-radius: 4px;
+      float: left;
+      margin-top: 10px;
+      padding: 10px;
+      color: #fff;
+      background-color: #449d44;
+    }
+    #edit-panel * { font-size: 20px; }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+  <div id="edit-panel" class="view-state">
+    <input type="text" id="key-word">
+    <button type="button" id="btn-filter-node">Filter</button>
+    <button type="button" id="btn-cancel">Cancel</button>
+  </div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    function filterNodes(keyWord) {
+    if(!keyWord.length) {
+      window.alert('Please type key word firstly.');
+      return;
+    } else {
+      var $chart = $('.orgchart');
+      // disalbe the expand/collapse feture
+      $chart.addClass('noncollapsable');
+      // distinguish the matched nodes and the unmatched nodes according to the given key word
+      $chart.find('.node').filter(function(index, node) {
+          return $(node).text().toLowerCase().indexOf(keyWord) > -1;
+        }).addClass('matched')
+        .closest('table').parents('table').find('tr:first').find('.node').addClass('retained');
+      // hide the unmatched nodes
+      $chart.find('.matched,.retained').each(function(index, node) {
+        $(node).removeClass('slide-up')
+          .closest('.nodes').removeClass('hidden')
+          .siblings('.lines').removeClass('hidden');
+        var $unmatched = $(node).closest('table').parent().siblings().find('.node:first:not(.matched,.retained)')
+          .closest('table').parent().addClass('hidden');
+        $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
+      });
+      // hide the redundant descendant nodes of the matched nodes
+      $chart.find('.matched').each(function(index, node) {
+        if (!$(node).closest('tr').siblings(':last').find('.matched').length) {
+          $(node).closest('tr').siblings().addClass('hidden');
+        }
+      });
+    }
+  }
+
+  function clearFilterResult() {
+    $('.orgchart').removeClass('noncollapsable')
+      .find('.node').removeClass('matched retained')
+      .end().find('.hidden').removeClass('hidden')
+      .end().find('.slide-up, .slide-left, .slide-right').removeClass('slide-up slide-right slide-left');
+  }
+
+  $(function() {
+
+    var datascource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Li Jing', 'title': 'senior engineer' },
+            { 'name': 'Li Xin', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'To To', 'title': 'engineer' },
+                { 'name': 'Fei Fei', 'title': 'engineer' },
+                { 'name': 'Xuan Xuan', 'title': 'engineer' }
+              ]
+            }
+          ]
+        },
+        { 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Pang Pang', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' },
+                { 'name': 'Dan Dan', 'title': 'engineer' },
+                { 'name': 'Zai Zai', 'title': 'engineer' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title'
+    });
+
+    $('#btn-filter-node').on('click', function() {
+      filterNodes($('#key-word').val());
+    });
+
+    $('#btn-cancel').on('click', function() {
+      clearFilterResult();
+    });
+
+    $('#key-word').on('keyup', function(event) {
+      if (event.which === 13) {
+        filterNodes(this.value);
+      } else if (event.which === 8 && this.value.length === 0) {
+        clearFilterResult();
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>

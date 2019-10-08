@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <style type="text/css">
+    body {
+      padding: 0;
+      margin: 0;
+      font-family: Arial;
+      line-height: 1.5rem;
+      background-color: #000;
+    }
+    section {
+      width: 30rem;
+      margin-top: 200px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1.5rem;
+      border-radius: 3px;
+      margin-bottom: 3rem;
+      font-size: 1.2rem;
+    }
+    header {
+      text-align: center;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      background-color: #000;
+    }
+    #heading {
+      width: 800px;
+      height: 200px;
+      background-image: url(img/heading.svg);
+      background-size: 100% auto;
+      display: inline-block;
+    }
+    #logo {
+      background-image: url(img/logo.png);
+      display: inline-block;
+      position: absolute;
+      width: 108px;
+      height: 108px;
+      top: 5px;
+      left: 5px;
+    }
+    h1 {
+      margin-top: -1.5rem;
+      margin-right: -1.5rem;
+      margin-bottom: 1.5rem;
+      margin-left: -1.5rem;
+      padding: 0.75rem;
+      font-size: 1.5rem;
+      text-align: center;
+      color: #1BB287;
+      background-color: #fff;
+    }
+    ol {
+      margin-left: 0;
+      list-style: none;
+      counter-reset: counter;
+      position: relative;
+      padding: 0px;
+    }
+    ol > li:before {
+      counter-increment: counter;
+      content: counter(counter);
+      position: relative;
+      display: inline-block;
+      z-index: 100;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 0.75rem;
+      margin-bottom: 0.75rem;
+      border: 3px solid #fff;
+      line-height: 1.5rem;
+      text-align: center;
+      color: #fff;
+      background-color: #000;
+      border-radius: 100em;
+      counter-increment: counter;
+      content: counter(counter);
+    }
+    ol > li:hover:before {
+      color: #000;
+      background-color: #fff;
+    }
+    ol > li:after {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      z-index: 90;
+      left: 0.75rem;
+      margin-left: 1.5px;
+      border-left: 3px solid #fff;
+      content: "";
+    }
+    ol > li:last-child:before { margin-bottom: 0; }
+    a { text-decoration: none; }
+    a:link { color: #fff; }
+    a:visited { color: #fff; }
+    a:hover { color: #fff; }
+    a:active { color: #fff; }
+  </style>
+
+</head>
+<body>
+<header>
+  <a id="logo" href="http://github.com/dabeng" target="_blank"></a>
+  <a id="heading" href="http://github.com/dabeng/OrgChart" target="_blank"></a>
+</header>
+<section>
+  <ol class="custom-bullet custom-bullet--a">
+    <li><a href="ajax-datasource.html" target="_blank">load datasource through ajax</a></li>
+    <li><a href="center-on-selected-node.html" target="_blank">center on selected node</a></li>
+    <li><a href="color-coded.html" target="_blank">color-coded chart</a></li>
+    <li><a href="default-collapsed.html" target="_blank">collapse nodes by default</a></li>
+    <li><a href="bottom2top.html" target="_blank">bottom to top</a></li>
+    <li><a href="left2right.html" target="_blank">left to right</a></li>
+    <li><a href="right2left.html" target="_blank">right to left</a></li>
+    <li><a href="drag-drop.html" target="_blank">drag and drop</a></li>
+    <li><a href="edit-chart.html" target="_blank">edit chart</a></li>
+    <li><a href="export-chart.html" target="_blank">export chart as a picture</a></li>
+    <li><a href="export-chart-pdf.html" target="_blank">export chart as a PDF</a></li>
+    <li><a href="filter-node.html" target="_blank">filter node</a></li>
+    <li><a href="get-hierarchy.html" target="_blank">getHierarchy() method</a></li>
+    <li><a href="integrate-map.html" target="_blank">itegrate orgchart with map info</a></li>
+    <li><a href="local-datasource.html" target="_blank">local datasource</a></li>
+    <li><a href="multiple-layers.html" target="_blank">multiple-layers chart</a></li>
+    <li><a href="ondemand-loading-data.html" target="_blank">load data on-demand</a></li>
+    <li><a href="option-createNode.html" target="_blank">createNode callback</a></li>
+    <li><a href="pan-zoom.html" target="_blank">pan and zoom the chart</a></li>
+    <li><a href="reload-data.html" target="_blank">refresh orgchart with new options</a></li>
+    <li><a href="report-path.html" target="_blank">report path</a></li>
+    <li><a href="toggle-sibs-resp.html" target="_blank">toggle sibling nodes respectively</a></li>
+    <li><a href="ul-datasource.html" target="_blank">ul datasource</a></li>
+    <li><a href="vertical-level.html" target="_blank">hybrid(horizontal + vertical) chart</a></li>
+    <li><a href="custom-template.html" target="_blank">template for internal structure of node</a></li>
+  </ol>
+  </section>
+</body>
+</html>

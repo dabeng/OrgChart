@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    $.mockjax({
+      url: '/orgchart/children/n3',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: { 'children': [
+        { 'id': 'n4', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
+        { 'id': 'n5', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110'}
+      ]}
+    });
+
+    $.mockjax({
+      url: '/orgchart/parent/n1',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: { 'id': 'n6','name': 'Lao Lao', 'title': 'general manager', 'relationship': '001' }
+    });
+
+    $.mockjax({
+      url: '/orgchart/siblings/n1',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: { 'siblings': [
+        { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '9', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '10', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '11', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '12', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '13', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
+      ]}
+    });
+
+    $.mockjax({
+      url: '/orgchart/families/n1',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: {
+        'id': 'n6',
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'relationship': '001',
+        'children': [
+        { 'id': 'n7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n9', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n10', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n11', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n12', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n13', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
+      ]}
+    });
+
+    var datascource = {
+      'id': 'n1',
+      'name': 'Su Miao',
+      'title': 'department manager',
+      'relationship': '111',
+      'children': [
+        { 'id': 'n2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+        { 'id': 'n3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
+      ]
+    };
+
+    var ajaxURLs = {
+      'children': '/orgchart/children/',
+      'parent': '/orgchart/parent/',
+      'siblings': function(nodeData) {
+        return '/orgchart/siblings/' + nodeData.id;
+      },
+      'families': function(nodeData) {
+        return '/orgchart/families/' + nodeData.id;
+      }
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'ajaxURL': ajaxURLs,
+      'nodeContent': 'title',
+      'nodeId': 'id'
+    });
+
+  });
+  </script>
+  </body>
+</html>
