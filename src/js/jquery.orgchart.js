@@ -1361,13 +1361,13 @@
       if (docWidth > docHeight) {
         doc = new jsPDF({
           orientation: 'landscape',
-          unit: 'mm',
+          unit: 'px',
           format: [docWidth, docHeight]
         });
       } else {
         doc = new jsPDF({
           orientation: 'portrait',
-          unit: 'mm',
+          unit: 'px',
           format: [docHeight, docWidth]
         });
       }

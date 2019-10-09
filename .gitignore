@@ -1,7 +1,8 @@
 # compiled output
 /dist
 /demo/js
-/demo/css
+/demo/css/font-awesome.min.css
+/demo/css/jquery.orgchart.css
 /demo/fonts
 
 # Coverage directory used by tools like istanbul
