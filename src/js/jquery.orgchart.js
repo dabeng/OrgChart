@@ -112,10 +112,10 @@
             if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
               if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
                 that.options.initCompleted(that.$chart);
-                var initEvent = $.Event('init.orgchart');
-                that.$chart.trigger(initEvent);
-                break initTime;
               }
+              var initEvent = $.Event('init.orgchart');
+              that.$chart.trigger(initEvent);
+              break initTime;
             }
           }
         }

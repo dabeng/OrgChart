@@ -175,10 +175,10 @@ describe('orgchart -- unit tests', function () {
       }
     };
     if (typeof MutationObserver !== 'undefined') {
-      oc.init({ 'visibleLevel': 2, 'verticalLevel': 3 }).$chart.on('init.orgchart', check);
+      oc.init({ 'visibleLevel': 2, 'verticalLevel': 3 }).$chart.one('init.orgchart', check);
     } else {
       oc.init({ 'visibleLevel': 2, 'verticalLevel': 3 });
-      setTimeout(check, 500);
+      setTimeout(check, 0);
     }
   });
 
