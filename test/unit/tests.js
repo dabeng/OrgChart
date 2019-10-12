@@ -120,36 +120,66 @@ describe('orgchart -- unit tests', function () {
     oc2.getHierarchy().should.include('Error');
   });
 
-  it('getNodeState()', function () {
-    oc.init({ 'depth': 2 }).$chart.on('init.orgchart', function () {
-      oc.getNodeState($laolao, 'parent').should.deep.equal({ 'exist': false, 'visible': false });
-      oc.getNodeState($laolao, 'children').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($laolao, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+  it('getNodeState()', function (done) {
+    var check = function () {
+      try {
+        $laolao = $('#n1');
+        $bomiao = $('#n2');
+        $sumiao = $('#n3');
+        $hongmiao = $('#n4');
+        $tiehua = $('#n5');
+        $heihei = $('#n6');
+        $pangpang = $('#n7');
+        $dandan = $('#n8');
+        $erdan = $('#n9');
+        $sandan = $('#n10');
 
-      oc.getNodeState($bomiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($bomiao, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-      oc.getNodeState($bomiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
+        oc.getNodeState($laolao).should.deep.equal({ 'exist': true, 'visible': true }, "laolao->self");
+        oc.getNodeState($laolao, 'parent').should.deep.equal({ 'exist': false, 'visible': false }, "laolao->parent");
+        oc.getNodeState($laolao, 'children').should.deep.equal({ 'exist': true, 'visible': true }, "laolao->children");
+        oc.getNodeState($laolao, 'siblings').should.deep.equal({ 'exist': false, 'visible': false }, "laolao->siblings");
 
-      oc.getNodeState($sumiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($sumiao, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-      oc.getNodeState($sumiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true });
+        oc.getNodeState($bomiao).should.deep.equal({ 'exist': true, 'visible': true }, "bomiao->self");
+        oc.getNodeState($bomiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true }, "bomiao->parent");
+        oc.getNodeState($bomiao, 'children').should.deep.equal({ 'exist': false, 'visible': false }, "bomiao->children");
+        oc.getNodeState($bomiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true }, "bomiao->siblings");
 
-      oc.getNodeState($tiehua, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($tiehua, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-      oc.getNodeState($tiehua, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
+        oc.getNodeState($sumiao).should.deep.equal({ 'exist': true, 'visible': true }, "sumiao->self");
+        oc.getNodeState($sumiao, 'parent').should.deep.equal({ 'exist': true, 'visible': true }, "sumiao->parent");
+        oc.getNodeState($sumiao, 'children').should.deep.equal({ 'exist': true, 'visible': false }, "sumiao->children");
+        oc.getNodeState($sumiao, 'siblings').should.deep.equal({ 'exist': true, 'visible': true }, "sumiao->siblings");
 
-      oc.getNodeState($heihei, 'parent').should.deep.equal({ 'exist': true, 'visible': true });
-      oc.getNodeState($heihei, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-      oc.getNodeState($heihei, 'siblings').should.deep.equal({ 'exist': true, 'visible': false });
+        oc.getNodeState($tiehua).should.deep.equal({ 'exist': true, 'visible': false }, "tiehua->self");
+        oc.getNodeState($tiehua, 'parent').should.deep.equal({ 'exist': true, 'visible': true }, "tiehua->parent");
+        oc.getNodeState($tiehua, 'children').should.deep.equal({ 'exist': true, 'visible': false }, "tiehua->children");
+        oc.getNodeState($tiehua, 'siblings').should.deep.equal({ 'exist': true, 'visible': false }, "tiehua->siblings");
 
-      oc.getNodeState($pangpang, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
-      oc.getNodeState($pangpang, 'children').should.deep.equal({ 'exist': true, 'visible': false });
-      oc.getNodeState($pangpang, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
+        oc.getNodeState($heihei).should.deep.equal({ 'exist': true, 'visible': false }, "heihei->self");
+        oc.getNodeState($heihei, 'parent').should.deep.equal({ 'exist': true, 'visible': true }, "heihei->parent");
+        oc.getNodeState($heihei, 'children').should.deep.equal({ 'exist': true, 'visible': false }, "heihei->children");
+        oc.getNodeState($heihei, 'siblings').should.deep.equal({ 'exist': true, 'visible': false }, "heihei->siblings");
 
-      oc.getNodeState($dandan, 'parent').should.deep.equal({ 'exist': true, 'visible': false });
-      oc.getNodeState($dandan, 'children').should.deep.equal({ 'exist': false, 'visible': false });
-      oc.getNodeState($dandan, 'siblings').should.deep.equal({ 'exist': false, 'visible': false });
-    });
+        oc.getNodeState($pangpang).should.deep.equal({ 'exist': true, 'visible': false }, "pangpang->self");
+        oc.getNodeState($pangpang, 'parent').should.deep.equal({ 'exist': true, 'visible': true }, "pangpang->parent");
+        oc.getNodeState($pangpang, 'children').should.deep.equal({ 'exist': true, 'visible': false }, "pangpang->children");
+        oc.getNodeState($pangpang, 'siblings').should.deep.equal({ 'exist': true, 'visible': false }, "pangpang->siblings");
+
+        oc.getNodeState($dandan).should.deep.equal({ 'exist': true, 'visible': false }, "dandan->self");
+        oc.getNodeState($dandan, 'parent').should.deep.equal({ 'exist': true, 'visible': false }, "dandan->parent");
+        oc.getNodeState($dandan, 'children').should.deep.equal({ 'exist': false, 'visible': false }, "dandan->children");
+        oc.getNodeState($dandan, 'siblings').should.deep.equal({ 'exist': false, 'visible': false }, "dandan->siblings");
+
+        done();
+      } catch(err) {
+        done(err);
+      }
+    };
+    if (typeof MutationObserver !== 'undefined') {
+      oc.init({ 'visibleLevel': 2, 'verticalLevel': 3 }).$chart.one('init.orgchart', check);
+    } else {
+      oc.init({ 'visibleLevel': 2, 'verticalLevel': 3 });
+      setTimeout(check, 0);
+    }
   });
 
   it('getRelatedNodes()', function () {

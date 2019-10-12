@@ -1,6 +1,7 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/orgchart-heading.png)
 
-# [Native JavaScript(ES6) Version](http://github.com/dabeng/OrgChart.js)
+# [Vue.js Version](https://github.com/dabeng/vue-orgchart)
+# [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
 
 ## Foreword
@@ -17,7 +18,12 @@
 - Supports exporting chart as a picture or pdf document.
 - Supports pan and zoom
 - Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections)
-- touch-enabled plugin for mobile divice
+- touch-enabled plugin for mobile device
+
+## CDN
+Users could find the related CDN support for OrgChart's CSS and JavaScript.
+
+https://cdnjs.com/libraries/orgchart
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapps.
@@ -34,7 +40,7 @@ $ npm install orgchart
 ```
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
-## [Demo](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)  &nbsp;&nbsp;&nbsp;&nbsp;  [All demos in one page](http://dabeng.github.io/OrgChart/)
+## [Demos on github](https://rawgit.com/dabeng/OrgChart/master/demo/index.html)  &nbsp;&nbsp;&nbsp;&nbsp;  [Demos on codepen.io](https://codepen.io/collection/AWxGVb/)
 ### online demos
 - [using ul datasource](https://rawgit.com/dabeng/OrgChart/master/demo/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 
@@ -88,7 +94,7 @@ Users are allowed to drag & drop the nodes of orgchart when option "draggable" i
 
 Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
 
-- [I want a method that can decribe the hierarchy of orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/get-hierarchy.html)
+- [I want a method that can describe the hierarchy of orgchart](https://rawgit.com/dabeng/OrgChart/master/demo/get-hierarchy.html)
 
 That's where getHierarchy() comes in.
 
@@ -215,10 +221,10 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>nodeId</td><td>string</td><td>no</td><td>"id"</td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
     </tr>
     <tr>
-      <td>nodeTemplate</td><td>function</td><td>no</td><td></td><td>It's a template generation function used to customize any complex internal structure of node. It recieves only one parameter: "data" stands for json datasoure which will be use to render one node.</td>
+      <td>nodeTemplate</td><td>function</td><td>no</td><td></td><td>It's a template generation function used to customize any complex internal structure of node. It receives only one parameter: "data" stands for json datasoure which will be use to render one node.</td>
     </tr>
     <tr>
-      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It recieves two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
+      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It receives two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
     </tr>
     <tr>
       <td>exportButton</td><td>boolean</td><td>no</td><td>false</td><td>It enable the export button for orgchart.</td>
@@ -239,7 +245,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>dropCriteria</td><td>function</td><td>no</td><td></td><td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
     </tr>
     <tr>
-      <td>initCompleted</td><td>function</td><td>no</td><td></td><td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It recieves one parament: "$chart" stands for jquery object of initialised chart.</td>
+      <td>initCompleted</td><td>function</td><td>no</td><td></td><td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
     </tr>
   </tbody>
 </table>

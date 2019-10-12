@@ -112,10 +112,10 @@
             if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
               if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
                 that.options.initCompleted(that.$chart);
-                var initEvent = $.Event('init.orgchart');
-                that.$chart.trigger(initEvent);
-                break initTime;
               }
+              var initEvent = $.Event('init.orgchart');
+              that.$chart.trigger(initEvent);
+              break initTime;
             }
           }
         }
@@ -344,9 +344,9 @@
         'name': $li.contents().eq(0).text().trim(),
         'relationship': ($li.parent().parent().is('li') ? '1': '0') + ($li.siblings('li').length ? 1: 0) + ($li.children('ul').length ? 1 : 0)
       };
-      if ($li.attr('data-id')) {
-        subObj.id = $li.attr('data-id');
-      }
+      $.each($li.data(), function(key, value) {
+         subObj[key] = value;
+      });
       $li.children('ul').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
         subObj.children.push(that.buildJsonDS($(this)));
@@ -400,17 +400,28 @@
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {
       var $target = {};
+      var isVerticalNode = $node.parent().is('li');
       var relation = relation || 'self';
       if (relation === 'parent') {
-        $target = $node.closest('.nodes').siblings(':first');
+        if (isVerticalNode) {
+          $target = $node.closest('ul').parents('ul');
+          if (!$target.length) {
+            $target = $node.closest('.nodes');
+            if (!$target.length) {
+              $target = $node.closest('.verticalNodes').siblings(':first');
+            }
+          }
+        } else {
+          $target = $node.closest('.nodes').siblings(':first');
+        }
         if ($target.length) {
-          if ($target.is('.hidden') || (!$target.is('.hidden') && $target.closest('.nodes').is('.hidden'))) {
+          if ($target.is('.hidden') || (!$target.is('.hidden') && $target.closest('.nodes').is('.hidden')) || (!$target.is('.hidden') && $target.closest('.verticalNodes').is('.hidden'))) {
             return { 'exist': true, 'visible': false };
           }
           return { 'exist': true, 'visible': true };
         }
       } else if (relation === 'children') {
-        $target = $node.closest('tr').siblings(':last');
+        $target = isVerticalNode ? $node.parent().children('ul') : $node.closest('tr').siblings(':last');
         if ($target.length) {
           if (!$target.is('.hidden')) {
             return { 'exist': true, 'visible': true };
@@ -418,9 +429,9 @@
           return { 'exist': true, 'visible': false };
         }
       } else if (relation === 'siblings') {
-        $target = $node.closest('table').parent().siblings();
-        if ($target.length) {
-          if (!$target.is('.hidden') && !$target.parent().is('.hidden')) {
+        $target = isVerticalNode ? $node.closest('ul') : $node.closest('table').parent().siblings();
+        if ($target.length && (!isVerticalNode || $target.children('li').length > 1)) {
+          if (!$target.is('.hidden') && !$target.parent().is('.hidden') && (!isVerticalNode || !$target.closest('.verticalNodes').is('.hidden'))) {
             return { 'exist': true, 'visible': true };
           }
           return { 'exist': true, 'visible': false };
@@ -430,7 +441,7 @@
         if ($target.length) {
           if (!(($target.closest('.nodes').length && $target.closest('.nodes').is('.hidden')) ||
             ($target.closest('table').parent().length && $target.closest('table').parent().is('.hidden')) ||
-            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('verticalNodes').is('.hidden')))
+            ($target.parent().is('li') && ($target.closest('ul').is('.hidden') || $target.closest('.verticalNodes').is('.hidden')))
           )) {
             return { 'exist': true, 'visible': true };
           }
@@ -789,7 +800,7 @@
         // start up loading status
         if (this.startLoading($topEdge)) {
           var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent(event.data.nodeData) : opts.ajaxURL.parent + $node[0].id;
+          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent($node.data('nodeData')) : opts.ajaxURL.parent + $node[0].id;
           this.loadNodes('parent', url, $topEdge);
         }
       }
@@ -812,7 +823,7 @@
       } else { // load the new children nodes of the specified node by ajax request
         if (this.startLoading($bottomEdge)) {
           var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children(event.data.nodeData) : opts.ajaxURL.children + $node[0].id;
+          var url = $.isFunction(opts.ajaxURL.children) ? opts.ajaxURL.children($node.data('nodeData')) : opts.ajaxURL.children + $node[0].id;
           this.loadNodes('children', url, $bottomEdge);
         }
       }
@@ -855,8 +866,8 @@
         if (this.startLoading($hEdge)) {
           var nodeId = $node[0].id;
           var url = (this.getNodeState($node, 'parent').exist) ?
-            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings(event.data.nodeData) : opts.ajaxURL.siblings + nodeId) :
-            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families(event.data.nodeData) : opts.ajaxURL.families + nodeId);
+            ($.isFunction(opts.ajaxURL.siblings) ? opts.ajaxURL.siblings($node.data('nodeData')) : opts.ajaxURL.siblings + nodeId) :
+            ($.isFunction(opts.ajaxURL.families) ? opts.ajaxURL.families($node.data('nodeData')) : opts.ajaxURL.families + nodeId);
           this.loadNodes('siblings', url, $hEdge);
         }
       }
@@ -892,9 +903,6 @@
       var opts = this.options;
       var origEvent = event.originalEvent;
       var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
-      if (isFirefox) {
-        origEvent.dataTransfer.setData('text/html', 'hack for firefox');
-      }
       var ghostNode, nodeCover;
       if (!document.querySelector('.ghost-node')) {
         ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -907,9 +915,10 @@
         nodeCover = $(ghostNode).children().get(0);
       }
       var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
-      var scale = Math.abs(window.parseFloat((opts.direction === 't2b' || opts.direction === 'b2t') ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
-      ghostNode.setAttribute('width', $nodeDiv.outerWidth(false));
-      ghostNode.setAttribute('height', $nodeDiv.outerHeight(false));
+      var isHorizontal = opts.direction === 't2b' || opts.direction === 'b2t';
+      var scale = Math.abs(window.parseFloat(isHorizontal ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
+      ghostNode.setAttribute('width', isHorizontal ? $nodeDiv.outerWidth(false) : $nodeDiv.outerHeight(false));
+      ghostNode.setAttribute('height', isHorizontal ? $nodeDiv.outerHeight(false) : $nodeDiv.outerWidth(false));
       nodeCover.setAttribute('x',5 * scale);
       nodeCover.setAttribute('y',5 * scale);
       nodeCover.setAttribute('width', 120 * scale);
@@ -959,6 +968,7 @@
     },
     //
     dragstartHandler: function (event) {
+      event.originalEvent.dataTransfer.setData('text/html', 'hack for firefox');
       // if users enable zoom or direction options
       if (this.$chart.css('transform') !== 'none') {
         this.createGhostNode(event);
@@ -967,9 +977,12 @@
     },
     //
     dragoverHandler: function (event) {
-      event.preventDefault();
       if (!$(event.delegateTarget).is('.allowedDrop')) {
         event.originalEvent.dataTransfer.dropEffect = 'none';
+      } else {
+        // default action for drag-and-drop of div is not to drop, so preventing default action for nodes which have allowedDrop class
+        //to fix drag and drop on IE and Edge		
+        event.preventDefault();
       }
     },
     //
@@ -1047,7 +1060,7 @@
       this.touchMoved = true;
       var $touching = $(document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY));
       var $touchingNode = $touching.closest('div.node');
- 
+
       if ($touchingNode.length > 0) {
         var touchingNodeElement = $touchingNode[0];
         // TODO: simulate the dragover visualisation
@@ -1098,20 +1111,20 @@
       var simulatedEvent = document.createEvent('MouseEvents');
       simulatedEvent.initMouseEvent(
         simulatedType,    // type
-        true,             // bubbles                    
-        true,             // cancelable                 
-        window,           // view                       
-        1,                // detail                     
-        touch.screenX,    // screenX                    
-        touch.screenY,    // screenY                    
-        touch.clientX,    // clientX                    
-        touch.clientY,    // clientY                    
-        false,            // ctrlKey                    
-        false,            // altKey                     
-        false,            // shiftKey                   
-        false,            // metaKey                    
-        0,                // button                     
-        null              // relatedTarget              
+        true,             // bubbles
+        true,             // cancelable
+        window,           // view
+        1,                // detail
+        touch.screenX,    // screenX
+        touch.screenY,    // screenY
+        touch.clientX,    // clientX
+        touch.clientY,    // clientY
+        false,            // ctrlKey
+        false,            // altKey
+        false,            // shiftKey
+        false,            // metaKey
+        0,                // button
+        null              // relatedTarget
       );
       // Dispatch the simulated event to the target element
       event.target.dispatchEvent(simulatedEvent);
@@ -1145,6 +1158,10 @@
         $nodeDiv.append('<div class="title">' + data[opts.nodeTitle] + '</div>')
           .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (data[opts.nodeContent] || '') + '</div>' : '');
       }
+      //
+      var nodeData = $.extend({}, data);
+      delete nodeData.children;
+      $nodeDiv.data('nodeData', nodeData);
       // append 4 direction arrows or expand/collapse buttons
       var flags = data.relationship || '';
       if (opts.verticalLevel && level >= opts.verticalLevel) {
@@ -1168,9 +1185,9 @@
 
       $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
       $nodeDiv.on('click', this.nodeClickHandler.bind(this));
-      $nodeDiv.on('click', '.topEdge', { 'nodeData': data }, this.topEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.bottomEdge', { 'nodeData': data }, this.bottomEdgeClickHandler.bind(this));
-      $nodeDiv.on('click', '.leftEdge, .rightEdge', { 'nodeData': data }, this.hEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.topEdge', this.topEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.bottomEdge', this.bottomEdgeClickHandler.bind(this));
+      $nodeDiv.on('click', '.leftEdge, .rightEdge', this.hEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
 
       if (opts.draggable) {
@@ -1350,6 +1367,49 @@
       }
     },
     //
+    exportPDF: function(canvas, exportFilename){
+      var doc = {};
+      var docWidth = Math.floor(canvas.width);
+      var docHeight = Math.floor(canvas.height);
+
+      if (docWidth > docHeight) {
+        doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: [docWidth, docHeight]
+        });
+      } else {
+        doc = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [docHeight, docWidth]
+        });
+      }
+      doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+      doc.save(exportFilename + '.pdf');
+    },
+    //
+    exportPNG: function(canvas, exportFilename){
+      var that = this;
+      var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+      var isFf = !!window.sidebar;
+      var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+      var $chartContainer = this.$chartContainer;
+
+      if ((!isWebkit && !isFf) || isEdge) {
+        window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
+      } else {
+        var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
+
+        if (!$chartContainer.find(selector).length) {
+          $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
+                                 + ' download="' + exportFilename + '.png"></a>');
+        }
+
+        $chartContainer.find(selector).attr('href', canvas.toDataURL())[0].click();
+      }
+    },
+    //
     export: function (exportFilename, exportFileextension) {
       var that = this;
       exportFilename = (typeof exportFilename !== 'undefined') ?  exportFilename : this.options.exportFilename;
@@ -1372,39 +1432,17 @@
         'onclone': function (cloneDoc) {
           $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
             .find('.orgchart:not(".hidden"):first').css('transform', '');
-        },
-        'onrendered': function (canvas) {
-          $chartContainer.find('.mask').addClass('hidden');
-          if (exportFileextension.toLowerCase() === 'pdf') {
-            var doc = {};
-            var docWidth = Math.floor(canvas.width * 0.2646);
-            var docHeight = Math.floor(canvas.height * 0.2646);
-            if (docWidth > docHeight) {
-              doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
-            } else {
-              doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
-            }
-            doc.addImage(canvas.toDataURL(), 'png', 0, 0);
-            doc.save(exportFilename + '.pdf');
-          } else {
-            var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-            var isFf = !!window.sidebar;
-            var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
-
-            if ((!isWebkit && !isFf) || isEdge) {
-              window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
-            } else {
-              var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
-              if (!$chartContainer.find(selector).length) {
-                $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
-                  + ' download="' + exportFilename + '.png"></a>');
-              }
-              $chartContainer.find(selector).attr('href', canvas.toDataURL())[0].click();
-            }
-          }
         }
       })
-      .then(function () {
+      .then(function (canvas) {
+        $chartContainer.find('.mask').addClass('hidden');
+
+        if (exportFileextension.toLowerCase() === 'pdf') {
+          that.exportPDF(canvas, exportFilename);
+        } else {
+          that.exportPNG(canvas, exportFilename);
+        }
+
         $chartContainer.removeClass('canvasContainer');
       }, function () {
         $chartContainer.removeClass('canvasContainer');

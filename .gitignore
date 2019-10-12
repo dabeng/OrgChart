@@ -1,7 +1,22 @@
-# Folders to ignore
+# compiled output
+/demo/js
+/demo/css/font-awesome.min.css
+/demo/css/jquery.orgchart.css
+/demo/fonts
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Bower dependency directory (https://bower.io/)
 bower_components
-node_modules
 
-
-# Numerous always-ignore extensions
+# Logs
+logs
 *.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+
+# System Files
+.DS_Store
