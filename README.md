@@ -23,7 +23,7 @@
 ## CDN
 Users could find the related CDN support for OrgChart's CSS and JavaScript.
 
-https://cdnjs.com/libraries/orgchart
+[![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapps.
