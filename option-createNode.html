@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart .second-menu-icon {
+      transition: opacity .5s;
+      opacity: 0;
+      right: -5px;
+      top: -5px;
+      z-index: 2;
+      color: rgba(68, 157, 68, 0.5);
+      font-size: 18px;
+      position: absolute;
+    }
+    .orgchart .second-menu-icon:hover { color: #449d44; }
+    .orgchart .node:hover .second-menu-icon { opacity: 1; }
+    .orgchart .node .second-menu {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: -70px;
+      border-radius: 35px;
+      box-shadow: 0 0 10px 1px #999;
+      background-color: #fff;
+      z-index: 1;
+    }
+    .orgchart .node .second-menu .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      float: left;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datascource = {
+      'id': '1',
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
+          ]
+        },
+        { 'id': '8', 'name': 'Yu Jie', 'title': 'department manager' },
+        { 'id': '9', 'name': 'Yu Li', 'title': 'department manager' },
+        { 'id': '10', 'name': 'Hong Miao', 'title': 'department manager' },
+        { 'id': '11', 'name': 'Yu Wei', 'title': 'department manager' },
+        { 'id': '12', 'name': 'Chun Miao', 'title': 'department manager' },
+        { 'id': '13', 'name': 'Yu Tie', 'title': 'department manager' }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'visibleLevel': 2,
+      'nodeContent': 'title',
+      'nodeID': 'id',
+      'createNode': function($node, data) {
+        var secondMenuIcon = $('<i>', {
+          'class': 'fa fa-info-circle second-menu-icon',
+          click: function() {
+            $(this).siblings('.second-menu').toggle();
+          }
+        });
+        var secondMenu = '<div class="second-menu"><img class="avatar" src="img/avatar/' + data.id + '.jpg"></div>';
+        $node.append(secondMenuIcon).append(secondMenu);
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>

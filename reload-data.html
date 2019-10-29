@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <button style="margin: 10px;" id="btn-chart1">chart 1</button>
+  <button style="margin: 10px;" id="btn-chart2">chart 2</button>
+  <button style="margin: 10px;" id="btn-chart3">chart 3</button>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datasource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'name': 'Su Miao', 'title': 'department manager' },
+        { 'name': 'Yu Jie', 'title': 'department manager' },
+        { 'name': 'Yu Li', 'title': 'department manager' },
+        { 'name': 'Hong Miao', 'title': 'department manager' },
+        { 'name': 'Yu Wei', 'title': 'department manager' },
+        { 'name': 'Chun Miao', 'title': 'department manager' },
+        { 'name': 'Yu Tie', 'title': 'department manager' }
+      ]
+    };
+
+    var oc = $('#chart-container').orgchart({
+      'data' : datasource,
+      'nodeContent': 'title'
+    });
+
+    $('#btn-chart1').on('click', function (argument) {
+      oc.init({ 'data': datasource });
+    });
+
+    $('#btn-chart2').on('click', function (argument) {
+      var data = { 'name': 'Su Miao', 'title': 'department manager',
+        'children': [
+          { 'name': 'Tie Hua', 'title': 'senior engineer' },
+          { 'name': 'Hei Hei', 'title': 'senior engineer' }
+        ]
+      };
+      oc.init({ 'data': data });
+    });
+
+    $('#btn-chart3').on('click', function (argument) {
+      var data = { 'name': 'Hei Hei', 'title': 'senior engineer',
+        'children': [
+          { 'name': 'Pang Pang', 'title': 'engineer' },
+          { 'name': 'Dan Zai', 'title': 'UE engineer' },
+          { 'name': '2Dan Zai', 'title': 'UE engineer' }
+        ]
+      };
+      oc.init({ 'data': data });
+    });
+
+  });
+  </script>
+  </body>
+</html>

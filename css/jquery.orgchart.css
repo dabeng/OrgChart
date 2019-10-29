@@ -2,22 +2,15 @@
  * jQuery OrgChart Plugin
  * https://github.com/dabeng/OrgChart
  *
- * Demos of jQuery OrgChart Plugin
- * http://dabeng.github.io/OrgChart/local-datasource/
- * http://dabeng.github.io/OrgChart/ajax-datasource/
- * http://dabeng.github.io/OrgChart/ondemand-loading-data/
- * http://dabeng.github.io/OrgChart/option-createNode/
- * http://dabeng.github.io/OrgChart/export-orgchart/
- * http://dabeng.github.io/OrgChart/integrate-map/
- *
  * Copyright 2016, dabeng
- * http://dabeng.github.io/
+ * https://github.com/dabeng
  *
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
 
 .orgchart {
+  box-sizing: border-box;
   display: inline-block;
   min-height: 202px;
   min-width: 202px;
@@ -34,37 +27,22 @@
 }
 
 .orgchart .hidden, .orgchart~.hidden {
-  display: none!important;
-}
-
-.orgchart *, .orgchart *:before, .orgchart *:after {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+  display: none;
 }
 
 .orgchart.b2t {
   transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -webkit-transform: rotate(180deg);
 }
 
 .orgchart.l2r {
   position: absolute;
   transform: rotate(-90deg) rotateY(180deg);
-  -ms-transform: rotate(-90deg) rotateY(180deg);
-  -moz-transform: rotate(-90deg) rotateY(180deg);
-  -webkit-transform: rotate(-90deg) rotateY(180deg);
   transform-origin: left top;
-  -ms-transform-origin: left top;
-  -moz-transform-origin: left top;
-  -webkit-transform-origin: left top;
 }
 
 .orgchart .verticalNodes ul {
   list-style: none;
-  margin:0px;
+  margin: 0;
   padding-left: 18px;
   text-align: left;
 }
@@ -76,6 +54,7 @@
   border: 1px solid rgba(217, 83, 79, 0.8);
 }
 .orgchart .verticalNodes>td>ul>li:first-child::before {
+  box-sizing: border-box;
   top: -4px;
   height: 30px;
   width: calc(50% - 2px);
@@ -86,6 +65,7 @@
 }
 .orgchart .verticalNodes ul>li::before,
 .orgchart .verticalNodes ul>li::after {
+  box-sizing: border-box;
   content: '';
   position: absolute;
   left: -6px;
@@ -103,24 +83,20 @@
   height: 100%;
 }
 .orgchart .verticalNodes ul>li:first-child::after {
+  box-sizing: border-box;
   top: 24px;
   width: 11px;
   border-width: 2px 0 0 2px;
 }
 .orgchart .verticalNodes ul>li:last-child::after {
+  box-sizing: border-box;
   border-width: 2px 0 0;
 }
 
 .orgchart.r2l {
   position: absolute;
   transform: rotate(90deg);
-  -ms-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  -webkit-transform: rotate(90deg);
   transform-origin: left top;
-  -ms-transform-origin: left top;
-  -moz-transform-origin: left top;
-  -webkit-transform-origin: left top;
 }
 
 .orgchart>.spinner {
@@ -130,8 +106,8 @@
 }
 
 .orgchart table {
-  border-spacing: 0!important;
-  border-collapse: separate!important;
+  border-spacing: 0;
+  border-collapse: separate;
 }
 
 .orgchart>table:first-child{
@@ -144,25 +120,30 @@
   padding: 0;
 }
 
-.orgchart tr.lines td.topLine {
+.orgchart .lines:nth-child(3) td {
+  box-sizing: border-box;
+  height: 20px;
+}
+
+.orgchart .lines .topLine {
   border-top: 2px solid rgba(217, 83, 79, 0.8);
 }
 
-.orgchart tr.lines td.rightLine {
+.orgchart .lines .rightLine {
   border-right: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
-  border-radius: 0px;
+  border-radius: 0;
 }
 
-.orgchart tr.lines td.leftLine {
+.orgchart .lines .leftLine {
   border-left: 1px solid rgba(217, 83, 79, 0.8);
   float: none;
-  border-radius: 0px;
+  border-radius: 0;
 }
 
-.orgchart tr.lines .downLine {
+.orgchart .lines .downLine {
   background-color: rgba(217, 83, 79, 0.8);
-  margin: 0px auto;
+  margin: 0 auto;
   height: 20px;
   width: 2px;
   float: none;
@@ -170,18 +151,18 @@
 
 /* node styling */
 .orgchart .node {
+  box-sizing: border-box;
   display: inline-block;
   position: relative;
   margin: 0;
   padding: 3px;
   border: 2px dashed transparent;
   text-align: center;
-  width: 130px;
 }
 
 .orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
-  height: 130px;
+  height: 140px;
 }
 
 .orgchart .node>.spinner {
@@ -210,7 +191,7 @@
   top: -10000px;
 }
 
-.orgchart .ghost-node>* {
+.orgchart .ghost-node rect {
   fill: #ffffff;
   stroke: #bf0000;
 }
@@ -220,11 +201,13 @@
 }
 
 .orgchart .node .title {
+  box-sizing: border-box;
+  padding: 2px;
+  width: 130px;
   text-align: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   height: 20px;
-  line-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -235,37 +218,17 @@
 
 .orgchart.b2t .node .title {
   transform: rotate(-180deg);
-  -ms-transform: rotate(-180deg);
-  -moz-transform: rotate(-180deg);
-  -webkit-transform: rotate(-180deg);
   transform-origin: center bottom;
-  -ms-transform-origin: center bottom;
-  -moz-transform-origin: center bottom;
-  -webkit-transform-origin: center bottom;
 }
 
 .orgchart.l2r .node .title {
-  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -webkit-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  transform: rotate(-90deg) translate(-45px, -45px) rotateY(180deg);
   transform-origin: bottom center;
-  -ms-transform-origin: bottom center;
-  -moz-transform-origin: bottom center;
-  -webkit-transform-origin: bottom center;
-  width: 120px;
 }
 
 .orgchart.r2l .node .title {
-  transform: rotate(-90deg) translate(-40px, -40px);
-  -ms-transform: rotate(-90deg) translate(-40px, -40px);
-  -moz-transform: rotate(-90deg) translate(-40px, -40px);
-  -webkit-transform: rotate(-90deg) translate(-40px, -40px);
+  transform: rotate(-90deg) translate(-45px, -45px);
   transform-origin: bottom center;
-  -ms-transform-origin: bottom center;
-  -moz-transform-origin: bottom center;
-  -webkit-transform-origin: bottom center;
-  width: 120px;
 }
 
 .orgchart .node .title .symbol {
@@ -275,53 +238,34 @@
 }
 
 .orgchart .node .content {
-  width: 100%;
+  box-sizing: border-box;
+  padding: 2px;
   height: 20px;
-  font-size: 11px;
-  line-height: 18px;
+  font-size: 0.625rem;
   border: 1px solid rgba(217, 83, 79, 0.8);
   border-radius: 0 0 4px 4px;
   text-align: center;
   background-color: #fff;
   color: #333;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .orgchart.b2t .node .content {
   transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -webkit-transform: rotate(180deg);
   transform-origin: center top;
-  -ms-transform-origin: center top;
-  -moz-transform-origin: center top;
-  -webkit-transform-origin: center top;
 }
 
 .orgchart.l2r .node .content {
-  transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -ms-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -moz-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
-  -webkit-transform: rotate(-90deg) translate(-40px, -40px) rotateY(180deg);
+  transform: rotate(-90deg) translate(-45px, -45px) rotateY(180deg);
   transform-origin: top center;
-  -ms-transform-origin: top center;
-  -moz-transform-origin: top center;
-  -webkit-transform-origin: top center;
-  width: 120px;
+  width: 130px;
 }
 
 .orgchart.r2l .node .content {
-  transform: rotate(-90deg) translate(-40px, -40px);
-  -ms-transform: rotate(-90deg) translate(-40px, -40px);
-  -moz-transform: rotate(-90deg) translate(-40px, -40px);
-  -webkit-transform: rotate(-90deg) translate(-40px, -40px);
+  transform: rotate(-90deg) translate(-45px, -45px);
   transform-origin: top center;
-  -ms-transform-origin: top center;
-  -moz-transform-origin: top center;
-  -webkit-transform-origin: top center;
-  width: 120px;
+  width: 130px;
 }
 
 .orgchart .node .edge {
@@ -330,7 +274,6 @@
   color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
-  -webkit-transition: .2s;
 }
 
 .orgchart.noncollapsable .node .edge {
@@ -376,8 +319,6 @@
 .orgchart .node .horizontalEdge::before {
   position: absolute;
   top: calc(50% - 7px);
-  top: -webkit-calc(50% - 7px);
-  top: -moz-calc(50% - 7px);
 }
 
 .orgchart .node .rightEdge::before {
@@ -412,12 +353,8 @@
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  -ms-touch-action: manipulation;
   touch-action: manipulation;
   cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   color: #fff;
   background-color: #5cb85c;
@@ -428,8 +365,6 @@
 
 .oc-export-btn[disabled] {
   cursor: not-allowed;
-  filter: alpha(opacity=30);
-  -webkit-box-shadow: none;
   box-shadow: none;
   opacity: 0.3;
 }
@@ -441,10 +376,10 @@
 
 .orgchart~.mask {
   position: absolute;
-  top: 0px;
-  right: 0px;
-  bottom: 0px;
-  left: 0px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 999;
   text-align: center;
   background-color: rgba(0,0,0,0.3);
@@ -459,45 +394,41 @@
 }
 
 .orgchart .node {
-  transition: all 0.3s;
-  webkit-transition: all 0.3s;
-  opacity: 1;
-  top: 0;
-  left: 0;
+  transition: transform 0.3s, opacity 0.3s;
 }
 
 .orgchart .slide-down {
   opacity: 0;
-  top: 40px;
+  transform: translateY(40px);
 }
 
 .orgchart.l2r .node.slide-down, .orgchart.r2l .node.slide-down {
-  top: 130px;
+  transform: translateY(130px);
 }
 
 .orgchart .slide-up {
   opacity: 0;
-  top: -40px;
+  transform: translateY(-40px);
 }
 
 .orgchart.l2r .node.slide-up, .orgchart.r2l .node.slide-up {
-  top: -130px;
+  transform: translateY(-130px);
 }
 
 .orgchart .slide-right {
   opacity: 0;
-  left: 130px;
+  transform: translateX(130px);
 }
 
 .orgchart.l2r .node.slide-right, .orgchart.r2l .node.slide-right {
-  left: 40px;
+  transform: translateX(40px);
 }
 
 .orgchart .slide-left {
   opacity: 0;
-  left: -130px;
+  transform: translateX(-130px);
 }
 
 .orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
-  left: -40px;
+  transform: translateX(-40px);
 }

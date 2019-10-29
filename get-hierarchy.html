@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container {
+      display: inline-block;
+      width: 50%;
+      margin-left: 10px;
+    }
+
+    pre {
+      display: inline-block;
+      vertical-align: top;
+      font-size: 16px;
+      font-weight: bold;
+      margin-left: 20px;
+    }
+
+    .home-link {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: block;
+      width: 100%;
+      text-align: right;
+    }
+
+    #btn-export-hier {
+      display: inline-block;
+      position: relative;
+      top: -200px;
+      left: 10px;
+      padding: 6px 12px;
+      margin-bottom: 0;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 1.42857143;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      -ms-touch-action: manipulation;
+      touch-action: manipulation;
+      cursor: pointer;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      color: #fff;
+      background-color: #5cb85c;
+      border: 1px solid transparent;
+      border-color: #4cae4c;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <ul id="ul-data" style="display: none;">
+    <li data-id="n1">Lao Lao
+      <ul>
+        <li data-id="n2">Bo Miao</li>
+        <li data-id="n3">Su Miao
+          <ul>
+            <li data-id="n4">Tie Hua</li>
+            <li data-id="n5">Hei Hei
+              <ul>
+                <li data-id="n6">Pang Pang</li>
+                <li data-id="n7">Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <div id="chart-container"></div>
+  <button id="btn-export-hier">Export Hierarchy</button>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var oc = $('#chart-container').orgchart({
+      'data' : $('#ul-data')
+    });
+
+    $('#btn-export-hier').on('click', function() {
+      if (!$('pre').length) {
+        var hierarchy = oc.getHierarchy();
+        $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>
