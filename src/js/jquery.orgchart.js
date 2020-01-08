@@ -1216,7 +1216,7 @@
       var that = this;
       var opts = this.options;
       var level = data.level;
-      if (opts.nodeId && data.children && data[opts.nodeId]) {
+      if (data.children && data[opts.nodeId]) {
         $.each(data.children, function (index, child) {
           child.parentId = data[opts.nodeId]
         });
