@@ -1,6 +1,5 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
-# [jQuery Version](https://github.com/dabeng/OrgChart)
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
 # [Vue.js Version](https://github.com/dabeng/vue-orgchart)
