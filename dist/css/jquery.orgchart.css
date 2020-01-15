@@ -233,8 +233,17 @@
 
 .orgchart .node .title .symbol {
   float: left;
-  margin-top: 4px;
+  margin-top: 12px;
   margin-left: 2px;
+}
+
+.orgchart .node .title .symbol::before {
+  background-color: #fff;
+  border-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart .node .title .symbol::after {
+  background-color: #fff;
 }
 
 .orgchart .node .content {
@@ -293,11 +302,11 @@
 }
 
 .orgchart .node .topEdge {
-  top: -4px;
+  top: -2px;
 }
 
 .orgchart .node .bottomEdge {
-  bottom: -4px;
+  bottom: -6px;
 }
 
 .orgchart .node .horizontalEdge {
@@ -309,11 +318,11 @@
 }
 
 .orgchart .node .rightEdge {
-  right: -4px;
+  right: -6px;
 }
 
 .orgchart .node .leftEdge {
-  left: -4px;
+  left: -6px;
 }
 
 .orgchart .node .horizontalEdge::before {
@@ -431,4 +440,150 @@
 
 .orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
   transform: translateX(-40px);
+}
+
+.oc {
+  display: inline-block;
+  position: relative;
+  
+}
+
+.oc-chevron-up::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: text-bottom;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-135deg);
+}
+
+.oc-chevron-right::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-45deg);
+}
+
+.oc-chevron-down::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.oc-chevron-left::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(135deg);
+}
+
+.oc-leader::before {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 0.0625rem solid #fff;
+  border-radius: 0.3rem;
+  background: #000;
+  top: -0.75rem;
+  z-index: 1;
+}
+
+.oc-leader::after {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.375rem;
+  border-radius: 0.4rem 0.4rem 0 0;
+  background: #000;
+  top: -0.3rem;
+  left: -0.125rem;
+}
+
+.oc-plus-square::before {
+  content: "";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: #000;
+  z-index: -1;
+}
+
+.oc-plus-square::after {
+  content: "+";
+  position: absolute;
+  font-size: 1rem;
+  left: 0.125rem;
+  top: 0.05rem;
+  color: #fff;
+}
+
+.oc-minus-square::before {
+  content: "";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: #000;
+}
+
+.oc-minus-square::after {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.1rem;
+  background-color: #fff;
+  left: 0.1875rem;
+  top: 0.65rem;
+}
+
+.oc-spinner::before {
+  content: "";
+  vertical-align: text-bottom;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 0.2rem solid #000;
+  border-right-color: transparent;
+  border-radius: 0.625rem;
+  animation: oc-infinite-spinning .75s linear infinite;
+}
+
+@keyframes oc-infinite-spinning {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

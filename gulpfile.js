@@ -134,6 +134,6 @@ gulp.task('serve', gulp.series('build', function () {
       baseDir: paths.demo
     }
   });
-  gulp.watch(paths.srcFiles, gulp.series('build'));
+  // gulp.watch(paths.srcFiles, gulp.series('build'));
   gulp.watch(paths.demoFiles, gulp.series('reload'));
 }));
