@@ -4,16 +4,13 @@
   <meta charset="utf-8">
   <title>Organization Chart Plugin</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container { background-color: #eee; height: 500px; }
     .orgchart { background: #fff; }
     .orgchart.edit-state .edge { display: none; }
-    .orgchart .node { width: 150px; }
     .orgchart .node .title { height: 30px; line-height: 30px; }
-    .orgchart .node .title .symbol { margin-top: 1px; }
     #edit-panel {
       position: relative;
       left: 10px;
@@ -120,7 +117,6 @@
       'chartClass': 'edit-state',
       'exportButton': true,
       'exportFilename': 'SportsChart',
-      'parentNodeSymbol': 'fa-th-large',
       'createNode': function($node, data) {
         $node[0].id = getId();
       }
@@ -203,7 +199,6 @@
             'data' : { 'name': nodeVals[0] },
             'exportButton': true,
             'exportFilename': 'SportsChart',
-            'parentNodeSymbol': 'fa-th-large',
             'createNode': function($node, data) {
               $node[0].id = getId();
             }

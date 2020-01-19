@@ -99,10 +99,15 @@
   transform-origin: left top;
 }
 
-.orgchart>.spinner {
-  font-size: 100px;
+.orgchart>.spinner::before {
+  width: 100px;
+  height: 100px;
+  border-width: 20px;
+  border-radius: 50px;
   margin-top: 30px;
-  color: rgba(68, 157, 68, 0.8);
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart table {
@@ -167,11 +172,19 @@
 
 .orgchart .node>.spinner {
   position: absolute;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
-  vertical-align: middle;
-  font-size: 30px;
-  color: rgba(68, 157, 68, 0.8);
+  top: calc(50% - 1rem);
+  left: calc(50% - 1rem);
+  /*vertical-align: middle;*/
+}
+
+.orgchart .node>.spinner::before {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.4rem;
+  border-radius: 1rem;
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node:hover {
@@ -278,31 +291,36 @@
 }
 
 .orgchart .node .edge {
-  font-size: 15px;
   position: absolute;
-  color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
+}
+
+.orgchart .node .edge::before {
+  border-color: rgba(68, 157, 68, 0.5);
 }
 
 .orgchart.noncollapsable .node .edge {
   display: none;
 }
 
-.orgchart .edge:hover {
-  color: #449d44;
+.orgchart .node .edge:hover {
   cursor: pointer;
 }
 
+.orgchart .edge:hover::before {
+  border-color: #449d44;
+}
+
 .orgchart .node .verticalEdge {
-  width: calc(100% - 10px);
-  width: -webkit-calc(100% - 10px);
-  width: -moz-calc(100% - 10px);
-  left: 5px;
+  width: calc(100% - 6px);
+  width: -webkit-calc(100% - 6px);
+  width: -moz-calc(100% - 6px);
+  left: 3px;
 }
 
 .orgchart .node .topEdge {
-  top: -2px;
+  top: -9px;
 }
 
 .orgchart .node .bottomEdge {
@@ -311,31 +329,31 @@
 
 .orgchart .node .horizontalEdge {
   width: 15px;
-  height: calc(100% - 10px);
-  height: -webkit-calc(100% - 10px);
-  height: -moz-calc(100% - 10px);
-  top: 5px;
+  height: calc(100% - 6px);
+  height: -webkit-calc(100% - 6px);
+  height: -moz-calc(100% - 6px);
+  top: 3px;
 }
 
 .orgchart .node .rightEdge {
-  right: -6px;
+  right: -4px;
 }
 
 .orgchart .node .leftEdge {
-  left: -6px;
+  left: -2px;
 }
 
 .orgchart .node .horizontalEdge::before {
   position: absolute;
-  top: calc(50% - 7px);
+  top: calc(50% - 4px);
 }
 
 .orgchart .node .rightEdge::before {
-  right: 3px;
+  right: -3px;
 }
 
 .orgchart .node .leftEdge::before {
-  left: 3px;
+  left: -3px;
 }
 
 .orgchart .node .toggleBtn {
@@ -349,7 +367,7 @@
   color: rgba(68, 157, 68, 0.8);
 }
 
-.oc-export-btn {
+.oci-export-btn {
   display: inline-block;
   position: absolute;
   right: 5px;
@@ -372,13 +390,13 @@
   border-radius: 4px;
 }
 
-.oc-export-btn[disabled] {
+.oci-export-btn[disabled] {
   cursor: not-allowed;
   box-shadow: none;
   opacity: 0.3;
 }
 
-.oc-export-btn:hover,.oc-export-btn:focus,.oc-export-btn:active  {
+.oci-export-btn:hover,.oci-export-btn:focus,.oci-export-btn:active  {
   background-color: #449d44;
   border-color: #347a34;
 }
@@ -396,10 +414,18 @@
 
 .orgchart~.mask .spinner {
   position: absolute;
-  top: calc(50% - 54px);
-  left: calc(50% - 54px);
-  color: rgba(255,255,255,0.8);
-  font-size: 108px;
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+}
+
+.orgchart~.mask .spinner::before {
+  width: 100px;
+  height: 100px;
+  border-width: 20px;
+  border-radius: 50px;
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node {
@@ -442,13 +468,15 @@
   transform: translateX(-40px);
 }
 
-.oc {
+/* oci means organization chart icons */
+.oci {
   display: inline-block;
   position: relative;
-  
+  font-style: normal;
+  font-family: Arial;
 }
 
-.oc-chevron-up::before {
+.oci-chevron-up::before {
   content: "";
   display: inline-block;
   box-sizing: border-box;
@@ -462,7 +490,7 @@
   transform: rotate(-135deg);
 }
 
-.oc-chevron-right::before {
+.oci-chevron-right::before {
   content: "";
   display: inline-block;
   box-sizing: border-box;
@@ -475,7 +503,7 @@
   transform: rotate(-45deg);
 }
 
-.oc-chevron-down::before {
+.oci-chevron-down::before {
   content: "";
   display: inline-block;
   box-sizing: border-box;
@@ -488,7 +516,7 @@
   transform: rotate(45deg);
 }
 
-.oc-chevron-left::before {
+.oci-chevron-left::before {
   content: "";
   display: inline-block;
   box-sizing: border-box;
@@ -501,7 +529,7 @@
   transform: rotate(135deg);
 }
 
-.oc-leader::before {
+.oci-leader::before {
   position: absolute;
   content: "";
   display: inline-block;
@@ -515,7 +543,7 @@
   z-index: 1;
 }
 
-.oc-leader::after {
+.oci-leader::after {
   position: absolute;
   content: "";
   display: inline-block;
@@ -528,45 +556,69 @@
 }
 
 .oc-plus-square::before {
-  content: "";
+  content: "+";
   display: inline-block;
   vertical-align: text-bottom;
-  width: 0.875rem;
-  height: 0.875rem;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
   background-color: #000;
-  z-index: -1;
-}
-
-.oc-plus-square::after {
-  content: "+";
-  position: absolute;
-  font-size: 1rem;
-  left: 0.125rem;
-  top: 0.05rem;
   color: #fff;
 }
 
 .oc-minus-square::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-arrow-circle-up::before {
   content: "";
   display: inline-block;
   vertical-align: text-bottom;
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
   background-color: #000;
 }
 
-.oc-minus-square::after {
-  position: absolute;
+.oci-arrow-circle-up::after {
   content: "";
-  display: inline-block;
-  width: 0.5rem;
-  height: 0.1rem;
-  background-color: #fff;
-  left: 0.1875rem;
-  top: 0.65rem;
+  position: absolute;
+  left: 0.3rem;
+  top: 0.3rem;
+  border-width: 0 0.2rem 0.5rem;
+  border-color: #fff transparent;
+  border-style: solid;
 }
 
-.oc-spinner::before {
+.oci-arrow-circle-down::before {
+  content: "";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+}
+
+.oci-arrow-circle-down::after {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 0.4rem;
+  vertical-align: text-bottom;
+  border-width: 0.5rem 0.2rem 0;
+  border-color: #fff transparent;
+  border-style: solid;
+}
+
+.oci-spinner::before {
   content: "";
   vertical-align: text-bottom;
   display: inline-block;
@@ -576,10 +628,10 @@
   border: 0.2rem solid #000;
   border-right-color: transparent;
   border-radius: 0.625rem;
-  animation: oc-infinite-spinning .75s linear infinite;
+  animation: oci-infinite-spinning .75s linear infinite;
 }
 
-@keyframes oc-infinite-spinning {
+@keyframes oci-infinite-spinning {
   from {
     transform: rotate(0deg);
   }

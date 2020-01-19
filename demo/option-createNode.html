@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>Organization Chart Plugin</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
@@ -80,7 +79,7 @@
       'nodeID': 'id',
       'createNode': function($node, data) {
         var secondMenuIcon = $('<i>', {
-          'class': 'fa fa-info-circle second-menu-icon',
+          'class': 'oci oci-info-circle second-menu-icon',
           click: function() {
             $(this).siblings('.second-menu').toggle();
           }
