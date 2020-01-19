@@ -13,11 +13,10 @@
       right: -5px;
       top: -5px;
       z-index: 2;
-      color: rgba(68, 157, 68, 0.5);
-      font-size: 18px;
       position: absolute;
     }
-    .orgchart .second-menu-icon:hover { color: #449d44; }
+    .orgchart .second-menu-icon::before { background-color: rgba(68, 157, 68, 0.5); }
+    .orgchart .second-menu-icon:hover::before { background-color: #449d44; }
     .orgchart .node:hover .second-menu-icon { opacity: 1; }
     .orgchart .node .second-menu {
       display: none;

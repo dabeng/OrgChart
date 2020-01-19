@@ -328,7 +328,7 @@
 }
 
 .orgchart .node .horizontalEdge {
-  width: 15px;
+  width: 10px;
   height: calc(100% - 6px);
   height: -webkit-calc(100% - 6px);
   height: -moz-calc(100% - 6px);
@@ -336,7 +336,7 @@
 }
 
 .orgchart .node .rightEdge {
-  right: -4px;
+  right: -2px;
 }
 
 .orgchart .node .leftEdge {
@@ -360,11 +360,14 @@
   position: absolute;
   left: 5px;
   bottom: -2px;
-  color: rgba(68, 157, 68, 0.6);
 }
 
-.orgchart .node .toggleBtn:hover {
-  color: rgba(68, 157, 68, 0.8);
+.orgchart .node .toggleBtn::before {
+  background-color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node .toggleBtn:hover::before {
+  background-color: #449d44;
 }
 
 .oci-export-btn {
@@ -555,7 +558,7 @@
   left: -0.125rem;
 }
 
-.oc-plus-square::before {
+.oci-plus-square::before {
   content: "+";
   display: inline-block;
   vertical-align: text-bottom;
@@ -566,7 +569,7 @@
   color: #fff;
 }
 
-.oc-minus-square::before {
+.oci-minus-square::before {
   content: "−";
   display: inline-block;
   vertical-align: text-bottom;
@@ -616,6 +619,19 @@
   border-width: 0.5rem 0.2rem 0;
   border-color: #fff transparent;
   border-style: solid;
+}
+
+.oci-info-circle::before {
+  content: "i";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
 }
 
 .oci-spinner::before {
