@@ -7,9 +7,8 @@
 # [React Version](https://github.com/dabeng/react-orgchart)
 
 ## Foreword
-- First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg
-- Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo.
-- Font Awesome provides us with administration icon, second level menu icon and loading spinner.
+First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg
+Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo.
 
 ## Features
 - Supports both local data and remote data (JSON).
@@ -18,9 +17,10 @@
 - Allows user to change orgchart structure by drag/drop nodes.
 - Allows user to edit orgchart dynamically and save the final hierarchy as a JSON object.
 - Supports exporting chart as a picture or pdf document.
-- Supports pan and zoom
-- Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections)
-- touch-enabled plugin for mobile device
+- Supports pan and zoom.
+- Allows user to customize the internal structure for every node.
+- Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections).
+- touch-enabled plugin for mobile device.
 
 ## CDN
 Users could find the related CDN support for OrgChart's CSS and JavaScript.
@@ -214,7 +214,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>nodeTitle</td><td>string</td><td>no</td><td>"name"</td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
     </tr>
     <tr>
-      <td>parentNodeSymbol</td><td>string</td><td>no</td><td>"fa-users"</td><td>Using font awesome icon to imply that the node has child nodes.</td>
+      <td>parentNodeSymbol</td><td>string</td><td>no</td><td>"oci-leader"</td><td>Using your own icon to imply that the node has child nodes.</td>
     </tr>
     <tr>
       <td>nodeContent</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as text content of content section of orgchart node.</td>
