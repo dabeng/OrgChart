@@ -22,7 +22,17 @@
       color: #fff;
       background-color: #449d44;
     }
-    #edit-panel .btn-inputs { font-size: 24px; }
+    #edit-panel .btn-inputs::before {
+      background-color: #fff;
+      color: #449d44;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 0.75rem;
+      font-size: 1.5rem;
+    }
+    #edit-panel .btn-inputs { vertical-align: sub; }
+    #edit-panel.edit-parent-node .btn-inputs { display: none; }
+    #edit-panel .btn-inputs:hover::before { font-weight: bolder; }
     #edit-panel.edit-state>:not(#chart-state-panel) { display: none; }
     #edit-panel label { font-weight: bold; }
     #edit-panel.edit-parent-node .selected-node-group { display: none; }
@@ -61,9 +71,6 @@
       vertical-align: text-top;
     }
     #new-nodelist>* { padding-bottom: 4px; }
-    .btn-inputs { vertical-align: sub; }
-    #edit-panel.edit-parent-node .btn-inputs { display: none; }
-    .btn-inputs:hover { text-shadow: 0 0 4px #fff; }
     .radio-panel input[type='radio'] { display: inline-block;height: 24px;width: 24px;vertical-align: top; }
     #edit-panel.view-state .radio-panel input[type='radio']+label { vertical-align: -webkit-baseline-middle; }
     #btn-add-nodes { margin-left: 20px; }
@@ -82,8 +89,8 @@
     <ul id="new-nodelist">
       <li><input type="text" class="new-node"></li>
     </ul>
-    <i class="fa fa-plus-circle btn-inputs" id="btn-add-input"></i>
-    <i class="fa fa-minus-circle btn-inputs" id="btn-remove-input"></i>
+    <i class="oci oci-plus-circle btn-inputs" id="btn-add-input"></i>
+    <i class="oci oci-minus-circle btn-inputs" id="btn-remove-input"></i>
     <span id="node-type-panel" class="radio-panel">
       <input type="radio" name="node-type" id="rd-parent" value="parent"><label for="rd-parent">Parent(root)</label>
       <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>

@@ -102,7 +102,7 @@
 .orgchart>.spinner::before {
   width: 100px;
   height: 100px;
-  border-width: 20px;
+  border-width: 10px;
   border-radius: 50px;
   margin-top: 30px;
   border-top-color: rgba(68, 157, 68, 0.8);
@@ -174,13 +174,12 @@
   position: absolute;
   top: calc(50% - 1rem);
   left: calc(50% - 1rem);
-  /*vertical-align: middle;*/
 }
 
 .orgchart .node>.spinner::before {
   width: 2rem;
   height: 2rem;
-  border-width: 0.4rem;
+  border-width: 0.2rem;
   border-radius: 1rem;
   border-top-color: rgba(68, 157, 68, 0.8);
   border-bottom-color: rgba(68, 157, 68, 0.8);
@@ -316,15 +315,37 @@
   width: calc(100% - 6px);
   width: -webkit-calc(100% - 6px);
   width: -moz-calc(100% - 6px);
+  height: 10px;
   left: 3px;
 }
 
+.orgchart .node .verticalEdge::before {
+  position: absolute;
+  left: calc(50% - 0.3125rem);
+}
+
 .orgchart .node .topEdge {
-  top: -9px;
+  top: -2px;
+}
+
+.orgchart .node .topEdge.oci-chevron-up::before {
+  top: 2px;
+}
+
+.orgchart .node .topEdge.oci-chevron-down::before {
+  bottom: 3px;
 }
 
 .orgchart .node .bottomEdge {
-  bottom: -6px;
+  bottom: -2px;
+}
+
+.orgchart .node .bottomEdge.oci-chevron-up::before {
+  bottom: -3px;
+}
+
+.orgchart .node .bottomEdge.oci-chevron-down::before {
+  bottom: 1px;
 }
 
 .orgchart .node .horizontalEdge {
@@ -345,15 +366,23 @@
 
 .orgchart .node .horizontalEdge::before {
   position: absolute;
-  top: calc(50% - 4px);
+  top: calc(50% - 0.3125rem);
 }
 
-.orgchart .node .rightEdge::before {
+.orgchart .node .rightEdge.oci-chevron-left::before {
   right: -3px;
 }
 
-.orgchart .node .leftEdge::before {
+.orgchart .node .rightEdge.oci-chevron-right::before {
+  right: 1px;
+}
+
+.orgchart .node .leftEdge.oci-chevron-right::before {
   left: -3px;
+}
+
+.orgchart .node .leftEdge.oci-chevron-left::before {
+  left: 1px;
 }
 
 .orgchart .node .toggleBtn {
@@ -370,7 +399,7 @@
   background-color: #449d44;
 }
 
-.oci-export-btn {
+.oc-export-btn {
   display: inline-block;
   position: absolute;
   right: 5px;
@@ -393,13 +422,13 @@
   border-radius: 4px;
 }
 
-.oci-export-btn[disabled] {
+.oc-export-btn[disabled] {
   cursor: not-allowed;
   box-shadow: none;
   opacity: 0.3;
 }
 
-.oci-export-btn:hover,.oci-export-btn:focus,.oci-export-btn:active  {
+.oc-export-btn:hover,.oc-export-btn:focus,.oc-export-btn:active  {
   background-color: #449d44;
   border-color: #347a34;
 }
@@ -424,7 +453,7 @@
 .orgchart~.mask .spinner::before {
   width: 100px;
   height: 100px;
-  border-width: 20px;
+  border-width: 10px;
   border-radius: 50px;
   border-top-color: rgba(68, 157, 68, 0.8);
   border-bottom-color: rgba(68, 157, 68, 0.8);
@@ -536,14 +565,12 @@
   position: absolute;
   content: "";
   display: inline-block;
-  box-sizing: border-box;
-  width: 0.625rem;
-  height: 0.625rem;
-  border: 0.0625rem solid #fff;
-  border-radius: 0.3rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 0.2rem;
   background: #000;
   top: -0.75rem;
-  z-index: 1;
+  left: 0.1rem;
 }
 
 .oci-leader::after {
@@ -552,7 +579,7 @@
   display: inline-block;
   width: 0.875rem;
   height: 0.375rem;
-  border-radius: 0.4rem 0.4rem 0 0;
+  border-radius: 0.25rem 0.25rem 0 0;
   background: #000;
   top: -0.3rem;
   left: -0.125rem;
@@ -569,6 +596,18 @@
   color: #fff;
 }
 
+.oci-plus-circle::before {
+  content: "+";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+}
+
 .oci-minus-square::before {
   content: "−";
   display: inline-block;
@@ -576,6 +615,18 @@
   text-align: center;
   width: 1rem;
   height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-minus-circle::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
   background-color: #000;
   color: #fff;
 }
@@ -626,7 +677,7 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 0.2rem solid #000;
+  border: 0.1rem solid #000;
   border-right-color: transparent;
   border-radius: 0.625rem;
   animation: oci-infinite-spinning .75s linear infinite;
