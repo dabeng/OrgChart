@@ -662,7 +662,7 @@
       $edge.parent().append('<i class="oci oci-spinner spinner"></i>')
         .children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
-      $('.oci-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
+      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
       return true;
     },
     // terminate loading status for requesting new nodes
@@ -672,7 +672,7 @@
       $node.find('.spinner').remove();
       $node.children().removeAttr('style');
       this.$chart.data('inAjax', false);
-      $('.oci-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', false);
+      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', false);
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
