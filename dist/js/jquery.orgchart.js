@@ -29,7 +29,7 @@
       'exportButton': false,
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
-      'parentNodeSymbol': 'fa-users',
+      'parentNodeSymbol': 'oci-leader',
       'draggable': false,
       'direction': 't2b',
       'pan': false,
@@ -69,7 +69,7 @@
           this.buildHierarchy($chart, this.options.ajaxURL ? data : this.attachRel(data, '00'));
         }
       } else {
-        $chart.append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>');
+        $chart.append('<i class="oci oci-spinner spinner"></i>');
         $.ajax({
           'url': data,
           'dataType': 'json'
@@ -610,7 +610,7 @@
       event.data.visibleNodes.removeClass('sliding');
       if (this.isInAction($node)) {
         this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        $node.children('.topEdge').removeClass('oci-chevron-up').addClass('oci-chevron-down');
       }
     },
     //
@@ -659,7 +659,7 @@
       }
 
       $edge.addClass('hidden');
-      $edge.parent().append('<i class="fa fa-circle-o-notch fa-spin spinner"></i>')
+      $edge.parent().append('<i class="oci oci-spinner spinner"></i>')
         .children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
       $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
@@ -676,11 +676,11 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
-      return $node.children('.edge').attr('class').indexOf('fa-') > -1 ? true : false;
+      return $node.children('.edge').attr('class').indexOf('oci-') > -1 ? true : false;
     },
     //
     switchVerticalArrow: function ($arrow) {
-      $arrow.toggleClass('fa-chevron-up').toggleClass('fa-chevron-down');
+      $arrow.toggleClass('oci-chevron-up').toggleClass('oci-chevron-down');
     },
     //
     switchHorizontalArrow: function ($node) {
@@ -689,24 +689,24 @@
         var $prevSib = $node.closest('table').parent().prev();
         if ($prevSib.length) {
           if ($prevSib.is('.hidden')) {
-            $node.children('.leftEdge').addClass('fa-chevron-left').removeClass('fa-chevron-right');
+            $node.children('.leftEdge').addClass('oci-chevron-left').removeClass('oci-chevron-right');
           } else {
-            $node.children('.leftEdge').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+            $node.children('.leftEdge').addClass('oci-chevron-right').removeClass('oci-chevron-left');
           }
         }
         var $nextSib = $node.closest('table').parent().next();
         if ($nextSib.length) {
           if ($nextSib.is('.hidden')) {
-            $node.children('.rightEdge').addClass('fa-chevron-right').removeClass('fa-chevron-left');
+            $node.children('.rightEdge').addClass('oci-chevron-right').removeClass('oci-chevron-left');
           } else {
-            $node.children('.rightEdge').addClass('fa-chevron-left').removeClass('fa-chevron-right');
+            $node.children('.rightEdge').addClass('oci-chevron-left').removeClass('oci-chevron-right');
           }
         }
       } else {
         var $sibs = $node.closest('table').parent().siblings();
         var sibsVisible = $sibs.length ? !$sibs.is('.hidden') : false;
-        $node.children('.leftEdge').toggleClass('fa-chevron-right', sibsVisible).toggleClass('fa-chevron-left', !sibsVisible);
-        $node.children('.rightEdge').toggleClass('fa-chevron-left', sibsVisible).toggleClass('fa-chevron-right', !sibsVisible);
+        $node.children('.leftEdge').toggleClass('oci-chevron-right', sibsVisible).toggleClass('oci-chevron-left', !sibsVisible);
+        $node.children('.rightEdge').toggleClass('oci-chevron-left', sibsVisible).toggleClass('oci-chevron-right', !sibsVisible);
       }
     },
     //
@@ -725,17 +725,17 @@
       if (event.type === 'mouseenter') {
         if ($topEdge.length) {
           flag = this.getNodeState($node, 'parent').visible;
-          $topEdge.toggleClass('fa-chevron-up', !flag).toggleClass('fa-chevron-down', flag);
+          $topEdge.toggleClass('oci-chevron-up', !flag).toggleClass('oci-chevron-down', flag);
         }
         if ($bottomEdge.length) {
           flag = this.getNodeState($node, 'children').visible;
-          $bottomEdge.toggleClass('fa-chevron-down', !flag).toggleClass('fa-chevron-up', flag);
+          $bottomEdge.toggleClass('oci-chevron-down', !flag).toggleClass('oci-chevron-up', flag);
         }
         if ($leftEdge.length) {
           this.switchHorizontalArrow($node);
         }
       } else {
-        $node.children('.edge').removeClass('fa-chevron-up fa-chevron-down fa-chevron-right fa-chevron-left');
+        $node.children('.edge').removeClass('oci-chevron-up oci-chevron-down oci-chevron-right oci-chevron-left');
       }
     },
     //
@@ -887,14 +887,14 @@
       var $descendants = $descWrapper.find('.node');
       var $children = $descWrapper.children().children('.node');
       if ($children.is('.sliding')) { return; }
-      $toggleBtn.toggleClass('fa-plus-square fa-minus-square');
+      $toggleBtn.toggleClass('oci-plus-square oci-minus-square');
       if ($descendants.eq(0).is('.slide-up')) {
         $descWrapper.removeClass('hidden');
         this.repaint($children.get(0));
         $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
       } else {
         $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
-        $descendants.find('.toggleBtn').removeClass('fa-minus-square').addClass('fa-plus-square');
+        $descendants.find('.toggleBtn').removeClass('oci-minus-square').addClass('oci-plus-square');
       }
     },
     //
@@ -1019,7 +1019,7 @@
       }
       // firstly, deal with the hierarchy of drop zone
       if (!$dropZone.closest('tr').siblings().length) { // if the drop zone is a leaf node
-        $dropZone.append('<i class="edge verticalEdge bottomEdge fa"></i>')
+        $dropZone.append('<i class="edge verticalEdge bottomEdge oci"></i>')
           .parent().attr('colspan', 2)
           .parent().after('<tr class="lines"><td colspan="2"><div class="downLine"></div></td></tr>'
           + '<tr class="lines"><td class="rightLine"></td><td class="leftLine"></td></tr>'
@@ -1027,7 +1027,7 @@
           .siblings(':last').append($dragged.find('.horizontalEdge').remove().end().closest('table').parent());
       } else {
         var dropColspan = parseInt($dropZone.parent().attr('colspan')) + 2;
-        var horizontalEdges = '<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>';
+        var horizontalEdges = '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>';
         $dropZone.closest('tr').next().addBack().children().attr('colspan', dropColspan);
         if (!$dragged.find('.horizontalEdge').length) {
           $dragged.append(horizontalEdges);
@@ -1216,9 +1216,9 @@
       var that = this;
       var opts = this.options;
       var level = data.level;
-      if (data.children) {
+      if (data.children && data[opts.nodeId]) {
         $.each(data.children, function (index, child) {
-          child.parentId = data.id;
+          child.parentId = data[opts.nodeId]
         });
       }
       // construct the content of node
@@ -1239,19 +1239,19 @@
       if (opts.verticalLevel && level >= opts.verticalLevel) {
         if ((level + 1) > opts.verticalLevel && Number(flags.substr(2,1))) {
           var icon = level + 1 > opts.visibleLevel ? 'plus' : 'minus';
-          $nodeDiv.append('<i class="toggleBtn fa fa-' + icon + '-square"></i>');
+          $nodeDiv.append('<i class="toggleBtn oci oci-' + icon + '-square"></i>');
         }
       } else {
         if (Number(flags.substr(0,1))) {
-          $nodeDiv.append('<i class="edge verticalEdge topEdge fa"></i>');
+          $nodeDiv.append('<i class="edge verticalEdge topEdge oci"></i>');
         }
         if(Number(flags.substr(1,1))) {
-          $nodeDiv.append('<i class="edge horizontalEdge rightEdge fa"></i>' +
-            '<i class="edge horizontalEdge leftEdge fa"></i>');
+          $nodeDiv.append('<i class="edge horizontalEdge rightEdge oci"></i>' +
+            '<i class="edge horizontalEdge leftEdge oci"></i>');
         }
         if(Number(flags.substr(2,1))) {
-          $nodeDiv.append('<i class="edge verticalEdge bottomEdge fa"></i>')
-            .children('.title').prepend('<i class="fa '+ opts.parentNodeSymbol + ' symbol"></i>');
+          $nodeDiv.append('<i class="edge verticalEdge bottomEdge oci"></i>')
+            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
         }
       }
 
@@ -1346,10 +1346,10 @@
     addChildren: function ($node, data) {
       this.buildChildNode($node.closest('table'), data);
       if (!$node.children('.bottomEdge').length) {
-        $node.append('<i class="edge verticalEdge bottomEdge fa"></i>');
+        $node.append('<i class="edge verticalEdge bottomEdge oci"></i>');
       }
       if (!$node.find('.symbol').length) {
-        $node.children('.title').prepend('<i class="fa '+ this.options.parentNodeSymbol + ' symbol"></i>');
+        $node.children('.title').prepend('<i class="oci '+ this.options.parentNodeSymbol + ' symbol"></i>');
       }
       if (this.isInAction($node)) {
         this.switchVerticalArrow($node.children('.bottomEdge'));
@@ -1370,7 +1370,7 @@
     addParent: function ($currentRoot, data) {
       this.buildParentNode($currentRoot, data);
       if (!$currentRoot.children('.topEdge').length) {
-        $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge fa"></i>');
+        $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge oci"></i>');
       }
       if (this.isInAction($currentRoot)) {
         this.switchVerticalArrow($currentRoot.children('.topEdge'));
@@ -1413,11 +1413,11 @@
       this.buildSiblingNode($node.closest('table'), data);
       $node.closest('.nodes').data('siblingsLoaded', true);
       if (!$node.children('.leftEdge').length) {
-        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge fa"></i><i class="edge horizontalEdge leftEdge fa"></i>');
+        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>');
       }
       if (this.isInAction($node)) {
         this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        $node.children('.topEdge').removeClass('oci-chevron-up').addClass('oci-chevron-down');
       }
     },
     //
@@ -1500,10 +1500,10 @@
       if ((!isWebkit && !isFf) || isEdge) {
         window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
       } else {
-        var selector = '.oc-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
+        var selector = '.oci-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
 
         if (!$chartContainer.find(selector).length) {
-          $chartContainer.append('<a class="oc-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
+          $chartContainer.append('<a class="oci-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
                                  + ' download="' + exportFilename + '.png"></a>');
         }
 
@@ -1521,7 +1521,7 @@
       var $chartContainer = this.$chartContainer;
       var $mask = $chartContainer.find('.mask');
       if (!$mask.length) {
-        $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
+        $chartContainer.append('<div class="mask"><i class="oci oci-spinner spinner"></i></div>');
       } else {
         $mask.removeClass('hidden');
       }

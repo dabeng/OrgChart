@@ -43,12 +43,6 @@ gulp.task('integration-tests', gulp.series('unit-tests', function () {
 }));
 
 gulp.task('addAssets', gulp.series('integration-tests', function () {
-  var fontawesomeCSS = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
-    .pipe(gulp.dest(paths.demoCSSFolder));
-
-  var fontawesomeFonts = gulp.src('node_modules/font-awesome/fonts/*')
-    .pipe(gulp.dest(paths.demo + '/fonts'));
-
   var jsFiles = gulp.src([
       paths.srcJS,
       'node_modules/jquery/dist/jquery.min.js',
@@ -61,7 +55,7 @@ gulp.task('addAssets', gulp.series('integration-tests', function () {
   var cssFiles = gulp.src(paths.srcCSS)
     .pipe(gulp.dest(paths.demoCSSFolder));
 
-  return merge(fontawesomeCSS, fontawesomeFonts, jsFiles, cssFiles);
+  return merge(jsFiles, cssFiles);
 }));
 
 gulp.task('visual-regression', function () {

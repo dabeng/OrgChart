@@ -99,10 +99,15 @@
   transform-origin: left top;
 }
 
-.orgchart>.spinner {
-  font-size: 100px;
+.orgchart>.spinner::before {
+  width: 100px;
+  height: 100px;
+  border-width: 10px;
+  border-radius: 50px;
   margin-top: 30px;
-  color: rgba(68, 157, 68, 0.8);
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart table {
@@ -167,11 +172,18 @@
 
 .orgchart .node>.spinner {
   position: absolute;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
-  vertical-align: middle;
-  font-size: 30px;
-  color: rgba(68, 157, 68, 0.8);
+  top: calc(50% - 1rem);
+  left: calc(50% - 1rem);
+}
+
+.orgchart .node>.spinner::before {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.2rem;
+  border-radius: 1rem;
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node:hover {
@@ -233,8 +245,17 @@
 
 .orgchart .node .title .symbol {
   float: left;
-  margin-top: 4px;
+  margin-top: 12px;
   margin-left: 2px;
+}
+
+.orgchart .node .title .symbol::before {
+  background-color: #fff;
+  border-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart .node .title .symbol::after {
+  background-color: #fff;
 }
 
 .orgchart .node .content {
@@ -269,75 +290,113 @@
 }
 
 .orgchart .node .edge {
-  font-size: 15px;
   position: absolute;
-  color: rgba(68, 157, 68, 0.5);
   cursor: default;
   transition: .2s;
+}
+
+.orgchart .node .edge::before {
+  border-color: rgba(68, 157, 68, 0.5);
 }
 
 .orgchart.noncollapsable .node .edge {
   display: none;
 }
 
-.orgchart .edge:hover {
-  color: #449d44;
+.orgchart .node .edge:hover {
   cursor: pointer;
 }
 
+.orgchart .edge:hover::before {
+  border-color: #449d44;
+}
+
 .orgchart .node .verticalEdge {
-  width: calc(100% - 10px);
-  width: -webkit-calc(100% - 10px);
-  width: -moz-calc(100% - 10px);
-  left: 5px;
+  width: calc(100% - 6px);
+  width: -webkit-calc(100% - 6px);
+  width: -moz-calc(100% - 6px);
+  height: 10px;
+  left: 3px;
+}
+
+.orgchart .node .verticalEdge::before {
+  position: absolute;
+  left: calc(50% - 0.3125rem);
 }
 
 .orgchart .node .topEdge {
-  top: -4px;
+  top: -2px;
+}
+
+.orgchart .node .topEdge.oci-chevron-up::before {
+  top: 2px;
+}
+
+.orgchart .node .topEdge.oci-chevron-down::before {
+  bottom: 3px;
 }
 
 .orgchart .node .bottomEdge {
-  bottom: -4px;
+  bottom: -2px;
+}
+
+.orgchart .node .bottomEdge.oci-chevron-up::before {
+  bottom: -3px;
+}
+
+.orgchart .node .bottomEdge.oci-chevron-down::before {
+  bottom: 1px;
 }
 
 .orgchart .node .horizontalEdge {
-  width: 15px;
-  height: calc(100% - 10px);
-  height: -webkit-calc(100% - 10px);
-  height: -moz-calc(100% - 10px);
-  top: 5px;
+  width: 10px;
+  height: calc(100% - 6px);
+  height: -webkit-calc(100% - 6px);
+  height: -moz-calc(100% - 6px);
+  top: 3px;
 }
 
 .orgchart .node .rightEdge {
-  right: -4px;
+  right: -2px;
 }
 
 .orgchart .node .leftEdge {
-  left: -4px;
+  left: -2px;
 }
 
 .orgchart .node .horizontalEdge::before {
   position: absolute;
-  top: calc(50% - 7px);
+  top: calc(50% - 0.3125rem);
 }
 
-.orgchart .node .rightEdge::before {
-  right: 3px;
+.orgchart .node .rightEdge.oci-chevron-left::before {
+  right: -3px;
 }
 
-.orgchart .node .leftEdge::before {
-  left: 3px;
+.orgchart .node .rightEdge.oci-chevron-right::before {
+  right: 1px;
+}
+
+.orgchart .node .leftEdge.oci-chevron-right::before {
+  left: -3px;
+}
+
+.orgchart .node .leftEdge.oci-chevron-left::before {
+  left: 1px;
 }
 
 .orgchart .node .toggleBtn {
   position: absolute;
   left: 5px;
   bottom: -2px;
-  color: rgba(68, 157, 68, 0.6);
 }
 
-.orgchart .node .toggleBtn:hover {
-  color: rgba(68, 157, 68, 0.8);
+.orgchart .node .toggleBtn::before {
+  background-color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node .toggleBtn:hover::before {
+  background-color: #449d44;
 }
 
 .oc-export-btn {
@@ -387,10 +446,18 @@
 
 .orgchart~.mask .spinner {
   position: absolute;
-  top: calc(50% - 54px);
-  left: calc(50% - 54px);
-  color: rgba(255,255,255,0.8);
-  font-size: 108px;
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+}
+
+.orgchart~.mask .spinner::before {
+  width: 100px;
+  height: 100px;
+  border-width: 10px;
+  border-radius: 50px;
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node {
@@ -431,4 +498,196 @@
 
 .orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
   transform: translateX(-40px);
+}
+
+/* oci means organization chart icons */
+.oci {
+  display: inline-block;
+  position: relative;
+  font-style: normal;
+  font-family: Arial;
+}
+
+.oci-chevron-up::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  vertical-align: text-bottom;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-135deg);
+}
+
+.oci-chevron-right::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(-45deg);
+}
+
+.oci-chevron-down::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.oci-chevron-left::before {
+  content: "";
+  display: inline-block;
+  box-sizing: border-box;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-width: 0 0.2rem 0.2rem 0;
+  border-style: solid;
+  border-color: #000;
+  background: transparent;
+  transform: rotate(135deg);
+}
+
+.oci-leader::before {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 0.2rem;
+  background: #000;
+  top: -0.75rem;
+  left: 0.1rem;
+}
+
+.oci-leader::after {
+  position: absolute;
+  content: "";
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.375rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+  background: #000;
+  top: -0.3rem;
+  left: -0.125rem;
+}
+
+.oci-plus-square::before {
+  content: "+";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-plus-circle::before {
+  content: "+";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-minus-square::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-minus-circle::before {
+  content: "−";
+  display: inline-block;
+  vertical-align: text-bottom;
+  text-align: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+}
+
+.oci-arrow-circle-up::before {
+  content: "▲";
+  display: inline-block;
+  text-align: center;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.oci-arrow-circle-down::before {
+  content: "▼";
+  text-align: center;
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  font-size: 0.875rem;
+}
+
+.oci-info-circle::before {
+  content: "i";
+  display: inline-block;
+  vertical-align: text-bottom;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+
+.oci-spinner::before {
+  content: "";
+  vertical-align: text-bottom;
+  display: inline-block;
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  border: 0.1rem solid #000;
+  border-right-color: transparent;
+  border-radius: 0.625rem;
+  animation: oci-infinite-spinning .75s linear infinite;
+}
+
+@keyframes oci-infinite-spinning {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

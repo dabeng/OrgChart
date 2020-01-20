@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <title>Organization Chart Plugin</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/font-awesome.min.css">
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
@@ -14,11 +13,10 @@
       right: -5px;
       top: -5px;
       z-index: 2;
-      color: rgba(68, 157, 68, 0.5);
-      font-size: 18px;
       position: absolute;
     }
-    .orgchart .second-menu-icon:hover { color: #449d44; }
+    .orgchart .second-menu-icon::before { background-color: rgba(68, 157, 68, 0.5); }
+    .orgchart .second-menu-icon:hover::before { background-color: #449d44; }
     .orgchart .node:hover .second-menu-icon { opacity: 1; }
     .orgchart .node .second-menu {
       display: none;
@@ -80,7 +78,7 @@
       'nodeID': 'id',
       'createNode': function($node, data) {
         var secondMenuIcon = $('<i>', {
-          'class': 'fa fa-info-circle second-menu-icon',
+          'class': 'oci oci-info-circle second-menu-icon',
           click: function() {
             $(this).siblings('.second-menu').toggle();
           }
