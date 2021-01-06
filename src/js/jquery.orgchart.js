@@ -366,18 +366,24 @@
       return data;
     },
     //
-    loopChart: function ($chart) {
+    loopChart: function ($chart, includeNodeData = false) {
       var that = this;
       var $tr = $chart.find('tr:first');
       var subObj = { 'id': $tr.find('.node')[0].id };
+      if (includeNodeData) {
+        var $node = $($tr.find('.node')[0])
+        $.each($node.data('nodeData'), function (key, value) {
+          subObj[key] = value;
+        });
+      }
       $tr.siblings(':last').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
-        subObj.children.push(that.loopChart($(this)));
+        subObj.children.push(that.loopChart($(this), includeNodeData));
       });
       return subObj;
     },
     //
-    getHierarchy: function () {
+    getHierarchy: function (includeNodeData = false) {
       if (typeof this.$chart === 'undefined') {
         return 'Error: orgchart does not exist'
       } else {
@@ -396,7 +402,7 @@
           }
         }
       }
-      return this.loopChart(this.$chart);
+      return this.loopChart(this.$chart, includeNodeData);
     },
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {
