@@ -27,6 +27,7 @@
       'visibleLevel': 999,
       'chartClass': '',
       'exportButton': false,
+      'exportButtonName': 'Export',
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
       'parentNodeSymbol': 'oci-leader',
@@ -127,7 +128,7 @@
       var that = this;
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
-        'text': 'Export',
+        'text': this.options.exportButtonName,
         'click': function(e) {
           e.preventDefault();
           that.export();
