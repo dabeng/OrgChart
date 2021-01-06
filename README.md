@@ -1,5 +1,7 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
+**Read this in other languages: [简体中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md)**
+
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
 # [Vue.js Version](https://github.com/dabeng/vue-orgchart)
@@ -43,6 +45,7 @@ $ npm install orgchart
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
 ## [Demos on github pages](https://dabeng.github.io/OrgChart/)  &nbsp;&nbsp;&nbsp;&nbsp;  [Demos on codepen.io](https://codepen.io/collection/AWxGVb/)
+
 ### online demos
 - [using ul datasource](https://dabeng.github.io/OrgChart/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
 
@@ -150,9 +153,10 @@ var oc = $('#chartContainerId').orgchart(options);
   'id': 'rootNode', // It's a optional property which will be used as id attribute of node
   // and data-parent attribute, which contains the id of the parent node
   'collapsed': true, // By default, the children nodes of current node is hidden.
-  'className': 'top-level', // It's a optional property which will be used as className attribute of node.
-  'nodeTitlePro': 'Lao Lao',
-  'nodeContentPro': 'general manager',
+  'className': 'top-level', // It's a optional property
+  // which will be used as className attribute of node.
+  'nodeTitle': 'name', // This property is used to retrieve “title” value in datasource
+  'nodeContent': 'title',// This property is used to retrieve "content" value in datasource
   'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
   // you should use json datsource (local or remote) and set this property.
   // This property implies that whether this node has parent node, siblings nodes or children nodes.
@@ -161,93 +165,191 @@ var oc = $('#chartContainerId').orgchart(options);
   // Scond character stands for wether current node has siblings nodes;
   // Third character stands for wether current node has children node.
   'children': [ // The property stands for nested nodes.
-    { 'nodeTitlePro': 'Bo Miao', 'nodeContentPro': 'department manager', 'relationship': '110' },
-    { 'nodeTitlePro': 'Su Miao', 'nodeContentPro': 'department manager', 'relationship': '111',
+    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
+    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
       'children': [
-        { 'nodeTitlePro': 'Tie Hua', 'nodeContentPro': 'senior engineer', 'relationship': '110' },
-        { 'nodeTitlePro': 'Hei Hei', 'nodeContentPro': 'senior engineer', 'relationship': '110' }
+        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '110' }
       ]
     },
-    { 'nodeTitlePro': 'Yu Jie', 'nodeContentPro': 'department manager', 'relationship': '110' }
+    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' }
   ],
-  'otherPro': anyValue
+  'otherPro': anyValue // feel free to append any useful properties
 };
 ```
 
 ### Options
 <table>
   <thead>
-    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody>
     <tr>
-      <td>data</td><td>json or string</td><td>yes</td><td></td><td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
+      <td>data</td>
+      <td>json or string</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
     </tr>
     <tr>
-      <td>pan</td><td>boolean</td><td>no</td><td>false</td><td>Users could pan the orgchart by mouse drag&drop if they enable this option.</td>
+      <td>pan</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>Users could pan the orgchart by mouse drag&drop if they enable this option.</td>
     </tr>
     <tr>
-      <td>zoom</td><td>boolean</td><td>no</td><td>false</td><td>Users could zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
+      <td>zoom</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>Users could zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
     </tr>
     <tr>
-      <td>zoominLimit</td><td>number</td><td>no</td><td>7</td><td>Users are allowed to set a zoom-in limit.</td>
+      <td>zoominLimit</td>
+      <td>number</td>
+      <td>no</td>
+      <td>7</td>
+      <td>Users are allowed to set a zoom-in limit.</td>
     </tr>
     <tr>
-      <td>zoomoutLimit</td><td>number</td><td>no</td><td>0.5</td><td>Users are allowed to set a zoom-out limit.</td>
+      <td>zoomoutLimit</td>
+      <td>number</td>
+      <td>no</td>
+      <td>0.5</td>
+      <td>Users are allowed to set a zoom-out limit.</td>
     </tr>
     <tr>
-      <td>direction</td><td>string</td><td>no</td><td>"t2b"</td><td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
+      <td>direction</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"t2b"</td>
+      <td>The available values are t2b(implies "top to bottom", it's default value), b2t(implies "bottom to top"), l2r(implies "left to right"), r2l(implies "right to left").</td>
     </tr>
     <tr>
-      <td>verticalLevel</td><td>integer(>=2)</td><td>no</td><td></td><td>Users can make use of this option to align the nodes vertically from the specified level.</td>
+      <td>verticalLevel</td>
+      <td>integer(>=2)</td>
+      <td>no</td>
+      <td></td>
+      <td>Users can make use of this option to align the nodes vertically from the specified level.</td>
     </tr>
     <tr>
-      <td>toggleSiblingsResp</td><td>boolean</td><td>no</td><td>false</td><td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
+      <td>toggleSiblingsResp</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
     </tr>
     <tr>
-      <td>ajaxURL</td><td>json</td><td>no</td><td></td><td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety provides the URL to which ajax request for different nodes is sent.</td>
+      <td>ajaxURL</td>
+      <td>json</td>
+      <td>no</td>
+      <td></td>
+      <td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety provides the URL to which ajax request for different nodes is sent.</td>
     </tr>
     <tr>
-      <td>visibleLevel</td><td>positive integer</td><td>no</td><td>999</td><td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+      <td>visibleLevel</td>
+      <td>positive integer</td>
+      <td>no</td>
+      <td>999</td>
+      <td>It indicates the level that at the very beginning orgchart is expanded to.</td>
     </tr>
     <tr>
-      <td>nodeTitle</td><td>string</td><td>no</td><td>"name"</td><td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
+      <td>nodeTitle</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"name"</td>
+      <td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
     </tr>
     <tr>
-      <td>parentNodeSymbol</td><td>string</td><td>no</td><td>"oci-leader"</td><td>Using your own icon to imply that the node has child nodes.</td>
+      <td>parentNodeSymbol</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"oci-leader"</td>
+      <td>Using your own icon to imply that the node has child nodes.</td>
     </tr>
     <tr>
-      <td>nodeContent</td><td>string</td><td>no</td><td></td><td>It sets one property of datasource as text content of content section of orgchart node.</td>
+      <td>nodeContent</td>
+      <td>string</td>
+      <td>no</td>
+      <td></td>
+      <td>It sets one property of datasource as text content of content section of orgchart node.</td>
     </tr>
     <tr>
-      <td>nodeId</td><td>string</td><td>no</td><td>"id"</td><td>It sets one property of datasource as unique identifier of every orgchart node.</td>
+      <td>nodeId</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"id"</td>
+      <td>It sets one property of datasource as unique identifier of every orgchart node.</td>
     </tr>
     <tr>
-      <td>nodeTemplate</td><td>function</td><td>no</td><td></td><td>It's a template generation function used to customize any complex internal structure of node. It receives only one parameter: "data" stands for json datasoure which will be use to render one node.</td>
+      <td>nodeTemplate</td>
+      <td>function</td>
+      <td>no</td>
+      <td></td>
+      <td>It's a template generation function used to customize any complex internal structure of node. It receives only one parameter: "data" stands for json datasoure which will be used to render one node.</td>
     </tr>
     <tr>
-      <td>createNode</td><td>function</td><td>no</td><td></td><td>It's a callback function used to customize every orgchart node. It receives two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
+      <td>createNode</td>
+      <td>function</td>
+      <td>no</td>
+      <td></td>
+      <td>It's a callback function used to customize every orgchart node. It receives two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
     </tr>
     <tr>
-      <td>exportButton</td><td>boolean</td><td>no</td><td>false</td><td>It enable the export button for orgchart.</td>
+      <td>exportButton</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>It enable the export button for orgchart.</td>
     </tr>
     <tr>
-      <td>exportFilename</td><td>string</td><td>no</td><td>"Orgchart"</td><td>It's filename when you export current orgchart as a picture.</td>
+      <td>exportFilename</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"Orgchart"</td>
+      <td>It's filename when you export current orgchart as a picture.</td>
     </tr>
     <tr>
-      <td>exportFileextension</td><td>string</td><td>no</td><td>"png"</td><td>Available values are png and pdf.</td>
+      <td>exportFileextension</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"png"</td>
+      <td>Available values are png and pdf.</td>
     </tr>
     <tr>
-      <td>chartClass</td><td>string</td><td>no</td><td>""</td><td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
+      <td>chartClass</td>
+      <td>string</td>
+      <td>no</td>
+      <td>""</td>
+      <td>when you wanna instantiate multiple orgcharts on one page, you should add diffent classname to them in order to distinguish them.</td>
     </tr>
     <tr>
-      <td>draggable</td><td>boolean</td><td>no</td><td>false</td><td>Users can drag & drop the nodes of orgchart if they enable this option. **Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API.</td>
+      <td>draggable</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>Users can drag & drop the nodes of orgchart if they enable this option. **Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API.</td>
     </tr>
     <tr>
-      <td>dropCriteria</td><td>function</td><td>no</td><td></td><td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
+      <td>dropCriteria</td>
+      <td>function</td>
+      <td>no</td>
+      <td></td>
+      <td>Users can construct their own criteria to limit the relationships between dragged node and drop zone. Furtherly, this function accept three arguments(draggedNode, dragZone, dropZone) and just only return boolen values.</td>
     </tr>
     <tr>
-      <td>initCompleted</td><td>function</td><td>no</td><td></td><td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
+      <td>initCompleted</td>
+      <td>function</td>
+      <td>no</td>
+      <td></td>
+      <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
     </tr>
   </tbody>
 </table>
@@ -257,16 +359,30 @@ I'm sure that you can grasp the key points of the methods below after you try ou
 
 #### var oc = $container.orgchart(options)
 Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required. Variable oc is the instance of class OrgChart.
+
 #### init(newOptions)
 It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
+
 #### addParent(data)
 Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
-    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>data</td><td>json object</td><td>yes</td><td></td><td>datasource for building root node</td></tr>
+    <tr>
+      <td>data</td>
+      <td>json object</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource for building root node</td>
+    </tr>
   </tbody>
 </table>
 
@@ -274,11 +390,29 @@ Adds parent node(actullay it's always root node) for current orgchart.
 Adds sibling nodes for designated node.
 <table>
   <thead>
-    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add sibling nodes based on this node</td></tr>
-    <tr><td>data</td><td>array</td><td>yes</td><td></td><td>datasource for building sibling nodes</td></tr>
+    <tr>
+      <td>$node</td>
+      <td>jquery object</td>
+      <td>yes</td>
+      <td></td>
+      <td>we'll add sibling nodes based on this node</td>
+    </tr>
+    <tr>
+      <td>data</td>
+      <td>array</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource for building sibling nodes</td>
+    </tr>
   </tbody>
 </table>
 
@@ -286,11 +420,29 @@ Adds sibling nodes for designated node.
 Adds child nodes for designed node.
 <table>
   <thead>
-    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>we'll add child nodes based on this node</td></tr>
-    <tr><td>data</td><td>array</td><td>yes</td><td></td><td>datasource for building child nodes</td></tr>
+    <tr>
+      <td>$node</td>
+      <td>jquery object</td>
+      <td>yes</td>
+      <td></td>
+      <td>we'll add child nodes based on this node</td>
+    </tr>
+    <tr>
+      <td>data</td>
+      <td>array</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource for building child nodes</td>
+    </tr>
   </tbody>
 </table>
 
@@ -298,10 +450,22 @@ Adds child nodes for designed node.
 Removes the designated node and its descedant nodes.
 <table>
   <thead>
-    <tr><th>Name</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>$node</td><td>jquery object</td><td>yes</td><td></td><td>node to be removed</td></tr>
+    <tr>
+      <td>$node</td>
+      <td>jquery object</td>
+      <td>yes</td>
+      <td></td>
+      <td>node to be removed</td>
+    </tr>
   </tbody>
 </table>
 
@@ -322,7 +486,7 @@ This method allows you to hide programatically the parent node of any specific n
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
   </tr>
 </table>
@@ -341,7 +505,7 @@ This method allows you to show programatically the parent node of any specific n
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to show its parent node</td>
   </tr>
 </table>
@@ -360,7 +524,7 @@ This method allows you to hide programatically the children of any specific node
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to hide its children nodes</td>
   </tr>
 </table>
@@ -379,7 +543,7 @@ This method allows you to show programatically the children of any specific node
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to show its children nodes</td>
   </tr>
 </table>
@@ -398,14 +562,14 @@ This method allows you to hide programatically the siblings of any specific node
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to hide its siblings nodes</td>
   </tr>
   <tr>
     <td>direction</td>
     <td>string</td>
     <td>No</td>
-    <td>None</td>
+    <td></td>
     <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
   </tr>
 </table>
@@ -424,15 +588,15 @@ This method allows you to show programatically the siblings of any specific node
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to show its siblings nodes</td>
   </tr>
   <tr>
     <td>direction</td>
     <td>string</td>
     <td>No</td>
-    <td>None</td>
-    <td>Possible values:"left","rigth". Specifies if hide the siblings at left or rigth. If not defined hide both of them.</td>
+    <td></td>
+    <td>Possible values:"left","rigth". Specifies if show the siblings at left or rigth. If not defined show both of them.</td>
   </tr>
 </table>
 
@@ -450,14 +614,14 @@ This method returns you the display state of related node of the specified node.
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to know its related nodes' display state.</td>
   </tr>
   <tr>
     <td>relation</td>
     <td>String</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
   </tr>
 </table>
@@ -465,8 +629,8 @@ This method returns you the display state of related node of the specified node.
 The returning object will have the following structure:
 ```js
 {
-  "exist": true|false,  //Indicates if has parent|children|siblings
-  "visible":true|false,  //Indicates if the relationship nodes are visible
+  "exist": true|false, // Indicates if has parent|children|siblings
+  "visible":true|false, // Indicates if the relationship nodes are visible
 }
 ```
 
@@ -484,20 +648,20 @@ This method returns you the nodes related to the specified node.
     <td>$node</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's the desired JQuery Object to know its related nodes</td>
   </tr>
   <tr>
     <td>relation</td>
     <td>String</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>Possible values: "parent", "children" and "siblings". Specifies the desired relation to return.</td>
   </tr>
 </table>
 
 #### setChartScale($chart, newScale)
-This method returns you the nodes related to the specified node.
+This method helps you set the specified chart with new scale.
 <table>
   <tr>
     <th>Name</th>
@@ -510,14 +674,14 @@ This method returns you the nodes related to the specified node.
     <td>$chart</td>
     <td>JQuery Object</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>It's a chart in your chart-container</td>
   </tr>
   <tr>
     <td>newScale</td>
     <td>Float</td>
     <td>Yes</td>
-    <td>None</td>
+    <td></td>
     <td>Positive float value which is used to zoom in/out the chart</td>
   </tr>
 </table>
@@ -551,17 +715,28 @@ This method allow you to export current orgchart as png or pdf file.
 ### Events
 <table>
   <thead>
-    <tr><th>Event Type</th><th>Additional Parameters</th><th>Description</th></tr>
+    <tr>
+    <th>Event Type</th>
+    <th>Additional Parameters</th>
+    <th>Description</th>
+    </tr>
   </thead>
   <tbody>
-    <tr><td>nodedrop.orgchart</td><td>draggedNode, dragZone, dropZone</td><td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td></tr>
-    <tr><td>init.orgchart</td><td>chart</td><td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td></tr>
+    <tr>
+      <td>nodedrop.orgchart</td>
+      <td>draggedNode, dragZone, dropZone</td>
+      <td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td>
+    </tr>
+    <tr>
+      <td>init.orgchart</td>
+      <td>chart</td>
+      <td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td>
+    </tr>
   </tbody>
 </table>
 
 ### Tips
-**How can I deactivate expand/collapse feature of orgchart?**
-
+#### How can I deactivate expand/collapse feature of orgchart?
 This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issues/25). Thanks [der-robert](https://github.com/der-robert) and [ActiveScottShaw](https://github.com/ActiveScottShaw) for their constructive discussions:blush:
 
 Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
@@ -571,8 +746,7 @@ $('.orgchart').addClass('noncollapsable'); // deactivate
 $('.orgchart').removeClass('noncollapsable'); // activate
 ```
 
-**Why is the root node gone?**
-
+#### Why is the root node gone?
 When I have a huge orgchart with enabled "pan" option, if I hide all the children of one of the topmost parents then the chart disappear from screen. It seems that we need to add a reset button to keep the chart visible.
 For details, please refer to the [issue](https://github.com/dabeng/OrgChart/issues/85) opened by [manuel-84](https://github.com/manuel-84) :blush:
 
