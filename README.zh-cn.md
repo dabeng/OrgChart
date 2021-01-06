@@ -1,5 +1,7 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
+# Read this in other languages: [English](https://github.com/dabeng/OrgChart/blob/master/README.md)
+
 # [ES6版](http://github.com/dabeng/OrgChart.js)
 # [Web Components版](http://github.com/dabeng/OrgChart-Webcomponents)
 # [Vue.js版](https://github.com/dabeng/vue-orgchart)
