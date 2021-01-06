@@ -756,4 +756,3 @@ $('.orgchart').removeClass('noncollapsable'); // 開啓展開/折疊
 - Safari 6+
 - Opera 15+
 - IE 10+
-- 
