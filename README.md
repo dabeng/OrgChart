@@ -159,7 +159,7 @@ var oc = $('#chartContainerId').orgchart(options);
   'nodeContent': 'title',// This property is used to retrieve "content" value in datasource
   'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
   // you should use json datsource (local or remote) and set this property.
-  // This property implies that whether this node has parent node, siblings nodes or children nodes.
+  // This property implies that whether this node has parent, siblings, children.
   // relationshipValue is a string composed of three "0/1" identifier.
   // First character stands for wether current node has parent node;
   // Scond character stands for wether current node has siblings nodes;

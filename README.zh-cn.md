@@ -22,7 +22,9 @@
 - 支持移动设备上的多点触控操作。
 
 ## CDN
-可以在CDN上找到本插件的对应资源[![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
+可以在CDN上找到本插件的对应资源。
+
+[![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
 
 ## 安装
 ### Bower
@@ -47,9 +49,9 @@ $ npm install orgchart
 
 - [我想平移/缩放组织结构图，像在地图应用上那样](https://dabeng.github.io/OrgChart/pan-zoom.html)
 
-- 我想以不同的方向布局组织结构图**(感谢 [fvlima 和 badulesia 的好点子 :blush:](https://github.com/dabeng/OrgChart/issues/5))
+- 我想以不同的方向布局组织结构图(感谢 [fvlima 和 badulesia 的好点子 :blush:](https://github.com/dabeng/OrgChart/issues/5))
 
-  从上到下 -- default direction, as you can see all other examples on this page.
+  从上到下 -- 默认的布局方向
 
   [从下到上](https://dabeng.github.io/OrgChart/bottom2top.html)
 
@@ -87,21 +89,19 @@ $ npm install orgchart
 
 - [我想通过拖放的方式来改变组织结构图的结构](https://dabeng.github.io/OrgChart/drag-drop.html)
 
-Users are allowed to drag & drop the nodes of orgchart when option "draggable" is assigned to true(**Note**: this feature doesn't work on IE due to its poor support for HTML5 drag & drop API).
-
-Furthermore, users can make use of option dropCriteria to inject their custom limitations on drag & drop. As shown below, we don't want an manager employee to be under a engineer under no circumstance.
+一旦启用了"draggable"选项，我们就可以通过拖放来改变组织结构图的层次结构了。但是注意，这个特性在IE浏览器上不工作。后续地，我们还可以利用dropCriteria选项，来定制更细致的拖放限制准则。默认情况下，插件只提供了一条限制准则--不能直接把父节点放到它的子节点里。
 
 - [我希望这个插件能提供给一个方法，调用它返回给我一个结果，该结果能描述出当前组织结构图的层次结构](https://dabeng.github.io/OrgChart/get-hierarchy.html)
 
-That's where getHierarchy() comes in.
+我们有个getHierarchy()方法，专门干这事。
 
 - [我想渲染一个颜色编码的组织结构图](https://dabeng.github.io/OrgChart/color-coded.html)
 
-It's a so easy task, we just need to append id or className property to node data.
+我们只需要把css的样式与数据源中的id字段或css类字段关联起来就好。
 
 - [我想实现一个多层级（而非深度）的组织结构图](https://dabeng.github.io/OrgChart/multiple-layers.html)
 
-In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
+如果你的组织层级很多，二每个层级下的节点也很多，那么上面的方案可以采纳尝试。
 
 - [我想构造一个混合布局的（水平方向 + 垂直方向）组织结构图](https://dabeng.github.io/OrgChart/vertical-level.html)
 
