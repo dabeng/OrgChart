@@ -1,6 +1,6 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
-# Read this in other languages: [繁體中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md), [English](https://github.com/dabeng/OrgChart/blob/master/README.md)
+# Read this in other languages: [简体中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [English](https://github.com/dabeng/OrgChart/blob/master/README.md)
 
 # [ES6版](http://github.com/dabeng/OrgChart.js)
 # [Web Components版](http://github.com/dabeng/OrgChart-Webcomponents)
@@ -8,27 +8,27 @@
 # [Angular版 -- the most space-saving solution](https://github.com/dabeng/ng-orgchart)
 # [React版](https://github.com/dabeng/react-orgchart)
 
-## 写在前面的话
-感谢[wesnolte](https://github.com/wesnolte)的非常棒的作品-- [jOrgChart](https://github.com/wesnolte/jOrgChart)。用嵌套的table来构造树状结构，用td的border来构造节点间的连线，非常有创意。天然地降低了前端程序员在构造树状结构时的工作量和难度，要知道，利用D3.js中的脑图去达到同样效果，开发周期就会长好多。哪怕你对svg，canvas等高级的制图API了然于胸，当你的树状结构图激发出HR大姐的各种天马行空的需求时，你会坦诚的承认svg或canvas这种重型武器拖累了你的快速解决一小戳敌人的能力。相比较而言，用单纯的**HTML5 + CSS3**的解决方案就像是 **“小米 + 步枪”的轻步兵**，天然地降低了你在实现树状结构图的难度，同时给予你更大的定制空间去面对基于这个结构图衍生出的种种琐碎需求。只要你的需求足够多，基于这个树状结构图，打造出一个完备的HR系统，也是可以期待的。实际上，网络上很多OrgChart商业软件就是围绕着一个树状结构核心模型展开的业务逻辑实现。
+## 寫在前面的話
+感謝[wesnolte](https://github.com/wesnolte)的非常棒的作品-- [jOrgChart](https://github.com/wesnolte/jOrgChart)。用嵌套的table來構造樹狀結構，用td的border來構造節點間的連線，非常有創意。天然地降低了前端程序員在構造樹狀結構時的工作量和難度，要知道，利用D3.js中的腦圖去達到同樣效果，開發周期就會長好多。哪怕你對svg，canvas等高級的制圖API了然于胸，當你的樹狀結構圖激發出HR大姐的各種天馬行空的需求時，你會坦誠的承認svg或canvas這種重型武器拖累了你的快速解決一小戳敵人的能力。相比較而言，用單純的**HTML5 + CSS3**的解決方案就像是 **“小米 + 步槍”的輕步兵**，天然地降低了你在實現樹狀結構圖的難度，同時給予你更大的定制空間去面對基于這個結構圖衍生出的種種瑣碎需求。只要你的需求足夠多，基于這個樹狀結構圖，打造出一個完備的HR系統，也是可以期待的。實際上，網絡上很多OrgChart商業軟件就是圍繞著一個樹狀結構核心模型展開的業務邏輯實現。
 
 ## 功能特性
-- 支持本地和远程的数据源。
-- 用户可以展开/折叠节点或子树，方便地浏览局部的结构图。
-- 上下左右4个方向的布局。
-- 用户可以通过拖放节点或子树的方式来改变组织结构图的形态。
-- 用户可以编辑组织结构图的层次结构并将最终结果保存为JSON对象。
-- 支持将组织结构图导出为png图片或pdf文档。
-- 支持对组织结构图的缩放/平移
-- 用户可以自行定制节点的内部结构，例如插入员工照到节点中。
-- 用户可以采用不同的数据源构建多层级的组织结构图（请参考多层组织结构图和混合布局组织结构图的实例）。
-- 支持移动设备上的多点触控操作。
+- 支持本地和遠程的數據源。
+- 用戶可以展開/折疊節點或子樹，方便地浏覽局部的結構圖。
+- 上下左右4個方向的布局。
+- 用戶可以通過拖放節點或子樹的方式來改變組織結構圖的形態。
+- 用戶可以編輯組織結構圖的層次結構並將最終結果保存爲JSON對象。
+- 支持將組織結構圖導出爲png圖片或pdf文檔。
+- 支持對組織結構圖的縮放/平移
+- 用戶可以自行定制節點的內部結構，例如插入員工照到節點中。
+- 用戶可以采用不同的數據源構建多層級的組織結構圖（請參考多層組織結構圖和混合布局組織結構圖的實例）。
+- 支持移動設備上的多點觸控操作。
 
 ## CDN
-可以在CDN上找到本插件的对应资源。
+可以在CDN上找到本插件的對應資源。
 
 [![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
 
-## 安装
+## 安裝
 ### Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies
@@ -40,9 +40,9 @@ $ bower install orgchart
 # From version 1.0.4 on, users can install orgchart with npm
 $ npm install orgchart
 ```
-`require('orgchart')`会把orgchart插件追加到jQuery对象上。orgchart模块本身并不导出任何东西。
+`require('orgchart')`會把orgchart插件追加到jQuery對象上。orgchart模塊本身並不導出任何東西。
 
-## [gihtub pages实例集合](https://dabeng.github.io/OrgChart/)  &nbsp;&nbsp;&nbsp;&nbsp;  [codepen.io实例集合](https://codepen.io/collection/AWxGVb/)
+## [gihtub pages實例集合](https://dabeng.github.io/OrgChart/)  &nbsp;&nbsp;&nbsp;&nbsp;  [codepen.io實例集合](https://codepen.io/collection/AWxGVb/)
 
 ### 天马行空的需求
 - [ul数据源](https://dabeng.github.io/OrgChart/ul-datasource.html)(感谢 [Tobyee的好点子:blush:](https://github.com/dabeng/OrgChart/issues/1))

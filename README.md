@@ -1,6 +1,6 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.svg)
 
-# Read this in other languages: [简体中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md)
+# Read this in other languages: [简体中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [繁體中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md)
 
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
