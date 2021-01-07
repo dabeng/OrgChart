@@ -366,7 +366,8 @@
       return data;
     },
     //
-    loopChart: function ($chart, includeNodeData = false) {
+    loopChart: function ($chart, includeNodeData) {
+      includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
       var that = this;
       var $tr = $chart.find('tr:first');
       var subObj = { 'id': $tr.find('.node')[0].id };
@@ -383,7 +384,8 @@
       return subObj;
     },
     //
-    getHierarchy: function (includeNodeData = false) {
+    getHierarchy: function (includeNodeData) {
+      includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
       if (typeof this.$chart === 'undefined') {
         return 'Error: orgchart does not exist'
       } else {

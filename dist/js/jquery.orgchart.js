@@ -27,6 +27,7 @@
       'visibleLevel': 999,
       'chartClass': '',
       'exportButton': false,
+      'exportButtonName': 'Export',
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
       'parentNodeSymbol': 'oci-leader',
@@ -127,7 +128,7 @@
       var that = this;
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
-        'text': 'Export',
+        'text': this.options.exportButtonName,
         'click': function(e) {
           e.preventDefault();
           that.export();
@@ -365,18 +366,26 @@
       return data;
     },
     //
-    loopChart: function ($chart) {
+    loopChart: function ($chart, includeNodeData) {
+      includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
       var that = this;
       var $tr = $chart.find('tr:first');
       var subObj = { 'id': $tr.find('.node')[0].id };
+      if (includeNodeData) {
+        var $node = $($tr.find('.node')[0])
+        $.each($node.data('nodeData'), function (key, value) {
+          subObj[key] = value;
+        });
+      }
       $tr.siblings(':last').children().each(function() {
         if (!subObj.children) { subObj.children = []; }
-        subObj.children.push(that.loopChart($(this)));
+        subObj.children.push(that.loopChart($(this), includeNodeData));
       });
       return subObj;
     },
     //
-    getHierarchy: function () {
+    getHierarchy: function (includeNodeData) {
+      includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
       if (typeof this.$chart === 'undefined') {
         return 'Error: orgchart does not exist'
       } else {
@@ -395,7 +404,7 @@
           }
         }
       }
-      return this.loopChart(this.$chart);
+      return this.loopChart(this.$chart, includeNodeData);
     },
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {

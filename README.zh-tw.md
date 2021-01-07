@@ -301,6 +301,13 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>啓用該選項，插件會追加“導出”按鈕到組織結構圖的容器DIV裏。</td>
     </tr>
     <tr>
+      <td>exportButtonName</td>
+      <td>string</td>
+      <td>否</td>
+      <td>"Export"</td>
+      <td>導出按鈕的名字。</td>
+    </tr>
+    <tr>
       <td>exportFilename</td>
       <td>string</td>
       <td>否</td>
@@ -462,6 +469,23 @@ Adds parent node(actullay it's always root node) for current orgchart.
 
 #### getHierarchy()
 這個方法被設計用來提供組織結構圖的層次結構關系。舉個例子，當你采取某種手段對當前的組織結構圖的結構進行了改動後，可以調用本方法獲得最新的結構，並將其保存到後台。
+
+<table>
+  <tr>
+    <th>名稱</th>
+    <th>類型</th>
+    <th>必填</th>
+    <th>默認值</th>
+    <th>描述</th>
+  </tr>
+  <tr>
+    <td>includeNodeData</td>
+    <td>Boolean</td>
+    <td>否</td>
+    <td>false</td>
+    <td>如果傳入的該參數爲true，那麽導出的層次結構對象中就加入nodeData數據。</td>
+  </tr>
+</table>
 
 #### hideParent($node)
 隱藏指定節點的父節點。當然其兄弟節點及祖先節點也一並隱藏了。

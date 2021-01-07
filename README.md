@@ -310,6 +310,13 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>It enable the export button for orgchart.</td>
     </tr>
     <tr>
+      <td>exportButtonName</td>
+      <td>string</td>
+      <td>no</td>
+      <td>"Export"</td>
+      <td>It's export button name.</td>
+    </tr>
+    <tr>
       <td>exportFilename</td>
       <td>string</td>
       <td>no</td>
@@ -471,6 +478,22 @@ Removes the designated node and its descedant nodes.
 
 #### getHierarchy()
 This method is designed to get the hierarchy relationships of orgchart for further processing. For example, after editing the orgchart, you could send the returned value of this method to server-side and save the new state of orghcart.
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>includeNodeData</td>
+    <td>Boolean</td>
+    <td>No</td>
+    <td>false</td>
+    <td>This optional parameter determines whether include the nodeData items in the generated JSON object in addition to the id and children</td>
+  </tr>
+</table>
 
 #### hideParent($node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has.
