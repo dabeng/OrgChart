@@ -124,7 +124,7 @@
       mo.observe(this.$chartContainer[0], { childList: true });
     },
     triggerLoadEvent: function ($target, rel) {
-      var initEvent = $.Event('insert-' + rel +'.orgchart');
+      var initEvent = $.Event('load-' + rel +'.orgchart');
       $target.trigger(initEvent);
     },
     triggerShowEvent: function ($target, rel) {
