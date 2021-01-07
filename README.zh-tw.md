@@ -756,6 +756,21 @@ Adds parent node(actullay it's always root node) for current orgchart.
       <td>chart</td>
       <td>當組織結構圖初始化完成時，該事件觸發。在響應事件處理器中，你可以訪問到渲染出的任意節點。</td>
     </tr>
+    <tr>
+      <td>load-[relation].orgchart</td>
+      <td></td>
+      <td>在按需請求數據場景中，每次載入新節點後，觸發該事件。<b>[relation]</b>的可選值是parent, children, siblings。</td>
+    </tr>
+    <tr>
+      <td>show-[relation].orgchart</td>
+      <td></td>
+      <td>在顯示指定節點的關聯節點時，觸發該事件。</td>
+    </tr>
+    <tr>
+      <td>hide-[relation].orgchart</td>
+      <td></td>
+      <td>在隱藏指定節點的關聯節點時，觸發該事件。</td>
+    </tr>
   </tbody>
 </table>
 

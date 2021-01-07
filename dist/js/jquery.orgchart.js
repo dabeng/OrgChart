@@ -123,6 +123,18 @@
       });
       mo.observe(this.$chartContainer[0], { childList: true });
     },
+    triggerLoadEvent: function ($target, rel) {
+      var initEvent = $.Event('insert-' + rel +'.orgchart');
+      $target.trigger(initEvent);
+    },
+    triggerShowEvent: function ($target, rel) {
+      var initEvent = $.Event('show-' + rel + '.orgchart');
+      $target.trigger(initEvent);
+    },
+    triggerHideEvent: function ($target, rel) {
+      var initEvent = $.Event('hide-' + rel + '.orgchart');
+      $target.trigger(initEvent);
+    },
     //
     attachExportButton: function () {
       var that = this;
@@ -770,6 +782,7 @@
           } else {
             that.addSiblings($edge.parent(), data.siblings ? data.siblings : data);
           }
+          that.triggerLoadEvent($edge.parent(), rel);
         }
       })
       .fail(function () {
@@ -802,8 +815,10 @@
         if (parentState.visible) {
           this.hideParent($node);
           $parent.one('transitionend', { 'topEdge': $topEdge }, this.HideFirstParentEnd.bind(this));
+          this.triggerHideEvent($node, 'parent');
         } else { // show the ancestors and siblings
           this.showParent($node);
+          this.triggerShowEvent($node, 'parent');
         }
       } else { // load the new parent node of the specified node by ajax request
         // start up loading status
@@ -826,8 +841,10 @@
         // hide the descendant nodes of the specified node
         if (childrenState.visible) {
           this.hideChildren($node);
+          this.triggerHideEvent($node, 'children');
         } else { // show the descendants
           this.showChildren($node);
+          this.triggerShowEvent($node, 'children');
         }
       } else { // load the new children nodes of the specified node by ajax request
         if (this.startLoading($bottomEdge)) {
@@ -853,21 +870,27 @@
           if ($hEdge.is('.leftEdge')) {
             if ($prevSib.is('.hidden')) {
               this.showSiblings($node, 'left');
+              this.triggerShowEvent($node,'siblings');
             } else {
               this.hideSiblings($node, 'left');
+              this.triggerHideEvent($node, 'siblings');
             }
           } else {
             if ($nextSib.is('.hidden')) {
               this.showSiblings($node, 'right');
+              this.triggerShowEvent($node,'siblings');
             } else {
               this.hideSiblings($node, 'right');
+              this.triggerHideEvent($node, 'siblings');
             }
           }
         } else {
           if (siblingsState.visible) {
             this.hideSiblings($node);
+            this.triggerHideEvent($node, 'siblings');
           } else {
             this.showSiblings($node);
+            this.triggerShowEvent($node, 'siblings');
           }
         }
       } else {

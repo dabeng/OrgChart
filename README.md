@@ -755,6 +755,21 @@ This method allow you to export current orgchart as png or pdf file.
       <td>chart</td>
       <td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td>
     </tr>
+    <tr>
+      <td>load-[relation].orgchart</td>
+      <td></td>
+      <td>This event is fired on a node after the onDemand loading completes.<b>[relation]</b> can be either parent, children or siblings.</td>
+    </tr>
+    <tr>
+      <td>show-[relation].orgchart</td>
+      <td></td>
+      <td>This event is fired when related nodes of a node become visible.</td>
+    </tr>
+    <tr>
+      <td>hide-[relation].orgchart</td>
+      <td></td>
+      <td>This event if fired when related nodes of a node are collapsed.</td>
+    </tr>
   </tbody>
 </table>
 
