@@ -1,8 +1,9 @@
 html,body {
-  width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
+  padding: 1px;
+  box-sizing: border-box;
 }
 
 body {
@@ -12,13 +13,9 @@ body {
 
 #chart-container {
   position: relative;
-  display: inline-block;
-  top: 10px;
-  left: 10px;
   height: 420px;
-  width: calc(100% - 24px);
-  border: 2px dashed #aaa;
-  border-radius: 5px;
+  border: 1px solid #aaa;
+  margin: 0.5rem;
   overflow: auto;
   text-align: center;
 }

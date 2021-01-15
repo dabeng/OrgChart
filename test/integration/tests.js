@@ -98,52 +98,53 @@ describe('orgchart -- integration tests', function () {
 
   it('addParent()', function () {
     oc.addParent($laolao, { 'name': 'Lao Ye', 'id': 'n0' });
-    $laolao.closest('.nodes').prevAll().should.lengthOf(3);
+    $laolao.closest('.nodes').siblings('.node').should.lengthOf(1);
     oc.$chart.find('.node:first').should.deep.equal($('#n0'));
   });
 
   describe('addChildren()', function () {
     it('Add child nodes to the leaf node', function () {
       oc.addChildren($bomiao, [{'name': 'Li Xin', 'id': 'n11' }]);
-      $bomiao.closest('tr').siblings().should.lengthOf(3);
-      $bomiao.closest('tr').siblings('.nodes').find('.node').attr('id').should.equal('n11');
+      $bomiao.siblings('.nodes').should.lengthOf(1);
+      $bomiao.siblings('.nodes').find('.hierarchy').should.lengthOf(1);
+      $bomiao.siblings('.nodes').find('.node').attr('id').should.equal('n11');
     });
 
     it('Add child nodes to the un-leaf node', function () {
       oc.addChildren($sumiao, [{'name': 'Li Xin', 'id': 'n11' }]);
-      $sumiao.closest('tr').siblings('.nodes').children().should.lengthOf(4);
-      $sumiao.closest('tr').siblings('.nodes').children(':last').find('.node').attr('id').should.equal('n11');
+      $sumiao.siblings('.nodes').children('.hierarchy').should.lengthOf(4);
+      $sumiao.siblings('.nodes').children('.hierarchy:last').find('.node').attr('id').should.equal('n11');
     });
   });
 
   describe('addSiblings()', function () {
     it('Just add sibling nodes', function () {
       oc.addSiblings($sumiao, [{'name': 'Li Xin', 'id': 'n11' }]);
-      $laolao.closest('tr').siblings('.nodes').children().should.lengthOf(4);
-      $laolao.closest('tr').siblings('.nodes').children(':last').find('.node').attr('id').should.equal('n11');
+      $laolao.siblings('.nodes').children('.hierarchy').should.lengthOf(4);
+      $laolao.siblings('.nodes').children('.hierarchy:last').find('.node').attr('id').should.equal('n11');
     });
 
     it('Add sibling nodes as well as parent node', function () {
       oc.addSiblings($laolao, { 'name': 'Lao Ye', 'id': 'n0', 'children': [{'name': 'Li Xin', 'id': 'n11' }] });
-      $laolao.closest('.nodes').prevAll().should.lengthOf(3);
+      $laolao.closest('.nodes').siblings('.node').should.lengthOf(1);
       oc.$chart.find('.node:first').should.deep.equal($('#n0'));
-      $laolao.closest('table').parent().siblings().should.lengthOf(1);
-      $laolao.closest('table').parent().siblings().find('.node').attr('id').should.equal('n11');
+      $laolao.closest('.hierarchy').siblings().should.lengthOf(1);
+      $laolao.closest('.hierarchy').siblings().find('.node').attr('id').should.equal('n11');
     });
   });
 
   describe('removeNodes()', function () {
     it('Remove leaf node', function () {
       oc.removeNodes($dandan);
-      $tiehua.closest('tr').siblings().should.lengthOf(0);
+      $tiehua.siblings('.nodes').should.lengthOf(0);
     });
     it('Remove parent node', function () {
       oc.removeNodes($tiehua);
-      $sumiao.closest('tr').siblings('.nodes').children().should.lengthOf(2);
+      $sumiao.siblings('.nodes').children('.hierarchy').should.lengthOf(2);
       $('#n5').should.lengthOf(0);
       $('#n8').should.lengthOf(0);
     });
-    it('Remove parent node', function () {
+    it('Remove root node', function () {
       oc.removeNodes($laolao);
       oc.$chartContainer.is(':empty').should.be.true;
     });

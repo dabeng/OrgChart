@@ -7,21 +7,25 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    .orgchart { background: #fff; }
     .orgchart .node.matched { background-color: rgba(238, 217, 54, 0.5); }
+    .orgchart .hierarchy.first-shown::before {
+      left: calc(50% - 1px);
+      width: calc(50% + 1px);
+    }
+    .orgchart .hierarchy.last-shown::before {
+      width: calc(50% + 1px);
+    }
+    .orgchart .hierarchy.first-shown.last-shown::before {
+      width: 2px;
+    }
     #edit-panel {
       text-align: center;
-      position: relative;
-      left: 10px;
-      width: calc(100% - 40px);
-      border-radius: 4px;
-      float: left;
-      margin-top: 10px;
-      padding: 10px;
-      color: #fff;
-      background-color: #449d44;
+      margin: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid #aaa;
     }
-    #edit-panel * { font-size: 20px; }
+    #edit-panel * { font-size: 1rem; }
+    button, input { padding: 0.5rem 1rem; }
   </style>
 </head>
 <body>
@@ -35,6 +39,17 @@
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
+    function loopChart ($hierarchy) {
+      var $siblings = $hierarchy.children('.nodes').children('.hierarchy');
+      if ($siblings.length) {
+        $siblings.filter(':not(.hidden)').first().addClass('first-shown')
+          .end().last().addClass('last-shown');
+      }
+      $siblings.each(function(index, sibling) {
+        loopChart($(sibling));
+      });
+    }
+
     function filterNodes(keyWord) {
     if(!keyWord.length) {
       window.alert('Please type key word firstly.');
@@ -47,29 +62,31 @@
       $chart.find('.node').filter(function(index, node) {
           return $(node).text().toLowerCase().indexOf(keyWord) > -1;
         }).addClass('matched')
-        .closest('table').parents('table').find('tr:first').find('.node').addClass('retained');
+        .closest('.hierarchy').parents('.hierarchy').children('.node').addClass('retained');
       // hide the unmatched nodes
       $chart.find('.matched,.retained').each(function(index, node) {
         $(node).removeClass('slide-up')
           .closest('.nodes').removeClass('hidden')
-          .siblings('.lines').removeClass('hidden');
-        var $unmatched = $(node).closest('table').parent().siblings().find('.node:first:not(.matched,.retained)')
-          .closest('table').parent().addClass('hidden');
-        $unmatched.parent().prev().children().slice(1, $unmatched.length * 2 + 1).addClass('hidden');
+          .siblings('.hierarchy').removeClass('isChildrenCollapsed');
+        var $unmatched = $(node).closest('.hierarchy').siblings().find('.node:first:not(.matched,.retained)')
+          .closest('.hierarchy').addClass('hidden');
       });
       // hide the redundant descendant nodes of the matched nodes
       $chart.find('.matched').each(function(index, node) {
-        if (!$(node).closest('tr').siblings(':last').find('.matched').length) {
-          $(node).closest('tr').siblings().addClass('hidden');
+        if (!$(node).siblings('.nodes').find('.matched').length) {
+          $(node).siblings('.nodes').addClass('hidden')
+            .parent().addClass('isChildrenCollapsed');
         }
       });
+      // loop chart and adjust lines
+      loopChart($chart.find('.hierarchy:first'));
     }
   }
 
   function clearFilterResult() {
     $('.orgchart').removeClass('noncollapsable')
       .find('.node').removeClass('matched retained')
-      .end().find('.hidden').removeClass('hidden')
+      .end().find('.hidden, .isChildrenCollapsed, .first-shown, .last-shown').removeClass('hidden isChildrenCollapsed first-shown last-shown')
       .end().find('.slide-up, .slide-left, .slide-right').removeClass('slide-up slide-right slide-left');
   }
 
