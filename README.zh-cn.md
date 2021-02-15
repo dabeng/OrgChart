@@ -42,7 +42,9 @@ $ npm install orgchart
 ```
 `require('orgchart')`会把orgchart插件追加到jQuery对象上。orgchart模块本身并不导出任何东西。
 
-## [gihtub pages实例集合](https://dabeng.github.io/OrgChart/) &nbsp;&nbsp; [基于嵌套table的实例集合](https://codepen.io/collection/AWxGVb/) &nbsp;&nbsp; [基于嵌套ul的实例集合](https://codepen.io/collection/nWqvzY)
+## [gihtub pages实例集合](https://dabeng.github.io/OrgChart/)
+## [基于嵌套table的实例集合](https://codepen.io/collection/AWxGVb/)
+## [基于嵌套ul的实例集合](https://codepen.io/collection/nWqvzY)
 
 ### 天马行空的需求
 - [ul数据源](https://dabeng.github.io/OrgChart/ul-datasource.html)(感谢 [Tobyee的好点子:blush:](https://github.com/dabeng/OrgChart/issues/1))
