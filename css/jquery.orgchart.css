@@ -9,11 +9,10 @@
  * http://www.opensource.org/licenses/MIT
  */
 
+ /* chart styles */
 .orgchart {
   box-sizing: border-box;
   display: inline-block;
-  min-height: 202px;
-  min-width: 202px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -23,11 +22,11 @@
   background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
   background-size: 10px 10px;
   border: 1px dashed rgba(0,0,0,0);
-  padding: 20px;
+  padding: 20px 20px 0 20px;
 }
 
 .orgchart .hidden, .orgchart~.hidden {
-  display: none;
+  display: none!important;
 }
 
 .orgchart.b2t {
@@ -38,120 +37,134 @@
   position: absolute;
   transform: rotate(-90deg) rotateY(180deg);
   transform-origin: left top;
-}
-
-.orgchart .verticalNodes ul {
-  list-style: none;
-  margin: 0;
-  padding-left: 18px;
-  text-align: left;
-}
-.orgchart .verticalNodes ul:first-child {
-  margin-top: 2px;
-}
-.orgchart .verticalNodes>td::before {
-  content: '';
-  border: 1px solid rgba(217, 83, 79, 0.8);
-}
-.orgchart .verticalNodes>td>ul>li:first-child::before {
-  box-sizing: border-box;
-  top: -4px;
-  height: 30px;
-  width: calc(50% - 2px);
-  border-width: 2px 0 0 2px;
-}
-.orgchart .verticalNodes ul>li {
-  position: relative;
-}
-.orgchart .verticalNodes ul>li::before,
-.orgchart .verticalNodes ul>li::after {
-  box-sizing: border-box;
-  content: '';
-  position: absolute;
-  left: -6px;
-  border-color: rgba(217, 83, 79, 0.8);
-  border-style: solid;
-  border-width: 0 0 2px 2px;
-}
-.orgchart .verticalNodes ul>li::before {
-  top: -4px;
-  height: 30px;
-  width: 11px;
-}
-.orgchart .verticalNodes ul>li::after {
-  top: 1px;
-  height: 100%;
-}
-.orgchart .verticalNodes ul>li:first-child::after {
-  box-sizing: border-box;
-  top: 24px;
-  width: 11px;
-  border-width: 2px 0 0 2px;
-}
-.orgchart .verticalNodes ul>li:last-child::after {
-  box-sizing: border-box;
-  border-width: 2px 0 0;
+  text-align: center;
 }
 
 .orgchart.r2l {
   position: absolute;
   transform: rotate(90deg);
   transform-origin: left top;
+  text-align: center;
 }
 
-.orgchart>.spinner::before {
+.orgchart ~ .mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  text-align: center;
+  background-color: rgba(0,0,0,0.3);
+}
+
+.orgchart ~ .mask .spinner {
+  position: absolute;
+  top: calc(50% - 50px);
+  left: calc(50% - 50px);
+}
+
+.orgchart > .spinner::before,
+.orgchart ~ .mask .spinner::before {
   width: 100px;
   height: 100px;
   border-width: 10px;
   border-radius: 50px;
-  margin-top: 30px;
   border-top-color: rgba(68, 157, 68, 0.8);
   border-bottom-color: rgba(68, 157, 68, 0.8);
   border-left-color: rgba(68, 157, 68, 0.8);
 }
 
-.orgchart table {
-  border-spacing: 0;
-  border-collapse: separate;
+.orgchart .nodes {
+  display: flex;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
 }
 
-.orgchart>table:first-child{
-  margin: 20px auto;
+.orgchart .hierarchy {
+  position: relative;
 }
 
-.orgchart td {
-  text-align: center;
-  vertical-align: top;
-  padding: 0;
-}
-
-.orgchart .lines:nth-child(3) td {
-  box-sizing: border-box;
-  height: 20px;
-}
-
-.orgchart .lines .topLine {
+/* styles of link lines */
+.orgchart .hierarchy::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 0;
+  width: 100%;
   border-top: 2px solid rgba(217, 83, 79, 0.8);
+  box-sizing: border-box;
 }
 
-.orgchart .lines .rightLine {
-  border-right: 1px solid rgba(217, 83, 79, 0.8);
-  float: none;
-  border-radius: 0;
+.orgchart .hierarchy:first-child::before,
+.orgchart .hierarchy.isSiblingsCollapsed.left-sibs::before {
+  left: calc(50% - 1px);
+  width: calc(50% + 1px);
 }
 
-.orgchart .lines .leftLine {
-  border-left: 1px solid rgba(217, 83, 79, 0.8);
-  float: none;
-  border-radius: 0;
+.orgchart .hierarchy:last-child::before,
+.orgchart .hierarchy.isSiblingsCollapsed.right-sibs::before {
+  width: calc(50% + 1px);
 }
 
-.orgchart .lines .downLine {
-  background-color: rgba(217, 83, 79, 0.8);
-  margin: 0 auto;
-  height: 20px;
+.orgchart .hierarchy:not(.hidden):only-child::before {
   width: 2px;
-  float: none;
+}
+
+.orgchart > .nodes > .hierarchy::before,
+.orgchart .isSiblingsCollapsed:not(.left-sibs):not(.right-sibs)::before,
+.orgchart .isSiblingsCollapsed.left-sibs.right-sibs::before,
+.orgchart .isSiblingsCollapsed.right-sibs:first-child:before,
+.orgchart .isSiblingsCollapsed.left-sibs:last-child:before,
+.orgchart .isCollapsedSibling::before,
+.orgchart .isCollapsedSibling .hierarchy::before,
+.orgchart .isChildrenCollapsed > .node:not(:only-child)::after,
+.orgchart .isCollapsedDescendant::before,
+.orgchart .isCollapsedDescendant > .node::before,
+.orgchart .isCollapsedDescendant > .node::after,
+.orgchart .isAncestorsCollapsed:only-child::before,
+.orgchart .isAncestorsCollapsed > .node::before {
+  content: none;
+}
+
+/* excluding leaf node */
+.orgchart .node:not(:only-child)::after {
+  content: "";
+  position: absolute;
+  bottom: -11px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 9px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart ul li .node.allowedDrop {
+  border-color: rgba(68, 157, 68, 0.9);
+}
+.orgchart ul li .node.currentDropTarget {
+  background-color: rgba(68, 157, 68, 0.9);
+}
+.orgchart ul li .node.selected {
+  background-color: rgba(238, 217, 54, 0.5);
+}
+.orgchart ul li .node:hover {
+  background-color: rgba(238, 217, 54, 0.5);
+}
+/* excluding root node */
+.orgchart > ul > li > ul li > .node::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 9px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart > ul > li > ul li.isSiblingsCollapsed > .node::before {
+  top: -13px;
+  height: 11px;
 }
 
 /* node styling */
@@ -159,7 +172,7 @@
   box-sizing: border-box;
   display: inline-block;
   position: relative;
-  margin: 0;
+  margin: 0 0 20px 0;
   padding: 3px;
   border: 2px dashed transparent;
   text-align: center;
@@ -168,22 +181,6 @@
 .orgchart.l2r .node, .orgchart.r2l .node {
   width: 50px;
   height: 140px;
-}
-
-.orgchart .node>.spinner {
-  position: absolute;
-  top: calc(50% - 1rem);
-  left: calc(50% - 1rem);
-}
-
-.orgchart .node>.spinner::before {
-  width: 2rem;
-  height: 2rem;
-  border-width: 0.2rem;
-  border-radius: 1rem;
-  border-top-color: rgba(68, 157, 68, 0.8);
-  border-bottom-color: rgba(68, 157, 68, 0.8);
-  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node:hover {
@@ -210,6 +207,22 @@
 
 .orgchart .node.allowedDrop {
   border-color: rgba(68, 157, 68, 0.9);
+}
+
+.orgchart .node > .spinner {
+  position: absolute;
+  top: calc(50% - 1rem);
+  left: calc(50% - 1rem);
+}
+
+.orgchart .node > .spinner::before {
+  width: 2rem;
+  height: 2rem;
+  border-width: 0.2rem;
+  border-radius: 1rem;
+  border-top-color: rgba(68, 157, 68, 0.8);
+  border-bottom-color: rgba(68, 157, 68, 0.8);
+  border-left-color: rgba(68, 157, 68, 0.8);
 }
 
 .orgchart .node .title {
@@ -400,64 +413,10 @@
 }
 
 .oc-export-btn {
-  display: inline-block;
   position: absolute;
-  right: 5px;
-  top: 5px;
-  padding: 6px 12px;
-  margin-bottom: 0;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.42857143;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  touch-action: manipulation;
-  cursor: pointer;
-  user-select: none;
-  color: #fff;
-  background-color: #5cb85c;
-  border: 1px solid transparent;
-  border-color: #4cae4c;
-  border-radius: 4px;
-}
-
-.oc-export-btn[disabled] {
-  cursor: not-allowed;
-  box-shadow: none;
-  opacity: 0.3;
-}
-
-.oc-export-btn:hover,.oc-export-btn:focus,.oc-export-btn:active  {
-  background-color: #449d44;
-  border-color: #347a34;
-}
-
-.orgchart~.mask {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 999;
-  text-align: center;
-  background-color: rgba(0,0,0,0.3);
-}
-
-.orgchart~.mask .spinner {
-  position: absolute;
-  top: calc(50% - 50px);
-  left: calc(50% - 50px);
-}
-
-.orgchart~.mask .spinner::before {
-  width: 100px;
-  height: 100px;
-  border-width: 10px;
-  border-radius: 50px;
-  border-top-color: rgba(68, 157, 68, 0.8);
-  border-bottom-color: rgba(68, 157, 68, 0.8);
-  border-left-color: rgba(68, 157, 68, 0.8);
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .orgchart .node {
@@ -500,7 +459,89 @@
   transform: translateX(-40px);
 }
 
-/* oci means organization chart icons */
+/* styles for vertical nodes */
+.orgchart .hierarchy.hybrid > .node {
+  margin-bottom: 0;
+}
+
+.orgchart .hierarchy.hybrid > .node::after {
+  content: none;
+}
+
+.orgchart .nodes.vertical {
+  display: block;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.orgchart .nodes.vertical .nodes {
+  list-style: none;
+  display: block;
+  margin: 0;
+  padding-left: 18px;
+  text-align: left;
+}
+
+.orgchart .nodes.vertical .node {
+  margin-bottom: 0;
+}
+
+.orgchart .nodes.vertical .node::before,
+.orgchart .nodes.vertical .node::after {
+  content: none;
+}
+
+.orgchart .nodes.vertical::before {
+  content: '';
+  display: inline-block;
+  position: relative;
+  height: 14px;
+  width: 2px;
+  left: -9px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+.orgchart .nodes.vertical > .hierarchy:first-child::before {
+  box-sizing: border-box;
+  top: -4px;
+  height: 30px;
+  width: calc(50% - 2px);
+  border-width: 2px 0 0 2px;
+}
+.orgchart .nodes.vertical .hierarchy{
+  position: relative;
+  text-align: left;
+}
+.orgchart .nodes.vertical .hierarchy::before,
+.orgchart .nodes.vertical .hierarchy::after {
+  box-sizing: border-box;
+  content: '';
+  position: absolute;
+  left: -6px;
+  border-color: rgba(217, 83, 79, 0.8);
+  border-style: solid;
+  border-width: 0 0 2px 2px;
+}
+.orgchart .nodes.vertical .hierarchy::before {
+  top: -4px;
+  height: 30px;
+  width: 11px;
+}
+.orgchart .nodes.vertical .hierarchy::after {
+  top: 1px;
+  height: 100%;
+}
+.orgchart .nodes.vertical .hierarchy:first-child::after {
+  box-sizing: border-box;
+  top: 24px;
+  width: 11px;
+  border-width: 2px 0 0 2px;
+}
+.orgchart .nodes.vertical .hierarchy:last-child::after {
+  box-sizing: border-box;
+  border-width: 2px 0 0;
+}
+
+/* custom icons for orgchart */
 .oci {
   display: inline-block;
   position: relative;

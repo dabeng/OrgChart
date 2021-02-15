@@ -8,18 +8,13 @@
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #edit-panel {
+      margin: 0.5rem;
+      padding: 0.5rem;
       text-align: center;
-      position: relative;
-      left: 10px;
-      width: calc(100% - 40px);
-      border-radius: 4px;
-      float: left;
-      margin-top: 10px;
-      padding: 10px;
-      color: #fff;
-      background-color: #449d44;
+      border: 1px solid #aaa;
     }
-    #edit-panel * { font-size: 20px; }
+    #edit-panel * { font-size: 1rem; }
+    button, input { padding: 0.5rem 1rem; }
   </style>
 </head>
 <body>
@@ -79,7 +74,7 @@
       var $selected = $('#chart-container').find('.node.focused');
       if ($selected.length) {
         $selected.parents('.nodes').children(':has(.focused)').find('.node:first').each(function(index, superior) {
-          if (!$(superior).find('.horizontalEdge:first').closest('table').parent().siblings().is('.hidden')) {
+          if (!$(superior).find('.horizontalEdge:first').closest('.node').parent().siblings().is('.hidden')) {
             $(superior).find('.horizontalEdge:first').trigger('click');
           }
         });
@@ -90,8 +85,14 @@
     });
 
     $('#btn-reset').on('click', function() {
-      $('#chart-container').find('.hidden').removeClass('hidden')
-        .end().find('.slide-up, .slide-right, .slide-left, .focused').removeClass('slide-up slide-right slide-left focused');
+      $('#chart-container')
+        .find('.hidden').removeClass('hidden')
+        .end().find('.slide-up, .slide-right, .slide-left, .focused')
+        .removeClass('slide-up slide-right slide-left focused');
+      $('#chart-container')
+        .find('.isCollapsedSibling, .isChildrenCollapsed, .isSiblingsCollapsed')
+        .removeClass('isCollapsedSibling isChildrenCollapsed isSiblingsCollapsed');
+        
       $('#btn-report-path').prop('disabled', false);
       $('#selected-node').val('');
     });
