@@ -5,7 +5,7 @@
 # [ES6版](http://github.com/dabeng/OrgChart.js)
 # [Web Components版](http://github.com/dabeng/OrgChart-Webcomponents)
 # [Vue.js版](https://github.com/dabeng/vue-orgchart)
-# [Angular版 -- the most space-saving solution](https://github.com/dabeng/ng-orgchart)
+# [Angular版 -- 最節省空間的解決方案](https://github.com/dabeng/ng-orgchart)
 # [React版](https://github.com/dabeng/react-orgchart)
 
 ## 寫在前面的話

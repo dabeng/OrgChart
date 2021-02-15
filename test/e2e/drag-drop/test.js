@@ -15,55 +15,68 @@ const heihei = page.heihei;
 const pangpang = page.pangpang;
 const dandan = page.dandan;
 
-const findNextNode = node => node.parent(3).nextSibling().find('.title').textContent;
-const findOnlyChild = node => node.parent(1).sibling(':last-child').find('.title').textContent;
-const getChildrenCount = node => node.parent(1).sibling(':last-child').childElementCount;
-const getDescendantsCount = node => node.parent(1).sibling(':last-child').find('.node').count;
-
 test('drag lixin onto hongmiao', async t => {
   await t
-      .dragToElement(lixin, hongmiao)
-      .expect(hongmiao.parent(1).sibling().count).eql(3)
-      .expect(findOnlyChild(hongmiao)).eql('Li Xin')
-      .expect(bomiao.parent(1).sibling().count).eql(0);
+    .dragToElement(lixin, hongmiao)
+    .expect(hongmiao.sibling('.nodes').count).eql(1)
+    .expect(hongmiao.sibling('.nodes').find('.node').withText('Li Xin').count).eql(1)
+    .expect(bomiao.sibling('.nodes').count).eql(0);
 });
 
 test('drag lixin onto heihei', async t => {
   await t
-      .dragToElement(lixin, heihei)
-      .expect(getChildrenCount(heihei)).eql(3)
-      .expect(findNextNode(dandan)).eql('Li Xin')
-      .expect(bomiao.parent(1).sibling().count).eql(0);
+    .dragToElement(lixin, heihei)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').count).eql(3)
+    .expect(heihei.sibling('.nodes').find('.node').withText('Li Xin').count).eql(1)
+    .expect(bomiao.sibling('.nodes').count).eql(0);
 });
 
 test('heihei onto hongmiao', async t => {
   await t
-      .dragToElement(heihei, hongmiao)
-      .expect(getDescendantsCount(hongmiao)).eql(3)
-      .expect(findOnlyChild(hongmiao)).eql('Hei Hei')
-      .expect(findOnlyChild(sumiao)).eql('Tie Hua');
+    .dragToElement(heihei, hongmiao)
+    .expect(hongmiao.sibling('.nodes').count).eql(1)
+    .expect(hongmiao.sibling('.nodes').find('.node').count).eql(3)
+    .expect(hongmiao.sibling('.nodes').child('.hierarchy').withText('Hei Hei').count).eql(1)
+    .expect(sumiao.sibling('.nodes').find('.node').withText('Tie Hua').count).eql(1);
 });
 
 test('heihei onto bomiao', async t => {
   await t
-      .dragToElement(heihei, bomiao)
-      .expect(getDescendantsCount(bomiao)).eql(4)
-      .expect(findNextNode(lixin)).eql('Hei Hei')
-      .expect(findOnlyChild(sumiao)).eql('Tie Hua');
+    .dragToElement(heihei, bomiao)
+    .expect(bomiao.sibling('.nodes').find('.node').count).eql(4)
+    .expect(bomiao.sibling('.nodes').child('.hierarchy').withText('Hei Hei').count).eql(1)
+    .expect(sumiao.sibling('.nodes').child('.hierarchy').withText('Tie Hua').count).eql(1);
 });
 
 test('pangpang onto heihei', async t => {
   await t
-      .dragToElement(pangpang, heihei)
-      .expect(getChildrenCount(heihei)).eql(2)
-      .expect(findNextNode(dandan)).eql('Pang Pang');
+    .dragToElement(pangpang, heihei)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').count).eql(2)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').withText('Pang Pang').count).eql(1);
 });
 
 test('dandan onto heihei', async t => {
   await t
-      .dragToElement(dandan, heihei)
-      .expect(getChildrenCount(heihei)).eql(2)
-      .expect(findNextNode(pangpang)).eql('Dan Dan');
+    .dragToElement(dandan, heihei)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').count).eql(2)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').withText('Dan Dan').count).eql(1);
+});
+
+test('pangpang onto dandan', async t => {
+  await t
+    .dragToElement(pangpang, dandan)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').count).eql(1)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').withText('Dan Dan').count).eql(1)
+    .expect(dandan.sibling('.nodes').child('.hierarchy').count).eql(1)
+    .expect(dandan.sibling('.nodes').child('.hierarchy').withText('Pang Pang').count).eql(1);
+});
+
+test('heihei onto pangpang', async t => {
+  await t
+    .dragToElement(heihei, pangpang)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').count).eql(2)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').withText('Pang Pang').count).eql(1)
+    .expect(heihei.sibling('.nodes').child('.hierarchy').withText('Dan Dan').count).eql(1);
 });
 
 // test('hongmiao onto lixin', async t => {

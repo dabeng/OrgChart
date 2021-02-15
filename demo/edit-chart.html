@@ -7,72 +7,28 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { background-color: #eee; height: 500px; }
-    .orgchart { background: #fff; }
+    #chart-container { height: 500px; }
     .orgchart.edit-state .edge { display: none; }
     .orgchart .node .title { height: 30px; line-height: 30px; }
-    #edit-panel {
-      position: relative;
-      left: 10px;
-      width: calc(100% - 40px);
-      border-radius: 4px;
-      float: left;
-      margin-top: 10px;
-      padding: 10px;
-      color: #fff;
-      background-color: #449d44;
-    }
-    #edit-panel .btn-inputs::before {
-      background-color: #fff;
-      color: #449d44;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 0.75rem;
-      font-size: 1.5rem;
-    }
+    #edit-panel { margin: 0.5rem; padding: 0.5rem; border: 1px solid #aaa; }
+    #edit-panel .btn-inputs { width: 2rem; padding: 0; font-size: 1.5rem; }
     #edit-panel .btn-inputs { vertical-align: sub; }
     #edit-panel.edit-parent-node .btn-inputs { display: none; }
-    #edit-panel .btn-inputs:hover::before { font-weight: bolder; }
     #edit-panel.edit-state>:not(#chart-state-panel) { display: none; }
     #edit-panel label { font-weight: bold; }
     #edit-panel.edit-parent-node .selected-node-group { display: none; }
-    #chart-state-panel, #selected-node, #btn-remove-input { margin-right: 20px; }
-    #edit-panel button {
-      color: #333;
-      background-color: #fff;
-      display: inline-block;
-      padding: 6px 12px;
-      margin-bottom: 0;
-      line-height: 1.42857143;
-      text-align: center;
-      white-space: nowrap;
-      vertical-align: middle;
-      -ms-touch-action: manipulation;
-      touch-action: manipulation;
-      cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      background-image: none;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+    #chart-state-panel, #selected-node, #btn-remove-input { margin-right: 1rem; }
+    #edit-panel button, #edit-panel input { padding: 0.5rem 1rem; font-size: 1rem; }
     #edit-panel.edit-parent-node button:not(#btn-add-nodes) { display: none; }
-    #edit-panel button:hover,.edit-panel button:focus,.edit-panel button:active {
-      border-color: #eea236;
-      box-shadow:  0 0 10px #eea236;
-    }
     #new-nodelist {
       display: inline-block;
       list-style:none;
-      margin-top: -2px;
+      margin-top: -0.5rem;
       padding: 0;
       vertical-align: text-top;
     }
     #new-nodelist>* { padding-bottom: 4px; }
-    .radio-panel input[type='radio'] { display: inline-block;height: 24px;width: 24px;vertical-align: top; }
-    #edit-panel.view-state .radio-panel input[type='radio']+label { vertical-align: -webkit-baseline-middle; }
+    .radio-panel input[type='radio'] { height: 1.25rem; width: 1.25rem; vertical-align: text-bottom; }
     #btn-add-nodes { margin-left: 20px; }
   </style>
 </head>
@@ -89,8 +45,8 @@
     <ul id="new-nodelist">
       <li><input type="text" class="new-node"></li>
     </ul>
-    <i class="oci oci-plus-circle btn-inputs" id="btn-add-input"></i>
-    <i class="oci oci-minus-circle btn-inputs" id="btn-remove-input"></i>
+    <button class="btn-inputs" id="btn-add-input">+</button>
+    <button class="btn-inputs" id="btn-remove-input">-</button>
     <span id="node-type-panel" class="radio-panel">
       <input type="radio" name="node-type" id="rd-parent" value="parent"><label for="rd-parent">Parent(root)</label>
       <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>
@@ -144,8 +100,8 @@
       $('.orgchart').toggleClass('edit-state', this.value !== 'view');
       $('#edit-panel').toggleClass('edit-state', this.value === 'view');
       if ($(this).val() === 'edit') {
-        $('.orgchart').find('tr').removeClass('hidden')
-          .find('td').removeClass('hidden')
+        $('.orgchart').find('.hidden').removeClass('hidden')
+          .end().find('.hierarchy').removeClass('isCollapsedDescendant isChildrenCollapsed isSiblingsCollapsed isCollapsedSibling')
           .find('.node').removeClass('slide-up slide-down slide-right slide-left');
       } else {
         $('#btn-reset').trigger('click');
@@ -204,13 +160,13 @@
         if (!$chartContainer.children('.orgchart').length) {// if the original chart has been deleted
           oc = $chartContainer.orgchart({
             'data' : { 'name': nodeVals[0] },
+            'chartClass': 'edit-state',
             'exportButton': true,
             'exportFilename': 'SportsChart',
             'createNode': function($node, data) {
               $node[0].id = getId();
             }
           });
-          oc.$chart.addClass('view-state');
         } else {
           oc.addParent($chartContainer.find('.node:first'), { 'name': nodeVals[0], 'id': getId() });
         }
@@ -223,14 +179,13 @@
             return { 'name': item, 'relationship': '110', 'id': getId() };
           }));
       } else {
-        var hasChild = $node.parent().attr('colspan') > 0 ? true : false;
-        if (!hasChild) {
+        if (!$node.siblings('.nodes').length) {
           var rel = nodeVals.length > 1 ? '110' : '100';
           oc.addChildren($node, nodeVals.map(function (item) {
               return { 'name': item, 'relationship': rel, 'id': getId() };
             }));
         } else {
-          oc.addSiblings($node.closest('tr').siblings('.nodes').find('.node:first'), nodeVals.map(function (item) {
+          oc.addSiblings($node.siblings('.nodes').find('.node:first'), nodeVals.map(function (item) {
               return { 'name': item, 'relationship': '110', 'id': getId() };
             }));
         }

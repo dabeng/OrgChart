@@ -16,32 +16,32 @@ const wudan = page.wudan;
 
 test('toggle the vertical nodes', async t => {
   await t
-      .click(dandan.find('.toggleBtn'))
-      .expect(erdan.visible).ok()
-      .expect(sandan.visible).ok()
-      .expect(sidan.visible).notOk()
-      .expect(wudan.visible).notOk()
-      .click(heihei.find('.toggleBtn'))
-      .expect(pangpang.visible).notOk()
-      .expect(dandan.visible).notOk()
-      .expect(erdan.visible).notOk()
-      .expect(sandan.visible).notOk()
-      .click(heihei.find('.toggleBtn'))
-      .expect(pangpang.visible).ok()
-      .expect(dandan.visible).ok();
+    .click(dandan.find('.toggleBtn'))
+    .expect(erdan.visible).ok()
+    .expect(sandan.visible).ok()
+    .expect(sidan.visible).notOk()
+    .expect(wudan.visible).notOk()
+    .click(heihei.find('.toggleBtn'))
+    .expect(pangpang.visible).notOk()
+    .expect(dandan.visible).notOk()
+    .expect(erdan.visible).notOk()
+    .expect(sandan.visible).notOk()
+    .click(heihei.find('.toggleBtn'))
+    .expect(pangpang.visible).ok()
+    .expect(dandan.visible).ok();
 });
 
 test('toggle the vertical nodes by cicking horizontal nodes', async t => {
   await t
-      .hover(sumiao)
-      .click(sumiao.find('.bottomEdge'))
-      .expect(tiehua.visible).notOk()
-      .expect(heihei.visible).notOk()
-      .expect(pangpang.visible).notOk()
-      .expect(dandan.visible).notOk()
-      .click(sumiao.find('.bottomEdge'))
-      .expect(tiehua.visible).ok()
-      .expect(heihei.visible).ok()
-      .expect(pangpang.visible).ok()
-      .expect(dandan.visible).ok();
+    .hover(sumiao)
+    .click(sumiao.find('.bottomEdge'))
+    .expect(tiehua.visible).notOk()
+    .expect(heihei.visible).notOk()
+    .expect(pangpang.visible).notOk()
+    .expect(dandan.visible).notOk()
+    .click(sumiao.find('.bottomEdge'))
+    .expect(tiehua.visible).ok()
+    .expect(heihei.visible).ok()
+    .expect(pangpang.visible).notOk()
+    .expect(dandan.visible).notOk();
 });

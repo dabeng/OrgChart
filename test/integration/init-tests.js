@@ -18,16 +18,16 @@ describe('orgchart -- integration tests', function () {
       { 'id': 'n3', 'name': 'Su Miao' }
     ]
   },
-  fragment = '<div class="orgchart"><table><tr><td colspan="4"><div id="n1" class="node">' +
-    '<div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
-    '</td></tr><tr class="lines"><td colspan="4"><div class="downLine"></div></td></tr>' +
-    '<tr class="lines"><td class="rightLine"></td><td class="leftLine topLine"></td>' +
-    '<td class="rightLine topLine"></td><td class="leftLine"></td></tr><tr class="nodes"><td colspan="2"><table><tr><td>' +
-    '<div id="n2" data-parent="n1" class="node"><div class="title">Bo Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
-    '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i></div></td></tr></table></td>' +
-    '<td colspan="2"><table><tr><td><div id="n3" data-parent="n1" class="node"><div class="title">Su Miao</div>' +
-    '<i class="edge verticalEdge topEdge oci"></i><i class="edge horizontalEdge rightEdge oci"></i>' +
-    '<i class="edge horizontalEdge leftEdge oci"></i></div></td></tr></table></td></tr></table></div>',
+  fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
+    '<div id="n1" class="node"><div class="title"><i class="oci oci-leader symbol">' +
+    '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes">' +
+    '<li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
+    '<div class="title">Bo Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
+    '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci">' +
+    '</i></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
+    '<div class="title">Su Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
+    '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci">' +
+    '</i></div></li></ul></li></ul></div>',
   oc = {};
     
   afterEach(function () {
@@ -66,27 +66,22 @@ describe('orgchart -- integration tests', function () {
         'data': ds,
         'visibleLevel': 1
       });
-      oc.$chart.find('tr').eq(0).is('.hidden').should.be.false;
-      oc.$chart.find('tr').eq(1).is('.hidden').should.be.true;
-      oc.$chart.find('tr').eq(2).is('.hidden').should.be.true;
-      oc.$chart.find('tr').eq(3).is('.hidden').should.be.true;
+      oc.$chart.find('.hierarchy:first').is('.hidden').should.be.false;
+      oc.$chart.find('.nodes').eq(1).is('.hidden').should.be.true;
+      oc.$chart.find('.node.slide-up').should.lengthOf(2);
     });
 
     it('initialize chart with the given vertical level', function () {
-      var fragment = 
-        '<tr class="verticalNodes">' +
-         '<td>' +
-           '<ul>' +
-             '<li><div id="n2" data-parent="n1" class="node"><div class="title">Bo Miao</div></div></li>' +
-             '<li><div id="n3" data-parent="n1" class="node"><div class="title">Su Miao</div></div></li>' +
-            '</ul>'+
-          '</td>'+
-        '</tr>';
+      var fragment = '<li class="hierarchy hybrid"><div id="n1" class="node"><div class="title">' +
+        '<i class="oci oci-leader symbol"></i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci">' +
+        '</i></div><ul class="nodes vertical"><li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
+        '<div class="title">Bo Miao</div></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
+        '<div class="title">Su Miao</div></div></li></ul></li>';
       oc = $container.orgchart({
         'data': ds,
         'verticalLevel': 2
       });
-      oc.$chart.find('tr').eq(1).prop('outerHTML').should.equal(fragment);
+      oc.$chart.find('.nodes:first').html().should.equal(fragment);
     });
 
     context('initialize chart with various combinations of "visibleLevel" and "verticalLevel" ', function () {
@@ -105,11 +100,16 @@ describe('orgchart -- integration tests', function () {
       };
 
       it('verticalLevel=2 and visibleLevel=1', function () {
-        var fragment = '<div class="orgchart"><table><tr><td colspan="4"><div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
-          '<i class="edge verticalEdge bottomEdge oci"></i></div></td></tr><tr class="verticalNodes hidden"><td><ul><li><div class="node slide-up">' +
-          '<div class="title">Bo Miao</div></div></li><li><div class="node slide-up"><div class="title">Su Miao</div>' +
-          '<i class="toggleBtn oci oci-plus-square"></i></div><ul class="hidden"><li><div class="node slide-up"><div class="title">Tie Hua</div></div></li>' +
-          '<li><div class="node slide-up"><div class="title">Hei Hei</div></div></li></ul></li></ul></td></tr></table></div>';
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+          '<div class="node"><div class="title"><i class="oci oci-leader symbol">' +
+          '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
+          '<ul class="nodes hidden vertical"><li class="hierarchy"><div class="node slide-up">' +
+          '<div class="title">Bo Miao</div></div></li><li class="hierarchy">' +
+          '<div class="node slide-up"><div class="title">Su Miao</div>' +
+          '<i class="toggleBtn oci oci-plus-square"></i></div><ul class="nodes hidden">' +
+          '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div>' +
+          '</div></li><li class="hierarchy"><div class="node slide-up">' +
+          '<div class="title">Hei Hei</div></div></li></ul></li></ul></li></ul></div>';
         oc = $container.orgchart({
           'data': ds,
           'verticalLevel': 2,
@@ -119,11 +119,15 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=2', function () {
-        var fragment = '<div class="orgchart"><table><tr><td colspan="4"><div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
-          '<i class="edge verticalEdge bottomEdge oci"></i></div></td></tr><tr class="verticalNodes"><td><ul><li><div class="node">' +
-          '<div class="title">Bo Miao</div></div></li><li><div class="node"><div class="title">Su Miao</div><i class="toggleBtn oci oci-plus-square"></i></div>' +
-          '<ul class="hidden"><li><div class="node slide-up"><div class="title">Tie Hua</div></div></li><li><div class="node slide-up">' +
-          '<div class="title">Hei Hei</div></div></li></ul></li></ul></td></tr></table></div>';
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+          '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
+          '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
+          '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
+          '<li class="hierarchy"><div class="node"><div class="title">Su Miao</div>' +
+          '<i class="toggleBtn oci oci-plus-square"></i></div><ul class="nodes hidden">' +
+          '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div></div>' +
+          '</li><li class="hierarchy"><div class="node slide-up"><div class="title">Hei Hei</div>' +
+          '</div></li></ul></li></ul></li></ul></div>';
         oc = $container.orgchart({
           'data': ds,
           'verticalLevel': 2,
@@ -133,11 +137,15 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=3', function () {
-        var fragment = '<div class="orgchart"><table><tr><td colspan="4"><div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
-          '<i class="edge verticalEdge bottomEdge oci"></i></div></td></tr><tr class="verticalNodes"><td><ul><li><div class="node">' +
-          '<div class="title">Bo Miao</div></div></li><li><div class="node"><div class="title">Su Miao</div><i class="toggleBtn oci oci-minus-square"></i></div>' +
-          '<ul><li><div class="node"><div class="title">Tie Hua</div></div></li><li><div class="node"><div class="title">Hei Hei</div></div>' +
-          '</li></ul></li></ul></td></tr></table></div>';
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+          '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
+          '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
+          '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
+          '<li class="hierarchy"><div class="node"><div class="title">Su Miao</div>' +
+          '<i class="toggleBtn oci oci-minus-square"></i></div><ul class="nodes">' +
+          '<li class="hierarchy"><div class="node"><div class="title">Tie Hua</div></div>' +
+          '</li><li class="hierarchy"><div class="node"><div class="title">Hei Hei</div></div>' +
+          '</li></ul></li></ul></li></ul></div>';
         oc = $container.orgchart({
           'data': ds,
           'verticalLevel': 2,

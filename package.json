@@ -35,10 +35,10 @@
   },
   "homepage": "https://github.com/dabeng/OrgChart#readme",
   "dependencies": {
-    "html2canvas": "^1.0.0-rc.5",
-    "jquery": "^3.4.1",
-    "jquery-mockjax": "^2.5.0",
-    "jspdf": "^1.5.3"
+    "html2canvas": "^1.0.0-rc.7",
+    "jquery": "^3.5.0",
+    "jquery-mockjax": "^2.6.0",
+    "jspdf": "^2.3.0"
   },
   "devDependencies": {
     "browser-sync": "^2.26.7",
