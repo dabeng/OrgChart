@@ -748,25 +748,38 @@
     },
     // determines how to show arrow buttons 
     nodeEnterLeaveHandler: function (event) {
-      var $node = $(event.delegateTarget), flag = false;
-      var $topEdge = $node.children('.topEdge');
-      var $rightEdge = $node.children('.rightEdge');
-      var $bottomEdge = $node.children('.bottomEdge');
-      var $leftEdge = $node.children('.leftEdge');
-      if (event.type === 'mouseenter') {
-        if ($topEdge.length) {
-          flag = this.getNodeState($node, 'parent').visible;
-          $topEdge.toggleClass('oci-chevron-up', !flag).toggleClass('oci-chevron-down', flag);
-        }
-        if ($bottomEdge.length) {
-          flag = this.getNodeState($node, 'children').visible;
-          $bottomEdge.toggleClass('oci-chevron-down', !flag).toggleClass('oci-chevron-up', flag);
-        }
-        if ($leftEdge.length) {
-          this.switchHorizontalArrow($node);
+      var $node = $(event.delegateTarget);
+      var flag = false;
+      if ($node.closest('.nodes.vertical').length) {
+        var $toggleBtn = $node.children('.toggleBtn');
+        if (event.type === 'mouseenter') {
+          if ($node.children('.toggleBtn').length) {
+            flag = this.getNodeState($node, 'children').visible;
+            $toggleBtn.toggleClass('oci-plus-square', !flag).toggleClass('oci-minus-square', flag);
+          }
+        } else {
+          $toggleBtn.removeClass('oci-plus-square oci-minus-square');
         }
       } else {
-        $node.children('.edge').removeClass('oci-chevron-up oci-chevron-down oci-chevron-right oci-chevron-left');
+        var $topEdge = $node.children('.topEdge');
+        var $rightEdge = $node.children('.rightEdge');
+        var $bottomEdge = $node.children('.bottomEdge');
+        var $leftEdge = $node.children('.leftEdge');
+        if (event.type === 'mouseenter') {
+          if ($topEdge.length) {
+            flag = this.getNodeState($node, 'parent').visible;
+            $topEdge.toggleClass('oci-chevron-up', !flag).toggleClass('oci-chevron-down', flag);
+          }
+          if ($bottomEdge.length) {
+            flag = this.getNodeState($node, 'children').visible;
+            $bottomEdge.toggleClass('oci-chevron-down', !flag).toggleClass('oci-chevron-up', flag);
+          }
+          if ($leftEdge.length) {
+            this.switchHorizontalArrow($node);
+          }
+        } else {
+          $node.children('.edge').removeClass('oci-chevron-up oci-chevron-down oci-chevron-right oci-chevron-left');
+        }
       }
     },
     //
@@ -1270,8 +1283,8 @@
       var flags = data.relationship || '';
       if (opts.verticalLevel && level >= opts.verticalLevel) {
         if ((level + 1) > opts.verticalLevel && Number(flags.substr(2,1))) {
-          var icon = level + 1 > opts.visibleLevel ? 'plus' : 'minus';
-          $nodeDiv.append('<i class="toggleBtn oci oci-' + icon + '-square"></i>');
+          $nodeDiv.append('<i class="toggleBtn oci"></i>')
+            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
         }
       } else {
         if (Number(flags.substr(0,1))) {
@@ -1368,11 +1381,17 @@
     // exposed method
     addChildren: function ($node, data) {
       this.buildChildNode($node.closest('.hierarchy'), data);
-      if (!$node.children('.bottomEdge').length) {
-        $node.append('<i class="edge verticalEdge bottomEdge oci"></i>');
-      }
       if (!$node.find('.symbol').length) {
         $node.children('.title').prepend('<i class="oci '+ this.options.parentNodeSymbol + ' symbol"></i>');
+      }
+      if ($node.closest('.nodes.vertical').length) {
+        if (!$node.children('.toggleBtn').length) {
+          $node.append('<i class="toggleBtn oci"></i>');
+        }
+      } else {
+        if (!$node.children('.bottomEdge').length) {
+          $node.append('<i class="edge verticalEdge bottomEdge oci"></i>');
+        }
       }
       if (this.isInAction($node)) {
         this.switchVerticalArrow($node.children('.bottomEdge'));
