@@ -16,11 +16,13 @@ const wudan = page.wudan;
 
 test('toggle the vertical nodes', async t => {
   await t
+    .hover(dandan)
     .click(dandan.find('.toggleBtn'))
     .expect(erdan.visible).ok()
     .expect(sandan.visible).ok()
     .expect(sidan.visible).notOk()
     .expect(wudan.visible).notOk()
+    .hover(heihei)
     .click(heihei.find('.toggleBtn'))
     .expect(pangpang.visible).notOk()
     .expect(dandan.visible).notOk()

@@ -105,8 +105,8 @@ describe('orgchart -- integration tests', function () {
           '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
           '<ul class="nodes hidden vertical"><li class="hierarchy"><div class="node slide-up">' +
           '<div class="title">Bo Miao</div></div></li><li class="hierarchy">' +
-          '<div class="node slide-up"><div class="title">Su Miao</div>' +
-          '<i class="toggleBtn oci oci-plus-square"></i></div><ul class="nodes hidden">' +
+          '<div class="node slide-up"><div class="title"><i class="oci oci-leader symbol"></i>Su Miao</div>' +
+          '<i class="toggleBtn oci"></i></div><ul class="nodes hidden">' +
           '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div>' +
           '</div></li><li class="hierarchy"><div class="node slide-up">' +
           '<div class="title">Hei Hei</div></div></li></ul></li></ul></li></ul></div>';
@@ -123,8 +123,8 @@ describe('orgchart -- integration tests', function () {
           '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
-          '<li class="hierarchy"><div class="node"><div class="title">Su Miao</div>' +
-          '<i class="toggleBtn oci oci-plus-square"></i></div><ul class="nodes hidden">' +
+          '<li class="hierarchy"><div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Su Miao</div>' +
+          '<i class="toggleBtn oci"></i></div><ul class="nodes hidden">' +
           '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div></div>' +
           '</li><li class="hierarchy"><div class="node slide-up"><div class="title">Hei Hei</div>' +
           '</div></li></ul></li></ul></li></ul></div>';
@@ -141,8 +141,8 @@ describe('orgchart -- integration tests', function () {
           '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
-          '<li class="hierarchy"><div class="node"><div class="title">Su Miao</div>' +
-          '<i class="toggleBtn oci oci-minus-square"></i></div><ul class="nodes">' +
+          '<li class="hierarchy"><div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Su Miao</div>' +
+          '<i class="toggleBtn oci"></i></div><ul class="nodes">' +
           '<li class="hierarchy"><div class="node"><div class="title">Tie Hua</div></div>' +
           '</li><li class="hierarchy"><div class="node"><div class="title">Hei Hei</div></div>' +
           '</li></ul></li></ul></li></ul></div>';
