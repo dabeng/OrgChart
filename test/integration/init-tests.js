@@ -181,7 +181,7 @@ describe('orgchart -- integration tests', function () {
         'data': ds,
         'exportButton': true
       });
-      $container.children('button').prop('outerHTML').should.equal('<button class="oc-export-btn">Export</button>');
+      $('.oc-export-btn').prop('outerHTML').should.equal('<button class="oc-export-btn">Export</button>');
     });
 
     it('initialize chart with "bottom to top" direction', function () {

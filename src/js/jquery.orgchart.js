@@ -89,7 +89,7 @@
       $chartContainer.append($chart);
 
       // append the export button
-      if (this.options.exportButton && !$chartContainer.find('.oc-export-btn').length) {
+      if (this.options.exportButton && !$('.oc-export-btn').length) {
         this.attachExportButton();
       }
 
@@ -136,18 +136,18 @@
       var initEvent = $.Event('hide-' + rel + '.orgchart');
       $target.trigger(initEvent);
     },
-    //
+    // add export button for orgchart
     attachExportButton: function () {
       var that = this;
       var $exportBtn = $('<button>', {
-        'class': 'oc-export-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : ''),
+        'class': 'oc-export-btn',
         'text': this.options.exportButtonName,
         'click': function(e) {
           e.preventDefault();
           that.export();
         }
       });
-      this.$chartContainer.append($exportBtn);
+      this.$chartContainer.after($exportBtn);
     },
     setOptions: function (opts, val) {
       if (typeof opts === 'string') {
@@ -693,7 +693,7 @@
       $edge.parent().append('<i class="oci oci-spinner spinner"></i>')
         .children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
-      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', true);
+      $('.oc-export-btn').prop('disabled', true);
       return true;
     },
     // terminate loading status for requesting new nodes
@@ -703,7 +703,7 @@
       $node.find('.spinner').remove();
       $node.children().removeAttr('style');
       this.$chart.data('inAjax', false);
-      $('.oc-export-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '')).prop('disabled', false);
+      $('.oc-export-btn').prop('disabled', false);
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
@@ -1461,7 +1461,7 @@
             .end().end().remove();
         }
       } else { // if $node is root node
-        $wrapper.closest('.orgchart').siblings('.oc-export-btn').addBack().remove();
+        $wrapper.closest('.orgchart').remove();
       }
     },
     //

@@ -413,9 +413,7 @@
 }
 
 .oc-export-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  margin-left: 0.5rem;
   padding: 0.5rem 1rem;
 }
 
