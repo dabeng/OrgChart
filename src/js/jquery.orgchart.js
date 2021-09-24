@@ -736,8 +736,8 @@
       } else {
         var $sibs = $node.parent().siblings();
         var sibsVisible = $sibs.length ? !$sibs.is('.hidden') : false;
-        $node.children('.leftEdge').toggleClass('oci-chevron-right', sibsVisible).toggleClass('oci-chevron-left', !sibsVisible);
-        $node.children('.rightEdge').toggleClass('oci-chevron-left', sibsVisible).toggleClass('oci-chevron-right', !sibsVisible);
+        $node.children('.leftEdge').toggleClass('oci-chevron-left', !sibsVisible);
+        $node.children('.rightEdge').toggleClass('oci-chevron-right', !sibsVisible);
       }
     },
     //
