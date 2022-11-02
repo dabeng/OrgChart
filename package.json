@@ -59,7 +59,7 @@
     "jest-cli": "^24.9.0",
     "jest-image-snapshot": "^2.11.0",
     "jest-puppeteer": "^4.3.0",
-    "jsdom": "^11.12.0",
+    "jsdom": "^16.5.0",
     "jsdom-global": "^3.0.2",
     "merge-stream": "^1.0.1",
     "mocha": "^6.2.0",
