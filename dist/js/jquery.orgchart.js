@@ -471,6 +471,15 @@
       }
       return { 'exist': false, 'visible': false };
     },
+    getParent: function ($node) {
+      return this.getRelatedNodes($node, 'parent');
+    },
+    getChildren: function ($node) {
+      return this.getRelatedNodes($node, 'children');
+    },
+    getSiblings: function ($node) {
+      return this.getRelatedNodes($node, 'siblings');
+    },
     // find the related nodes
     getRelatedNodes: function ($node, relation) {
       if (!$node || !($node instanceof $) || !$node.is('.node')) {
@@ -1041,7 +1050,7 @@
         event.originalEvent.dataTransfer.dropEffect = 'none';
       } else {
         // default action for drag-and-drop of div is not to drop, so preventing default action for nodes which have allowedDrop class
-        //to fix drag and drop on IE and Edge		
+        //to fix drag and drop on IE and Edge
         event.preventDefault();
       }
     },
@@ -1059,7 +1068,7 @@
         this.$chart.triggerHandler({ 'type': 'otherdropped.orgchart', 'draggedItem': $dragged, 'dropZone': $dropZone });
         return;
       }
-      
+
       if (!$dropZone.hasClass('allowedDrop')) {
           // We are trying to drop a node into a node which isn't allowed
           // IE/Edge have a habit of allowing this, so we need our own double-check
