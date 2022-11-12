@@ -1,6 +1,6 @@
 {
   "name": "orgchart",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Simple and direct organization chart(tree-like hierarchy) plugin based on pure DOM and jQuery.",
   "main": "./dist/js/jquery.orgchart.min.js",
   "style": [
@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "test": "gulp test",
+    "unit-tests": "gulp unit-tests",
     "build": "gulp build",
     "start": "gulp serve"
   },

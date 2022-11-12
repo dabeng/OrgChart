@@ -184,7 +184,8 @@ describe('orgchart -- unit tests', function () {
 
   it('getRelatedNodes()', function () {
     oc.getRelatedNodes().should.deep.equal($());
-    oc.getRelatedNodes($('td:first'), 'children').should.deep.equal($());
+    oc.getRelatedNodes({}, 'children').should.deep.equal($());
+    oc.getRelatedNodes($('.hierarchy:first'), 'children').should.deep.equal($());
     oc.getRelatedNodes($('.node:first'), 'child').should.deep.equal($());
 
     oc.getRelatedNodes($laolao, 'parent').should.deep.equal($());
@@ -194,6 +195,37 @@ describe('orgchart -- unit tests', function () {
     oc.getRelatedNodes($bomiao, 'parent').should.deep.equal($laolao);
     oc.getRelatedNodes($bomiao, 'children').should.have.lengthOf(0);
     oc.getRelatedNodes($bomiao, 'siblings').toArray().should.members([$sumiao[0], $hongmiao[0]]);
+  });
+
+  it('getParent()', function () {
+    oc.getParent().should.deep.equal($());
+    oc.getParent({}).should.deep.equal($());
+    oc.getParent($('.hierarchy:first')).should.deep.equal($());
+
+    oc.getParent($laolao).should.deep.equal($());
+    oc.getParent($bomiao).should.deep.equal($laolao);
+    oc.getParent($sandan).should.deep.equal($pangpang);
+  });
+
+  it('getSiblings()', function () {
+    oc.getSiblings().should.deep.equal($());
+    oc.getSiblings({}).should.deep.equal($());
+    oc.getSiblings($('.hierarchy:first')).should.deep.equal($());
+
+    oc.getSiblings($laolao).should.deep.equal($());
+    oc.getSiblings($bomiao).toArray().should.members([$sumiao[0], $hongmiao[0]]);
+    oc.getSiblings($sandan).should.deep.equal($());
+  });
+
+  it('getChildren()', function () {
+    oc.getChildren().should.deep.equal($());
+    oc.getChildren({}).should.deep.equal($());
+    oc.getChildren($('.hierarchy:first')).should.deep.equal($());
+
+    oc.getChildren($laolao).toArray().should.members([$bomiao[0], $sumiao[0], $hongmiao[0]]);
+    oc.getChildren($bomiao).should.deep.equal($());
+    oc.getChildren($sumiao).toArray().should.members([$tiehua[0], $heihei[0], $pangpang[0]]);
+    oc.getChildren($sandan).should.deep.equal($());
   });
 
   it('hideParent()', function () {

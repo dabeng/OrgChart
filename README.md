@@ -685,6 +685,63 @@ This method returns you the nodes related to the specified node.
   </tr>
 </table>
 
+#### getParent($node)
+This method returns you the parent node of the specified node.
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td></td>
+    <td>It's the desired JQuery Object to know its parent node</td>
+  </tr>
+</table>
+
+#### getSiblings($node)
+This method returns you the sibling nodes of the specified node.
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td></td>
+    <td>It's the desired JQuery Object to know its sibling nodes</td>
+  </tr>
+</table>
+
+#### getChildren($node)
+This method returns you the child nodes of the specified node.
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>$node</td>
+    <td>JQuery Object</td>
+    <td>Yes</td>
+    <td></td>
+    <td>It's the desired JQuery Object to know its child nodes</td>
+  </tr>
+</table>
+
 #### setChartScale($chart, newScale)
 This method helps you set the specified chart with new scale.
 <table>
