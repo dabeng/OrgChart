@@ -133,6 +133,10 @@ It's not a big deal. You just turn to the method init().
 
 No problem. With the help of ES6 Template literals, we can customize the any complex node structure rather than the common title and content sections.
 
+- [I want to position node in specific level. How can i do that ?](https://dabeng.github.io/OrgChart/level-offset.html)
+
+You need the solution based on new datasource structure with levelOffset prop + callback createNode() + CSS custom properties(variables)
+
 ### how to start up demos locally
 
 - you have to install node.js v6+ because our unit tests are based on jsdom v11
