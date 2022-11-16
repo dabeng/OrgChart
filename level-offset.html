@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datasource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'department manager', 'levelOffset': 1 },
+        { 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'name': 'Dan Dan', 'title': 'engineer' }
+              ]
+            },
+            { 'name': 'Pang Pang', 'title': 'senior engineer', 'levelOffset': 1 }
+          ]
+        },
+        { 'name': 'Hong Miao', 'title': 'department manager', 'levelOffset': 2 }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datasource,
+      'nodeContent': 'title',
+      'createNode': function(node, data) {
+        if (data.levelOffset) {
+          node.css({
+            'margin-top': (data.levelOffset * 70) + 'px',
+            '--top': (-11 - data.levelOffset * 70) + 'px',
+            '--height': (9 + data.levelOffset * 70) + 'px',
+            '--top-cross-point': (-13 - data.levelOffset * 70) + 'px',
+            '--height-cross-point': (11 + data.levelOffset * 70) + 'px'
+          });
+        }
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>

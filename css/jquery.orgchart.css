@@ -155,16 +155,16 @@
 .orgchart > ul > li > ul li > .node::before {
   content: "";
   position: absolute;
-  top: -11px;
+  top: var(--top, -11px);
   left: calc(50% - 1px);
   width: 2px;
-  height: 9px;
+  height: var(--height, 9px);
   background-color: rgba(217, 83, 79, 0.8);
 }
 
 .orgchart > ul > li > ul li.isSiblingsCollapsed > .node::before {
-  top: -13px;
-  height: 11px;
+  top: var(--top-cross-point, -13px);
+  height: var(--height-cross-point, 11px);
 }
 
 /* node styling */
