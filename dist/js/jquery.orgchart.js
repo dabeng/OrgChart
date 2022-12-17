@@ -1015,6 +1015,40 @@
           origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
       }
     },
+    // get the level amount of a hierachy
+    getUpperLevel: function ($node) {
+      if (!$node.is('.node')) {
+        return 0;
+      }
+      return $node.parents('.hierarchy').length;
+    },
+    // get the level amount of a hierachy
+    getLowerLevel: function ($node) {
+      if (!$node.is('.node')) {
+        return 0;
+      }
+      return $node.closest('.hierarchy').find('.nodes').length + 1;
+    },
+    // get nodes in level order traversal
+    getLevelOrderNodes: function ($root) {
+      if(!$root) return [];
+      var queue = [];
+      var output = [];
+      queue.push($root);
+      while(queue.length) {
+        var row = [];
+        for(var i = 0; i < queue.length; i++) {
+            var cur = queue.shift();
+            var children = this.getChildren(cur);
+            if(children.length) {
+              queue.push(children.toArray().flat());
+            }
+            row.push($(cur));
+        }
+        output.push(row);
+      }
+      return output;
+    },
     //
     filterAllowedDropNodes: function ($dragged) {
       var opts = this.options;
