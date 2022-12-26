@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart .nodes {
+      justify-content: center;
+    }
+    .orgchart .node .title {
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datasource = {
+      'name': 'Lao Lao',
+      'title': 'Lorem ipsum dolor sit amet',
+      'children': [
+        { 'name': 'Bo Miao', 'title': 'consectetur adipiscing elit' },
+        { 'name': 'Su Miao', 'title': 'Nulla accumsan, metus ultrices eleifend gravida',
+          'children': [
+            { 'name': 'Tie Hua', 'title': 'nulla nunc varius lectus, nec rutrum justo nibh eu lectus' },
+            { 'name': 'Hei Hei', 'title': 'Ut vulputate semper dui',
+              'children': [
+                { 'name': 'Dan Dan', 'title': 'Fusce erat odio, sollicitudin vel erat vel' }
+              ]
+            },
+            { 'name': 'Pang Pang', 'title': 'interdum mattis neque' }
+          ]
+        },
+        { 'name': 'Hong Miao', 'title': 'Curabitur accumsan turpis pharetra augue tincidunt blandit' }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datasource,
+      'nodeContent': 'title'
+    });
+
+  });
+  </script>
+  </body>
+</html>
