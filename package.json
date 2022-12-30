@@ -63,7 +63,7 @@
     "jsdom": "^16.5.0",
     "jsdom-global": "^3.0.2",
     "merge-stream": "^1.0.1",
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "puppeteer": "^1.20.0",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0",
