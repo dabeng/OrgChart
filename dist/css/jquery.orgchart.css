@@ -402,6 +402,8 @@
   position: absolute;
   left: 5px;
   bottom: -2px;
+  width: 1rem;
+  height: 1rem;
 }
 
 .orgchart .node .toggleBtn::before {

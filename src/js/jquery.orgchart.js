@@ -958,7 +958,7 @@
         $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
       } else {
         $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
-        $descendants.find('.toggleBtn').removeClass('oci-minus-square').addClass('oci-plus-square');
+        $descendants.find('.toggleBtn').removeClass('oci-minus-square oci-plus-square');
       }
     },
     //

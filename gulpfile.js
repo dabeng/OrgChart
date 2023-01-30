@@ -9,7 +9,7 @@ var merge = require('merge-stream');
 var csslint = require('gulp-csslint');
 var cleanCSS = require('gulp-clean-css');
 var sourcemaps = require('gulp-sourcemaps');
-var testcafe = require('gulp-testcafe');
+var cypress = require('cypress');
 var jest = require('gulp-jest').default;
 var paths = {
   src: 'src',
@@ -65,8 +65,9 @@ gulp.task('visual-regression', function () {
 });
 
 gulp.task('e2e-tests', gulp.series('addAssets', function () {
-  return gulp.src('test/e2e/**/test.js')
-    .pipe(testcafe({ browsers: ['chrome:headless', 'firefox:headless'] }));
+  return cypress.run({
+    spec: 'test/cypress/e2e/**/*.cy.js',
+  });
 }));
 
 gulp.task('test', gulp.series('e2e-tests', 'visual-regression'));

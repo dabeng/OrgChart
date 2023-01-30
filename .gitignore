@@ -20,3 +20,7 @@ node_modules/
 
 # System Files
 .DS_Store
+
+# e2e testing files
+test/cypress/screenshots
+test/cypress/videos

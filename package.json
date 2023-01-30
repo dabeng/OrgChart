@@ -10,7 +10,8 @@
     "test": "gulp test",
     "unit-tests": "gulp unit-tests",
     "build": "gulp build",
-    "start": "gulp serve"
+    "start": "gulp serve",
+    "cypress:open": "cypress open"
   },
   "jest": {
     "preset": "jest-puppeteer"
@@ -44,6 +45,7 @@
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "chai": "^4.2.0",
+    "cypress": "^12.3.0",
     "del": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^3.10.0",
@@ -54,11 +56,10 @@
     "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp-testcafe": "^0.9.2",
     "gulp-uglify": "^3.0.2",
     "jest": "^29.3.1",
     "jest-cli": "^29.3.1",
-    "jest-image-snapshot": "^2.11.0",
+    "jest-image-snapshot": "^6.1.0",
     "jest-puppeteer": "^4.3.0",
     "jsdom": "^16.5.0",
     "jsdom-global": "^3.0.2",
@@ -66,7 +67,6 @@
     "mocha": "^10.2.0",
     "puppeteer": "^1.20.0",
     "sinon": "^4.5.0",
-    "sinon-chai": "^2.14.0",
-    "testcafe": "^1.5.0"
+    "sinon-chai": "^2.14.0"
   }
 }
