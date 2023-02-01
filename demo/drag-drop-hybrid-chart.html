@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { height:  620px; }
-    .orgchart { padding-bottom: 20px; }
+    #chart-container { height: 600px; }
+    .orgchart { background: #fff; }
   </style>
 </head>
 <body>
@@ -16,10 +16,11 @@
 
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/json-digger.js"></script>
   <script type="text/javascript">
     $(function() {
 
-    var datascource = {
+      var datascource = {
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
@@ -60,11 +61,18 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
-      'verticalLevel': 3,
-      'visibleLevel': 4
+      'draggable': true,
+      'verticalLevel': 3
+    });
+
+    oc.$chart.on('nodedrop.orgchart', function(event, extraParams) {
+      console.log('draggedNode:' + extraParams.draggedNode.children('.title').text()
+        + ', dragZone:' + extraParams.dragZone.children('.title').text()
+        + ', dropZone:' + extraParams.dropZone.children('.title').text()
+      );
     });
 
   });
