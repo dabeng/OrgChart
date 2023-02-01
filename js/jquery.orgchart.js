@@ -958,7 +958,7 @@
         $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
       } else {
         $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
-        $descendants.find('.toggleBtn').removeClass('oci-minus-square').addClass('oci-plus-square');
+        $descendants.find('.toggleBtn').removeClass('oci-minus-square oci-plus-square');
       }
     },
     //
@@ -1015,6 +1015,40 @@
           origEvent.dataTransfer.setDragImage(ghostNode, xOffset, yOffset);
       }
     },
+    // get the level amount of a hierachy
+    getUpperLevel: function ($node) {
+      if (!$node.is('.node')) {
+        return 0;
+      }
+      return $node.parents('.hierarchy').length;
+    },
+    // get the level amount of a hierachy
+    getLowerLevel: function ($node) {
+      if (!$node.is('.node')) {
+        return 0;
+      }
+      return $node.closest('.hierarchy').find('.nodes').length + 1;
+    },
+    // get nodes in level order traversal
+    getLevelOrderNodes: function ($root) {
+      if(!$root) return [];
+      var queue = [];
+      var output = [];
+      queue.push($root);
+      while(queue.length) {
+        var row = [];
+        for(var i = 0; i < queue.length; i++) {
+            var cur = queue.shift();
+            var children = this.getChildren(cur);
+            if(children.length) {
+              queue.push(children.toArray().flat());
+            }
+            row.push($(cur));
+        }
+        output.push(row);
+      }
+      return output;
+    },
     //
     filterAllowedDropNodes: function ($dragged) {
       var opts = this.options;
@@ -1060,6 +1094,7 @@
     },
     // when user drops the node, it will be removed from original parent node and be added to new parent node
     dropHandler: function (event) {
+      var that = this;
       var $dropZone = $(event.delegateTarget);
       var $dragged = this.$chart.data('dragged');
 
@@ -1081,6 +1116,25 @@
       if (dropEvent.isDefaultPrevented()) {
         return;
       }
+      // special process for hybrid chart
+      if (this.$chart.data('options').verticalLevel > 1) {
+        var datasource = this.$chart.data('options').data;
+        var digger = new JSONDigger(datasource, this.$chart.data('options').nodeId, 'children');
+        digger.findNodeById($dragged.data('nodeData').id).then(function(draggedNode) {
+          var copy = Object.assign({}, draggedNode)
+          digger.removeNode(draggedNode.id).then(function() {
+            digger.findNodeById($dropZone.data('nodeData').id).then(function(dropNode) {
+              if (dropNode.children) {
+                dropNode.children.push(copy);
+              } else {
+                dropNode.children = [copy];
+              }
+              that.init({ 'data': datasource });
+            });
+          });
+        });
+      } else {
+      // The folowing code snippets are used to process horizontal chart
       // firstly, deal with the hierarchy of drop zone
       if (!$dropZone.siblings('.nodes').length) { // if the drop zone is a leaf node
         $dropZone.append('<i class="edge verticalEdge bottomEdge oci"></i>')
@@ -1108,6 +1162,7 @@
         $dragZone.find('.bottomEdge, .symbol').remove()
           .end().siblings('.nodes').remove();
       }
+    }
     },
     //
     touchstartHandler: function (event) {
