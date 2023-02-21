@@ -48,7 +48,8 @@ gulp.task('addAssets', gulp.series('integration-tests', function () {
       'node_modules/jquery/dist/jquery.min.js',
       'node_modules/jquery-mockjax/dist/jquery.mockjax.min.js',
       'node_modules/html2canvas/dist/html2canvas.min.js',
-      'node_modules/jspdf/dist/jspdf.umd.min.js'
+      'node_modules/jspdf/dist/jspdf.umd.min.js',
+      'node_modules/json-digger/dist/json-digger.js'
     ])
     .pipe(gulp.dest(paths.demoJSFolder));
 

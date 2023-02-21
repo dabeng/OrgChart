@@ -72,7 +72,7 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('initialize chart with the given vertical level', function () {
-      var fragment = '<li class="hierarchy hybrid"><div id="n1" class="node"><div class="title">' +
+      var fragment = '<li class="hierarchy"><div id="n1" class="node"><div class="title">' +
         '<i class="oci oci-leader symbol"></i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci">' +
         '</i></div><ul class="nodes vertical"><li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
         '<div class="title">Bo Miao</div></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
@@ -100,7 +100,7 @@ describe('orgchart -- integration tests', function () {
       };
 
       it('verticalLevel=2 and visibleLevel=1', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-leader symbol">' +
           '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
           '<ul class="nodes hidden vertical"><li class="hierarchy"><div class="node slide-up">' +
@@ -119,7 +119,7 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=2', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
@@ -137,7 +137,7 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=3', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy hybrid">' +
+        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-leader symbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +

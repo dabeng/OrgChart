@@ -460,17 +460,9 @@
 }
 
 /* styles for vertical nodes */
-.orgchart .hierarchy.hybrid > .node {
-  margin-bottom: 0;
-}
-
-.orgchart .hierarchy.hybrid > .node::after {
-  content: none;
-}
 
 .orgchart .nodes.vertical {
   display: block;
-  margin: 0;
   padding-left: 18px;
 }
 
@@ -491,19 +483,10 @@
   content: none;
 }
 
-.orgchart .nodes.vertical::before {
-  content: '';
-  display: inline-block;
-  position: relative;
-  height: 14px;
-  width: 2px;
-  left: -9px;
-  background-color: rgba(217, 83, 79, 0.8);
-}
 .orgchart .nodes.vertical > .hierarchy:first-child::before {
   box-sizing: border-box;
-  top: -4px;
-  height: 30px;
+  top: -11px;
+  height: 35px;
   width: calc(50% - 2px);
   border-width: 2px 0 0 2px;
 }
