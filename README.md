@@ -135,7 +135,15 @@ No problem. With the help of ES6 Template literals, we can customize the any com
 
 - [I want to position node in specific level. How can i do that ?](https://dabeng.github.io/OrgChart/level-offset.html)
 
-You need the solution based on new datasource structure with levelOffset prop + callback createNode() + CSS custom properties(variables)
+You need the solution based on new datasource structure with levelOffset data prop + callback createNode() + CSS custom properties(variables)
+
+- [I want a orgchart with nodes of different widths](https://dabeng.github.io/OrgChart/nodes-of-different-widths.html)
+
+- [I want to drag&drop in the hybrid chart](https://dabeng.github.io/OrgChart/drag-drop-hybrid-chart.html)
+
+- [ I only want specific children of a certain branch of the chart to be displayed as vertical. Is it possible to set VerticalLevel by data?](https://dabeng.github.io/OrgChart/isHybrid.html)
+
+isVertical data property is designed for your use case. Once a node has a "isVertical" prop with truthy value, its descendant nodes will be arranged vertically.
 
 ### how to start up demos locally
 
