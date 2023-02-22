@@ -373,6 +373,9 @@
       data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
       if (data.children) {
         data.children.forEach(function(item) {
+          if (data.isHybrid || data.isVertical) {
+            item.isVertical = true;
+          }
           that.attachRel(item, '1' + (data.children.length > 1 ? 1 : 0));
         });
       }
@@ -1093,7 +1096,7 @@
       this.$chart.find('.allowedDrop').removeClass('allowedDrop');
     },
     // when user drops the node, it will be removed from original parent node and be added to new parent node
-    dropHandler: function (event) {
+    dropHandler: async function (event) {
       var that = this;
       var $dropZone = $(event.delegateTarget);
       var $dragged = this.$chart.data('dragged');
@@ -1117,52 +1120,50 @@
         return;
       }
       // special process for hybrid chart
-      if (this.$chart.data('options').verticalLevel > 1) {
-        var datasource = this.$chart.data('options').data;
-        var digger = new JSONDigger(datasource, this.$chart.data('options').nodeId, 'children');
-        digger.findNodeById($dragged.data('nodeData').id).then(function(draggedNode) {
-          var copy = Object.assign({}, draggedNode)
-          digger.removeNode(draggedNode.id).then(function() {
-            digger.findNodeById($dropZone.data('nodeData').id).then(function(dropNode) {
-              if (dropNode.children) {
-                dropNode.children.push(copy);
-              } else {
-                dropNode.children = [copy];
-              }
-              that.init({ 'data': datasource });
-            });
-          });
-        });
-      } else {
-      // The folowing code snippets are used to process horizontal chart
-      // firstly, deal with the hierarchy of drop zone
-      if (!$dropZone.siblings('.nodes').length) { // if the drop zone is a leaf node
-        $dropZone.append('<i class="edge verticalEdge bottomEdge oci"></i>')
-          .after('<ul class="nodes"></ul>')
-          .siblings('.nodes').append($dragged.find('.horizontalEdge').remove().end().closest('.hierarchy'));
-        if ($dropZone.children('.title').length) {
-          $dropZone.children('.title').prepend('<i class="oci '+  this.$chart.data('options').parentNodeSymbol + ' symbol"></i>');
+      var datasource = this.$chart.data('options').data;
+      var digger = new JSONDigger(datasource, this.$chart.data('options').nodeId, 'children');
+      const hybridNode = digger.findOneNode({ 'isHybrid': true });
+      if (this.$chart.data('options').verticalLevel > 1 || hybridNode) {
+        var draggedNode = digger.findNodeById($dragged.data('nodeData').id);
+        var copy = Object.assign({}, draggedNode);
+        digger.removeNode(draggedNode.id);
+        var dropNode = digger.findNodeById($dropZone.data('nodeData').id);
+        if (dropNode.children) {
+          dropNode.children.push(copy);
+        } else {
+          dropNode.children = [copy];
         }
+        that.init({ 'data': datasource });
       } else {
-        var horizontalEdges = '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>';
-        if (!$dragged.find('.horizontalEdge').length) {
-          $dragged.append(horizontalEdges);
+        // The folowing code snippets are used to process horizontal chart
+        // firstly, deal with the hierarchy of drop zone
+        if (!$dropZone.siblings('.nodes').length) { // if the drop zone is a leaf node
+          $dropZone.append('<i class="edge verticalEdge bottomEdge oci"></i>')
+            .after('<ul class="nodes"></ul>')
+            .siblings('.nodes').append($dragged.find('.horizontalEdge').remove().end().closest('.hierarchy'));
+          if ($dropZone.children('.title').length) {
+            $dropZone.children('.title').prepend('<i class="oci '+  this.$chart.data('options').parentNodeSymbol + ' symbol"></i>');
+          }
+        } else {
+          var horizontalEdges = '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>';
+          if (!$dragged.find('.horizontalEdge').length) {
+            $dragged.append(horizontalEdges);
+          }
+          $dropZone.siblings('.nodes').append($dragged.closest('.hierarchy'));
+          var $dropSibs = $dragged.closest('.hierarchy').siblings().find('.node:first');
+          if ($dropSibs.length === 1) {
+            $dropSibs.append(horizontalEdges);
+          }
         }
-        $dropZone.siblings('.nodes').append($dragged.closest('.hierarchy'));
-        var $dropSibs = $dragged.closest('.hierarchy').siblings().find('.node:first');
-        if ($dropSibs.length === 1) {
-          $dropSibs.append(horizontalEdges);
+        // secondly, deal with the hierarchy of dragged node
+        if ($dragZone.siblings('.nodes').children('.hierarchy').length === 1) { // if there is only one sibling node left
+          $dragZone.siblings('.nodes').children('.hierarchy').find('.node:first')
+            .find('.horizontalEdge').remove();
+        } else if ($dragZone.siblings('.nodes').children('.hierarchy').length === 0) {
+          $dragZone.find('.bottomEdge, .symbol').remove()
+            .end().siblings('.nodes').remove();
         }
       }
-      // secondly, deal with the hierarchy of dragged node
-      if ($dragZone.siblings('.nodes').children('.hierarchy').length === 1) { // if there is only one sibling node left
-        $dragZone.siblings('.nodes').children('.hierarchy').find('.node:first')
-          .find('.horizontalEdge').remove();
-      } else if ($dragZone.siblings('.nodes').children('.hierarchy').length === 0) {
-        $dragZone.find('.bottomEdge, .symbol').remove()
-          .end().siblings('.nodes').remove();
-      }
-    }
     },
     //
     touchstartHandler: function (event) {
@@ -1345,9 +1346,14 @@
       $nodeDiv.data('nodeData', nodeData);
       // append 4 direction arrows or expand/collapse buttons
       var flags = data.relationship || '';
-      if (opts.verticalLevel && level >= opts.verticalLevel) {
-        if ((level + 1) > opts.verticalLevel && Number(flags.substr(2,1))) {
+      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.isVertical) {
+        if (Number(flags.substr(2,1))) {
           $nodeDiv.append('<i class="toggleBtn oci"></i>')
+            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
+        }
+      } else if (data.isHybrid) {
+        if (Number(flags.substr(2,1))) {
+          $nodeDiv.append('<i class="edge verticalEdge bottomEdge oci"></i>')
             .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
         }
       } else {
@@ -1396,25 +1402,20 @@
       }
       // Construct the node
       if (Object.keys(data).length > 2) {
-        var $nodeDiv = this.createNode(data);
-        if (opts.verticalLevel && level >= opts.verticalLevel) {
-          $appendTo.append($nodeDiv);
-        } else {
-          $appendTo.append($nodeDiv);
-        }
+        $appendTo.append(this.createNode(data));
       }
       // Construct the "inferior nodes"
       if (data.children && data.children.length) {
         var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
-        var isVerticalLayer = opts.verticalLevel && (level + 1) >= opts.verticalLevel;
         var $nodesLayer;
-        if (isVerticalLayer) {
+        if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.isHybrid) {
           $nodesLayer = $('<ul class="nodes">');
-          if (isHidden && level + 1 >= opts.verticalLevel) {
+          if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
             $nodesLayer.addClass('hidden');
           }
-          if (level + 1 === opts.verticalLevel) {
-            $appendTo.addClass('hybrid').append($nodesLayer.addClass('vertical'));
+          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.isHybrid)
+            && !$appendTo.closest('.vertical').length) {
+              $appendTo.append($nodesLayer.addClass('vertical'));
           } else {
             $appendTo.append($nodesLayer);
           }
