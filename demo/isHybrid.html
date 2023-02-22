@@ -34,7 +34,7 @@
                 { 'id': '7', 'name': 'Dan Dan', 'title': 'UE engineer' ,
                 'children': [
                   { 'id': '8', 'name': 'Er Dan', 'title': 'engineer' },
-                  { 'id': '9', 'name': 'San Dan', 'title': 'engineer', 'isHybrid': true,
+                  { 'id': '9', 'name': 'San Dan', 'title': 'engineer',
                     'children': [
                       { 'id': '10', 'name': 'Si Dan', 'title': 'intern' },
                       { 'id': '11', 'name': 'Wu Dan', 'title': 'intern' }
@@ -61,7 +61,8 @@
 
     $('#chart-container').orgchart({
       'data' : datascource,
-      'nodeContent': 'title'
+      'nodeContent': 'title',
+      'verticalLevel': 5
     });
 
   });

@@ -1413,8 +1413,9 @@
           if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
             $nodesLayer.addClass('hidden');
           }
-          if ((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.isHybrid) {
-            $appendTo.append($nodesLayer.addClass('vertical'));
+          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.isHybrid)
+            && !$appendTo.closest('.vertical').length) {
+              $appendTo.append($nodesLayer.addClass('vertical'));
           } else {
             $appendTo.append($nodesLayer);
           }
