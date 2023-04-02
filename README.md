@@ -89,7 +89,9 @@ Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canva
 
 - [I wanna export the orgchart with nodes containing pictures](https://dabeng.github.io/OrgChart/export-chart-with-pictures.html)
 
-You need to set crossorigin to Anonymous for your img tags.
+You need to set crossorigin to anonymous for your img tags.
+
+![export-chart-with-pictures](http://dabeng.github.io/OrgChart/img/export-chart-with-pictures.png)
 
 - [I wanna itegrate organization chart with geographic information](https://dabeng.github.io/OrgChart/integrate-map.html)
 
