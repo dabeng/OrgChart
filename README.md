@@ -87,6 +87,10 @@ Here, we need the help from [html2canvas](https://github.com/niklasvh/html2canva
 
 (3) Besides, if you wanna export a pdf format or your orgchart includes picture, you have to introduce [jspdf](https://github.com/MrRio/jsPDF) and set "exportFileextension" option to "pdf".
 
+- [I wanna export the orgchart with nodes containing pictures](https://dabeng.github.io/OrgChart/export-chart-with-pictures.html)
+
+You need to set crossorigin to Anonymous for your img tags.
+
 - [I wanna itegrate organization chart with geographic information](https://dabeng.github.io/OrgChart/integrate-map.html)
 
 Here, we fall back on [OpenLayers](https://github.com/openlayers/ol3). It's the most aewsome open-source js library for Web GIS you sholdn't miss.

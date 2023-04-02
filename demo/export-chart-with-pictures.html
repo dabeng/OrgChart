@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container {
+      height: 550px;
+    }
+    .orgchart .node .title {
+      height: unset;
+      text-align: left;
+      line-height: 40px;
+      width: 150px;
+    }
+    .orgchart .node .content {
+      text-align: left;
+      padding: 5px;
+    }
+    .orgchart .node .content .symbol {
+      color: #aaa;
+      margin-right: 20px;
+    }
+    .oci-leader::before, .oci-leader::after {
+      background-color: rgba(217, 83, 79, 0.8);
+    }
+    .orgchart .node .avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      float: left;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/html2canvas.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datascource = {
+      'id': '1',
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'id': '7', 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+              ]
+            }
+          ]
+        },
+        { 'id': '8', 'name': 'Yu Jie', 'title': 'department manager' },
+        { 'id': '9', 'name': 'Yu Li', 'title': 'department manager' },
+        { 'id': '10', 'name': 'Hong Miao', 'title': 'department manager' },
+        { 'id': '11', 'name': 'Yu Wei', 'title': 'department manager' },
+        { 'id': '12', 'name': 'Chun Miao', 'title': 'department manager' },
+        { 'id': '13', 'name': 'Yu Tie', 'title': 'department manager' }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'exportButton': true,
+      'exportFilename': 'MyOrgChart',
+      'data' : datascource,
+      'nodeContent': 'title',
+      'nodeID': 'id',
+      'createNode': function($node, data) {
+        $node.find('.title').append(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+        $node.find('.content').prepend($node.find('.symbol'));
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>
