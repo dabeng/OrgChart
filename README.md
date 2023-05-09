@@ -157,6 +157,8 @@ You need the solution based on new datasource structure with **levelOffset data 
 
 **isVertical data property** is designed for your use case. Once a node has a "isVertical" prop with truthy value, its descendant nodes will be arranged vertically.
 
+- [I want to replace built-in icons with Font Awesome icons](https://dabeng.github.io/OrgChart/drag-drop-hybrid-chart.html)
+
 ### how to start up demos locally
 
 - you have to install node.js v6+ because our unit tests are based on jsdom v11
@@ -383,6 +385,28 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>no</td>
       <td></td>
       <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
+    </tr>
+    <tr>
+      <td>icons</td>
+      <td>json</td>
+      <td>no</td>
+      <td></td>
+      <td>Users can use this option to plug Font Awesome icons back in.
+        <pre>
+          <code>
+            'icons': {
+              'theme': 'fa-solid fa-sm',
+              'parentNode': 'fa-user-tie',
+              'expandToUp': 'fa-angles-up',
+              'collapseToDown': 'fa-angles-down',
+              'collapseToLeft': 'fa-angles-left',
+              'expandToRight': 'fa-angles-right',
+              'collapsed': 'fa-circle-plus',
+              'expanded': 'fa-circle-minus'
+            }
+          </code>
+        </pre>
+      </td>
     </tr>
   </tbody>
 </table>
