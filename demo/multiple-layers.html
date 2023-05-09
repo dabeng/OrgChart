@@ -11,8 +11,8 @@
     .orgchart .drill-icon {
       transition: opacity .5s;
       opacity: 0;
-      right: -10px;
-      top: -10px;
+      right: -8px;
+      top: -8px;
       z-index: 2;
       position: absolute;
     }
@@ -92,7 +92,7 @@
         if ($node.is('.drill-down')) {
           var assoClass = data.className.match(/asso-\w+/)[0];
           var drillDownIcon = $('<i>', {
-            'class': 'oci oci-arrow-circle-down drill-icon',
+            'class': 'oci oci-arrow-square-down drill-icon',
             'click': function() {
               $('#chart-container').find('.orgchart:visible').addClass('hidden');
               if (!$('#chart-container').find('.orgchart.' + assoClass).length) {
@@ -106,7 +106,7 @@
         } else if ($node.is('.drill-up')) {
           var assoClass = data.className.match(/asso-\w+/)[0];
           var drillUpIcon = $('<i>', {
-            'class': 'oci oci-arrow-circle-up drill-icon',
+            'class': 'oci oci-arrow-square-up drill-icon',
             'click': function() {
               $('#chart-container').find('.orgchart:visible').addClass('hidden').end()
                 .find('.drill-down.' + assoClass).closest('.orgchart').removeClass('hidden');

@@ -21,6 +21,17 @@
     this.$chartContainer = $(elem);
     this.opts = opts;
     this.defaultOptions = {
+      'icons': {
+        'theme': 'oci',
+        'parentNode': 'oci-menu',
+        'expandToUp': 'oci-chevron-up',
+        'collapseToDown': 'oci-chevron-down',
+        'collapseToLeft': 'oci-chevron-left',
+        'expandToRight': 'oci-chevron-right',
+        'collapsed': 'oci-plus-square',
+        'expanded': 'oci-minus-square',
+        'spinner': 'oci-spinner'
+      },
       'nodeTitle': 'name',
       'nodeId': 'id',
       'toggleSiblingsResp': false,
@@ -30,7 +41,6 @@
       'exportButtonName': 'Export',
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
-      'parentNodeSymbol': 'oci-leader',
       'draggable': false,
       'direction': 't2b',
       'pan': false,
@@ -71,7 +81,7 @@
           this.buildHierarchy($root, this.options.ajaxURL ? data : this.attachRel(data, '00'));
         }
       } else {
-        $chart.append('<i class="oci oci-spinner spinner"></i>');
+        $chart.append(`<i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i>`);
         $.ajax({
           'url': data,
           'dataType': 'json'
@@ -568,7 +578,7 @@
         $animatedNodes.closest('.hierarchy').addClass('isCollapsedDescendant');
       }
       if ($lowerLevel.is('.vertical') || $lowerLevel.find('.vertical').length) {
-        $animatedNodes.find('.oci-minus-square').removeClass('oci-minus-square').addClass('oci-plus-square');
+        $animatedNodes.find(this.options.icons.expanded).removeClass(this.options.icons.expanded).addClass(this.options.icons.collapsed);
       }
       this.repaint($animatedNodes.get(0));
       $animatedNodes.addClass('sliding slide-up').eq(0).one('transitionend', { 'animatedNodes': $animatedNodes, 'lowerLevel': $lowerLevel, 'node': $node }, this.hideChildrenEnd.bind(this));
@@ -647,7 +657,7 @@
       event.data.visibleNodes.removeClass('sliding');
       if (this.isInAction($node)) {
         this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('oci-chevron-up').addClass('oci-chevron-down');
+        $node.children('.topEdge').removeClass(this.options.icons.expandToUp).addClass(this.options.icons.collapseToDown);
       }
     },
     //
@@ -702,7 +712,7 @@
       }
 
       $edge.addClass('hidden');
-      $edge.parent().append('<i class="oci oci-spinner spinner"></i>')
+      $edge.parent().append(`<i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i>`)
         .children().not('.spinner').css('opacity', 0.2);
       $chart.data('inAjax', true);
       $('.oc-export-btn').prop('disabled', true);
@@ -719,11 +729,16 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
-      return $node.children('.edge').attr('class').indexOf('oci-') > -1 ? true : false;
+      return [
+        this.options.icons.expandToUp,
+        this.options.icons.collapseToDown,
+        this.options.icons.collapseToLeft,
+        this.options.icons.expandToRight
+      ].some((icon) => $node.children('.edge').attr('class').indexOf(icon) > -1);
     },
     //
     switchVerticalArrow: function ($arrow) {
-      $arrow.toggleClass('oci-chevron-up').toggleClass('oci-chevron-down');
+      $arrow.toggleClass(`${this.options.icons.expandToUp} ${this.options.icons.collapseToDown}`);
     },
     //
     switchHorizontalArrow: function ($node) {
@@ -732,24 +747,24 @@
         var $prevSib = $node.parent().prev();
         if ($prevSib.length) {
           if ($prevSib.is('.hidden')) {
-            $node.children('.leftEdge').addClass('oci-chevron-left').removeClass('oci-chevron-right');
+            $node.children('.leftEdge').addClass(opts.icons.collapseToLeft).removeClass(opts.icons.expandToRight);
           } else {
-            $node.children('.leftEdge').addClass('oci-chevron-right').removeClass('oci-chevron-left');
+            $node.children('.leftEdge').addClass(opts.icons.expandToRight).removeClass(opts.icons.collapseToLeft);
           }
         }
         var $nextSib = $node.parent().next();
         if ($nextSib.length) {
           if ($nextSib.is('.hidden')) {
-            $node.children('.rightEdge').addClass('oci-chevron-right').removeClass('oci-chevron-left');
+            $node.children('.rightEdge').addClass(opts.icons.expandToRight).removeClass(opts.icons.collapseToLeft);
           } else {
-            $node.children('.rightEdge').addClass('oci-chevron-left').removeClass('oci-chevron-right');
+            $node.children('.rightEdge').addClass(opts.icons.collapseToLeft).removeClass(opts.icons.expandToRight);
           }
         }
       } else {
         var $sibs = $node.parent().siblings();
         var sibsVisible = $sibs.length ? !$sibs.is('.hidden') : false;
-        $node.children('.leftEdge').toggleClass('oci-chevron-right', sibsVisible).toggleClass('oci-chevron-left', !sibsVisible);
-        $node.children('.rightEdge').toggleClass('oci-chevron-left', sibsVisible).toggleClass('oci-chevron-right', !sibsVisible);
+        $node.children('.leftEdge').toggleClass(opts.icons.expandToRight, sibsVisible).toggleClass(opts.icons.collapseToLeft, !sibsVisible);
+        $node.children('.rightEdge').toggleClass(opts.icons.collapseToLeft, sibsVisible).toggleClass(opts.icons.expandToRight, !sibsVisible);
       }
     },
     //
@@ -767,10 +782,10 @@
         if (event.type === 'mouseenter') {
           if ($node.children('.toggleBtn').length) {
             flag = this.getNodeState($node, 'children').visible;
-            $toggleBtn.toggleClass('oci-plus-square', !flag).toggleClass('oci-minus-square', flag);
+            $toggleBtn.toggleClass(this.options.icons.collapsed, !flag).toggleClass(this.options.icons.expanded, flag);
           }
         } else {
-          $toggleBtn.removeClass('oci-plus-square oci-minus-square');
+          $toggleBtn.removeClass(`${this.options.icons.collapsed} ${this.options.icons.expanded}`);
         }
       } else {
         var $topEdge = $node.children('.topEdge');
@@ -780,17 +795,17 @@
         if (event.type === 'mouseenter') {
           if ($topEdge.length) {
             flag = this.getNodeState($node, 'parent').visible;
-            $topEdge.toggleClass('oci-chevron-up', !flag).toggleClass('oci-chevron-down', flag);
+            $topEdge.toggleClass(this.options.icons.expandToUp, !flag).toggleClass(this.options.icons.collapseToDown, flag);
           }
           if ($bottomEdge.length) {
             flag = this.getNodeState($node, 'children').visible;
-            $bottomEdge.toggleClass('oci-chevron-down', !flag).toggleClass('oci-chevron-up', flag);
+            $bottomEdge.toggleClass(this.options.icons.collapseToDown, !flag).toggleClass(this.options.icons.expandToUp, flag);
           }
           if ($leftEdge.length) {
             this.switchHorizontalArrow($node);
           }
         } else {
-          $node.children('.edge').removeClass('oci-chevron-up oci-chevron-down oci-chevron-right oci-chevron-left');
+          $node.children('.edge').removeClass(`${this.options.icons.expandToUp} ${this.options.icons.collapseToDown} ${this.options.icons.collapseToLeft} ${this.options.icons.expandToRight}`);
         }
       }
     },
@@ -954,14 +969,14 @@
       var $descendants = $descWrapper.find('.node');
       var $children = $descWrapper.children().children('.node');
       if ($children.is('.sliding')) { return; }
-      $toggleBtn.toggleClass('oci-plus-square oci-minus-square');
+      $toggleBtn.toggleClass(`${this.options.icons.collapsed} ${this.options.icons.expanded}`);
       if ($descendants.eq(0).is('.slide-up')) {
         $descWrapper.removeClass('hidden');
         this.repaint($children.get(0));
         $children.addClass('sliding').removeClass('slide-up').eq(0).one('transitionend', { 'vNodes': $children }, this.expandVNodesEnd);
       } else {
         $descendants.addClass('sliding slide-up').eq(0).one('transitionend', { 'vNodes': $descendants }, this.collapseVNodesEnd);
-        $descendants.find('.toggleBtn').removeClass('oci-minus-square oci-plus-square');
+        $descendants.find('.toggleBtn').removeClass(`${this.options.icons.collapsed} ${this.options.icons.expanded}`);
       }
     },
     //
@@ -1138,14 +1153,14 @@
         // The folowing code snippets are used to process horizontal chart
         // firstly, deal with the hierarchy of drop zone
         if (!$dropZone.siblings('.nodes').length) { // if the drop zone is a leaf node
-          $dropZone.append('<i class="edge verticalEdge bottomEdge oci"></i>')
+          $dropZone.append(`<i class="edge verticalEdge bottomEdge ${this.options.icons.theme}"></i>`)
             .after('<ul class="nodes"></ul>')
             .siblings('.nodes').append($dragged.find('.horizontalEdge').remove().end().closest('.hierarchy'));
           if ($dropZone.children('.title').length) {
-            $dropZone.children('.title').prepend('<i class="oci '+  this.$chart.data('options').parentNodeSymbol + ' symbol"></i>');
+            $dropZone.children('.title').prepend(`<i class="${this.options.icons.theme} ${this.$chart.data('options').icons.parentNode} parentNodeSymbol"></i>`);
           }
         } else {
-          var horizontalEdges = '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>';
+          var horizontalEdges = `<i class="edge horizontalEdge rightEdge ${this.options.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${this.options.icons.theme}"></i>`;
           if (!$dragged.find('.horizontalEdge').length) {
             $dragged.append(horizontalEdges);
           }
@@ -1160,7 +1175,7 @@
           $dragZone.siblings('.nodes').children('.hierarchy').find('.node:first')
             .find('.horizontalEdge').remove();
         } else if ($dragZone.siblings('.nodes').children('.hierarchy').length === 0) {
-          $dragZone.find('.bottomEdge, .symbol').remove()
+          $dragZone.find('.bottomEdge, .parentNodeSymbol').remove()
             .end().siblings('.nodes').remove();
         }
       }
@@ -1348,25 +1363,24 @@
       var flags = data.relationship || '';
       if ((opts.verticalLevel && level >= opts.verticalLevel) || data.isVertical) {
         if (Number(flags.substr(2,1))) {
-          $nodeDiv.append('<i class="toggleBtn oci"></i>')
-            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
+          $nodeDiv.append(`<i class="toggleBtn ${opts.icons.theme}"></i>`)
+            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
         }
       } else if (data.isHybrid) {
         if (Number(flags.substr(2,1))) {
-          $nodeDiv.append('<i class="edge verticalEdge bottomEdge oci"></i>')
-            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
+          $nodeDiv.append(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`)
+            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
         }
       } else {
         if (Number(flags.substr(0,1))) {
-          $nodeDiv.append('<i class="edge verticalEdge topEdge oci"></i>');
+          $nodeDiv.append(`<i class="edge verticalEdge topEdge ${opts.icons.theme}"></i>`);
         }
         if(Number(flags.substr(1,1))) {
-          $nodeDiv.append('<i class="edge horizontalEdge rightEdge oci"></i>' +
-            '<i class="edge horizontalEdge leftEdge oci"></i>');
+          $nodeDiv.append(`<i class="edge horizontalEdge rightEdge ${opts.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${opts.icons.theme}"></i>`);
         }
         if(Number(flags.substr(2,1))) {
-          $nodeDiv.append('<i class="edge verticalEdge bottomEdge oci"></i>')
-            .children('.title').prepend('<i class="oci '+ opts.parentNodeSymbol + ' symbol"></i>');
+          $nodeDiv.append(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`)
+            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
         }
       }
 
@@ -1446,16 +1460,16 @@
     // exposed method
     addChildren: function ($node, data) {
       this.buildChildNode($node.closest('.hierarchy'), data);
-      if (!$node.find('.symbol').length) {
-        $node.children('.title').prepend('<i class="oci '+ this.options.parentNodeSymbol + ' symbol"></i>');
+      if (!$node.find('.parentNodeSymbol').length) {
+        $node.children('.title').prepend(`<i class="${this.options.icons.theme} ${this.options.icons.parentNode} parentNodeSymbol"></i>`);
       }
       if ($node.closest('.nodes.vertical').length) {
         if (!$node.children('.toggleBtn').length) {
-          $node.append('<i class="toggleBtn oci"></i>');
+          $node.append(`<i class="toggleBtn ${this.options.icons.theme}"></i>`);
         }
       } else {
         if (!$node.children('.bottomEdge').length) {
-          $node.append('<i class="edge verticalEdge bottomEdge oci"></i>');
+          $node.append(`<i class="edge verticalEdge bottomEdge ${this.options.icons.theme}"></i>`);
         }
       }
       if (this.isInAction($node)) {
@@ -1474,7 +1488,7 @@
     addParent: function ($currentRoot, data) {
       this.buildParentNode($currentRoot, data);
       if (!$currentRoot.children('.topEdge').length) {
-        $currentRoot.children('.title').after('<i class="edge verticalEdge topEdge oci"></i>');
+        $currentRoot.children('.title').after(`<i class="edge verticalEdge topEdge ${this.options.icons.theme}"></i>`);
       }
       if (this.isInAction($currentRoot)) {
         this.switchVerticalArrow($currentRoot.children('.topEdge'));
@@ -1505,11 +1519,11 @@
       this.buildSiblingNode($node.closest('.hierarchy'), data);
       $node.closest('.nodes').data('siblingsLoaded', true);
       if (!$node.children('.leftEdge').length) {
-        $node.children('.topEdge').after('<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci"></i>');
+        $node.children('.topEdge').after(`<i class="edge horizontalEdge rightEdge ${this.options.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${this.options.icons.theme}"></i>`);
       }
       if (this.isInAction($node)) {
         this.switchHorizontalArrow($node);
-        $node.children('.topEdge').removeClass('oci-chevron-up').addClass('oci-chevron-down');
+        $node.children('.topEdge').removeClass(this.options.icons.expandToUp).addClass(this.options.icons.collapseToDown);
       }
     },
     // remove node and its descendent nodes
@@ -1594,10 +1608,10 @@
       if ((!isWebkit && !isFf) || isEdge) {
         window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
       } else {
-        var selector = '.oci-download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
+        var selector = '.download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
 
         if (!$chartContainer.find(selector).length) {
-          $chartContainer.append('<a class="oci-download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
+          $chartContainer.append('<a class="download-btn' + (that.options.chartClass !== '' ? ' ' + that.options.chartClass : '') + '"'
                                  + ' download="' + exportFilename + '.png"></a>');
         }
 
@@ -1615,7 +1629,7 @@
       var $chartContainer = this.$chartContainer;
       var $mask = $chartContainer.find('.mask');
       if (!$mask.length) {
-        $chartContainer.append('<div class="mask"><i class="oci oci-spinner spinner"></i></div>');
+        $chartContainer.append(`<div class="mask"><i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i></div>`);
       } else {
         $mask.removeClass('hidden');
       }
