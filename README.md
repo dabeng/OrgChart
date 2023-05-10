@@ -299,7 +299,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>parentNodeSymbol</td>
       <td>string</td>
       <td>no</td>
-      <td>"oci-leader"</td>
+      <td>"oci-menu"</td>
       <td>Using your own icon to imply that the node has child nodes.</td>
     </tr>
     <tr>
@@ -394,16 +394,16 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>Users can use this option to plug Font Awesome icons back in.
         <pre>
           <code>
-            'icons': {
-              'theme': 'fa-solid fa-sm',
-              'parentNode': 'fa-user-tie',
-              'expandToUp': 'fa-angles-up',
-              'collapseToDown': 'fa-angles-down',
-              'collapseToLeft': 'fa-angles-left',
-              'expandToRight': 'fa-angles-right',
-              'collapsed': 'fa-circle-plus',
-              'expanded': 'fa-circle-minus'
-            }
+'icons': {
+  'theme': 'fa-solid fa-sm',
+  'parentNode': 'fa-user-tie',
+  'expandToUp': 'fa-angles-up',
+  'collapseToDown': 'fa-angles-down',
+  'collapseToLeft': 'fa-angles-left',
+  'expandToRight': 'fa-angles-right',
+  'collapsed': 'fa-circle-plus',
+  'expanded': 'fa-circle-minus'
+}
           </code>
         </pre>
       </td>
