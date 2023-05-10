@@ -157,7 +157,7 @@ You need the solution based on new datasource structure with **levelOffset data 
 
 **isVertical data property** is designed for your use case. Once a node has a "isVertical" prop with truthy value, its descendant nodes will be arranged vertically.
 
-- [I want to replace built-in icons with Font Awesome icons](https://dabeng.github.io/OrgChart/drag-drop-hybrid-chart.html)
+- [I want to replace built-in icons with Font Awesome icons](https://dabeng.github.io/OrgChart/custom-icons.html)
 
 ### how to start up demos locally
 
