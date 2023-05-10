@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/fontawesome.min.css" >
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container { height:  540px; }
+    .orgchart { padding-bottom: 20px; }
+
+    .orgchart .node .title .parentNodeSymbol {
+      margin-top: 7px;
+      margin-left: 2px;
+    }
+
+    .orgchart .node .edge::before {
+      color: rgba(68, 157, 68, 0.75);
+    }
+    
+    .orgchart .edge:hover::before {
+      color: #449d44;
+    }
+    
+    .orgchart .node .verticalEdge::before {
+      left: calc(50% - 6px);
+    }
+    
+    .orgchart .node .horizontalEdge::before {
+      top: calc(50% - 0.5px);
+    }
+    
+    .orgchart .node .topEdge.fa-angles-up::before {
+      top: 2px;
+    }
+    
+    .orgchart .node .topEdge.fa-angles-down::before {
+      bottom: 4px;
+    }
+    
+    .orgchart .node .bottomEdge.fa-angles-up::before {
+      bottom: 4px;
+    }
+    
+    .orgchart .node .bottomEdge.fa-angles-down::before {
+      bottom: 1px;
+    }
+    
+    .orgchart .node .leftEdge.fa-angles-right::before {
+      left: -3px;
+    }
+    
+    .orgchart .node .leftEdge.fa-angles-left::before {
+      left: 1px;
+    }
+    
+    .orgchart .node .rightEdge.fa-angles-left::before {
+      right: -3px;
+    }
+    
+    .orgchart .node .rightEdge.fa-angles-right::before {
+      right: 1px;
+    }
+    
+    .orgchart .node .toggleBtn::before {
+      bottom: 7px;
+      font-size: 16px;
+      background-color: white;
+      color: rgb(96, 188, 96);
+    }
+    .orgchart .node .toggleBtn:hover::before {
+      background-color: white;
+      color: #1d8a1d;
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+    var datascource = {
+      'id': '1',
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
+        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+          'children': [
+            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
+            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
+              'children': [
+                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer' },
+                { 'id': '7', 'name': 'Dan Dan', 'title': 'UE engineer' ,
+                'children': [
+                  { 'id': '8', 'name': 'Er Dan', 'title': 'engineer' },
+                  { 'id': '9', 'name': 'San Dan', 'title': 'engineer',
+                    'children': [
+                      { 'id': '10', 'name': 'Si Dan', 'title': 'intern' },
+                      { 'id': '11', 'name': 'Wu Dan', 'title': 'intern' }
+                    ]
+                  }
+                ]}
+              ]
+            }
+          ]
+        },
+        { 'id': '13', 'name': 'Chun Miao', 'title': 'department manager', 'isHybrid': true,
+          'children': [
+            { 'id': '14', 'name': 'Bing Qin', 'title': 'senior engineer' },
+            { 'id': '15', 'name': 'Yue Yue', 'title': 'senior engineer',
+              'children': [
+                { 'id': '16', 'name': 'Er Yue', 'title': 'engineer' },
+                { 'id': '17', 'name': 'San Yue', 'title': 'UE engineer' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title',
+      'verticalLevel': 5,
+      'icons': {
+        'theme': 'fa-solid fa-sm',
+        'parentNode': 'fa-user-tie',
+        'expandToUp': 'fa-angles-up',
+        'collapseToDown': 'fa-angles-down',
+        'collapseToLeft': 'fa-angles-left',
+        'expandToRight': 'fa-angles-right',
+        'collapsed': 'fa-circle-plus',
+        'expanded': 'fa-circle-minus'
+      }
+    });
+
+  });
+  </script>
+  </body>
+</html>
