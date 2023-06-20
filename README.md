@@ -159,6 +159,12 @@ You need the solution based on new datasource structure with **levelOffset data 
 
 - [I want to replace built-in icons with Font Awesome icons](https://dabeng.github.io/OrgChart/custom-icons.html)
 
+- [ I want to alternate layout if children is too many](https://dabeng.github.io/OrgChart/data-prop-compact.html)
+
+![data-prop-compact](http://dabeng.github.io/OrgChart/img/data-prop-compact.png)
+
+**compact data property** is designed for your use case. Once node data includes a "compact" prop with truthy value, itself and its descendant nodes will be arranged with compact mode.
+
 ### how to start up demos locally
 
 - you have to install node.js v6+ because our unit tests are based on jsdom v11
