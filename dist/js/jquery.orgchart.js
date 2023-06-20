@@ -28,6 +28,8 @@
         'collapseToDown': 'oci-chevron-down',
         'collapseToLeft': 'oci-chevron-left',
         'expandToRight': 'oci-chevron-right',
+        'backToCompact': 'oci-corner-top-left',
+        'backToLoose': 'oci-corner-bottom-right',
         'collapsed': 'oci-plus-square',
         'expanded': 'oci-minus-square',
         'spinner': 'oci-spinner'
@@ -113,6 +115,20 @@
 
       return this;
     },
+    handleCompactNodes: function () {
+      // caculate the compact nodes' level which is used to add different styles
+      this.$chart.find('.node.compact')
+        .each((index, node) => {
+          $(node).addClass($(node).parents('.compact').length % 2 === 0 ? 'even' : 'odd');
+        }); // the following code snippets is used to add direction arrows for the most top compact node, however the styles is not adjusted correctly
+        // .filter((index, node) => !$(node).parent().is('.compact'))
+        // .each((index, node) => {
+        //   $(node).append(`<i class="edge verticalEdge topEdge ${this.options.icons.theme}"></i>`);
+        //   if (this.getSiblings($(node)).length) {
+        //     $(node).append(`<i class="edge horizontalEdge rightEdge ${this.options.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${this.options.icons.theme}"></i>`);
+        //   }
+        // });
+    },
     //
     triggerInitEvent: function () {
       var that = this;
@@ -122,6 +138,7 @@
         for (var i = 0; i < mutations.length; i++) {
           for (var j = 0; j < mutations[i].addedNodes.length; j++) {
             if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
+              that.handleCompactNodes();
               if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
                 that.options.initCompleted(that.$chart);
               }
@@ -377,14 +394,21 @@
       });
       return subObj;
     },
-    //
+    // process datasource and add necessary information
     attachRel: function (data, flags) {
       var that = this;
       data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
+      if (this.options?.compact?.constructor === Function && this.options.compact(data)) {
+        data.compact = true;
+      }
       if (data.children) {
         data.children.forEach(function(item) {
-          if (data.isHybrid || data.isVertical) {
-            item.isVertical = true;
+          if (data.hybrid || data.vertical) { // identify all the descendant nodes except the root node of hybrid structure
+            item.vertical = true;
+          } else if (data.compact && item.children) { // identify all the compact ancestor nodes
+            item.compact = true;
+          } else if (data.compact && !item.children) { // identify all the compact descendant nodes
+            item.associatedCompact = true;
           }
           that.attachRel(item, '1' + (data.children.length > 1 ? 1 : 0));
         });
@@ -954,6 +978,19 @@
         }
       }
     },
+    // show the compact node's children in the compact mode
+    backToCompactHandler: function (event) {
+      $(event.delegateTarget).removeClass('looseMode')
+        .children('.backToCompactSymbol').addClass('hidden').end()
+        .children('.backToLooseSymbol').removeClass('hidden');
+    },
+    // show the compact node's children in the loose mode 
+    backToLooseHandler: function (event) {
+      $(event.delegateTarget)
+        .addClass('looseMode')
+        .children('.backToLooseSymbol').addClass('hidden').end()
+        .children('.backToCompactSymbol').removeClass('hidden');
+    },
     //
     expandVNodesEnd: function (event) {
       event.data.vNodes.removeClass('sliding');
@@ -1137,7 +1174,7 @@
       // special process for hybrid chart
       var datasource = this.$chart.data('options').data;
       var digger = new JSONDigger(datasource, this.$chart.data('options').nodeId, 'children');
-      const hybridNode = digger.findOneNode({ 'isHybrid': true });
+      const hybridNode = digger.findOneNode({ 'hybrid': true });
       if (this.$chart.data('options').verticalLevel > 1 || hybridNode) {
         var draggedNode = digger.findNodeById($dragged.data('nodeData').id);
         var copy = Object.assign({}, draggedNode);
@@ -1359,18 +1396,29 @@
       var nodeData = $.extend({}, data);
       delete nodeData.children;
       $nodeDiv.data('nodeData', nodeData);
-      // append 4 direction arrows or expand/collapse buttons
+      // append 4 direction arrows or expand/collapse buttons or reset buttons
       var flags = data.relationship || '';
-      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.isVertical) {
+      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.vertical) {
         if (Number(flags.substr(2,1))) {
           $nodeDiv.append(`<i class="toggleBtn ${opts.icons.theme}"></i>`)
             .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
         }
-      } else if (data.isHybrid) {
+      } else if (data.hybrid) {
         if (Number(flags.substr(2,1))) {
           $nodeDiv.append(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`)
             .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
         }
+      } else if (data.compact) {
+        $nodeDiv.css('grid-template-columns', `repeat(${Math.floor(Math.sqrt(data.children.length + 1))}, auto)`);
+        if (Number(flags.substr(2,1))) {
+          $nodeDiv.append(`
+            <i class="${opts.icons.theme} ${opts.icons.backToCompact} backToCompactSymbol hidden"></i>
+            <i class="${opts.icons.theme} ${opts.icons.backToLoose} backToLooseSymbol"></i>
+            `)
+            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
+        }
+      } else if (data.associatedCompact) {
+   
       } else {
         if (Number(flags.substr(0,1))) {
           $nodeDiv.append(`<i class="edge verticalEdge topEdge ${opts.icons.theme}"></i>`);
@@ -1390,6 +1438,8 @@
       $nodeDiv.on('click', '.bottomEdge', this.bottomEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.leftEdge, .rightEdge', this.hEdgeClickHandler.bind(this));
       $nodeDiv.on('click', '.toggleBtn', this.toggleVNodes.bind(this));
+      $nodeDiv.on('click', '> .backToCompactSymbol',this.backToCompactHandler.bind(this));
+      $nodeDiv.on('click', '> .backToLooseSymbol',this.backToLooseHandler.bind(this));
 
       if (opts.draggable) {
         this.bindDragDrop($nodeDiv);
@@ -1409,6 +1459,7 @@
       var that = this;
       var opts = this.options;
       var level = 0;
+      var $nodeDiv;
       if (data.level) {
         level = data.level;
       } else {
@@ -1416,23 +1467,26 @@
       }
       // Construct the node
       if (Object.keys(data).length > 2) {
-        $appendTo.append(this.createNode(data));
+        $nodeDiv = this.createNode(data);
+        $appendTo.append($nodeDiv);
       }
       // Construct the "inferior nodes"
       if (data.children && data.children.length) {
         var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
         var $nodesLayer;
-        if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.isHybrid) {
+        if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
           $nodesLayer = $('<ul class="nodes">');
           if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
             $nodesLayer.addClass('hidden');
           }
-          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.isHybrid)
+          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
             && !$appendTo.closest('.vertical').length) {
               $appendTo.append($nodesLayer.addClass('vertical'));
           } else {
             $appendTo.append($nodesLayer);
           }
+        } else if (data.compact) {
+          $nodeDiv.addClass('compact');
         } else {
           $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
           if (Object.keys(data).length === 2) {
@@ -1446,10 +1500,14 @@
         }
         // recurse through children nodes
         $.each(data.children, function () {
-          var $nodeCell = $('<li class="hierarchy">');
-          $nodesLayer.append($nodeCell);
           this.level = level + 1;
-          that.buildHierarchy($nodeCell, this);
+          if (data.compact) {
+            that.buildHierarchy($nodeDiv, this);
+          } else {
+            var $nodeCell = $('<li class="hierarchy">');
+            $nodesLayer.append($nodeCell);
+            that.buildHierarchy($nodeCell, this);
+          }
         });
       }
     },

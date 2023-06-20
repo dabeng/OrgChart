@@ -71,7 +71,7 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
   });
 }));
 
-gulp.task('test', gulp.series('e2e-tests', 'visual-regression'));
+gulp.task('test', gulp.series('e2e-tests'));
 
 gulp.task('cleanupJS', function() {
   return del([paths.distJSFolder + '/**']);

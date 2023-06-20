@@ -151,11 +151,11 @@ You need the solution based on new datasource structure with **levelOffset data 
 
 - [I want to drag&drop in the hybrid chart](https://dabeng.github.io/OrgChart/drag-drop-hybrid-chart.html)
 
-- [ I only want specific children of a certain branch of the chart to be displayed as vertical. Is it possible to set VerticalLevel by data?](https://dabeng.github.io/OrgChart/isHybrid.html)
+- [ I only want specific children of a certain branch of the chart to be displayed as vertical. Is it possible to set VerticalLevel by data?](https://dabeng.github.io/OrgChart/data-prop-hybrid.html)
 
-![isHybrid](http://dabeng.github.io/OrgChart/img/isHybrid.png)
+![data-prop-hybrid](http://dabeng.github.io/OrgChart/img/data-prop-hybrid.png)
 
-**isVertical data property** is designed for your use case. Once a node has a "isVertical" prop with truthy value, its descendant nodes will be arranged vertically.
+**hybrid data property** is designed for your use case. Once node data includes a "hybrid" prop with truthy value, its descendant nodes will be arranged vertically.
 
 - [I want to replace built-in icons with Font Awesome icons](https://dabeng.github.io/OrgChart/custom-icons.html)
 
@@ -205,6 +205,29 @@ var oc = $('#chartContainerId').orgchart(options);
   'otherPro': anyValue // feel free to append any useful properties
 };
 ```
+
+### Data Props
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>hybrid</td>
+      <td>truthy value</td>
+      <td>nodes will be arranged vertically if this property is set to true</td>
+    </tr>
+    <tr>
+      <td>compact</td>
+      <td>truthy value</td>
+      <td>node will be rendered with compact mode if this property is set to true</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Options
 <table>
@@ -407,6 +430,13 @@ var oc = $('#chartContainerId').orgchart(options);
           </code>
         </pre>
       </td>
+    </tr>
+    <tr>
+      <td>compact</td>
+      <td>function</td>
+      <td>no</td>
+      <td></td>
+      <td>This callback is used to determine current node is wether rendered with compact mode. The node's data is passed in as a parameter. <b>Note:</b>The option "compact" has a higher priority than data prop "compact".</td>
     </tr>
   </tbody>
 </table>
