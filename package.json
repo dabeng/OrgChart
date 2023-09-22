@@ -46,7 +46,7 @@
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "chai": "^4.2.0",
-    "cypress": "^12.3.0",
+    "cypress": "^13.2.0",
     "del": "^3.0.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^3.10.0",
