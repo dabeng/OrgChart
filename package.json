@@ -54,7 +54,7 @@
     "gulp-eslint": "^4.0.2",
     "gulp-inject": "^4.3.2",
     "gulp-jest": "^4.0.3",
-    "gulp-mocha": "^10.0.0",
+    "gulp-mocha": "^8.0.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
