@@ -634,13 +634,21 @@
     },
     //
     hideSiblingsEnd: function (event) {
+      var that = this;
       var $node = event.data.node;
       var $nodeContainer = event.data.nodeContainer;
       var direction = event.data.direction;
       var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
       event.data.animatedNodes.removeClass('sliding');
       $siblings.find('.node:gt(0)').filter(this.isVisibleNode.bind(this))
-        .removeClass('slide-left slide-right').addClass('slide-up');
+        .removeClass('slide-left slide-right')
+        .addClass(function() {
+          if (that.options.compact) {
+            return '';
+          } else {
+            return 'slide-up';
+          }
+        });
       $siblings.find('.nodes, .vertical').addClass('hidden')
         .end().addClass('hidden');
 
