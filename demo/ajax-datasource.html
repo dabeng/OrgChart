@@ -6,6 +6,16 @@
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .spinner {
+      line-height: 420px;
+    }
+    .spinner::before {
+      width: 72px;
+      height: 72px;
+      border-radius: 36px;
+    }
+  </style>
 </head>
 <body>
   <div id="chart-container"></div>
@@ -46,10 +56,20 @@
         }
       });
 
-      $('#chart-container').orgchart({
-        'data' : '/orgchart/initdata',
-        'nodeContent': 'title'
-      });
+      $('#chart-container').append(`<i class="oci oci-spinner spinner"></i>`);
+      $.ajax({
+        'url': '/orgchart/initdata',
+        'dataType': 'json'
+      })
+        .done(function(data, textStatus, jqXHR) {
+          $('#chart-container').orgchart({
+            'data': data,
+            'nodeContent': 'title'
+          });
+        })
+        .always(function() {
+          $('#chart-container').children('.spinner').remove();
+        });
 
     });
   </script>

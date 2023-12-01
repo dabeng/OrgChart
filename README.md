@@ -249,10 +249,10 @@ var oc = $('#chartContainerId').orgchart(options);
   <tbody>
     <tr>
       <td>data</td>
-      <td>json or string</td>
+      <td>json</td>
       <td>yes</td>
       <td></td>
-      <td>datasource usded to build out structure of orgchart. It could be a json object or a string containing the URL to which the ajax request is sent.</td>
+      <td>datasource usded to build out structure of orgchart. It should be a json object.</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -413,7 +413,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>function</td>
       <td>no</td>
       <td></td>
-      <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered, particularly when using an ajax data source. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
+      <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
     </tr>
     <tr>
       <td>icons</td>

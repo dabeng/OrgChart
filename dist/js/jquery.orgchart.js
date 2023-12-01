@@ -76,28 +76,13 @@
         this.triggerInitEvent();
       }
       var $root = $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
-      if ($.type(data) === 'object') {
+
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($root, this.buildJsonDS(data.children()), 0, this.options);
         } else { // local json datasource
           this.buildHierarchy($root, this.options.ajaxURL ? data : this.attachRel(data, '00'));
         }
-      } else {
-        $chart.append(`<i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i>`);
-        $.ajax({
-          'url': data,
-          'dataType': 'json'
-        })
-        .done(function(data, textStatus, jqXHR) {
-          that.buildHierarchy($root, that.options.ajaxURL ? data : that.attachRel(data, '00'), 0, that.options);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-          console.log(errorThrown);
-        })
-        .always(function() {
-          $chart.children('.spinner').remove();
-        });
-      }
+
       $chartContainer.append($chart);
 
       // append the export button
