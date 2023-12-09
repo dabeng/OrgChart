@@ -30,7 +30,31 @@
       url: '/orgchart/parent/n1',
       contentType: 'application/json',
       responseTime: 1000,
-      responseText: { 'id': 'n6','name': 'Lao Lao', 'title': 'general manager', 'relationship': '001' }
+      responseText: { 
+        'id': 'n6',
+        'name': 'Lao Lao',
+        'title': 'general manager', 'relationship': '001'
+      }
+    });
+
+    $.mockjax({
+      url: '/orgchart/ancestors/n1',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: { 
+        'id': 'n6',
+        'name': 'Lao Lao',
+        'title': 'general manager', 'relationship': '001',
+        'children': [
+        { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '9', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '10', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '11', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '12', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': '13', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
+        ]
+      }
     });
 
     $.mockjax({
@@ -90,11 +114,24 @@
       }
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
-      'ajaxURL': ajaxURLs,
+      //'ajaxURL': ajaxURLs,
       'nodeContent': 'title',
       'nodeId': 'id'
+    });
+
+    oc.$chart.find('> .nodes > .hierarchy > .node > .topEdge').on('click', function(e) {
+      $.ajax({
+        'url': '/orgchart/ancestors/n1',
+        'dataType': 'json'
+      })
+      .done(function(data, textStatus, jqXHR) {
+        oc.addNodes(data, 'n6', $(e.target).parent());
+      })
+      .always(function() {
+        $('#chart-container').children('.spinner').remove();
+      });
     });
 
   });

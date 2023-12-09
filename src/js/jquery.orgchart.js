@@ -80,7 +80,11 @@
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($root, this.buildJsonDS(data.children()), 0, this.options);
         } else { // local json datasource
-          this.buildHierarchy($root, this.options.ajaxURL ? data : this.attachRel(data, '00'));
+          if (data.relationship) {
+            this.buildHierarchy($root, data);
+          } else {
+            this.buildHierarchy($root, this.attachRel(data, '00'));
+          }
         }
 
       $chartContainer.append($chart);
@@ -831,6 +835,12 @@
       this.$chart.find('.focused').removeClass('focused');
       $(event.delegateTarget).addClass('focused');
     },
+    addNodes: function (data, parent, $child) {
+      var that = this;
+      var $root = this.$chart.children('.nodes').children('.hierarchy');
+      this.buildHierarchy($root, data);
+      //$('#' + parent).siblings('.nodes').append($child.add($child.siblings('.nodes')).wrap('<li class="hierarchy"></li>'));
+    },
     // load new nodes by ajax
     loadNodes: function (rel, url, $edge) {
       var that = this;
@@ -890,9 +900,9 @@
       } else { // load the new parent node of the specified node by ajax request
         // start up loading status
         if (this.startLoading($topEdge)) {
-          var opts = this.options;
-          var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent($node.data('nodeData')) : opts.ajaxURL.parent + $node[0].id;
-          this.loadNodes('parent', url, $topEdge);
+          // var opts = this.options;
+          // var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent($node.data('nodeData')) : opts.ajaxURL.parent + $node[0].id;
+          // this.loadNodes('parent', url, $topEdge);
         }
       }
     },
