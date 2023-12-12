@@ -900,7 +900,6 @@
       } else { // load the new parent node of the specified node by ajax request
         // start up loading status
         if (this.startLoading($topEdge)) {
-          
           // var opts = this.options;
           // var url = $.isFunction(opts.ajaxURL.parent) ? opts.ajaxURL.parent($node.data('nodeData')) : opts.ajaxURL.parent + $node[0].id;
           // this.loadNodes('parent', url, $topEdge);
