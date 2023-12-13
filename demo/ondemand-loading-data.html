@@ -122,16 +122,29 @@
     });
 
     oc.$chart.find('> .nodes > .hierarchy > .node > .topEdge').on('click', function(e) {
-      $.ajax({
-        'url': '/orgchart/ancestors/n1',
-        'dataType': 'json'
-      })
-      .done(function(data, textStatus, jqXHR) {
-        oc.addNodes(data, 'n6', $(e.target).parent());
-      })
-      .always(function() {
-        $('#chart-container').children('.spinner').remove();
-      });
+      var $chart = oc.$chart;
+      var $topEdge = $(e.target);
+      var $node = $topEdge.parent();
+      if (!($chart.data('inAjax') === true)) {
+        $topEdge.addClass('hidden');
+        $node.append(`<i class="oci oci-spinner spinner"></i>`)
+        $node.children().not('.spinner').css('opacity', 0.2);
+        $chart.data('inAjax', true);
+
+        $.ajax({
+          'url': '/orgchart/ancestors/n1',
+          'dataType': 'json'
+        })
+        .done(function(data, textStatus, jqXHR) {
+          oc.addNodes(data, 'n6', $node);
+        })
+        .always(function() {
+          $topEdge.removeClass('hidden');
+          $node.children('.spinner').remove();
+          $node.children().removeAttr('style');
+          $chart.data('inAjax', false);
+        });
+      }
     });
 
   });
