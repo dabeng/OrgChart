@@ -45,11 +45,11 @@ $ npm install orgchart
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
 
 ## [Demos on github pages](https://dabeng.github.io/OrgChart/)
-## [Demos based on nested table](https://codepen.io/collection/AWxGVb/)
 ## [Demos based on nested ul](https://codepen.io/collection/nWqvzY)
+## [Demos based on nested table](https://codepen.io/collection/AWxGVb/) (obsolete)
 
 ### online demos
-- [using ul datasource](https://dabeng.github.io/OrgChart/ul-datasource.html)(this feature comes from [Tobyee's good idea:blush:](https://github.com/dabeng/OrgChart/issues/1))
+- [using ul datasource](https://dabeng.github.io/OrgChart/ul-datasource.html)(this feature comes from [Tobyee's good idea :blush:](https://github.com/dabeng/OrgChart/issues/1))
 
 - [using local datasource](https://dabeng.github.io/OrgChart/local-datasource.html)
 
@@ -71,7 +71,9 @@ require('orgchart') will load orgchart plugin onto the jQuery object. The orgcha
 
 - [I wanna load data on-demand](https://dabeng.github.io/OrgChart/ondemand-loading-data.html)
 
-Note: when users use ajaxURL option to build orghchart, they must use json datasource(both local and remote are OK) and set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
+![ondemand-loading-data](http://dabeng.github.io/OrgChart/img/ondemand-loading-data.gif)
+
+**Note:** users use should set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
 
 - [I wanna customize the structure of node](https://dabeng.github.io/OrgChart/option-createNode.html)
 
@@ -249,10 +251,10 @@ var oc = $('#chartContainerId').orgchart(options);
   <tbody>
     <tr>
       <td>data</td>
-      <td>json</td>
+      <td>json or jquery object</td>
       <td>yes</td>
       <td></td>
-      <td>datasource usded to build out structure of orgchart. It should be a json object.</td>
+      <td>datasource usded to build out structure of orgchart. It could be a json object or a jquery object(ul element)</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -302,13 +304,6 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>no</td>
       <td>false</td>
       <td>Once enable this option, users can show/hide left/right sibling nodes respectively by clicking left/right arrow.</td>
-    </tr>
-    <tr>
-      <td>ajaxURL</td>
-      <td>json</td>
-      <td>no</td>
-      <td></td>
-      <td>It inclueds four properites -- parent, children, siblings, families(ask for parent node and siblings nodes). As their names imply, different propety provides the URL to which ajax request for different nodes is sent.</td>
     </tr>
     <tr>
       <td>visibleLevel</td>
@@ -455,6 +450,66 @@ Embeds an organization chart in designated container. Accepts an options object 
 
 #### init(newOptions)
 It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
+
+#### addAncestors(data, parentId)
+Adds the ancestors for current orgchart.
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>data</td>
+      <td>json</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource for building ancestors</td>
+    </tr>
+    <tr>
+      <td>parentId</td>
+      <td>string</td>
+      <td>yes</td>
+      <td></td>
+      <td>append current orgchart to the parent node with parentId</td>
+    </tr>
+  </tbody>
+</table>
+
+#### addDescendants(data, $parent)
+Adds the descendants for specified parent node.
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>data</td>
+      <td>array</td>
+      <td>yes</td>
+      <td></td>
+      <td>datasource for building descendants</td>
+    </tr>
+    <tr>
+      <td>$parent</td>
+      <td>jquery object</td>
+      <td>yes</td>
+      <td></td>
+      <td>append descendants to the $parent node</td>
+    </tr>
+  </tbody>
+</table>
 
 #### addParent(data)
 Adds parent node(actullay it's always root node) for current orgchart.
@@ -897,11 +952,6 @@ This method allow you to export current orgchart as png or pdf file.
       <td>init.orgchart</td>
       <td>chart</td>
       <td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td>
-    </tr>
-    <tr>
-      <td>load-[relation].orgchart</td>
-      <td></td>
-      <td>This event is fired on a node after the onDemand loading completes.<b>[relation]</b> can be either parent, children or siblings.</td>
     </tr>
     <tr>
       <td>show-[relation].orgchart</td>

@@ -43,8 +43,8 @@ $ npm install orgchart
 `require('orgchart')`會把orgchart插件追加到jQuery對象上。orgchart模塊本身並不導出任何東西。
 
 ## [gihtub pages實例集合](https://dabeng.github.io/OrgChart/)
-## [基于嵌套table的實例集合](https://codepen.io/collection/AWxGVb/)
 ## [基于嵌套ul的實例集合](https://codepen.io/collection/nWqvzY)
+## [基于嵌套table的實例集合](https://codepen.io/collection/AWxGVb/) (過時)
 
 ### 天馬行空的需求
 - [ul數據源](https://dabeng.github.io/OrgChart/ul-datasource.html)(感謝 [Tobyee的好點子:blush:](https://github.com/dabeng/OrgChart/issues/1))
@@ -68,6 +68,8 @@ $ npm install orgchart
 - [我想通過ajax請求獲得遠程數據源，然後構造組織結構圖](https://dabeng.github.io/OrgChart/ajax-datasource.html)
 
 - [我想按需載入數據源，進而渲染不同的組織結構圖](https://dabeng.github.io/OrgChart/ondemand-loading-data.html)
+
+![ondemand-loading-data](http://dabeng.github.io/OrgChart/img/ondemand-loading-data.gif)
 
 - [我想定制組織結構圖中節點內的結構](https://dabeng.github.io/OrgChart/option-createNode.html)
 
@@ -185,10 +187,10 @@ var oc = $('#chartContainerId').orgchart(options);
   <tbody>
     <tr>
       <td>data</td>
-      <td>json / string</td>
+      <td>json / jquery object</td>
       <td>是</td>
       <td></td>
-      <td>用于構造組織結構圖的數據源。它的值可以是JSON或代表ajax請求地址的字符串。</td>
+      <td>用于構造組織結構圖的數據源。它的值可以是JSON或能提供數據的ul元素。</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -238,13 +240,6 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>否</td>
       <td>false</td>
       <td>啓動該選項，用戶點擊了節點的兩側箭頭按鈕時，會展開/折疊一側的兄弟節點；默認的行爲是用戶點擊了節點任何一側的箭頭按鈕，都會折疊起所有的兄弟節點，不區分左右。</td>
-    </tr>
-    <tr>
-      <td>ajaxURL</td>
-      <td>json</td>
-      <td>否</td>
-      <td></td>
-      <td>該選項下面又包括了4個子選項--parent, children, siblings, families（請求父節點及兄弟節點）。顧名思義，不同的子選項代表了請求不同類型的節點時對應的URL地址</td>
     </tr>
     <tr>
       <td>visibleLevel</td>
@@ -363,8 +358,68 @@ var oc = $('#chartContainerId').orgchart(options);
 #### init(newOptions)
 當你想基于新的options或數據源刷新組織結構圖時，這個方法就派上用場了。
 
+#### addAncestors(data, parentId)
+爲當前的組織結構圖增加祖先節點，可以不止壹個層級。
+<table>
+  <thead>
+    <tr>
+      <th>名稱</th>
+      <th>類型</th>
+      <th>必填</th>
+      <th>默認值</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>data</td>
+      <td>json</td>
+      <td>是</td>
+      <td></td>
+      <td>用于構造祖先節點的數據源</td>
+    </tr>
+    <tr>
+      <td>parentId</td>
+      <td>string</td>
+      <td>yes</td>
+      <td></td>
+      <td>將當前的組織結構圖追加到某壹個祖先節點裏，該節點的id</td>
+    </tr>
+  </tbody>
+</table>
+
+#### addDescendants(data, $parent)
+爲指定的父節點增加後代節點。
+<table>
+  <thead>
+    <tr>
+      <th>名稱</th>
+      <th>類型</th>
+      <th>必填</th>
+      <th>默認值</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>data</td>
+      <td>array</td>
+      <td>yes</td>
+      <td></td>
+      <td>用于構造後代節點的數據源</td>
+    </tr>
+    <tr>
+      <td>$parent</td>
+      <td>jquery object</td>
+      <td>yes</td>
+      <td></td>
+      <td>後代節點要追加到的父節點對象</td>
+    </tr>
+  </tbody>
+</table>
+
 #### addParent(data)
-Adds parent node(actullay it's always root node) for current orgchart.
+爲當前的組織結構圖增加父節點。
 <table>
   <thead>
     <tr>
@@ -757,11 +812,6 @@ Adds parent node(actullay it's always root node) for current orgchart.
       <td>init.orgchart</td>
       <td>chart</td>
       <td>當組織結構圖初始化完成時，該事件觸發。在響應事件處理器中，你可以訪問到渲染出的任意節點。</td>
-    </tr>
-    <tr>
-      <td>load-[relation].orgchart</td>
-      <td></td>
-      <td>在按需請求數據場景中，每次載入新節點後，觸發該事件。<b>[relation]</b>的可選值是parent, children, siblings。</td>
     </tr>
     <tr>
       <td>show-[relation].orgchart</td>
