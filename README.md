@@ -10,7 +10,7 @@
 
 ## Foreword
 First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great work:blush: -- [jOrgChart](https://github.com/wesnolte/jOrgChart). The thought that using nested tables to build out the tree-like orgonization chart is amazing. This idea is more simple and direct than its counterparts based on svg
-Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo. **Since version 3.0, we use nested ul to construct tree-like chart instead of nested table.**
+Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo. **Since version 3.0, we use nested ul to construct tree-like chart instead of nested table. Since version 4.0, users build up the ajax datasoure by themselves. **
 
 ## Features
 - Supports both local data and remote data (JSON).
