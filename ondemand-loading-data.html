@@ -17,55 +17,46 @@
     $(function() {
 
     $.mockjax({
-      url: '/orgchart/children/n3',
+      url: '/orgchart/ancestors/n1',
       contentType: 'application/json',
       responseTime: 1000,
-      responseText: { 'children': [
-        { 'id': 'n4', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '110' },
-        { 'id': 'n5', 'name': 'Xiang Xiang', 'title': 'UE engineer', 'relationship': '110'}
-      ]}
-    });
-
-    $.mockjax({
-      url: '/orgchart/parent/n1',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: { 'id': 'n6','name': 'Lao Lao', 'title': 'general manager', 'relationship': '001' }
-    });
-
-    $.mockjax({
-      url: '/orgchart/siblings/n1',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: { 'siblings': [
-        { 'id': '7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '9', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '10', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '11', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '12', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': '13', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
-      ]}
-    });
-
-    $.mockjax({
-      url: '/orgchart/families/n1',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: {
-        'id': 'n6',
+      responseText: { 
+        'id': 'n0',
         'name': 'Lao Lao',
-        'title': 'general manager',
-        'relationship': '001',
+        'title': 'general manager', 'relationship': '001',
         'children': [
-        { 'id': 'n7','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n8', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n9', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n10', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n11', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n12', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n13', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
-      ]}
+        { 'id': 'n10','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n11', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n12', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n13', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n14', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n15', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
+        { 'id': 'n16', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
+        ]
+      }
+    });
+
+    $.mockjax({
+      url: '/orgchart/descendants/n2',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: [
+        { 'id': 'n4', 'name': 'Xiang Xiang', 'title': 'engineer', 'relationship': '110' }
+      ]
+    });
+
+    $.mockjax({
+      url: '/orgchart/descendants/n3',
+      contentType: 'application/json',
+      responseTime: 1000,
+      responseText: [
+        { 'id': 'n5', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '111',
+          'children': [
+            { 'id': 'n6', 'name': 'Er Dan', 'title': 'UE engineer', 'relationship': '110'}
+          ]
+        },
+        { 'id': 'n7', 'name': 'Dan Dan', 'title': 'engineer', 'relationship': '110' }
+      ]
     });
 
     var datascource = {
@@ -74,7 +65,7 @@
       'title': 'department manager',
       'relationship': '111',
       'children': [
-        { 'id': 'n2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
+        { 'id': 'n2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '111' },
         { 'id': 'n3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
       ]
     };
@@ -90,11 +81,68 @@
       }
     };
 
-    $('#chart-container').orgchart({
+    var oc = $('#chart-container').orgchart({
       'data' : datascource,
-      'ajaxURL': ajaxURLs,
       'nodeContent': 'title',
       'nodeId': 'id'
+    });
+
+    oc.$chart.on('click', '.topEdge, .horizontalEdge', function(e) {
+      var $chart = oc.$chart;
+      var $topEdge = $(e.target);
+      var $node = $topEdge.parent();
+      var parentState = oc.getNodeState($node, 'parent');
+      if (!parentState.exist) {
+        if (!($chart.data('inAjax') === true)) {
+          $topEdge.addClass('hidden');
+          $node.append(`<i class="oci oci-spinner spinner"></i>`)
+          $node.children().not('.spinner').css('opacity', 0.2);
+          $chart.data('inAjax', true);
+
+          $.ajax({
+            'url': '/orgchart/ancestors/' + $node.data('nodeData').id,
+            'dataType': 'json'
+          })
+          .done(function(data, textStatus, jqXHR) {
+            oc.addAncestors(data, 'n0');
+          })
+          .always(function() {
+            $topEdge.removeClass('hidden');
+            $node.children('.spinner').remove();
+            $node.children().removeAttr('style');
+            $chart.data('inAjax', false);
+          });
+        }
+      }
+    });
+
+    oc.$chart.on('click', '.bottomEdge', function(e) {
+      var $chart = oc.$chart;
+      var $bottomEdge = $(e.target);
+      var $node = $bottomEdge.parent();
+      var childrenState = oc.getNodeState($node, 'children');
+      if (!childrenState.exist) {
+        if (!($chart.data('inAjax') === true)) {
+          $bottomEdge.addClass('hidden');
+          $node.append(`<i class="oci oci-spinner spinner"></i>`)
+          $node.children().not('.spinner').css('opacity', 0.2);
+          $chart.data('inAjax', true);
+
+          $.ajax({
+            'url': '/orgchart/descendants/' + $node.data('nodeData').id,
+            'dataType': 'json'
+          })
+          .done(function(data, textStatus, jqXHR) {
+            oc.addDescendants(data, $node);
+          })
+          .always(function() {
+            $bottomEdge.removeClass('hidden');
+            $node.children('.spinner').remove();
+            $node.children().removeAttr('style');
+            $chart.data('inAjax', false);
+          });
+        }
+      }
     });
 
   });
