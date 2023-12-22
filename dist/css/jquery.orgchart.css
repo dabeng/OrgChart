@@ -535,13 +535,34 @@
 }
 
 /* styles for compact nodes */
-.orgchart .hierarchy > .node.compact {
+.orgchart .node.compact {
   position: static;
   display: grid;
   width: 140px;
   height: 50px;
-  overflow: hidden;
   background-color: #eee;
+}
+
+.orgchart .node.compact.looseMode {
+  display: grid;
+  width: unset;
+  height: unset;
+}
+
+.orgchart .node.compact > .node {
+  display: none;
+}
+
+.orgchart .node.compact.looseMode > .node {
+  display: inline-block;
+}
+
+.orgchart .node.compact > .node.compact {
+  position: relative;
+}
+
+.orgchart .node.compact > .node.compact.looseMode {
+  display: grid;
 }
 
 .orgchart .node.compact.even,
@@ -566,43 +587,22 @@
   background-color: #eee;
 }
 
-.orgchart .hierarchy > .node.compact.looseMode {
-  display: grid;
-  width: unset;
-  height: unset;
-  overflow: unset;
-}
-
-.orgchart .hierarchy > .node.compact::before {
+.orgchart .node.compact::before {
   top: var(--top-cross-point, -10px);
 }
 
-.orgchart .node.compact > .node.compact {
-  position: relative;
-  display: grid;
-  width: 140px;
-  height: 50px;
-  overflow: hidden;
-}
-
-.orgchart .node.compact .node.compact.looseMode {
-  width: unset;
-  height: unset;
-  overflow: unset;
-}
-
-.orgchart .hierarchy > .node.compact > .content {
+.orgchart .node.compact > .content {
   position: absolute;
   top: 25px;
   left: 5px;
 }
 
-.orgchart .hierarchy > .node.compact.looseMode > .title {
+.orgchart .node.compact.looseMode > .title {
   margin-top: 5px;
   margin-left: 5px;
 }
 
-.orgchart .hierarchy > .node.compact.looseMode > .content {
+.orgchart .node.compact.looseMode > .content {
   top: 30px;
   left: 10px;
 }
@@ -635,13 +635,13 @@
   cursor: pointer;
 }
 
-.orgchart .hierarchy > .node.compact > .backToCompactSymbol {
+.orgchart .node.compact > .backToCompactSymbol {
   position: absolute;
   top: 5px;
   left: 5px;
 }
 
-.orgchart .hierarchy > .node.compact.looseMode > .backToCompactSymbol {
+.orgchart .node.compact.looseMode > .backToCompactSymbol {
   top: 10px;
   left: 10px;
 }
@@ -657,7 +657,7 @@
   left: 3px;
 }
 
-.orgchart .hierarchy > .node.compact > .backToLooseSymbol {
+.orgchart .node.compact > .backToLooseSymbol {
   position: absolute;
   top: 25px;
   right: 5px;
