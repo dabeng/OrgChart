@@ -567,6 +567,9 @@
     isVisibleNode: function (index, elem) {
       return this.getNodeState($(elem)).visible;
     },
+    isCompactDescendant: function (index, elem) {
+      return $(elem).parent().is('.node.compact');
+    },
     // do some necessary cleanup tasks when hide animation is finished
     hideChildrenEnd: function (event) {
       var $node = event.data.node;
@@ -581,7 +584,7 @@
       $node.closest('.hierarchy').addClass('isChildrenCollapsed');
       var $lowerLevel = $node.siblings('.nodes');
       this.stopAjax($lowerLevel);
-      var $animatedNodes = $lowerLevel.find('.node').filter(this.isVisibleNode.bind(this));
+      var $animatedNodes = $lowerLevel.find('.node').filter(this.isVisibleNode.bind(this)).not(this.isCompactDescendant.bind(this));
       var isVerticalDesc = $lowerLevel.is('.vertical');
       if (!isVerticalDesc) {
         $animatedNodes.closest('.hierarchy').addClass('isCollapsedDescendant');
@@ -937,7 +940,10 @@
     // show the compact node's children in the compact mode
     backToCompactHandler: function (event) {
       $(event.delegateTarget).removeClass('looseMode')
+        .find('.looseMode').removeClass('looseMode')
         .children('.backToCompactSymbol').addClass('hidden').end()
+        .children('.backToLooseSymbol').removeClass('hidden');
+      $(event.delegateTarget).children('.backToCompactSymbol').addClass('hidden').end()
         .children('.backToLooseSymbol').removeClass('hidden');
     },
     // show the compact node's children in the loose mode 
