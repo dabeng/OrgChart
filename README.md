@@ -23,7 +23,7 @@ Unfortunately, it's long time not to see the update of jOrgChart. on the other h
 - Supports exporting chart as a picture or pdf document.
 - Supports pan and zoom.
 - Allows user to customize the internal structure for every node.
-- Users can adopt multiple solutions to build up a huge organization chart(please refer to multiple-layers or hybrid layout sections).
+- Users can adopt multiple solutions to build up a huge organization chart(please refer hybrid layout sections).
 - touch-enabled plugin for mobile device.
 
 ## CDN
@@ -118,10 +118,6 @@ That's where getHierarchy() comes in.
 - [I want a color-coded chart](https://dabeng.github.io/OrgChart/color-coded.html)
 
 It's a so easy task, we just need to append id or className property to node data.
-
-- [I want a multiple-layers chart](https://dabeng.github.io/OrgChart/multiple-layers.html)
-
-In fact, this is a wonderful solution to display a orgchart which includes a huge number of node data.
 
 - [I want a hybrid(horizontal + vertical) chart](https://dabeng.github.io/OrgChart/vertical-level.html)
 

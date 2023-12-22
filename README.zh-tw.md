@@ -105,10 +105,6 @@ $ npm install orgchart
 
 我們只需要把css的樣式與數據源中的id字段或css類字段關聯起來就好。
 
-- [我想實現一個多層級（而非深度）的組織結構圖](https://dabeng.github.io/OrgChart/multiple-layers.html)
-
-如果你的組織層級很多，二每個層級下的節點也很多，那麽上面的方案可以采納嘗試。
-
 - [我想構造一個混合布局的（水平方向 + 垂直方向）組織結構圖](https://dabeng.github.io/OrgChart/vertical-level.html)
 
 這個特性的靈感來源于這兩個話題的討論--[Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)。感謝[mfahadi](https://github.com/mfahadi)和[Destructrix](https://github.com/Destructrix)建設性的討論:blush:尤其感謝[tedliang](https://github.com/tedliang)提供了非常棒的混合布局的解決方案。
