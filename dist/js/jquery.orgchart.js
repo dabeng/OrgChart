@@ -277,6 +277,7 @@
     },
     //
     bindPan: function () {
+      this.unbindPan();
       this.$chartContainer.css('overflow', 'hidden');
       this.$chart.on('mousedown touchstart', this.panStartHandler);
       $(document).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
@@ -324,6 +325,7 @@
     },
     //
     bindZoom: function () {
+      this.unbindZoom();
       this.$chartContainer.on('wheel', { 'oc': this }, this.zoomWheelHandler);
       this.$chartContainer.on('touchstart', { 'oc': this }, this.zoomStartHandler);
       $(document).on('touchmove', { 'oc': this }, this.zoomingHandler);
