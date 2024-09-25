@@ -48,7 +48,7 @@
     "chai": "^4.2.0",
     "cypress": "^13.2.0",
     "del": "^3.0.0",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-clean-css": "^3.10.0",
     "gulp-csslint": "^1.0.1",
     "gulp-eslint": "^4.0.2",
