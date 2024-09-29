@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container { height: 600px; }
+    .orgchart { background: #fff; }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var datascource = [
+        { 'id': '1', 'name': 'Lao Lao', 'title': 'general manager', 'gender': 'female', 'spouses': ['2'] },
+        { 'id': '2', 'name': 'Lao Ye', 'title': 'vice general manager', 'gender': 'male', 'spouses': ['1'] },
+        { 'id': '3', 'name': 'Bo Miao', 'title': 'department manager', 'gender': 'female', 'father': '2', 'mother': '1', 'spouses': ['4'] },
+        { 'id': '4', 'name': 'Ren Wu', 'title': 'department manager', 'gender': 'male', 'spouses': ['3'] },
+        { 'id': '5', 'name': 'Su Miao', 'title': 'department manager', 'gender': 'female', 'father': '2', 'mother': '1', 'spouses': ['6'] },
+        { 'id': '6', 'name': 'Tie Hua', 'title': 'senior engineer', 'gender': 'male', 'spouses': ['5'] },
+        { 'id': '7', 'name': 'Hong Miao', 'title': 'department manager', 'gender': 'female', 'father': '2', 'mother': '1' },
+        { 'id': '8', 'name': 'Chun Miao', 'title': 'department manager', 'gender': 'female', 'father': '2', 'mother': '1' },
+        { 'id': '9', 'name': 'Hei Hei', 'title': 'senior engineer', 'gender': 'male', 'father': '6', 'mother': '5', 'spouses': ['10'] },
+        { 'id': '10', 'name': 'Pang Pang', 'title': 'engineer', 'gender': 'female', 'spouses': ['9'] },
+        { 'id': '11', 'name': 'Dan Dan', 'title': 'UE engineer', 'gender': 'female', 'father': '9', 'mother': '10' },
+        { 'id': '12', 'name': 'Er Dan', 'title': 'engineer', 'gender': 'female', 'father': '9', 'mother': '10' },
+        { 'id': '13', 'name': 'San Dan', 'title': 'engineer', 'gender': 'female', 'father': '9', 'mother': '10' }
+      ];
+
+    var oc = $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title',
+    });
+
+
+  });
+  </script>
+  </body>
+</html>
