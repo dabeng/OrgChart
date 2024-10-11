@@ -1427,11 +1427,12 @@
       } else {
         level = data.level = $appendTo.parentsUntil('.orgchart', '.nodes').length;
       }
-      // Construct the node
+      // Construct the single node in OrgChart or the multiple nodes in family tree
       if (Object.keys(data).length > 2) {
         $nodeDiv = this.createNode(data);
         $appendTo.append($nodeDiv);
       }
+
       // Construct the "inferior nodes"
       if (data.children && data.children.length) {
         var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
@@ -1443,22 +1444,17 @@
           }
           if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
             && !$appendTo.closest('.vertical').length) {
-              $appendTo.append($nodesLayer.addClass('vertical'));
-          } else {
-            $appendTo.append($nodesLayer);
+              $nodesLayer.addClass('vertical');
           }
+          $appendTo.append($nodesLayer);
         } else if (data.compact) {
           $nodeDiv.addClass('compact');
         } else {
           $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
-          if (Object.keys(data).length === 2) {
-            $appendTo.append($nodesLayer);
-          } else {
-            if (isHidden) {
-              $appendTo.addClass('isChildrenCollapsed');
-            }
-            $appendTo.append($nodesLayer);
+          if (isHidden) {
+            $appendTo.addClass('isChildrenCollapsed');
           }
+          $appendTo.append($nodesLayer);
         }
         // recurse through children nodes
         $.each(data.children, function () {
