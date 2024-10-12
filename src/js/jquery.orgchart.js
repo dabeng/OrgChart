@@ -1416,8 +1416,45 @@
 
       return $nodeDiv;
     },
+    // Construct the inferior nodes within a hierarchy
+    buildInferiorNodes: function ($hierarchy, $nodeDiv, data, level) {
+      var that = this;
+      var opts = this.options;
+      var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
+      var $nodesLayer;
+      if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
+        $nodesLayer = $('<ul class="nodes">');
+        if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
+          $nodesLayer.addClass('hidden');
+        }
+        if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
+          && !$hierarchy.closest('.vertical').length) {
+            $nodesLayer.addClass('vertical');
+        }
+        $hierarchy.append($nodesLayer);
+      } else if (data.compact) {
+        $nodeDiv.addClass('compact');
+      } else {
+        $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
+        if (isHidden) {
+          $hierarchy.addClass('isChildrenCollapsed');
+        }
+        $hierarchy.append($nodesLayer);
+      }
+      // recurse through children nodes
+      $.each(data.children, function () {
+        this.level = level + 1;
+        if (data.compact) {
+          that.buildHierarchy($nodeDiv, this);
+        } else {
+          var $nodeCell = $('<li class="hierarchy">');
+          $nodesLayer.append($nodeCell);
+          that.buildHierarchy($nodeCell, this);
+        }
+      });
+    },
     // recursively build the tree
-    buildHierarchy: function ($appendTo, data) {
+    buildHierarchy: function ($hierarchy, data) {
       var that = this;
       var opts = this.options;
       var level = 0;
@@ -1425,16 +1462,27 @@
       if (data.level) {
         level = data.level;
       } else {
-        level = data.level = $appendTo.parentsUntil('.orgchart', '.nodes').length;
+        level = data.level = $hierarchy.parentsUntil('.orgchart', '.nodes').length;
       }
       // Construct the single node in OrgChart or the multiple nodes in family tree
-      if (Object.keys(data).length > 2) {
+      if (Array.isArray(data)) {
+        $.each(data, function () {
+          $nodeDiv = that.createNode(data);
+          $hierarchy.append($nodeDiv);
+          if (data.children && data.children.length) {
+            that.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
+          }
+        });
+      } else {
         $nodeDiv = this.createNode(data);
-        $appendTo.append($nodeDiv);
+        $hierarchy.append($nodeDiv);
+        if (data.children && data.children.length) {
+          this.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
+        }
       }
 
       // Construct the "inferior nodes"
-      if (data.children && data.children.length) {
+      /*if (data.children && data.children.length) {
         var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
         var $nodesLayer;
         if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
@@ -1443,18 +1491,18 @@
             $nodesLayer.addClass('hidden');
           }
           if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
-            && !$appendTo.closest('.vertical').length) {
+            && !$hierarchy.closest('.vertical').length) {
               $nodesLayer.addClass('vertical');
           }
-          $appendTo.append($nodesLayer);
+          $hierarchy.append($nodesLayer);
         } else if (data.compact) {
           $nodeDiv.addClass('compact');
         } else {
           $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
           if (isHidden) {
-            $appendTo.addClass('isChildrenCollapsed');
+            $hierarchy.addClass('isChildrenCollapsed');
           }
-          $appendTo.append($nodesLayer);
+          $hierarchy.append($nodesLayer);
         }
         // recurse through children nodes
         $.each(data.children, function () {
@@ -1467,7 +1515,7 @@
             that.buildHierarchy($nodeCell, this);
           }
         });
-      }
+      }*/
     },
     // build the child nodes of specific node
     buildChildNode: function ($appendTo, data) {
