@@ -1467,10 +1467,14 @@
       // Construct the single node in OrgChart or the multiple nodes in family tree
       if (Array.isArray(data)) {
         $.each(data, function () {
-          $nodeDiv = that.createNode(data);
-          $hierarchy.append($nodeDiv);
-          if (data.children && data.children.length) {
-            that.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
+          $nodeDiv = that.createNode(this);
+          if ($hierarchy.children('.node').length) {
+            $hierarchy.children('.node:first').after($nodeDiv);
+          } else {
+            $hierarchy.append($nodeDiv);
+          }
+          if (this.children && this.children.length) {
+            that.buildInferiorNodes($hierarchy, $nodeDiv, this, level);
           }
         });
       } else {
