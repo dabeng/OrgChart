@@ -1469,7 +1469,7 @@
         $.each(data, function () {
           $nodeDiv = that.createNode(this);
           if ($hierarchy.children('.node').length) {
-            $hierarchy.children('.node:first').after($nodeDiv);
+            $hierarchy.children('.node:last').after($nodeDiv);
           } else {
             $hierarchy.append($nodeDiv);
           }
