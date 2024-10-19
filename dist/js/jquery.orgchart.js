@@ -75,7 +75,8 @@
       if (typeof MutationObserver !== 'undefined') {
         this.triggerInitEvent();
       }
-      var $root = $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
+      var $root = Array.isArray(data) ? $chart.append($('<ul class="nodes"></ul>')).find('.nodes')
+        : $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
 
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($root, this.buildJsonDS(data.children()), 0, this.options);
@@ -83,7 +84,7 @@
           if (data.relationship) {
             this.buildHierarchy($root, data);
           } else {
-            this.buildHierarchy($root, this.attachRel(data, '00'));
+            this.buildHierarchy($root, Array.isArray(data) ? data : this.attachRel(data, '00'));
           }
         }
 
@@ -1443,13 +1444,26 @@
       }
       // recurse through children nodes
       $.each(data.children, function () {
-        this.level = level + 1;
-        if (data.compact) {
-          that.buildHierarchy($nodeDiv, this);
+        if (Array.isArray(this)) {
+          $.each(this, function() {
+            this.level = level + 1;
+            if (data.compact) {
+              that.buildHierarchy($nodeDiv, this);
+            } else {
+              var $nodeCell = $('<li class="hierarchy">');
+              $nodesLayer.append($nodeCell);
+              that.buildHierarchy($nodeCell, this);
+            }
+          });
         } else {
-          var $nodeCell = $('<li class="hierarchy">');
-          $nodesLayer.append($nodeCell);
-          that.buildHierarchy($nodeCell, this);
+          this.level = level + 1;
+          if (data.compact) {
+            that.buildHierarchy($nodeDiv, this);
+          } else {
+            var $nodeCell = $('<li class="hierarchy">');
+            $nodesLayer.append($nodeCell);
+            that.buildHierarchy($nodeCell, this);
+          }
         }
       });
     },
@@ -1459,23 +1473,36 @@
       var opts = this.options;
       var level = 0;
       var $nodeDiv;
-      if (data.level) {
+      if (data.level || data[0]?.level) {
         level = data.level;
       } else {
-        level = data.level = $hierarchy.parentsUntil('.orgchart', '.nodes').length;
+        level = $hierarchy.parentsUntil('.orgchart', '.nodes').length;
+        if (Array.isArray(data)) {
+          $.each(data, function () {
+            $.each(this, function () {
+              this.level = level;
+            });
+          });
+        } else {
+          data.level = level;
+        }
       }
       // Construct the single node in OrgChart or the multiple nodes in family tree
       if (Array.isArray(data)) {
         $.each(data, function () {
-          $nodeDiv = that.createNode(this);
-          if ($hierarchy.children('.node').length) {
-            $hierarchy.children('.node:last').after($nodeDiv);
-          } else {
-            $hierarchy.append($nodeDiv);
-          }
-          if (this.children && this.children.length) {
-            that.buildInferiorNodes($hierarchy, $nodeDiv, this, level);
-          }
+          $.each(this, function () {
+            $nodeDiv = that.createNode(this);
+            // if ($hierarchy.children('.node').length) {
+            //   $hierarchy.children('.node:last').after($nodeDiv);
+            // } else {
+            var $wrapper = $('<li class="hierarchy"></li>');
+            $wrapper.append($nodeDiv);
+              $hierarchy.append($wrapper);
+            // }
+            if (this.children && this.children.length) {
+              that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
+            }
+          });
         });
       } else {
         $nodeDiv = this.createNode(data);
