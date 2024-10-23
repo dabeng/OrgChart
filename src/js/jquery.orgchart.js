@@ -1490,17 +1490,23 @@
       // Construct the single node in OrgChart or the multiple nodes in family tree
       if (Array.isArray(data)) {
         $.each(data, function () {
-          $.each(this, function () {
+          var _this = this;
+          $.each(this, function (i) {
             $nodeDiv = that.createNode(this);
-            // if ($hierarchy.children('.node').length) {
-            //   $hierarchy.children('.node:last').after($nodeDiv);
-            // } else {
-            var $wrapper = $('<li class="hierarchy"></li>');
-            $wrapper.append($nodeDiv);
+            if (_this.length === 2 && i === 1) {
+            //   // $hierarchy.children('.node:last').after($nodeDiv);
+              $hierarchy.children('.hierarchy:first').append($nodeDiv);
+              if (this.children && this.children.length) {
+                that.buildInferiorNodes($hierarchy.children('.hierarchy:first'), $nodeDiv, this, level);
+              }
+            } else {
+              var $wrapper = $('<li class="hierarchy"></li>');
+              $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
             // }
-            if (this.children && this.children.length) {
-              that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
+              if (this.children && this.children.length) {
+                that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
+              }
             }
           });
         });
