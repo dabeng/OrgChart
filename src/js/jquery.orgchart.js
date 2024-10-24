@@ -1348,7 +1348,10 @@
       }
       // construct the content of node
       var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (data[opts.nodeId] ? ' id="' + data[opts.nodeId] + '"' : '') + (data.parentId ? ' data-parent="' + data.parentId + '"' : '') + '>')
-        .addClass('node ' + (data.className || '') +  (level > opts.visibleLevel ? ' slide-up' : ''));
+        .addClass('node ' 
+        + (data.className || '')
+        + (data?.outsider ? 'outsider' : '')
+        +  (level > opts.visibleLevel ? ' slide-up' : ''));
       if (opts.nodeTemplate) {
         $nodeDiv.append(opts.nodeTemplate(data));
       } else {
@@ -1493,17 +1496,17 @@
           var _this = this;
           $.each(this, function (i) {
             $nodeDiv = that.createNode(this);
+            // if there are only two persons in a marriage, two single nodes will appear in a hierarchy
             if (_this.length === 2 && i === 1) {
-            //   // $hierarchy.children('.node:last').after($nodeDiv);
               $hierarchy.children('.hierarchy:first').append($nodeDiv);
               if (this.children && this.children.length) {
                 that.buildInferiorNodes($hierarchy.children('.hierarchy:first'), $nodeDiv, this, level);
               }
             } else {
+              // if there are more than two persons in a marriage, every node will be included in a single hierarchy
               var $wrapper = $('<li class="hierarchy"></li>');
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
-            // }
               if (this.children && this.children.length) {
                 that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
               }

@@ -155,7 +155,7 @@
   background-color: rgba(238, 217, 54, 0.5);
 }
 /* excluding root node */
-.orgchart > ul > li > ul li > .node::before {
+.orgchart > ul > li > ul li > .node:not(.outsider):before {
   content: "";
   position: absolute;
   top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
