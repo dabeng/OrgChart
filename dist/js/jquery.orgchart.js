@@ -1446,21 +1446,15 @@
         $hierarchy.append($nodesLayer);
       }
       // recurse through children nodes
-      $.each(data.children, function () {
-        if (Array.isArray(this)) {
+      $.each(data, function () {
+        if (Array.isArray(this)) { // 处理一对夫妻（可能有多个妻）
           $.each(this, function() {
             this.level = level + 1;
-            if (data.compact) {
-              that.buildHierarchy($nodeDiv, this);
-            } else {
-              var $nodeCell = $('<li class="hierarchy">');
-              $nodesLayer.append($nodeCell);
-              that.buildHierarchy($nodeCell, this);
-            }
           });
+          that.buildHierarchy($nodesLayer, [this]);
         } else {
           this.level = level + 1;
-          if (data.compact) {
+          if (this.compact) {
             that.buildHierarchy($nodeDiv, this);
           } else {
             var $nodeCell = $('<li class="hierarchy">');
@@ -1491,16 +1485,16 @@
         }
       }
       // Construct the single node in OrgChart or the multiple nodes in family tree
-      if (Array.isArray(data)) {
-        $.each(data, function () {
+      if (Array.isArray(data)) { // 处理family tree的情况
+        $.each(data, function () { // 构造一个家庭的hierarchy
           var _this = this;
-          $.each(this, function (i) {
+          $.each(this, function (i) { // 构造一个夫/妻节点
             $nodeDiv = that.createNode(this);
             // if there are only two persons in a marriage, two single nodes will appear in a hierarchy
             if (_this.length === 2 && i === 1) {
-              $hierarchy.children('.hierarchy:first').append($nodeDiv);
+              $hierarchy.find(`#${_this[0].id}`).after($nodeDiv);
               if (this.children && this.children.length) {
-                that.buildInferiorNodes($hierarchy.children('.hierarchy:first'), $nodeDiv, this, level);
+                that.buildInferiorNodes($hierarchy.find(`#${_this[0].id}`).parent(), $nodeDiv, this.children, level);
               }
             } else {
               // if there are more than two persons in a marriage, every node will be included in a single hierarchy
@@ -1508,7 +1502,7 @@
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
               if (this.children && this.children.length) {
-                that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
+                that.buildInferiorNodes($wrapper, $nodeDiv, this.children, level);
               }
             }
           });
@@ -1517,45 +1511,9 @@
         $nodeDiv = this.createNode(data);
         $hierarchy.append($nodeDiv);
         if (data.children && data.children.length) {
-          this.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
+          this.buildInferiorNodes($hierarchy, $nodeDiv, data.children, level);
         }
       }
-
-      // Construct the "inferior nodes"
-      /*if (data.children && data.children.length) {
-        var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
-        var $nodesLayer;
-        if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
-          $nodesLayer = $('<ul class="nodes">');
-          if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
-            $nodesLayer.addClass('hidden');
-          }
-          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
-            && !$hierarchy.closest('.vertical').length) {
-              $nodesLayer.addClass('vertical');
-          }
-          $hierarchy.append($nodesLayer);
-        } else if (data.compact) {
-          $nodeDiv.addClass('compact');
-        } else {
-          $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
-          if (isHidden) {
-            $hierarchy.addClass('isChildrenCollapsed');
-          }
-          $hierarchy.append($nodesLayer);
-        }
-        // recurse through children nodes
-        $.each(data.children, function () {
-          this.level = level + 1;
-          if (data.compact) {
-            that.buildHierarchy($nodeDiv, this);
-          } else {
-            var $nodeCell = $('<li class="hierarchy">');
-            $nodesLayer.append($nodeCell);
-            that.buildHierarchy($nodeCell, this);
-          }
-        });
-      }*/
     },
     // build the child nodes of specific node
     buildChildNode: function ($appendTo, data) {
