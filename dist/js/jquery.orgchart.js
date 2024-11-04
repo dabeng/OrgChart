@@ -1498,7 +1498,7 @@
               }
             } else {
               // if there are more than two persons in a marriage, every node will be included in a single hierarchy
-              var $wrapper = $('<li class="hierarchy"></li>');
+              var $wrapper = $(`<li class="hierarchy${_this.length > 1 ? ' spouse' : ''}${this.outsider  ? '' : ' insider'}"></li>`);
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
               if (this.children && this.children.length) {

@@ -99,6 +99,19 @@
   border-top: 2px solid rgba(217, 83, 79, 0.8);
   box-sizing: border-box;
 }
+/* 把本姓人首次出现位置的前面的连线去掉 */
+.orgchart .hierarchy:has(~ :nth-child(1 of .hierarchy.insider))::before {
+  content: none;
+}
+
+/* 把本姓人末次出现位置的后面的连线去掉 */
+.orgchart :nth-last-child(-n + 1 of .hierarchy.insider) ~ .hierarchy::before {
+  content: none;
+}
+
+.orgchart .hierarchy.spouse::before {
+  /* top: 24px; */
+}
 
 .orgchart .hierarchy:first-child::before,
 .orgchart .hierarchy.isSiblingsCollapsed.left-sibs::before {
@@ -139,6 +152,16 @@
   left: calc(50% - 1px);
   width: 2px;
   height: 10px; /* background square size */
+  background-color: rgba(217, 83, 79, 0.8);
+}
+
+.orgchart .hierarchy.spouse > .node + .node::before {
+  content: "";
+  position: absolute;
+  top: 22px; /* 50% width of node - node's padding */
+  left: -7px; /* nodes' gap - node's padding */
+  width: 10px;
+  height: 2px;
   background-color: rgba(217, 83, 79, 0.8);
 }
 
