@@ -1498,7 +1498,23 @@
               }
             } else {
               // if there are more than two persons in a marriage, every node will be included in a single hierarchy
-              var $wrapper = $(`<li class="hierarchy${_this.length > 1 ? ' spouse' : ''}${this.outsider  ? '' : ' insider'}"></li>`);
+              var $wrapper = $(`<li class="hierarchy${_this.length > 1 ? ' spouse' : ''}${_this.length === 2 ? ' couple' : ''}${!!this.outsider === false && _this.length > 2  ? ' insider' : ''}"></li>`);
+              // $wrapper.css('--left-offset', this.outsider
+              //   ? _this.find((p) => !!p.outsider === false)[opts.nodeId]
+              //   : _this.filter((p) => !!p.outsider === true).map((p) => p[opts.nodeId]).join()
+              // );
+              // if (this.outsider) {
+              //   $wrapper.css('--left-offset', i < _this.findIndex((p) => !!p.outsider === false) ? 'calc(50% - 1px);' : '0px');
+              // }
+              //在family tree中，一个父母组合里，本姓人只有一个，外姓人可能有多个，我们通过水平的连线来表示他们是一家子
+              if (i === 0) {
+                $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '50%'});
+              } else if (i > 0 && i < _this.length - 1) {
+                $wrapper.css({'--ft-width': '100%', '--ft-left-offset': '0px'});
+              } else {
+                $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '0px'});
+              }
+
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
               if (this.children && this.children.length) {
