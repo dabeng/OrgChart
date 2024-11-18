@@ -1446,7 +1446,7 @@
         $hierarchy.append($nodesLayer);
       }
       // recurse through children nodes
-      $.each(data, function () {
+      $.each(data.children, function () {
         if (Array.isArray(this)) { // 处理一对夫妻（可能有多个妻）
           $.each(this, function() {
             this.level = level + 1;
@@ -1454,7 +1454,7 @@
           that.buildHierarchy($nodesLayer, [this]);
         } else {
           this.level = level + 1;
-          if (this.compact) {
+          if (data.compact) {
             that.buildHierarchy($nodeDiv, this);
           } else {
             var $nodeCell = $('<li class="hierarchy">');
@@ -1494,7 +1494,7 @@
             if (_this.length === 2 && i === 1) {
               $hierarchy.find(`#${_this[0].id}`).after($nodeDiv);
               if (this.children && this.children.length) {
-                that.buildInferiorNodes($hierarchy.find(`#${_this[0].id}`).parent(), $nodeDiv, this.children, level);
+                that.buildInferiorNodes($hierarchy.find(`#${_this[0].id}`).parent(), $nodeDiv, this, level);
               }
             } else {
               // if there are more than two persons in a marriage, every node will be included in a single hierarchy
@@ -1506,6 +1506,12 @@
               // if (this.outsider) {
               //   $wrapper.css('--left-offset', i < _this.findIndex((p) => !!p.outsider === false) ? 'calc(50% - 1px);' : '0px');
               // }
+
+              // 我们借助标记类middle来处理就一个独生子女，就一个小家庭，且夫妻总数大于等于3的特殊情况下的父子连线
+              if (data.length === 1 && _this.length >= 3 && i === Math.ceil(_this.length/2) - 1) {
+                $wrapper.addClass(`middle${_this.length % 2 === 0 ? ' full-width' : ' half-width'}`);
+              }
+
               //在family tree中，一个父母组合里，本姓人只有一个，外姓人可能有多个，我们通过水平的连线来表示他们是一家子
               if (i === 0) {
                 $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '50%'});
@@ -1518,7 +1524,7 @@
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
               if (this.children && this.children.length) {
-                that.buildInferiorNodes($wrapper, $nodeDiv, this.children, level);
+                that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
               }
             }
           });
@@ -1527,7 +1533,7 @@
         $nodeDiv = this.createNode(data);
         $hierarchy.append($nodeDiv);
         if (data.children && data.children.length) {
-          this.buildInferiorNodes($hierarchy, $nodeDiv, data.children, level);
+          this.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
         }
       }
     },

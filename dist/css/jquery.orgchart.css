@@ -99,30 +99,85 @@
   border-top: 2px solid rgba(217, 83, 79, 0.8);
   box-sizing: border-box;
 }
-/* 把本姓人首次出现位置的前面的连线（从上一层父母节点向下的连线）都去掉 */
-.orgchart .hierarchy:has(~ :nth-child(1 of .hierarchy.insider))::before {
+
+/* 本姓人与上一层父母的连线，借助伪元素::before实现 */
+/* 处理同一层中特殊的首节点 */
+.orgchart .couple:first-child:not(:only-child):has(> .outsider:first-child)::before {
+  width: calc(50% - 70px); /* half width of hierarchy - half width of node - node's padding - node's border width */
+  left: calc(50% + 70px);
+}
+.orgchart .couple:first-child:not(:only-child):has(> :not(.outsider):first-child)::before {
+  width: calc(50% + 70px);
+  left: calc(50% - 70px);
+}
+.orgchart .spouse:has(~ :nth-child(1 of .insider))::before {
   content: none;
 }
-
-/* 设置紧跟在外姓人之后的首个本姓人的连线 */
-.orgchart .hierarchy:has(+ :nth-child(1 of .hierarchy.insider)) + .hierarchy::before {
+.orgchart :nth-child(1 of .insider):not(:only-child)::before {
+  width: calc(50% + 2px);
   left: calc(50% - 1px);
-  width: calc(50% + 1px);
 }
 
-/* 把本姓人末次出现位置的后面的连线都去掉 */
-.orgchart :nth-last-child(-n + 1 of .hierarchy.insider) ~ .hierarchy::before {
+/* 处理同一层中特殊的末节点 */
+.orgchart .couple:last-child:not(:only-child):has(> .outsider:first-child)::before {
+  width: calc(50% + 70px);
+  left: 0px;
+}
+.orgchart .couple:last-child:not(:only-child):has(> :not(.outsider):first-child)::before {
+  width: calc(50% - 70px);
+  left: 0px;
+}
+.orgchart .couple:only-child:has(> .outsider:first-child)::before {
+  width: 72px;
+  left: calc(50% - 1px);
+}
+.orgchart .couple:only-child:has(> :not(.outsider):first-child)::before {
+  width: 72px;
+  left: calc(50% - 71px); /* half width of hierarchy - half of node's width - half of link width */
+}
+/* .orgchart .couple:only-child:has(> :not(.outsider):first-child):not(:has(> .nodes))::before {
+  width: 72px;
+  left: calc(50% - 71px);
+} */
+.orgchart .couple:only-child > .nodes > .hierarchy:only-child::before {
+  width: 72px; /* half of node's width + link's width */
+  left: calc(50% - 1px); /* half of hierarchy - half of link's width */
+}
+
+.orgchart :nth-last-child(-n + 1 of .insider):not(:nth-child(1 of .insider)) ~ .spouse::before,
+.orgchart :nth-last-child(-n + 1 of .insider):is(:nth-child(1 of .insider)) ~ .spouse::before {
   content: none;
 }
+.orgchart :nth-last-child(-n + 1 of .insider):not(:nth-child(1 of .insider))::before {
+  width: 50%;
+  left: 0px;
+}
 
-/* 设置后面跟着外姓人的末次出现的本姓人的连线 */
-.orgchart :nth-last-child(-n + 1 of .hierarchy.insider):has(+ .hierarchy:not(.insider))::before {
-  left: 0;
+/* 这里，我们来处理就一个独生子女，就一个小家庭，且夫妻总数大于等于3的特殊情况下的父子连线 */
+/* from class insider to class middle */
+.orgchart :nth-child(1 of .insider):nth-last-child(-n + 1 of .insider) ~ *:not(.middle, .middle ~ *)::before {
+  content: "";
+  width: 100%;
+  left: 0px;
+}
+
+.orgchart :nth-child(1 of .insider):nth-last-child(-n + 1 of .insider).middle::before {
+  width: 2px;
+}
+
+.orgchart .hierarchy.middle.full-width::before {
+  content: ""!important;
+  width: calc(100% + 1px);
+}
+
+.orgchart .hierarchy.middle.half-width::before {
+  content: ""!important;
   width: calc(50% + 1px);
 }
+
 
 /* 在family tree中，一个夫妻组合里，本姓人只有一个，外姓人可能有多个 */
-/* 我们通过水平的连线来表示他们存在婚姻关系 */
+/* 我们通过水平的连线来表示他们存在婚姻关系，借助伪元素::after实现 */
 .orgchart .hierarchy.spouse:not(.couple)::after {
   content: "";
   position: absolute;
@@ -133,7 +188,23 @@
   width: var(--ft-width);
   left: var(--ft-left-offset);
 }
+
 /* 一夫一妻情况下的连线 */
+.orgchart .hierarchy.couple {
+  white-space: nowrap;
+}
+/* .orgchart .hierarchy.couple:has(> .nodes) > .node:first-child {
+  margin-right: 10px;
+} */
+.orgchart .hierarchy.couple:has(> .nodes) > .node:first-child::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: calc(100% + 1px);
+  width: 2px;
+  height: 33px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
 .orgchart .hierarchy.couple::after {
   content: "";
   position: absolute;
@@ -141,8 +212,8 @@
   box-sizing: border-box;
   z-index: 0;
   top: 24px;
-  width: 10px;
-  left: calc(50% - 5px); /* half of hierarchy - node's padding width - node's border with */
+  width: 20px;
+  left: calc(50% - 10px); /* half of hierarchy - node's padding width - node's border with */
 }
 
 .orgchart .hierarchy:first-child::before,
@@ -522,8 +593,8 @@
   margin-bottom: 0;
 }
 
-.orgchart .nodes.vertical .node::before,
-.orgchart .nodes.vertical .node::after {
+.orgchart .nodes.vertical .hierarchy .node::before,
+.orgchart .nodes.vertical .hierarchy .node::after {
   content: none;
 }
 
