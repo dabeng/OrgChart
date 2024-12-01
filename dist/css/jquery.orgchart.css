@@ -83,6 +83,7 @@
   list-style: none;
   padding-left: 0;
   margin: 0;
+  justify-content: center;
 }
 
 .orgchart .hierarchy {
@@ -102,79 +103,21 @@
 
 /* 本姓人与上一层父母的连线，借助伪元素::before实现 */
 /* 处理同一层中特殊的首节点 */
-.orgchart .couple:first-child:not(:only-child):has(> .outsider:first-child)::before {
-  width: calc(50% - 70px); /* half width of hierarchy - half width of node - node's padding - node's border width */
-  left: calc(50% + 70px);
-}
-.orgchart .couple:first-child:not(:only-child):has(> :not(.outsider):first-child)::before {
-  width: calc(50% + 70px);
-  left: calc(50% - 70px);
-}
-.orgchart .spouse:has(~ :nth-child(1 of .insider))::before {
-  content: none;
-}
-.orgchart :nth-child(1 of .insider):not(:only-child)::before {
-  width: calc(50% + 2px);
-  left: calc(50% - 1px);
+.orgchart .couple:first-child:not(:only-child)::before {
+  width: calc(100% - 69px); /* half width of hierarchy - half width of node - node's padding - node's border width */
+  left: 69px;
 }
 
 /* 处理同一层中特殊的末节点 */
-.orgchart .couple:last-child:not(:only-child):has(> .outsider:first-child)::before {
-  width: calc(50% + 70px);
-  left: 0px;
-}
-.orgchart .couple:last-child:not(:only-child):has(> :not(.outsider):first-child)::before {
-  width: calc(50% - 70px);
-  left: 0px;
-}
-.orgchart .couple:only-child:has(> .outsider:first-child)::before {
-  width: 72px;
-  left: calc(50% - 1px);
-}
-.orgchart .couple:only-child:has(> :not(.outsider):first-child)::before {
-  width: 72px;
-  left: calc(50% - 71px); /* half width of hierarchy - half of node's width - half of link width */
-}
-/* .orgchart .couple:only-child:has(> :not(.outsider):first-child):not(:has(> .nodes))::before {
-  width: 72px;
-  left: calc(50% - 71px);
-} */
-.orgchart .couple:only-child > .nodes > .hierarchy:only-child::before {
-  width: 72px; /* half of node's width + link's width */
-  left: calc(50% - 1px); /* half of hierarchy - half of link's width */
-}
-
-.orgchart :nth-last-child(-n + 1 of .insider):not(:nth-child(1 of .insider)) ~ .spouse::before,
-.orgchart :nth-last-child(-n + 1 of .insider):is(:nth-child(1 of .insider)) ~ .spouse::before {
-  content: none;
-}
-.orgchart :nth-last-child(-n + 1 of .insider):not(:nth-child(1 of .insider))::before {
-  width: 50%;
+.orgchart .couple:last-child:not(:only-child)::before {
+  width: calc(50% + 71px);
   left: 0px;
 }
 
-/* 这里，我们来处理就一个独生子女，就一个小家庭，且夫妻总数大于等于3的特殊情况下的父子连线 */
-/* from class insider to class middle */
-.orgchart :nth-child(1 of .insider):nth-last-child(-n + 1 of .insider) ~ *:not(.middle, .middle ~ *)::before {
-  content: "";
-  width: 100%;
-  left: 0px;
+.orgchart .hierarchy.couple:only-child::before {
+  width: 142px; /* half of node's width + link's width */
+  left: calc(50% - 71px); /* half width of node - half of link width */
 }
-
-.orgchart :nth-child(1 of .insider):nth-last-child(-n + 1 of .insider).middle::before {
-  width: 2px;
-}
-
-.orgchart .hierarchy.middle.full-width::before {
-  content: ""!important;
-  width: calc(100% + 1px);
-}
-
-.orgchart .hierarchy.middle.half-width::before {
-  content: ""!important;
-  width: calc(50% + 1px);
-}
-
 
 /* 在family tree中，一个夫妻组合里，本姓人只有一个，外姓人可能有多个 */
 /* 我们通过水平的连线来表示他们存在婚姻关系，借助伪元素::after实现 */
@@ -190,13 +133,11 @@
 }
 
 /* 一夫一妻情况下的连线 */
-.orgchart .hierarchy.couple {
+.orgchart .couple {
   white-space: nowrap;
 }
-/* .orgchart .hierarchy.couple:has(> .nodes) > .node:first-child {
-  margin-right: 10px;
-} */
-.orgchart .hierarchy.couple:has(> .nodes) > .node:first-child::after {
+
+.orgchart .couple:has(> .nodes) > .node:first-child::after {
   content: "";
   position: absolute;
   top: 24px;
@@ -205,7 +146,7 @@
   height: 33px;
   background-color: rgba(217, 83, 79, 0.8);
 }
-.orgchart .hierarchy.couple::after {
+.orgchart .couple::after {
   content: "";
   position: absolute;
   border-top: 2px solid rgba(217, 83, 79, 0.8);
@@ -227,7 +168,7 @@
   width: calc(50% + 1px);
 }
 
-.orgchart .hierarchy:not(.hidden):only-child::before {
+.orgchart .hierarchy:not(.hidden):not(.spouse):only-child::before {
   width: 2px;
 }
 
@@ -243,12 +184,12 @@
 .orgchart .isCollapsedDescendant > .node::before,
 .orgchart .isCollapsedDescendant > .node::after,
 .orgchart .isAncestorsCollapsed:only-child::before,
-.orgchart .isAncestorsCollapsed > .node::before {
+.orgchart .isAncestorsCollapsed > .node:not(.outsider)::before {
   content: none;
 }
 
 /* excluding leaf node */
-.orgchart .hierarchy:not(.couple) .node:has(+ .nodes)::after {
+.orgchart .hierarchy:not(.couple) > .node:has(+ .nodes)::after {
   content: "";
   position: absolute;
   bottom: -12px; /* -(background square size + node's border width) */
@@ -271,7 +212,7 @@
   background-color: rgba(238, 217, 54, 0.5);
 }
 /* excluding root node */
-.orgchart > ul > li > ul li > .node:not(.outsider):before {
+.orgchart > ul > li > ul li > .node:not(.outsider)::before {
   content: "";
   position: absolute;
   top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
@@ -281,7 +222,17 @@
   background-color: rgba(217, 83, 79, 0.8);
 }
 
-.orgchart > ul > li > ul li.isSiblingsCollapsed > .node::before {
+.orgchart > ul > li > ul li > .node.outsider::before {
+  content: "";
+  position: absolute;
+  top: var(--top, -12px);
+  left: calc(50% - 1px);
+  width: 0;
+  height: var(--height, 10px);
+  border-right: 2px dotted rgba(217, 83, 79, 0.8);
+}
+
+.orgchart > ul > li > ul .isSiblingsCollapsed > .node::before {
   top: var(--top-cross-point, -12px);
   height: var(--height-cross-point, 10px);
 }

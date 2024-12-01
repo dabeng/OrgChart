@@ -7,8 +7,36 @@
   <link rel="stylesheet" href="css/jquery.orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { height: 600px; }
     .orgchart { background: #fff; }
+    #chart-container {
+      height: 800px;
+    }
+    .orgchart .node {
+      padding: 3px 8px;
+      /* box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px; */
+    }
+    .orgchart .node .avatar {
+      box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px;
+    }
+    .orgchart .couple:has(> .nodes) > .node:first-child::after {
+      top: 148px;
+    }
+    .orgchart .couple::after  {
+      top: 148px;
+      width: 30px;
+      left: calc(50% - 15px);
+    }
+    .orgchart .couple:first-child:not(:only-child)::before {
+      width: calc(100% - 74px);
+      left: 74px;
+    }
+    .orgchart .hierarchy.couple:only-child::before {
+      width: 152px;
+      left: calc(50% - 76px);
+    }
+    .orgchart .couple:last-child:not(:only-child)::before {
+      width: calc(50% + 76px);
+    }
   </style>
 </head>
 <body>
@@ -21,33 +49,33 @@
 
       var datascource = [
         [
-          { 'id': '1', 'name': 'Lao Ye', 'title': 'general manager', 'gender': 'male' },
+          { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
           { 
-            'id': '2', 'name': 'Lao Lao', 'title': 'vice general manager', 'gender': 'female', 'outsider': true,
+            'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother', 'gender': 'female', 'outsider': true,
             'children': [
               [
-                { 'id': '3', 'name': 'Bo Miao', 'title': 'department manager', 'gender': 'female' },
-                { 'id': '4', 'name': 'Ren Wu', 'title': 'department manager', 'gender': 'male', 'outsider': true }
+                { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt', 'gender': 'female'}
               ],
               [
-                { 'id': '5', 'name': 'Su Miao', 'title': 'department manager', 'gender': 'female',
+                { 'id': '3', 'name': 'Su Miao', 'title': 'Mother', 'gender': 'female',
                   'children': [
                     [
-                      { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer', 'gender': 'female', 'outsider': true,
+                    
+                      { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'gender': 'female', 'outsider': true,
                         'children': [
-                          [{ 'id': '7', 'name': 'Dan Dan', 'title': 'UE engineer', 'gender': 'female' }],
-                          [{ 'id': '8', 'name': 'Er Dan', 'title': 'engineer', 'gender': 'female' }],
+                          [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
+                          [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
                         ]
                       },
-                      { 'id': '9', 'name': 'Hei Hei', 'title': 'senior engineer', 'gender': 'male' },
-                      { 'id': '10', 'name': 'Er Pang', 'title': 'engineer', 'gender': 'female', 'outsider': true}
+                      { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },
                     ]
                   ]
                 },
-                { 'id': '11', 'name': 'Tie Hua', 'title': 'senior engineer', 'gender': 'male', 'outsider': true }
+                { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'gender': 'male', 'outsider': true }
               ],
-              [{ 'id': '12', 'name': 'Hong Miao', 'title': 'department manager', 'gender': 'female' }],
-              [{ 'id': '13', 'name': 'Chun Miao', 'title': 'department manager', 'gender': 'female' }]
+              [
+                { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt', 'gender': 'female'}
+              ]
             ]
           }
         ]
@@ -56,6 +84,10 @@
     var oc = $('#chart-container').orgchart({
       'data' : datascource,
       'nodeContent': 'title',
+      'nodeID': 'id',
+      'createNode': function($node, data) {
+        $node.prepend(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+      }
     });
 
 

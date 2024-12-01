@@ -1446,13 +1446,13 @@
         $hierarchy.append($nodesLayer);
       }
       // recurse through children nodes
-      $.each(data.children, function () {
-        if (Array.isArray(this)) { // 处理一对夫妻（可能有多个妻）
-          $.each(this, function() {
-            this.level = level + 1;
-          });
-          that.buildHierarchy($nodesLayer, [this]);
-        } else {
+      if (Array.isArray(data.children[0])) {
+        $.each(data.children, function() {
+          this.level = level + 1;
+        });
+        this.buildHierarchy($nodesLayer, data.children); // 构造子一层的夫妻组合（每个组合可能有多妻多夫情况）
+      } else {
+        $.each(data.children, function () {
           this.level = level + 1;
           if (data.compact) {
             that.buildHierarchy($nodeDiv, this);
@@ -1461,8 +1461,8 @@
             $nodesLayer.append($nodeCell);
             that.buildHierarchy($nodeCell, this);
           }
-        }
-      });
+        });
+      }
     },
     // recursively build the tree
     buildHierarchy: function ($hierarchy, data) {
@@ -1493,26 +1493,14 @@
             // if there are only two persons in a marriage, two single nodes will appear in a hierarchy
             if (_this.length === 2 && i === 1) {
               $hierarchy.find(`#${_this[0].id}`).after($nodeDiv);
-              if (this.children && this.children.length) {
+              if (this.children && this.children.length && this.children[0].length) {
                 that.buildInferiorNodes($hierarchy.find(`#${_this[0].id}`).parent(), $nodeDiv, this, level);
               }
             } else {
               // if there are more than two persons in a marriage, every node will be included in a single hierarchy
               var $wrapper = $(`<li class="hierarchy${_this.length > 1 ? ' spouse' : ''}${_this.length === 2 ? ' couple' : ''}${!!this.outsider === false && _this.length > 2  ? ' insider' : ''}"></li>`);
-              // $wrapper.css('--left-offset', this.outsider
-              //   ? _this.find((p) => !!p.outsider === false)[opts.nodeId]
-              //   : _this.filter((p) => !!p.outsider === true).map((p) => p[opts.nodeId]).join()
-              // );
-              // if (this.outsider) {
-              //   $wrapper.css('--left-offset', i < _this.findIndex((p) => !!p.outsider === false) ? 'calc(50% - 1px);' : '0px');
-              // }
 
-              // 我们借助标记类middle来处理就一个独生子女，就一个小家庭，且夫妻总数大于等于3的特殊情况下的父子连线
-              if (data.length === 1 && _this.length >= 3 && i === Math.ceil(_this.length/2) - 1) {
-                $wrapper.addClass(`middle${_this.length % 2 === 0 ? ' full-width' : ' half-width'}`);
-              }
-
-              //在family tree中，一个父母组合里，本姓人只有一个，外姓人可能有多个，我们通过水平的连线来表示他们是一家子
+              //在family tree中，一个多妻/多夫组合里，本姓人只有一个，外姓人可能有多个，我们通过水平的连线来表示他们是一家子
               if (i === 0) {
                 $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '50%'});
               } else if (i > 0 && i < _this.length - 1) {
@@ -1523,7 +1511,7 @@
 
               $wrapper.append($nodeDiv);
               $hierarchy.append($wrapper);
-              if (this.children && this.children.length) {
+              if (this.children && this.children.length && this.children[0].length) {
                 that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
               }
             }
