@@ -9,14 +9,15 @@
   <style type="text/css">
     .orgchart { background: #fff; }
     #chart-container {
-      height: 800px;
+      height: 850px;
     }
     .orgchart .node {
       padding: 3px 8px;
       /* box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px; */
     }
     .orgchart .node .avatar {
-      box-shadow: rgba(99, 99, 99, 0.3) 0px 2px 8px 0px;
+      border-radius: 60px;
+      box-shadow: rgba(99, 99, 99, 0.8) 0px 2px 8px 0px;
     }
     .orgchart .couple:has(> .nodes) > .node:first-child::after {
       top: 148px;
@@ -64,7 +65,7 @@
                       { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'gender': 'female', 'outsider': true,
                         'children': [
                           [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
-                          [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
+                          // [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
                         ]
                       },
                       { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },

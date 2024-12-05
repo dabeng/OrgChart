@@ -259,7 +259,7 @@
   background-color: rgba(238, 217, 54, 0.5);
   transition: .5s;
   cursor: default;
-  z-index: 20;
+  z-index: 2;
 }
 
 .orgchart .node.focused {

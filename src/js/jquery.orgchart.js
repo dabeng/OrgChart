@@ -750,6 +750,7 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
+      // TODO: 展开/折叠的按钮不止4个箭头，还有toggleBtn
       return [
         this.options.icons.expandToUp,
         this.options.icons.collapseToDown,
@@ -1474,7 +1475,7 @@
         level = data.level;
       } else {
         level = $hierarchy.parentsUntil('.orgchart', '.nodes').length;
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && Array.isArray(data[0])) {
           $.each(data, function () {
             $.each(this, function () {
               this.level = level;
@@ -1485,7 +1486,7 @@
         }
       }
       // Construct the single node in OrgChart or the multiple nodes in family tree
-      if (Array.isArray(data)) { // 处理family tree的情况
+      if (Array.isArray(data) && Array.isArray(data[0])) { // 处理family tree的情况
         $.each(data, function () { // 构造一个家庭的hierarchy
           var _this = this;
           $.each(this, function (i) { // 构造一个夫/妻节点
@@ -1518,8 +1519,10 @@
           });
         });
       } else {
-        $nodeDiv = this.createNode(data);
-        $hierarchy.append($nodeDiv);
+        if (Object.keys(data).length > 2) { // TODO: 应该用更好的方式来判断是否是供父一级节点创建的信息
+          $nodeDiv = this.createNode(data);
+          $hierarchy.append($nodeDiv);
+        }
         if (data.children && data.children.length) {
           this.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
         }
