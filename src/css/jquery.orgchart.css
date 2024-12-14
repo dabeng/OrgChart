@@ -565,6 +565,10 @@
   border-width: 0 0 2px 2px;
 }
 
+.orgchart .nodes.vertical .hierarchy:only-child::before {
+  width: 11px;
+}
+
 .orgchart .nodes.vertical .hierarchy::before {
   top: 0px;
   height: 26px; /* node top half's height(25px) + half width of line */
