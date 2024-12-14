@@ -75,7 +75,8 @@
       if (typeof MutationObserver !== 'undefined') {
         this.triggerInitEvent();
       }
-      var $root = $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
+      var $root = Array.isArray(data) ? $chart.append($('<ul class="nodes"></ul>')).find('.nodes')
+        : $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
 
         if (data instanceof $) { // ul datasource
           this.buildHierarchy($root, this.buildJsonDS(data.children()), 0, this.options);
@@ -83,7 +84,7 @@
           if (data.relationship) {
             this.buildHierarchy($root, data);
           } else {
-            this.buildHierarchy($root, this.attachRel(data, '00'));
+            this.buildHierarchy($root, Array.isArray(data) ? data : this.attachRel(data, '00'));
           }
         }
 
@@ -751,6 +752,7 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
+      // TODO: 展开/折叠的按钮不止4个箭头，还有toggleBtn
       return [
         this.options.icons.expandToUp,
         this.options.icons.collapseToDown,
@@ -1349,7 +1351,10 @@
       }
       // construct the content of node
       var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (data[opts.nodeId] ? ' id="' + data[opts.nodeId] + '"' : '') + (data.parentId ? ' data-parent="' + data.parentId + '"' : '') + '>')
-        .addClass('node ' + (data.className || '') +  (level > opts.visibleLevel ? ' slide-up' : ''));
+        .addClass('node ' 
+        + (data.className || '')
+        + (data?.outsider ? 'outsider' : '')
+        +  (level > opts.visibleLevel ? ' slide-up' : ''));
       if (opts.nodeTemplate) {
         $nodeDiv.append(opts.nodeTemplate(data));
       } else {
@@ -1418,51 +1423,38 @@
 
       return $nodeDiv;
     },
-    // recursively build the tree
-    buildHierarchy: function ($appendTo, data) {
+    // Construct the inferior nodes within a hierarchy
+    buildInferiorNodes: function ($hierarchy, $nodeDiv, data, level) {
       var that = this;
       var opts = this.options;
-      var level = 0;
-      var $nodeDiv;
-      if (data.level) {
-        level = data.level;
-      } else {
-        level = data.level = $appendTo.parentsUntil('.orgchart', '.nodes').length;
-      }
-      // Construct the node
-      if (Object.keys(data).length > 2) {
-        $nodeDiv = this.createNode(data);
-        $appendTo.append($nodeDiv);
-      }
-      // Construct the "inferior nodes"
-      if (data.children && data.children.length) {
-        var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
-        var $nodesLayer;
-        if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
-          $nodesLayer = $('<ul class="nodes">');
-          if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
-            $nodesLayer.addClass('hidden');
-          }
-          if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
-            && !$appendTo.closest('.vertical').length) {
-              $appendTo.append($nodesLayer.addClass('vertical'));
-          } else {
-            $appendTo.append($nodesLayer);
-          }
-        } else if (data.compact) {
-          $nodeDiv.addClass('compact');
-        } else {
-          $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
-          if (Object.keys(data).length === 2) {
-            $appendTo.append($nodesLayer);
-          } else {
-            if (isHidden) {
-              $appendTo.addClass('isChildrenCollapsed');
-            }
-            $appendTo.append($nodesLayer);
-          }
+      var isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
+      var $nodesLayer;
+      if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
+        $nodesLayer = $('<ul class="nodes">');
+        if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
+          $nodesLayer.addClass('hidden');
         }
-        // recurse through children nodes
+        if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
+          && !$hierarchy.closest('.vertical').length) {
+            $nodesLayer.addClass('vertical');
+        }
+        $hierarchy.append($nodesLayer);
+      } else if (data.compact) {
+        $nodeDiv.addClass('compact');
+      } else {
+        $nodesLayer = $('<ul class="nodes' + (isHidden ? ' hidden' : '') + '">');
+        if (isHidden) {
+          $hierarchy.addClass('isChildrenCollapsed');
+        }
+        $hierarchy.append($nodesLayer);
+      }
+      // recurse through children nodes
+      if (Array.isArray(data.children[0])) {
+        $.each(data.children, function() {
+          this.level = level + 1;
+        });
+        this.buildHierarchy($nodesLayer, data.children); // 构造子一层的夫妻组合（每个组合可能有多妻多夫情况）
+      } else {
         $.each(data.children, function () {
           this.level = level + 1;
           if (data.compact) {
@@ -1473,6 +1465,69 @@
             that.buildHierarchy($nodeCell, this);
           }
         });
+      }
+    },
+    // recursively build the tree
+    buildHierarchy: function ($hierarchy, data) {
+      var that = this;
+      var opts = this.options;
+      var level = 0;
+      var $nodeDiv;
+      if (data.level || data[0]?.level) {
+        level = data.level;
+      } else {
+        level = $hierarchy.parentsUntil('.orgchart', '.nodes').length;
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+          $.each(data, function () {
+            $.each(this, function () {
+              this.level = level;
+            });
+          });
+        } else {
+          data.level = level;
+        }
+      }
+      // Construct the single node in OrgChart or the multiple nodes in family tree
+      if (Array.isArray(data) && Array.isArray(data[0])) { // 处理family tree的情况
+        $.each(data, function () { // 构造一个家庭的hierarchy
+          var _this = this;
+          $.each(this, function (i) { // 构造一个夫/妻节点
+            $nodeDiv = that.createNode(this);
+            // if there are only two persons in a marriage, two single nodes will appear in a hierarchy
+            if (_this.length === 2 && i === 1) {
+              $hierarchy.find(`#${_this[0].id}`).after($nodeDiv);
+              if (this.children && this.children.length && this.children[0].length) {
+                that.buildInferiorNodes($hierarchy.find(`#${_this[0].id}`).parent(), $nodeDiv, this, level);
+              }
+            } else {
+              // if there are more than two persons in a marriage, every node will be included in a single hierarchy
+              var $wrapper = $(`<li class="hierarchy${_this.length > 1 ? ' spouse' : ''}${_this.length === 2 ? ' couple' : ''}${!!this.outsider === false && _this.length > 2  ? ' insider' : ''}"></li>`);
+
+              //在family tree中，一个多妻/多夫组合里，本姓人只有一个，外姓人可能有多个，我们通过水平的连线来表示他们是一家子
+              if (i === 0) {
+                $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '50%'});
+              } else if (i > 0 && i < _this.length - 1) {
+                $wrapper.css({'--ft-width': '100%', '--ft-left-offset': '0px'});
+              } else {
+                $wrapper.css({'--ft-width': '50%', '--ft-left-offset': '0px'});
+              }
+
+              $wrapper.append($nodeDiv);
+              $hierarchy.append($wrapper);
+              if (this.children && this.children.length && this.children[0].length) {
+                that.buildInferiorNodes($wrapper, $nodeDiv, this, level);
+              }
+            }
+          });
+        });
+      } else {
+        if (Object.keys(data).length > 2) { // TODO: 应该用更好的方式来判断是否是供父一级节点创建的信息
+          $nodeDiv = this.createNode(data);
+          $hierarchy.append($nodeDiv);
+        }
+        if (data.children && data.children.length) {
+          this.buildInferiorNodes($hierarchy, $nodeDiv, data, level);
+        }
       }
     },
     // build the child nodes of specific node

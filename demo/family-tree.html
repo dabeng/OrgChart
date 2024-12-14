@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart { background: #fff; }
+    #chart-container {
+      height: 850px;
+    }
+    .orgchart .node {
+      padding: 3px 8px;
+    }
+    .orgchart .node .avatar {
+      border-radius: 60px;
+      box-shadow: rgba(99, 99, 99, 0.8) 0px 2px 8px 0px;
+    }
+    .orgchart .couple:has(> .nodes) > .node:first-child::after {
+      top: 148px;
+    }
+    .orgchart .couple::after  {
+      top: 148px;
+      width: 30px;
+      left: calc(50% - 15px);
+    }
+    .orgchart .couple:first-child:not(:only-child)::before {
+      width: calc(100% - 74px);
+      left: 74px;
+    }
+    .orgchart .hierarchy.couple:only-child::before {
+      width: 152px;
+      left: calc(50% - 76px);
+    }
+    .orgchart .couple:last-child:not(:only-child)::before {
+      width: calc(50% + 76px);
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function() {
+
+      var datascource = [
+        [
+          { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
+          { 
+            'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother', 'gender': 'female', 'outsider': true,
+            'children': [
+              [
+                { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt', 'gender': 'female'}
+              ],
+              [
+                { 'id': '3', 'name': 'Su Miao', 'title': 'Mother', 'gender': 'female',
+                  'children': [
+                    [
+                    
+                      { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'gender': 'female', 'outsider': true,
+                        'children': [
+                          [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
+                          [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
+                        ]
+                      },
+                      { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },
+                    ]
+                  ]
+                },
+                { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'gender': 'male', 'outsider': true }
+              ],
+              [
+                { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt', 'gender': 'female'}
+              ]
+            ]
+          }
+        ]
+      ];
+
+    var oc = $('#chart-container').orgchart({
+      'data' : datascource,
+      'nodeContent': 'title',
+      'nodeID': 'id',
+      'createNode': function($node, data) {
+        $node.prepend(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+      }
+    });
+
+
+  });
+  </script>
+  </body>
+</html>

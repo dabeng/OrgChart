@@ -83,6 +83,7 @@
   list-style: none;
   padding-left: 0;
   margin: 0;
+  justify-content: center;
 }
 
 .orgchart .hierarchy {
@@ -100,6 +101,62 @@
   box-sizing: border-box;
 }
 
+/* 本姓人与上一层父母的连线，借助伪元素::before实现 */
+/* 处理同一层中特殊的首节点 */
+.orgchart .couple:first-child:not(:only-child)::before {
+  width: calc(100% - 69px); /* half width of hierarchy - half width of node - node's padding - node's border width */
+  left: 69px;
+}
+
+/* 处理同一层中特殊的末节点 */
+.orgchart .couple:last-child:not(:only-child)::before {
+  width: calc(50% + 71px);
+  left: 0px;
+}
+
+.orgchart .hierarchy.couple:only-child::before {
+  width: 142px; /* half of node's width + link's width */
+  left: calc(50% - 71px); /* half width of node - half of link width */
+}
+
+/* 在family tree中，一个夫妻组合里，本姓人只有一个，外姓人可能有多个 */
+/* 我们通过水平的连线来表示他们存在婚姻关系，借助伪元素::after实现 */
+.orgchart .hierarchy.spouse:not(.couple)::after {
+  content: "";
+  position: absolute;
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
+  box-sizing: border-box;
+  z-index: 0;
+  top: 24px;
+  width: var(--ft-width);
+  left: var(--ft-left-offset);
+}
+
+/* 一夫一妻情况下的连线 */
+.orgchart .couple {
+  white-space: nowrap;
+}
+
+.orgchart .couple:has(> .nodes) > .node:first-child::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: calc(100% + 1px);
+  width: 2px;
+  height: 33px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+.orgchart .couple::after {
+  content: "";
+  position: absolute;
+  border-top: 2px solid rgba(217, 83, 79, 0.8);
+  box-sizing: border-box;
+  z-index: 0;
+  top: 24px;
+  width: 20px;
+  left: calc(50% - 10px); /* half of hierarchy - node's padding width - node's border with */
+}
+
 .orgchart .hierarchy:first-child::before,
 .orgchart .hierarchy.isSiblingsCollapsed.left-sibs::before {
   left: calc(50% - 1px);
@@ -111,7 +168,7 @@
   width: calc(50% + 1px);
 }
 
-.orgchart .hierarchy:not(.hidden):only-child::before {
+.orgchart .hierarchy:not(.hidden):not(.spouse):only-child::before {
   width: 2px;
 }
 
@@ -122,17 +179,17 @@
 .orgchart .isSiblingsCollapsed.left-sibs:last-child:before,
 .orgchart .isCollapsedSibling::before,
 .orgchart .isCollapsedSibling .hierarchy::before,
-.orgchart .isChildrenCollapsed > .node:not(:only-child)::after,
+.orgchart .hierarchy.isChildrenCollapsed:not(.couple) > .node:has(+ .nodes)::after,
 .orgchart .isCollapsedDescendant::before,
 .orgchart .isCollapsedDescendant > .node::before,
 .orgchart .isCollapsedDescendant > .node::after,
 .orgchart .isAncestorsCollapsed:only-child::before,
-.orgchart .isAncestorsCollapsed > .node::before {
+.orgchart .isAncestorsCollapsed > .node:not(.outsider)::before {
   content: none;
 }
 
 /* excluding leaf node */
-.orgchart .node:not(:only-child)::after {
+.orgchart .hierarchy:not(.couple) > .node:has(+ .nodes)::after {
   content: "";
   position: absolute;
   bottom: -12px; /* -(background square size + node's border width) */
@@ -155,7 +212,7 @@
   background-color: rgba(238, 217, 54, 0.5);
 }
 /* excluding root node */
-.orgchart > ul > li > ul li > .node::before {
+.orgchart > ul > li > ul li > .node:not(.outsider)::before {
   content: "";
   position: absolute;
   top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
@@ -165,7 +222,17 @@
   background-color: rgba(217, 83, 79, 0.8);
 }
 
-.orgchart > ul > li > ul li.isSiblingsCollapsed > .node::before {
+.orgchart > ul > li > ul li > .node.outsider::before {
+  content: "";
+  position: absolute;
+  top: var(--top, -12px);
+  left: calc(50% - 1px);
+  width: 0;
+  height: var(--height, 10px);
+  border-right: 2px dotted rgba(217, 83, 79, 0.8);
+}
+
+.orgchart > ul > li > ul .isSiblingsCollapsed > .node::before {
   top: var(--top-cross-point, -12px);
   height: var(--height-cross-point, 10px);
 }
@@ -179,6 +246,8 @@
   padding: 3px;
   border: 2px dashed transparent;
   text-align: center;
+  transition: transform 0.3s, opacity 0.3s;
+  z-index: 1;
 }
 
 .orgchart.l2r .node, .orgchart.r2l .node {
@@ -190,7 +259,7 @@
   background-color: rgba(238, 217, 54, 0.5);
   transition: .5s;
   cursor: default;
-  z-index: 20;
+  z-index: 2;
 }
 
 .orgchart .node.focused {
@@ -420,10 +489,6 @@
   padding: 0.5rem 1rem;
 }
 
-.orgchart .node {
-  transition: transform 0.3s, opacity 0.3s;
-}
-
 .orgchart .slide-down {
   opacity: 0;
   transform: translateY(40px);
@@ -479,8 +544,8 @@
   margin-bottom: 0;
 }
 
-.orgchart .nodes.vertical .node::before,
-.orgchart .nodes.vertical .node::after {
+.orgchart .nodes.vertical .hierarchy .node::before,
+.orgchart .nodes.vertical .hierarchy .node::after {
   content: none;
 }
 
@@ -498,6 +563,10 @@
   border-color: rgba(217, 83, 79, 0.8);
   border-style: solid;
   border-width: 0 0 2px 2px;
+}
+
+.orgchart .nodes.vertical .hierarchy:only-child::before {
+  width: 11px;
 }
 
 .orgchart .nodes.vertical .hierarchy::before {
@@ -627,7 +696,7 @@
   margin-bottom: 0;
 }
 
-.orgchart .node.compact .node:not(:only-child)::after {
+.orgchart .node.compact .node:has(+ .nodes)::after {
   content: unset;
 }
 
