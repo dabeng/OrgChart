@@ -278,7 +278,6 @@
     },
     //
     bindPan: function () {
-      this.unbindPan();
       this.$chartContainer.css('overflow', 'hidden');
       this.$chart.on('mousedown touchstart', this.panStartHandler);
       $(document).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
@@ -326,7 +325,6 @@
     },
     //
     bindZoom: function () {
-      this.unbindZoom();
       this.$chartContainer.on('wheel', { 'oc': this }, this.zoomWheelHandler);
       this.$chartContainer.on('touchstart', { 'oc': this }, this.zoomStartHandler);
       $(document).on('touchmove', { 'oc': this }, this.zoomingHandler);
@@ -386,8 +384,8 @@
     attachRel: function (data, flags) {
       var that = this;
       data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
-      if (this.options?.compact?.constructor === Function ) {
-        data.compact = this.options.compact(data);
+      if (this.options?.compact?.constructor === Function && this.options.compact(data)) {
+        data.compact = true;
       }
       if (data.children) {
         data.children.forEach(function(item) {
