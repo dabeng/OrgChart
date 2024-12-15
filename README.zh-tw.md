@@ -121,6 +121,74 @@ $ npm install orgchart
 
 沒問題，我們推薦使用ES6的模版字符串。
 
+- [我想將節點安置在特定的層級。 咋做 ?](https://dabeng.github.io/OrgChart/level-offset.html)
+
+![level-offset](http://dabeng.github.io/OrgChart/img/level-offset.png)
+
+你需要的是一個復合的解決方案： **levelOffset data prop** + callback createNode() + CSS custom properties(variables)
+
+- [我想構造一個組織結構圖，每個節點寬度都可以不同的](https://dabeng.github.io/OrgChart/nodes-of-different-widths.html)
+
+![nodes-of-different-widths](http://dabeng.github.io/OrgChart/img/nodes-of-different-widths.png)
+
+- [我想在混合布局中實現拖/放功能](https://dabeng.github.io/OrgChart/drag-drop-hybrid-chart.html)
+
+- [我想指定從某一分支開始，其下所有子節點都以垂直樣式顯示](https://dabeng.github.io/OrgChart/data-prop-hybrid.html)
+
+![data-prop-hybrid](http://dabeng.github.io/OrgChart/img/data-prop-hybrid.png)
+
+**hybrid data property** 就派上用場了。 在數據源的某個節點中提供"hybrid"屬性，那麽它的所有後代節點都會垂直布局。
+
+- [我想用Font Awesome圖標代替內置的圖標](https://dabeng.github.io/OrgChart/custom-icons.html)
+
+- [子節點眾多的時候，我想以一種壓縮起來的展示方式盡可能節省空間](https://dabeng.github.io/OrgChart/data-prop-compact.html)
+
+![data-prop-compact](http://dabeng.github.io/OrgChart/img/data-prop-compact.png)
+
+**compact data property** 就派上用場了。在數據源的某個節點裏提供了"compact"屬性，並賦為真值，那麽它和它的子節點就會展示為壓縮模式。
+
+- [我想構造族譜，家譜，宗譜的關系圖](https://dabeng.github.io/OrgChart/family-tree.html)
+
+![family-tree](http://dabeng.github.io/OrgChart/img/family-tree.png)
+
+我們使用如下的二維數組數據源來構建家譜。“outsider”代表外姓人。
+
+```
+var datascource = [
+  [
+    { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
+    { 
+      'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother', 'gender': 'female', 'outsider': true,
+      'children': [
+        [
+          { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt', 'gender': 'female'}
+        ],
+        [
+          { 'id': '3', 'name': 'Su Miao', 'title': 'Mother', 'gender': 'female',
+            'children': [
+              [
+              
+                { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'gender': 'female', 'outsider': true,
+                  'children': [
+                    [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
+                    [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
+                  ]
+                },
+                { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },
+              ]
+            ]
+          },
+          { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'gender': 'male', 'outsider': true }
+        ],
+        [
+          { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt', 'gender': 'female'}
+        ]
+      ]
+    }
+  ]
+];
+```
+
 ### 本地運行orgchart
 
 - 必須安裝node.js v6+，因爲我們的單元測試是基于jsdom v11。
