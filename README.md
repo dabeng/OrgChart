@@ -169,7 +169,7 @@ You need the solution based on new datasource structure with **levelOffset data 
 
 ![family-tree](http://dabeng.github.io/OrgChart/img/family-tree.png)
 
-We use the following two-dimensional array datasource to build up the Family Tree.
+We use the following two-dimensional array datasource to build up the Family Tree. Here, prop "gender" is optional.
 ```
 var datascource = [
   [
