@@ -995,7 +995,8 @@
         ghostNode.appendChild(nodeCover);
         $nodeDiv.closest('.orgchart').append(ghostNode);
       } else {
-        ghostNode = $nodeDiv.closest('.orgchart').children('.ghost-node').get(0);
+        var $orgchart = $nodeDiv.closest('.orgchart');
+        ghostNode = $orgchart[0].querySelector('.ghost-node');
         nodeCover = $(ghostNode).children().get(0);
       }
       var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
