@@ -158,7 +158,8 @@
         'click': function(e) {
           e.preventDefault();
           that.export();
-        }
+        },
+        'hidden':true
       });
       this.$chartContainer.after($exportBtn);
     },
@@ -1698,38 +1699,57 @@
       var that = this;
       exportFilename = (typeof exportFilename !== 'undefined') ?  exportFilename : this.options.exportFilename;
       exportFileextension = (typeof exportFileextension !== 'undefined') ?  exportFileextension : this.options.exportFileextension;
+      
       if ($(this).children('.spinner').length) {
         return false;
       }
+      
       var $chartContainer = this.$chartContainer;
       var $mask = $chartContainer.find('.mask');
+      
       if (!$mask.length) {
-        $chartContainer.append(`<div class="mask"><i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i></div>`);
+        $chartContainer.append('<div class="mask"><i class="oci oci-spinner spinner"></i></div>');
       } else {
         $mask.removeClass('hidden');
       }
-      var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:not(".hidden")').get(0);
-      var flag = that.options.direction === 'l2r' || that.options.direction === 'r2l';
-      html2canvas(sourceChart, {
-        'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
-        'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
-        'onclone': function (cloneDoc) {
-          $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-            .find('.orgchart:not(".hidden"):first').css('transform', '');
-        }
+      
+      // Clone the entire org chart
+      var $clonedChart = $chartContainer.clone();
+      
+      // Append the cloned chart off-screen
+      $clonedChart.css({
+        'position': 'absolute',
+        'top': '-9999px',
+        'left': '0',
+        'background-color': '#ffffff'
+      });
+      $('body').append($clonedChart);
+    
+      // Hide the spinner and its shadow on the cloned chart
+      $clonedChart.find('.spinner, .mask').hide();
+    
+      // Reset only the necessary CSS transforms and positioning on the cloned chart
+      $clonedChart.find('.orgchart').css({
+        'transform': 'none'
+      });
+    
+      html2canvas($clonedChart.get(0), {
+        'width': $clonedChart.get(0).scrollWidth,
+        'height': $clonedChart.get(0).scrollHeight
       })
       .then(function (canvas) {
         $chartContainer.find('.mask').addClass('hidden');
-
+        
         if (exportFileextension.toLowerCase() === 'pdf') {
           that.exportPDF(canvas, exportFilename);
         } else {
           that.exportPNG(canvas, exportFilename);
         }
-
-        $chartContainer.removeClass('canvasContainer');
+        
+        $clonedChart.remove(); // Remove the cloned chart after capturing
       }, function () {
         $chartContainer.removeClass('canvasContainer');
+        $clonedChart.remove(); // Remove the cloned chart in case of an error
       });
     }
   };
