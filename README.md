@@ -45,6 +45,7 @@ $ bower install orgchart
 $ npm install orgchart
 ```
 require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
+
 FYI, [How to use jQuery Orchart in React](https://stackblitz.com/edit/vitejs-vite-hqv4nbdt)
 
 ## [Demos on github pages](https://dabeng.github.io/OrgChart/)
