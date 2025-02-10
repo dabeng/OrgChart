@@ -175,38 +175,42 @@ We use the following two-dimensional array datasource to build up the Family Tre
 ```
 var datascource = [
   [
-    { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
+    { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather' },
     { 
-      'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother', 'gender': 'female', 'outsider': true,
+      'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother',  'outsider': true,
       'children': [
         [
-          { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt', 'gender': 'female'}
+          { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt' }
         ],
         [
-          { 'id': '3', 'name': 'Su Miao', 'title': 'Mother', 'gender': 'female',
+          { 'id': '3', 'name': 'Su Miao', 'title': 'Mother',
             'children': [
               [
               
-                { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'gender': 'female', 'outsider': true,
+                { 'id': '12', 'name': 'Pang Pang', 'title': 'Wife', 'outsider': true,
                   'children': [
-                    [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
-                    [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter', 'gender': 'female' }],
+                    [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter' }],
+                    [{ 'id': '6', 'name': 'Er Dan', 'title': 'Daughter' }],
                   ]
                 },
-                { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },
+                { 'id': '5', 'name': 'Hei Hei', 'title': 'Me' },
               ]
             ]
           },
-          { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'gender': 'male', 'outsider': true }
+          { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'outsider': true }
         ],
         [
-          { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt', 'gender': 'female'}
+          { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt' }
         ]
       ]
     }
   ]
 ];
 ```
+
+- [I want to add property tags to family tree](https://dabeng.github.io/OrgChart/familytree-custom-properties.html)
+
+![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
 
 ### how to start up demos locally
 
