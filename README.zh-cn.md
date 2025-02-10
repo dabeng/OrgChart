@@ -42,6 +42,8 @@ $ npm install orgchart
 ```
 `require('orgchart')`会把orgchart插件追加到jQuery对象上。orgchart模块本身并不导出任何东西。
 
+可参考这个例子, [在React中使用jQuery Orchart](https://stackblitz.com/edit/vitejs-vite-hqv4nbdt)
+
 ## [gihtub pages实例集合](https://dabeng.github.io/OrgChart/)
 ## [基于嵌套ul的实例集合](https://codepen.io/collection/nWqvzY)
 ## [基于嵌套table的实例集合](https://codepen.io/collection/AWxGVb/) (过时)
