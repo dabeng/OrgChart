@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Organization Chart Plugin</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/fontawesome.min.css">
+  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart {
+      background: #fff;
+    }
+
+    .orgchart .node.female>.title {
+      border-top-left-radius: 20px;
+    }
+
+    .orgchart .node.female>.content {
+      border-bottom-right-radius: 20px;
+    }
+
+    .orgchart .property-tag {
+      float: left;
+      font-size: medium;
+      color: rgb(217, 83, 79);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chart-container"></div>
+
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript">
+    $(function () {
+
+      var datascource = [
+        [
+          { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
+          {
+            'id': '1', 'name': 'Lao Lao', 'title': 'Grandmother', 'gender': 'female', 'outsider': true,
+            'children': [
+              [
+                { 'id': '2', 'name': 'Bo miao', 'title': 'Aunt', 'gender': 'female' }
+              ],
+              [
+                {
+                  'id': '3', 'name': 'Su Miao', 'title': 'Mother', 'gender': 'female',
+                  'children': [
+                    [
+                      {
+                        'id': '11', 'name': 'Pang Pang', 'title': 'EX-Wife', 'gender': 'female', 'outsider': true, "ex": true,
+                        'children': [
+                          [{ 'id': '7', 'name': 'Dan Dan', 'title': 'Daughter', 'gender': 'female' }],
+                          [{ 'id': '6', 'name': '2 Dan', 'title': 'Daughter', 'gender': 'female', "adpoted": true }],
+                        ]
+                      },
+                      { 'id': '5', 'name': 'Hei Hei', 'title': 'Me', 'gender': 'male' },
+                      {
+                        'id': '12', 'name': '2 Pang', 'title': 'Current Wife', 'gender': 'female', 'outsider': true, 'children': [
+                          [{ 'id': '14', 'name': '3 Dan', 'title': 'Daughter', 'gender': 'female' }]
+                        ]
+                      }
+                    ],
+                    [
+                      { 'id': '13', 'name': '2 Hei', 'title': 'Brother', 'gender': 'male' }
+                    ]
+                  ]
+                },
+                { 'id': '9', 'name': 'Tie Hua', 'title': 'Father', 'gender': 'male', 'outsider': true }
+              ],
+              [
+                { 'id': '10', 'name': 'Hong miao', 'title': 'Aunt', 'gender': 'female' }
+              ]
+            ]
+          }
+        ]
+      ];
+
+      var oc = $('#chart-container').orgchart({
+        'data': datascource,
+        'nodeContent': 'title',
+        'nodeID': 'id',
+        'createNode': function ($node, data) {
+          if (data.gender === 'female') {
+            $node.addClass('female');
+          }
+          if (data.adpoted) {
+            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-person-breastfeeding"></i>`);
+          }
+          if (data.ex) {
+            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-heart-crack"></i>`);
+          }
+        }
+      });
+
+
+    });
+  </script>
+</body>
+
+</html>
