@@ -41,7 +41,7 @@
     "jquery": "^3.6.2",
     "jquery-mockjax": "^2.6.0",
     "json-digger": "^2.0.2",
-    "jspdf": "^2.5.1"
+    "jspdf": "^3.0.1"
   },
   "devDependencies": {
     "browser-sync": "^3.0.2",
