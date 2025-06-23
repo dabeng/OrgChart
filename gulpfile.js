@@ -5,7 +5,7 @@ var uglify = require('gulp-uglify');
 var rename = require("gulp-rename");
 var del = require('del');
 var eslint = require('gulp-eslint');
-var merge = require('merge-stream');
+var merge = require('ordered-read-streams');
 var csslint = require('gulp-csslint');
 var cleanCSS = require('gulp-clean-css');
 var sourcemaps = require('gulp-sourcemaps');
@@ -70,6 +70,12 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
     spec: 'test/cypress/e2e/**/*.cy.js',
   });
 }));
+
+// gulp.task('e2e-tests', function () {
+//   return cypress.run({
+//     spec: 'test/cypress/e2e/**/*.cy.js',
+//   });
+// });
 
 gulp.task('test', gulp.series('e2e-tests'));
 

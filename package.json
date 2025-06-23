@@ -9,6 +9,9 @@
   "scripts": {
     "test": "gulp test",
     "unit-tests": "gulp unit-tests",
+    "integration-tests": "gulp integration-tests",
+    "e2e-tests": "gulp e2e-tests",
+    "addAssets": "gulp addAssets",
     "build": "gulp build",
     "start": "gulp serve",
     "cypress:open": "cypress open"
@@ -64,8 +67,8 @@
     "jest-puppeteer": "^4.3.0",
     "jsdom": "^16.5.0",
     "jsdom-global": "^3.0.2",
-    "merge-stream": "^1.0.1",
     "mocha": "^10.2.0",
+    "ordered-read-streams": "^2.0.0",
     "puppeteer": "^1.20.0",
     "sinon": "^4.5.0",
     "sinon-chai": "^2.14.0"
