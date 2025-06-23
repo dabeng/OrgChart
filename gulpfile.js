@@ -71,12 +71,6 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
   });
 }));
 
-// gulp.task('e2e-tests', function () {
-//   return cypress.run({
-//     spec: 'test/cypress/e2e/**/*.cy.js',
-//   });
-// });
-
 gulp.task('test', gulp.series('e2e-tests'));
 
 gulp.task('cleanupJS', function() {
