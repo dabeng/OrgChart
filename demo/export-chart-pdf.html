@@ -9,15 +9,13 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script src="js/jquery.min.js"></script>
   <!-- the following reference is specific for IE -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
   <script type="text/javascript" src="js/html2canvas.min.js"></script>
   <script type="text/javascript" src="js/jspdf.umd.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'name': 'Lao Lao',
@@ -44,7 +42,8 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'visibleLevel': 2,
       'nodeContent': 'title',

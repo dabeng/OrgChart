@@ -12,11 +12,9 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'name': 'Lao Lao',
@@ -43,16 +41,17 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title',
       'pan': true,
       'zoom': true
     });
 
-    oc.$chartContainer.on('touchmove', function(event) {
+    oc.$chartContainer[0].addEventListener('touchmove', function(event) {
       event.preventDefault();
-    });
+    }, { passive: false });
 
   });
   </script>

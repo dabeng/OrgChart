@@ -59,20 +59,21 @@
   </ul>
   <div id="chart-container"></div>
   <button id="btn-export-hier">Export Hierarchy</button>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var oc = $('#chart-container').orgchart({
-      'data' : $('#ul-data')
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : document.getElementById('ul-data')
     });
 
-    $('#btn-export-hier').on('click', function() {
-      if (!$('pre').length) {
+    document.getElementById('btn-export-hier').addEventListener('click', () => {
+      if (!document.querySelector('pre')) {
         var hierarchy = oc.getHierarchy();
-        $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(hierarchy, null, 2);
+        document.getElementById('btn-export-hier').after(pre);
       }
     });
 

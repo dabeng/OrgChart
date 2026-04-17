@@ -74,11 +74,9 @@
     </div>
   </div>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datasource = {
       'name': 'Lao Lao',
@@ -125,23 +123,25 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title',
       'verticalLevel': 4,
       'visibleLevel': 6
     });
 
-    oc.$chart.find('.node')
-      .on('mouseenter', function() {
-        oc.getParent($(this)).addClass('highlight-parent');
-        oc.getSiblings($(this)).addClass('highlight-siblings');
-        oc.getChildren($(this)).addClass('highlight-children');
-      })
-      .on('mouseleave', function () {
+    oc.$chart.find('.node').toArray().forEach((node) => {
+      node.addEventListener('mouseenter', () => {
+        oc.getParent(node).addClass('highlight-parent');
+        oc.getSiblings(node).addClass('highlight-siblings');
+        oc.getChildren(node).addClass('highlight-children');
+      });
+      node.addEventListener('mouseleave', () => {
         oc.$chart.find('.highlight-parent, .highlight-siblings, .highlight-children')
           .removeClass('highlight-parent highlight-siblings highlight-children');
       });
+    });
 
   });
   </script>

@@ -9,18 +9,12 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
-  <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    $.mockjax({
-      url: '/orgchart/ancestors/n1',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: { 
+    const responseMap = {
+      '/orgchart/ancestors/n1': { 
         'id': 'n0',
         'name': 'Lao Lao',
         'title': 'general manager', 'relationship': '001',
@@ -33,23 +27,11 @@
         { 'id': 'n15', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
         { 'id': 'n16', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
         ]
-      }
-    });
-
-    $.mockjax({
-      url: '/orgchart/descendants/n2',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: [
+      },
+      '/orgchart/descendants/n2': [
         { 'id': 'n4', 'name': 'Xiang Xiang', 'title': 'engineer', 'relationship': '110' }
-      ]
-    });
-
-    $.mockjax({
-      url: '/orgchart/descendants/n3',
-      contentType: 'application/json',
-      responseTime: 1000,
-      responseText: [
+      ],
+      '/orgchart/descendants/n3': [
         { 'id': 'n5', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '111',
           'children': [
             { 'id': 'n6', 'name': 'Er Dan', 'title': 'UE engineer', 'relationship': '110'}
@@ -57,9 +39,13 @@
         },
         { 'id': 'n7', 'name': 'Dan Dan', 'title': 'engineer', 'relationship': '110' }
       ]
+    };
+
+    const requestJson = (url) => new Promise((resolve) => {
+      window.setTimeout(() => resolve(responseMap[url]), 1000);
     });
 
-    var datascource = {
+    const datascource = {
       'id': 'n1',
       'name': 'Su Miao',
       'title': 'department manager',
@@ -70,82 +56,89 @@
       ]
     };
 
-    var ajaxURLs = {
-      'children': '/orgchart/children/',
-      'parent': '/orgchart/parent/',
-      'siblings': function(nodeData) {
-        return '/orgchart/siblings/' + nodeData.id;
-      },
-      'families': function(nodeData) {
-        return '/orgchart/families/' + nodeData.id;
-      }
-    };
-
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title',
       'nodeId': 'id'
     });
 
-    oc.$chart.on('click', '.topEdge, .horizontalEdge', function(e) {
-      var $chart = oc.$chart;
-      var $topEdge = $(e.target);
-      var $node = $topEdge.parent();
-      var parentState = oc.getNodeState($node, 'parent');
+    const chartElement = document.getElementById('chart-container');
+    const getAjaxFlag = () => oc.$chart[0].dataset.inAjax === 'true';
+    const setAjaxFlag = (value) => {
+      oc.$chart[0].dataset.inAjax = value ? 'true' : 'false';
+    };
+    const toggleLoading = (edgeElement, isLoading) => {
+      const nodeElement = edgeElement.parentElement;
+      const spinner = nodeElement.querySelector('.spinner');
+      edgeElement.classList.toggle('hidden', isLoading);
+      if (isLoading && !spinner) {
+        nodeElement.insertAdjacentHTML('beforeend', '<i class="oci oci-spinner spinner"></i>');
+        Array.from(nodeElement.children)
+          .filter((child) => !child.classList.contains('spinner'))
+          .forEach((child) => {
+            child.style.opacity = '0.2';
+          });
+        setAjaxFlag(true);
+        return;
+      }
+      if (!isLoading) {
+        const currentSpinner = nodeElement.querySelector('.spinner');
+        if (currentSpinner) {
+          currentSpinner.remove();
+        }
+        Array.from(nodeElement.children).forEach((child) => {
+          child.removeAttribute('style');
+        });
+        setAjaxFlag(false);
+      }
+    };
+
+    chartElement.addEventListener('click', async (event) => {
+      const clickableAncestor = event.target.closest('.topEdge, .horizontalEdge');
+      if (!clickableAncestor || !chartElement.contains(clickableAncestor)) {
+        return;
+      }
+      const nodeElement = clickableAncestor.parentElement;
+      const parentState = oc.getNodeState(nodeElement, 'parent');
       if (!parentState.exist) {
-        if (!($chart.data('inAjax') === true)) {
-          $topEdge.addClass('hidden');
-          $node.append(`<i class="oci oci-spinner spinner"></i>`)
-          $node.children().not('.spinner').css('opacity', 0.2);
-          $chart.data('inAjax', true);
-
-          $.ajax({
-            'url': '/orgchart/ancestors/' + $node.data('nodeData').id,
-            'dataType': 'json'
-          })
-          .done(function(data, textStatus, jqXHR) {
-            oc.addAncestors(data, 'n0');
-          })
-          .always(function() {
-            $topEdge.removeClass('hidden');
-            $node.children('.spinner').remove();
-            $node.children().removeAttr('style');
-            $chart.data('inAjax', false);
-          });
+        if (getAjaxFlag()) {
+          return;
+        }
+        toggleLoading(clickableAncestor, true);
+        try {
+          const nodeData = nodeElement ? nodeElement.__ocNodeData || nodeElement.dataset : {};
+          const data = await requestJson('/orgchart/ancestors/' + nodeData.id);
+          oc.addAncestors(data, 'n0');
+        } finally {
+          toggleLoading(clickableAncestor, false);
         }
       }
     });
 
-    oc.$chart.on('click', '.bottomEdge', function(e) {
-      var $chart = oc.$chart;
-      var $bottomEdge = $(e.target);
-      var $node = $bottomEdge.parent();
-      var childrenState = oc.getNodeState($node, 'children');
+    chartElement.addEventListener('click', async (event) => {
+      const bottomEdge = event.target.closest('.bottomEdge');
+      if (!bottomEdge || !chartElement.contains(bottomEdge)) {
+        return;
+      }
+      const nodeElement = bottomEdge.parentElement;
+      const childrenState = oc.getNodeState(nodeElement, 'children');
       if (!childrenState.exist) {
-        if (!($chart.data('inAjax') === true)) {
-          $bottomEdge.addClass('hidden');
-          $node.append(`<i class="oci oci-spinner spinner"></i>`)
-          $node.children().not('.spinner').css('opacity', 0.2);
-          $chart.data('inAjax', true);
-
-          $.ajax({
-            'url': '/orgchart/descendants/' + $node.data('nodeData').id,
-            'dataType': 'json'
-          })
-          .done(function(data, textStatus, jqXHR) {
-            oc.addDescendants(data, $node);
-          })
-          .always(function() {
-            $bottomEdge.removeClass('hidden');
-            $node.children('.spinner').remove();
-            $node.children().removeAttr('style');
-            $chart.data('inAjax', false);
-          });
+        if (getAjaxFlag()) {
+          return;
+        }
+        toggleLoading(bottomEdge, true);
+        try {
+          const nodeData = nodeElement ? nodeElement.__ocNodeData || nodeElement.dataset : {};
+          const data = await requestJson('/orgchart/descendants/' + nodeData.id);
+          oc.addDescendants(data, nodeElement);
+        } finally {
+          toggleLoading(bottomEdge, false);
         }
       }
     });
 
-  });
+    });
   </script>
   </body>
 </html>

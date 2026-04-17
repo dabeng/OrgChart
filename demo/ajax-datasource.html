@@ -19,56 +19,53 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.mockjax.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
-    
-      $.mockjax({
-        url: '/orgchart/initdata',
-        responseTime: 1000,
-        contentType: 'application/json',
-        responseText: {
-          'name': 'Lao Lao',
-          'title': 'general manager',
-          'children': [
-            { 'name': 'Bo Miao', 'title': 'department manager' },
-            { 'name': 'Su Miao', 'title': 'department manager',
-              'children': [
-                { 'name': 'Tie Hua', 'title': 'senior engineer' },
-                { 'name': 'Hei Hei', 'title': 'senior engineer',
-                  'children': [
-                    { 'name': 'Pang Pang', 'title': 'engineer' },
-                    { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
-                  ]
-                }
-              ]
-            },
-            { 'name': 'Yu Jie', 'title': 'department manager' },
-            { 'name': 'Yu Li', 'title': 'department manager' },
-            { 'name': 'Hong Miao', 'title': 'department manager' },
-            { 'name': 'Yu Wei', 'title': 'department manager' },
-            { 'name': 'Chun Miao', 'title': 'department manager' },
-            { 'name': 'Yu Tie', 'title': 'department manager' }
-          ]
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      const chartContainer = document.getElementById('chart-container');
+      const spinner = document.createElement('i');
+      const initData = {
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'children': [
+          { 'name': 'Bo Miao', 'title': 'department manager' },
+          { 'name': 'Su Miao', 'title': 'department manager',
+            'children': [
+              { 'name': 'Tie Hua', 'title': 'senior engineer' },
+              { 'name': 'Hei Hei', 'title': 'senior engineer',
+                'children': [
+                  { 'name': 'Pang Pang', 'title': 'engineer' },
+                  { 'name': 'Xiang Xiang', 'title': 'UE engineer' }
+                ]
+              }
+            ]
+          },
+          { 'name': 'Yu Jie', 'title': 'department manager' },
+          { 'name': 'Yu Li', 'title': 'department manager' },
+          { 'name': 'Hong Miao', 'title': 'department manager' },
+          { 'name': 'Yu Wei', 'title': 'department manager' },
+          { 'name': 'Chun Miao', 'title': 'department manager' },
+          { 'name': 'Yu Tie', 'title': 'department manager' }
+        ]
+      };
+      const requestInitData = () => new Promise((resolve) => {
+        setTimeout(() => resolve(initData), 1000);
       });
 
-      $('#chart-container').append(`<i class="oci oci-spinner spinner"></i>`);
-      $.ajax({
-        'url': '/orgchart/initdata',
-        'dataType': 'json'
-      })
-        .done(function(data, textStatus, jqXHR) {
-          $('#chart-container').orgchart({
+      spinner.className = 'oci oci-spinner spinner';
+      chartContainer.appendChild(spinner);
+
+      requestInitData()
+        .then((data) => {
+          const oc = new OrgChart({
+            chartContainer: '#chart-container',
             'data': data,
             'nodeContent': 'title'
           });
+          return oc;
         })
-        .always(function() {
-          $('#chart-container').children('.spinner').remove();
+        .finally(() => {
+          spinner.remove();
         });
 
     });

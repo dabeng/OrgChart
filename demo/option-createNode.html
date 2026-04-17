@@ -39,11 +39,9 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'id': '1',
@@ -71,20 +69,29 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'visibleLevel': 2,
       'nodeContent': 'title',
       'nodeID': 'id',
-      'createNode': function($node, data) {
-        var secondMenuIcon = $('<i>', {
-          'class': 'oci oci-info-circle second-menu-icon',
-          click: function() {
-            $(this).siblings('.second-menu').toggle();
-          }
+      'createNode': function(node, data) {
+        const secondMenuIcon = document.createElement('i');
+        const secondMenu = document.createElement('div');
+        const avatar = document.createElement('img');
+
+        secondMenuIcon.className = 'oci oci-info-circle second-menu-icon';
+        secondMenuIcon.addEventListener('click', () => {
+          secondMenu.style.display = secondMenu.style.display === 'block' ? 'none' : 'block';
         });
-        var secondMenu = '<div class="second-menu"><img class="avatar" src="img/avatar/' + data.id + '.jpg"></div>';
-        $node.append(secondMenuIcon).append(secondMenu);
+
+        secondMenu.className = 'second-menu';
+        avatar.className = 'avatar';
+        avatar.src = 'img/avatar/' + data.id + '.jpg';
+
+        secondMenu.appendChild(avatar);
+        node.appendChild(secondMenuIcon);
+        node.appendChild(secondMenu);
       }
     });
 

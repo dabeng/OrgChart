@@ -41,11 +41,9 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
       var datascource = [
         [
@@ -81,12 +79,13 @@
         ]
       ];
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title',
       'nodeID': 'id',
-      'createNode': function($node, data) {
-        $node.prepend(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+      'createNode': function(node, data) {
+        node.insertAdjacentHTML('afterbegin', `<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
       }
     });
 

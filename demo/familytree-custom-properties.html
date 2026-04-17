@@ -31,11 +31,9 @@
 
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function () {
+    document.addEventListener('DOMContentLoaded', () => {
 
       var datascource = [
         [
@@ -80,19 +78,20 @@
         ]
       ];
 
-      var oc = $('#chart-container').orgchart({
+      const oc = new OrgChart({
+      chartContainer: '#chart-container',
         'data': datascource,
         'nodeContent': 'title',
         'nodeID': 'id',
-        'createNode': function ($node, data) {
+        'createNode': function (node, data) {
           if (data.gender === 'female') {
-            $node.addClass('female');
+            node.classList.add('female');
           }
           if (data.adpoted) {
-            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-person-breastfeeding"></i>`);
+            node.querySelector('.content')?.insertAdjacentHTML('afterbegin', '<i class="property-tag fa-solid fa-person-breastfeeding"></i>');
           }
           if (data.ex) {
-            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-heart-crack"></i>`);
+            node.querySelector('.content')?.insertAdjacentHTML('afterbegin', '<i class="property-tag fa-solid fa-heart-crack"></i>');
           }
         }
       });

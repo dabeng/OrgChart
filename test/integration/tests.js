@@ -4,12 +4,11 @@ var sinonChai = require('sinon-chai');
 var should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
-var $ = require('jquery');
-require('../../src/js/jquery.orgchart');
+var OrgChart = require('../../src/js/jquery.orgchart');
+var $ = OrgChart.$;
 
 describe('orgchart -- integration tests', function () {
-  document.body.innerHTML = '<div id="chart-container"></div>';
-  var $container = $('#chart-container'),
+  var $container,
   ds = {
     'id': 'n1',
     'name': 'Lao Lao',
@@ -76,7 +75,10 @@ describe('orgchart -- integration tests', function () {
   $erdan;
 
   beforeEach(function () {
-    oc = $container.orgchart({
+    document.body.innerHTML = '<div id="chart-container"></div>';
+    $container = $('#chart-container');
+    oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data': ds
     }),
     $laolao = $('#n1'),

@@ -15,13 +15,11 @@
   <button style="margin: 10px;" id="btn-chart2">chart 2</button>
   <button style="margin: 10px;" id="btn-chart3">chart 3</button>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -36,17 +34,18 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title'
     });
 
-    $('#btn-chart1').on('click', function (argument) {
+    document.getElementById('btn-chart1').addEventListener('click', () => {
       oc.init({ 'data': datasource });
     });
 
-    $('#btn-chart2').on('click', function (argument) {
-      var data = { 'name': 'Su Miao', 'title': 'department manager',
+    document.getElementById('btn-chart2').addEventListener('click', () => {
+      const data = { 'name': 'Su Miao', 'title': 'department manager',
         'children': [
           { 'name': 'Tie Hua', 'title': 'senior engineer' },
           { 'name': 'Hei Hei', 'title': 'senior engineer' }
@@ -55,8 +54,8 @@
       oc.init({ 'data': data });
     });
 
-    $('#btn-chart3').on('click', function (argument) {
-      var data = { 'name': 'Hei Hei', 'title': 'senior engineer',
+    document.getElementById('btn-chart3').addEventListener('click', () => {
+      const data = { 'name': 'Hei Hei', 'title': 'senior engineer',
         'children': [
           { 'name': 'Pang Pang', 'title': 'engineer' },
           { 'name': 'Dan Zai', 'title': 'UE engineer' },
@@ -66,7 +65,7 @@
       oc.init({ 'data': data });
     });
 
-  });
+    });
   </script>
   </body>
 </html>

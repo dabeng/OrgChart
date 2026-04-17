@@ -4,12 +4,11 @@ var sinonChai = require("sinon-chai");
 var should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
-var $ = require('jquery');
-require('../../src/js/jquery.orgchart');
+var OrgChart = require('../../src/js/jquery.orgchart');
+var $ = OrgChart.$;
 
 describe('orgchart -- unit tests', function () {
-  document.body.innerHTML = '<div id="chart-container"></div>';
-  var $container = $('#chart-container'),
+  var $container,
   ds = {
     'id': 'n1',
     'name': 'Lao Lao',
@@ -78,7 +77,10 @@ describe('orgchart -- unit tests', function () {
   $sandan;
 
   beforeEach(function () {
-    oc = $('#chart-container').orgchart({
+    document.body.innerHTML = '<div id="chart-container"></div>';
+    $container = $('#chart-container');
+    oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data': ds,
       'nodeContent': 'title'
     }),
@@ -106,7 +108,8 @@ describe('orgchart -- unit tests', function () {
   it('getHierarchy()', function () {
     oc.getHierarchy().should.deep.equal(hierarchy);
 
-    var oc2 = $('#chart-container').orgchart({
+    var oc2 = new OrgChart({
+      chartContainer: '#chart-container',
       'data': { name: 'Lao Lao',
         'children': [
           { name: 'Bo Miao' }
@@ -233,11 +236,11 @@ describe('orgchart -- unit tests', function () {
     var spy2  = sinon.spy(oc, 'hideSiblings');
     oc.hideParent($heihei);
     spy.should.have.been.callCount(2);
-    spy.getCall(0).should.have.been.calledWithMatch($heihei);
-    spy.getCall(1).should.have.been.calledWithMatch($sumiao);
+    spy.getCall(0).args[0][0].should.equal($heihei[0]);
+    spy.getCall(1).args[0][0].should.equal($sumiao[0]);
     spy2.should.have.been.callCount(2);
-    spy2.getCall(0).should.have.been.calledWithMatch($heihei);
-    spy2.getCall(1).should.have.been.calledWithMatch($sumiao);
+    spy2.getCall(0).args[0][0].should.equal($heihei[0]);
+    spy2.getCall(1).args[0][0].should.equal($sumiao[0]);
   });
 
   it('hideParentEnd()', function () {

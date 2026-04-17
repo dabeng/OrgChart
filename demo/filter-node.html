@@ -35,62 +35,104 @@
     <button type="button" id="btn-filter-node">Filter</button>
     <button type="button" id="btn-cancel">Cancel</button>
   </div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    function loopChart ($hierarchy) {
-      var $siblings = $hierarchy.children('.nodes').children('.hierarchy');
-      if ($siblings.length) {
-        $siblings.filter(':not(.hidden)').first().addClass('first-shown')
-          .end().last().addClass('last-shown');
+    function loopChart(hierarchyElement) {
+      const nodesLayer = hierarchyElement.querySelector(':scope > .nodes');
+      const siblings = nodesLayer ? Array.from(nodesLayer.children).filter((child) => child.classList.contains('hierarchy')) : [];
+      const visibleSiblings = siblings.filter((sibling) => !sibling.classList.contains('hidden'));
+      if (visibleSiblings.length) {
+        visibleSiblings[0].classList.add('first-shown');
+        visibleSiblings[visibleSiblings.length - 1].classList.add('last-shown');
       }
-      $siblings.each(function(index, sibling) {
-        loopChart($(sibling));
-      });
+      siblings.forEach((sibling) => loopChart(sibling));
     }
 
     function filterNodes(keyWord) {
-    if(!keyWord.length) {
-      window.alert('Please type key word firstly.');
-      return;
-    } else {
-      var $chart = $('.orgchart');
-      // disalbe the expand/collapse feture
-      $chart.addClass('noncollapsable');
-      // distinguish the matched nodes and the unmatched nodes according to the given key word
-      $chart.find('.node').filter(function(index, node) {
-          return $(node).text().toLowerCase().indexOf(keyWord) > -1;
-        }).addClass('matched')
-        .closest('.hierarchy').parents('.hierarchy').children('.node').addClass('retained');
-      // hide the unmatched nodes
-      $chart.find('.matched,.retained').each(function(index, node) {
-        $(node).removeClass('slide-up')
-          .closest('.nodes').removeClass('hidden')
-          .siblings('.hierarchy').removeClass('isChildrenCollapsed');
-        var $unmatched = $(node).closest('.hierarchy').siblings().find('.node:first:not(.matched,.retained)')
-          .closest('.hierarchy').addClass('hidden');
-      });
-      // hide the redundant descendant nodes of the matched nodes
-      $chart.find('.matched').each(function(index, node) {
-        if (!$(node).siblings('.nodes').find('.matched').length) {
-          $(node).siblings('.nodes').addClass('hidden')
-            .parent().addClass('isChildrenCollapsed');
+      if (!keyWord.length) {
+        window.alert('Please type key word firstly.');
+        return;
+      }
+
+      const chart = document.querySelector('.orgchart');
+      if (!chart) {
+        return;
+      }
+
+      chart.classList.add('noncollapsable');
+      const nodes = Array.from(chart.querySelectorAll('.node'));
+      const matchedNodes = nodes.filter((node) => node.textContent.toLowerCase().indexOf(keyWord) > -1);
+
+      matchedNodes.forEach((node) => {
+        node.classList.add('matched');
+        let hierarchy = node.closest('.hierarchy');
+        while (hierarchy) {
+          const parentNodes = hierarchy.parentElement;
+          const parentHierarchy = parentNodes ? parentNodes.closest('.hierarchy') : null;
+          if (!parentHierarchy) {
+            break;
+          }
+          const parentNode = parentHierarchy.querySelector(':scope > .node');
+          if (parentNode) {
+            parentNode.classList.add('retained');
+          }
+          hierarchy = parentHierarchy;
         }
       });
-      // loop chart and adjust lines
-      loopChart($chart.find('.hierarchy:first'));
+
+      Array.from(chart.querySelectorAll('.matched, .retained')).forEach((node) => {
+        node.classList.remove('slide-up');
+        const currentHierarchy = node.closest('.hierarchy');
+        const currentLayer = currentHierarchy ? currentHierarchy.parentElement : null;
+        if (currentLayer && currentLayer.classList.contains('nodes')) {
+          currentLayer.classList.remove('hidden');
+          const parentHierarchy = currentLayer.closest('.hierarchy');
+          if (parentHierarchy) {
+            parentHierarchy.classList.remove('isChildrenCollapsed');
+          }
+        }
+        if (currentLayer) {
+          Array.from(currentLayer.children).forEach((sibling) => {
+            if (sibling !== currentHierarchy) {
+              const siblingNode = sibling.querySelector(':scope > .node');
+              if (siblingNode && !siblingNode.classList.contains('matched') && !siblingNode.classList.contains('retained')) {
+                sibling.classList.add('hidden');
+              }
+            }
+          });
+        }
+      });
+
+      matchedNodes.forEach((node) => {
+        const childLayer = node.parentElement.querySelector(':scope > .nodes');
+        if (childLayer && !childLayer.querySelector('.matched')) {
+          childLayer.classList.add('hidden');
+          node.parentElement.classList.add('isChildrenCollapsed');
+        }
+      });
+
+      const rootHierarchy = chart.querySelector('.hierarchy');
+      if (rootHierarchy) {
+        loopChart(rootHierarchy);
+      }
     }
-  }
 
-  function clearFilterResult() {
-    $('.orgchart').removeClass('noncollapsable')
-      .find('.node').removeClass('matched retained')
-      .end().find('.hidden, .isChildrenCollapsed, .first-shown, .last-shown').removeClass('hidden isChildrenCollapsed first-shown last-shown')
-      .end().find('.slide-up, .slide-left, .slide-right').removeClass('slide-up slide-right slide-left');
-  }
+    function clearFilterResult() {
+      const chart = document.querySelector('.orgchart');
+      if (!chart) {
+        return;
+      }
+      chart.classList.remove('noncollapsable');
+      chart.querySelectorAll('.node').forEach((node) => node.classList.remove('matched', 'retained'));
+      chart.querySelectorAll('.hidden, .isChildrenCollapsed, .first-shown, .last-shown').forEach((element) => {
+        element.classList.remove('hidden', 'isChildrenCollapsed', 'first-shown', 'last-shown');
+      });
+      chart.querySelectorAll('.slide-up, .slide-left, .slide-right').forEach((element) => {
+        element.classList.remove('slide-up', 'slide-right', 'slide-left');
+      });
+    }
 
-  $(function() {
+  document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'name': 'Lao Lao',
@@ -123,23 +165,24 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title'
     });
 
-    $('#btn-filter-node').on('click', function() {
-      filterNodes($('#key-word').val());
+    document.getElementById('btn-filter-node').addEventListener('click', () => {
+      filterNodes(document.getElementById('key-word').value);
     });
 
-    $('#btn-cancel').on('click', function() {
+    document.getElementById('btn-cancel').addEventListener('click', () => {
       clearFilterResult();
     });
 
-    $('#key-word').on('keyup', function(event) {
-      if (event.which === 13) {
-        filterNodes(this.value);
-      } else if (event.which === 8 && this.value.length === 0) {
+    document.getElementById('key-word').addEventListener('keyup', (event) => {
+      if (event.key === 'Enter') {
+        filterNodes(event.currentTarget.value);
+      } else if (event.key === 'Backspace' && event.currentTarget.value.length === 0) {
         clearFilterResult();
       }
     });

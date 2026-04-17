@@ -28,10 +28,9 @@
   <div id="chart-container"></div>
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.18.2/ol.js"></script>
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var map = new ol.Map({
       layers: [
@@ -55,7 +54,7 @@
       })
     });
 
-    $('body').prepend(map.getViewport());
+    document.body.prepend(map.getViewport());
 
     var datascource = {
       'name': 'Lao Lao',
@@ -73,11 +72,12 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title',
-      'createNode': function($node, data) {
-        $node.on('click', function() {
+      'createNode': function(node, data) {
+        node.addEventListener('click', () => {
           var view = map.getView();
           var duration = 2000;
           var start = +new Date();

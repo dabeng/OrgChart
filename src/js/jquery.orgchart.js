@@ -12,14 +12,877 @@
 
 (function (factory) {
   if (typeof module === 'object' && typeof module.exports === 'object') {
-    factory(require('jquery'), window, document);
+    module.exports = factory(window, document);
   } else {
-    factory(jQuery, window, document);
+    window.OrgChart = factory(window, document);
   }
-}(function ($, window, document, undefined) {
+}(function (window, document, undefined) {
+  const elementDataStore = new WeakMap();
+  const eventStore = new WeakMap();
+  const getWindow = () => (typeof globalThis !== 'undefined' && globalThis.window ? globalThis.window : window);
+  const getDocument = () => {
+    const currentWindow = getWindow();
+    return currentWindow && currentWindow.document
+      ? currentWindow.document
+      : (typeof globalThis !== 'undefined' && globalThis.document ? globalThis.document : document);
+  };
+
+  const isCollection = (value) => value instanceof $;
+  const isElement = (value) => value && (value.nodeType === 1 || value.nodeType === 9 || value === getWindow());
+  const isNode = (value) => value && typeof value.nodeType === 'number';
+  const isNodeList = (value) => value && typeof value.length === 'number' && typeof value !== 'string' && !isNode(value);
+  const isHtmlString = (value) => typeof value === 'string' && value.trim().startsWith('<') && value.trim().endsWith('>');
+  const isPlainObject = (value) => Object.prototype.toString.call(value) === '[object Object]';
+  const unique = (elements) => Array.from(new Set(elements.filter(Boolean)));
+  const splitClasses = (value) => String(value || '').trim().split(/\s+/).filter(Boolean);
+  const toCollection = (value) => (isCollection(value) ? value : $(value));
+
+  function normalizeSelector(selector) {
+    if (!selector) {
+      return selector;
+    }
+    return selector.replace(/:not\("([^"]+)"\)/g, ':not($1)');
+  }
+
+  function parseSelector(selector) {
+    const normalizedSelector = normalizeSelector(selector || '*');
+    const meta = {
+      selector: normalizedSelector,
+      first: false,
+      last: false,
+      gt: null,
+      hidden: false,
+      visible: false
+    };
+    meta.selector = meta.selector.replace(/:first\b/g, function () {
+      meta.first = true;
+      return '';
+    });
+    meta.selector = meta.selector.replace(/:last\b/g, function () {
+      meta.last = true;
+      return '';
+    });
+    meta.selector = meta.selector.replace(/:gt\((\d+)\)/g, function (_, index) {
+      meta.gt = Number(index);
+      return '';
+    });
+    meta.selector = meta.selector.replace(/:hidden\b/g, function () {
+      meta.hidden = true;
+      return '';
+    });
+    meta.selector = meta.selector.replace(/:visible\b/g, function () {
+      meta.visible = true;
+      return '';
+    });
+    meta.selector = meta.selector.trim() || '*';
+    return meta;
+  }
+
+  function isVisibleElement(element) {
+    if (!element || element.nodeType !== 1) {
+      return false;
+    }
+    const style = getWindow().getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }
+
+  function matchesSelector(element, selector) {
+    if (!selector || selector === '*') {
+      return true;
+    }
+    if (!element || element.nodeType !== 1) {
+      return false;
+    }
+    try {
+      return element.matches(selector);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function filterBySelector(elements, selector) {
+    const meta = parseSelector(selector);
+    let filtered = elements.filter((element) => matchesSelector(element, meta.selector));
+    if (meta.hidden) {
+      filtered = filtered.filter((element) => !isVisibleElement(element));
+    }
+    if (meta.visible) {
+      filtered = filtered.filter((element) => isVisibleElement(element));
+    }
+    if (meta.gt !== null) {
+      filtered = filtered.filter((_, index) => index > meta.gt);
+    }
+    if (meta.first) {
+      filtered = filtered.slice(0, 1);
+    }
+    if (meta.last) {
+      filtered = filtered.slice(-1);
+    }
+    return filtered;
+  }
+
+  function createNodesFromHtml(html) {
+    const template = getDocument().createElement('template');
+    template.innerHTML = html.trim();
+    return Array.from(template.content.childNodes);
+  }
+
+  function toDataKey(key) {
+    return String(key).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  function getStoredData(element) {
+    if (!elementDataStore.has(element)) {
+      elementDataStore.set(element, {});
+    }
+    return elementDataStore.get(element);
+  }
+
+  function setData(element, key, value) {
+    const store = getStoredData(element);
+    store[toDataKey(key)] = value;
+  }
+
+  function getData(element, key) {
+    const store = getStoredData(element);
+    const normalizedKey = toDataKey(key);
+    if (Object.prototype.hasOwnProperty.call(store, normalizedKey)) {
+      return store[normalizedKey];
+    }
+    if (element.dataset && Object.prototype.hasOwnProperty.call(element.dataset, normalizedKey)) {
+      return element.dataset[normalizedKey];
+    }
+    return undefined;
+  }
+
+  function getAllData(element) {
+    const store = Object.assign({}, getStoredData(element));
+    if (element.dataset) {
+      Object.keys(element.dataset).forEach((key) => {
+        if (!Object.prototype.hasOwnProperty.call(store, key)) {
+          store[key] = element.dataset[key];
+        }
+      });
+    }
+    return store;
+  }
+
+  function normalizeInput(input, context) {
+    if (input === null || input === undefined) {
+      return [];
+    }
+    if (isCollection(input)) {
+      return Array.from(input);
+    }
+    if (Array.isArray(input)) {
+      return unique(input.flatMap((item) => normalizeInput(item, context)));
+    }
+    if (isNode(input)) {
+      return [input];
+    }
+    if (isNodeList(input)) {
+      return Array.from(input).flatMap((item) => normalizeInput(item, context));
+    }
+    if (typeof input === 'string') {
+      if (isHtmlString(input)) {
+        return createNodesFromHtml(input);
+      }
+      const currentDocument = getDocument();
+      const parents = normalizeInput(context || currentDocument, currentDocument);
+      const selected = parents.length
+        ? parents.flatMap((parent) => {
+            if (parent.nodeType !== 1 && parent.nodeType !== 9) {
+              return [];
+            }
+            return filterBySelector(Array.from(parent.querySelectorAll(parseSelector(input).selector)), input);
+          })
+        : filterBySelector(Array.from(currentDocument.querySelectorAll(parseSelector(input).selector)), input);
+      return unique(selected);
+    }
+    return [];
+  }
+
+  function applyAttributes(element, attrs) {
+    if (!attrs || !element || element.nodeType !== 1) {
+      return;
+    }
+    Object.keys(attrs).forEach((key) => {
+      const value = attrs[key];
+      if (key === 'class') {
+        element.className = value;
+      } else if (key === 'text') {
+        element.textContent = value;
+      } else if (key === 'html') {
+        element.innerHTML = value;
+      } else if (key === 'data' && isPlainObject(value)) {
+        Object.keys(value).forEach((dataKey) => setData(element, dataKey, value[dataKey]));
+      } else if (key.startsWith('on') && typeof value === 'function') {
+        element.addEventListener(key.slice(2), value);
+      } else if (typeof value === 'function' && key === 'click') {
+        element.addEventListener('click', value);
+      } else if (value !== undefined && value !== null) {
+        element.setAttribute(key, value);
+      }
+    });
+  }
+
+  function toNodeArray(content) {
+    if (content instanceof DocumentFragment) {
+      return Array.from(content.childNodes);
+    }
+    if (isCollection(content)) {
+      return Array.from(content);
+    }
+    if (Array.isArray(content)) {
+      return content.flatMap((item) => toNodeArray(item));
+    }
+    if (isNode(content)) {
+      return [content];
+    }
+    if (typeof content === 'string') {
+      return isHtmlString(content) ? createNodesFromHtml(content) : [getDocument().createTextNode(content)];
+    }
+    return [];
+  }
+
+  function cloneNodesForTarget(nodes, needsClone) {
+    return nodes.map((node) => (needsClone ? node.cloneNode(true) : node));
+  }
+
+  function getEventEntries(element) {
+    if (!eventStore.has(element)) {
+      eventStore.set(element, []);
+    }
+    return eventStore.get(element);
+  }
+
+  function createTriggeredEvent(eventLike, extraData) {
+    const type = typeof eventLike === 'string' ? eventLike : eventLike.type;
+    const event = new (getWindow().CustomEvent)(type, {
+      bubbles: true,
+      cancelable: true,
+      detail: extraData
+    });
+    event.originalEvent = event;
+    event.data = extraData;
+    event.delegateTarget = null;
+    return event;
+  }
+
+  class DollarCollection extends Array {
+    constructor(elements = [], prevObject = null) {
+      if (typeof elements === 'number') {
+        super(elements);
+      } else {
+        super(...elements);
+      }
+      this.prevObject = prevObject;
+    }
+
+    static get [Symbol.species]() {
+      return Array;
+    }
+
+    pushStack(elements) {
+      return new DollarCollection(unique(elements), this);
+    }
+
+    each(callback) {
+      this.forEach((element, index) => {
+        callback.call(element, index, element);
+      });
+      return this;
+    }
+
+    get(index) {
+      if (index === undefined) {
+        return Array.from(this);
+      }
+      return index < 0 ? this[this.length + index] : this[index];
+    }
+
+    toArray() {
+      return Array.from(this);
+    }
+
+    eq(index) {
+      const element = this.get(index);
+      return this.pushStack(element ? [element] : []);
+    }
+
+    slice(begin, end) {
+      return this.pushStack(Array.prototype.slice.call(this, begin, end));
+    }
+
+    add(other) {
+      return this.pushStack(unique([...this, ...normalizeInput(other)]));
+    }
+
+    addBack() {
+      return this.add(this.prevObject || []);
+    }
+
+    end() {
+      return this.prevObject || $([]);
+    }
+
+    find(selector) {
+      return this.pushStack(unique(this.flatMap((element) => {
+        if (!element || (element.nodeType !== 1 && element.nodeType !== 9)) {
+          return [];
+        }
+        const parsed = parseSelector(selector);
+        return filterBySelector(Array.from(element.querySelectorAll(parsed.selector)), selector);
+      })));
+    }
+
+    filter(selectorOrCallback) {
+      if (typeof selectorOrCallback === 'function') {
+        return this.pushStack(Array.prototype.filter.call(this, (element, index) => selectorOrCallback.call(element, index, element)));
+      }
+      return this.pushStack(filterBySelector(Array.from(this), selectorOrCallback));
+    }
+
+    not(selectorOrCallback) {
+      if (typeof selectorOrCallback === 'function') {
+        return this.pushStack(Array.prototype.filter.call(this, (element, index) => !selectorOrCallback.call(element, index, element)));
+      }
+      const excluded = new Set(filterBySelector(Array.from(this), selectorOrCallback));
+      return this.pushStack(Array.prototype.filter.call(this, (element) => !excluded.has(element)));
+    }
+
+    is(selector) {
+      return this.length > 0 && filterBySelector([this[0]], selector).length > 0;
+    }
+
+    parent(selector) {
+      const parents = unique(this.map((element) => element && element.parentElement).filter(Boolean));
+      return this.pushStack(selector ? filterBySelector(parents, selector) : parents);
+    }
+
+    children(selector) {
+      const children = unique(this.flatMap((element) => element ? Array.from(element.children || []) : []));
+      return this.pushStack(selector ? filterBySelector(children, selector) : children);
+    }
+
+    contents() {
+      return this.pushStack(unique(this.flatMap((element) => element ? Array.from(element.childNodes || []) : [])));
+    }
+
+    siblings(selector) {
+      const siblings = unique(this.flatMap((element) => {
+        if (!element || !element.parentElement) {
+          return [];
+        }
+        return Array.from(element.parentElement.children).filter((child) => child !== element);
+      }));
+      return this.pushStack(selector ? filterBySelector(siblings, selector) : siblings);
+    }
+
+    prev(selector) {
+      const prev = unique(this.map((element) => element && element.previousElementSibling).filter(Boolean));
+      return this.pushStack(selector ? filterBySelector(prev, selector) : prev);
+    }
+
+    next(selector) {
+      const next = unique(this.map((element) => element && element.nextElementSibling).filter(Boolean));
+      return this.pushStack(selector ? filterBySelector(next, selector) : next);
+    }
+
+    prevAll(selector) {
+      const prevAll = unique(this.flatMap((element) => {
+        const result = [];
+        let current = element ? element.previousElementSibling : null;
+        while (current) {
+          result.push(current);
+          current = current.previousElementSibling;
+        }
+        return result;
+      }));
+      return this.pushStack(selector ? filterBySelector(prevAll, selector) : prevAll);
+    }
+
+    nextAll(selector) {
+      const nextAll = unique(this.flatMap((element) => {
+        const result = [];
+        let current = element ? element.nextElementSibling : null;
+        while (current) {
+          result.push(current);
+          current = current.nextElementSibling;
+        }
+        return result;
+      }));
+      return this.pushStack(selector ? filterBySelector(nextAll, selector) : nextAll);
+    }
+
+    closest(selector) {
+      return this.pushStack(unique(this.map((element) => {
+        if (!element || typeof element.closest !== 'function') {
+          return null;
+        }
+        return element.closest(selector);
+      }).filter(Boolean)));
+    }
+
+    parents(selector) {
+      const parents = unique(this.flatMap((element) => {
+        const result = [];
+        let current = element ? element.parentElement : null;
+        while (current) {
+          result.push(current);
+          current = current.parentElement;
+        }
+        return result;
+      }));
+      return this.pushStack(selector ? filterBySelector(parents, selector) : parents);
+    }
+
+    parentsUntil(stopSelector, filterSelector) {
+      const parents = unique(this.flatMap((element) => {
+        const result = [];
+        let current = element ? element.parentElement : null;
+        while (current && !matchesSelector(current, stopSelector)) {
+          result.push(current);
+          current = current.parentElement;
+        }
+        return result;
+      }));
+      return this.pushStack(filterSelector ? filterBySelector(parents, filterSelector) : parents);
+    }
+
+    append(content) {
+      const nodes = toNodeArray(content);
+      this.forEach((element, index) => {
+        cloneNodesForTarget(nodes, index < this.length - 1).forEach((node) => element.appendChild(node));
+      });
+      return this;
+    }
+
+    prepend(content) {
+      const nodes = toNodeArray(content);
+      this.forEach((element, index) => {
+        const reference = element.firstChild;
+        cloneNodesForTarget(nodes, index < this.length - 1).forEach((node) => element.insertBefore(node, reference));
+      });
+      return this;
+    }
+
+    before(content) {
+      const nodes = toNodeArray(content);
+      this.forEach((element, index) => {
+        if (!element || !element.parentNode) {
+          return;
+        }
+        cloneNodesForTarget(nodes, index < this.length - 1).forEach((node) => element.parentNode.insertBefore(node, element));
+      });
+      return this;
+    }
+
+    after(content) {
+      const nodes = toNodeArray(content);
+      this.forEach((element, index) => {
+        if (!element || !element.parentNode) {
+          return;
+        }
+        const reference = element.nextSibling;
+        cloneNodesForTarget(nodes, index < this.length - 1).forEach((node) => element.parentNode.insertBefore(node, reference));
+      });
+      return this;
+    }
+
+    appendTo(target) {
+      $(target).append(this);
+      return this;
+    }
+
+    remove() {
+      this.forEach((element) => {
+        if (element && element.parentNode) {
+          element.parentNode.removeChild(element);
+        }
+      });
+      return this;
+    }
+
+    empty() {
+      this.forEach((element) => {
+        if (element) {
+          element.innerHTML = '';
+        }
+      });
+      return this;
+    }
+
+    wrapAll(html) {
+      if (!this.length) {
+        return this;
+      }
+      const wrapper = toNodeArray(html)[0];
+      if (!wrapper) {
+        return this;
+      }
+      const first = this[0];
+      first.parentNode.insertBefore(wrapper, first);
+      let deepest = wrapper;
+      while (deepest.firstElementChild) {
+        deepest = deepest.firstElementChild;
+      }
+      this.forEach((element) => deepest.appendChild(element));
+      return this;
+    }
+
+    unwrap() {
+      unique(this.map((element) => element && element.parentElement).filter(Boolean)).forEach((parent) => {
+        while (parent.firstChild) {
+          parent.parentNode.insertBefore(parent.firstChild, parent);
+        }
+        parent.parentNode.removeChild(parent);
+      });
+      return this;
+    }
+
+    attr(name, value) {
+      if (typeof name === 'object') {
+        this.forEach((element) => applyAttributes(element, name));
+        return this;
+      }
+      if (value === undefined) {
+        return this[0] && this[0].nodeType === 1 ? this[0].getAttribute(name) : undefined;
+      }
+      this.forEach((element) => {
+        if (element && element.nodeType === 1) {
+          element.setAttribute(name, value);
+        }
+      });
+      return this;
+    }
+
+    removeAttr(name) {
+      this.forEach((element) => {
+        if (element && element.nodeType === 1) {
+          element.removeAttribute(name);
+        }
+      });
+      return this;
+    }
+
+    prop(name, value) {
+      if (value === undefined) {
+        return this[0] ? this[0][name] : undefined;
+      }
+      this.forEach((element) => {
+        if (element) {
+          element[name] = value;
+        }
+      });
+      return this;
+    }
+
+    data(name, value) {
+      if (name === undefined) {
+        return this[0] ? getAllData(this[0]) : undefined;
+      }
+      if (isPlainObject(name)) {
+        this.forEach((element) => {
+          Object.keys(name).forEach((key) => setData(element, key, name[key]));
+        });
+        return this;
+      }
+      if (value === undefined) {
+        return this[0] ? getData(this[0], name) : undefined;
+      }
+      this.forEach((element) => setData(element, name, value));
+      return this;
+    }
+
+    css(name, value) {
+      if (typeof name === 'object') {
+        this.forEach((element) => {
+          Object.keys(name).forEach((key) => {
+            element.style[key] = name[key];
+          });
+        });
+        return this;
+      }
+      if (value === undefined) {
+        return this[0] ? getWindow().getComputedStyle(this[0])[name] : undefined;
+      }
+      this.forEach((element) => {
+        element.style[name] = value;
+      });
+      return this;
+    }
+
+    text(value) {
+      if (value === undefined) {
+        return this.map((element) => element.textContent).join('');
+      }
+      this.forEach((element) => {
+        element.textContent = value;
+      });
+      return this;
+    }
+
+    html(value) {
+      if (value === undefined) {
+        return this[0] ? this[0].innerHTML : undefined;
+      }
+      this.forEach((element) => {
+        element.innerHTML = value;
+      });
+      return this;
+    }
+
+    addClass(classNames) {
+      this.forEach((element, index) => {
+        if (element && element.classList) {
+          const names = splitClasses(typeof classNames === 'function'
+            ? classNames.call(element, index, element.className)
+            : classNames);
+          element.classList.add(...names);
+        }
+      });
+      return this;
+    }
+
+    removeClass(classNames) {
+      const names = splitClasses(classNames);
+      this.forEach((element) => {
+        if (!element || !element.classList) {
+          return;
+        }
+        if (names.length) {
+          element.classList.remove(...names);
+        } else {
+          element.className = '';
+        }
+      });
+      return this;
+    }
+
+    toggleClass(classNames, force) {
+      const names = splitClasses(classNames);
+      this.forEach((element) => {
+        if (!element || !element.classList) {
+          return;
+        }
+        names.forEach((name) => element.classList.toggle(name, force));
+      });
+      return this;
+    }
+
+    hasClass(className) {
+      return this.length > 0 && this[0].classList.contains(className);
+    }
+
+    index(element) {
+      if (element === undefined) {
+        if (!this[0] || !this[0].parentElement) {
+          return -1;
+        }
+        return Array.from(this[0].parentElement.children).indexOf(this[0]);
+      }
+      const target = isCollection(element) ? element[0] : element;
+      return Array.from(this).indexOf(target);
+    }
+
+    outerWidth(includeMargin) {
+      if (!this[0]) {
+        return 0;
+      }
+      const rect = this[0].getBoundingClientRect();
+      if (!includeMargin) {
+        return rect.width;
+      }
+      const style = getWindow().getComputedStyle(this[0]);
+      return rect.width + Number.parseFloat(style.marginLeft) + Number.parseFloat(style.marginRight);
+    }
+
+    outerHeight(includeMargin) {
+      if (!this[0]) {
+        return 0;
+      }
+      const rect = this[0].getBoundingClientRect();
+      if (!includeMargin) {
+        return rect.height;
+      }
+      const style = getWindow().getComputedStyle(this[0]);
+      return rect.height + Number.parseFloat(style.marginTop) + Number.parseFloat(style.marginBottom);
+    }
+
+    on(events, selectorOrData, dataOrHandler, handler) {
+      const types = String(events).trim().split(/\s+/);
+      let selector = null;
+      let data = null;
+      let listener = handler;
+      if (typeof selectorOrData === 'string') {
+        selector = selectorOrData;
+        listener = dataOrHandler;
+      } else if (typeof selectorOrData === 'function') {
+        listener = selectorOrData;
+      } else {
+        data = selectorOrData;
+        listener = dataOrHandler;
+      }
+      this.forEach((element) => {
+        const entries = getEventEntries(element);
+        types.forEach((type) => {
+          const wrappedHandler = (nativeEvent) => {
+            if (selector) {
+              const matchedTarget = nativeEvent.target && nativeEvent.target.closest(selector);
+              if (!matchedTarget || !element.contains(matchedTarget)) {
+                return;
+              }
+            }
+            nativeEvent.delegateTarget = element;
+            nativeEvent.data = data;
+            nativeEvent.originalEvent = nativeEvent.originalEvent || nativeEvent;
+            return listener.call(element, nativeEvent);
+          };
+          entries.push({ type, listener, wrappedHandler, selector });
+          element.addEventListener(type, wrappedHandler);
+        });
+      });
+      return this;
+    }
+
+    one(events, selectorOrData, dataOrHandler, handler) {
+      const types = String(events).trim().split(/\s+/);
+      let selector = null;
+      let data = null;
+      let listener = handler;
+      if (typeof selectorOrData === 'string') {
+        selector = selectorOrData;
+        listener = dataOrHandler;
+      } else if (typeof selectorOrData === 'function') {
+        listener = selectorOrData;
+      } else {
+        data = selectorOrData;
+        listener = dataOrHandler;
+      }
+      this.forEach((element) => {
+        const entries = getEventEntries(element);
+        types.forEach((type) => {
+          const wrappedHandler = (nativeEvent) => {
+            if (selector) {
+              const matchedTarget = nativeEvent.target && nativeEvent.target.closest(selector);
+              if (!matchedTarget || !element.contains(matchedTarget)) {
+                return;
+              }
+            }
+            nativeEvent.delegateTarget = element;
+            nativeEvent.data = data;
+            nativeEvent.originalEvent = nativeEvent.originalEvent || nativeEvent;
+            element.removeEventListener(type, wrappedHandler);
+            const registry = getEventEntries(element);
+            const index = registry.findIndex((entry) => entry.type === type && entry.wrappedHandler === wrappedHandler);
+            if (index > -1) {
+              registry.splice(index, 1);
+            }
+            return listener.call(element, nativeEvent);
+          };
+          entries.push({ type, listener, wrappedHandler, selector });
+          element.addEventListener(type, wrappedHandler);
+        });
+      });
+      return this;
+    }
+
+    off(events, listener) {
+      const types = events ? String(events).trim().split(/\s+/) : [];
+      this.forEach((element) => {
+        const entries = getEventEntries(element);
+        for (let index = entries.length - 1; index >= 0; index -= 1) {
+          const entry = entries[index];
+          const matchesType = !types.length || types.includes(entry.type);
+          const matchesListener = !listener || entry.listener === listener;
+          if (matchesType && matchesListener) {
+            element.removeEventListener(entry.type, entry.wrappedHandler);
+            entries.splice(index, 1);
+          }
+        }
+      });
+      return this;
+    }
+
+    trigger(eventLike, extraData) {
+      this.forEach((element) => {
+        const triggeredEvent = createTriggeredEvent(eventLike, extraData);
+        triggeredEvent.delegateTarget = element;
+        element.dispatchEvent(triggeredEvent);
+        if (eventLike && typeof eventLike === 'object') {
+          eventLike.defaultPrevented = triggeredEvent.defaultPrevented;
+        }
+      });
+      return this;
+    }
+
+    triggerHandler(eventLike, extraData) {
+      this.forEach((element) => {
+        const type = typeof eventLike === 'string' ? eventLike : eventLike.type;
+        const registry = getEventEntries(element).filter((entry) => entry.type === type);
+        registry.forEach((entry) => {
+          const eventObject = typeof eventLike === 'string' ? { type } : eventLike;
+          eventObject.delegateTarget = element;
+          eventObject.originalEvent = eventObject.originalEvent || eventObject;
+          eventObject.data = extraData;
+          entry.listener.call(element, eventObject);
+        });
+      });
+      return this;
+    }
+  }
+
+  function $(input, attrs) {
+    const elements = normalizeInput(input, getDocument());
+    const collection = new DollarCollection(elements);
+    if (attrs && elements[0] && isHtmlString(input)) {
+      applyAttributes(elements[0], attrs);
+    }
+    return collection;
+  }
+
+  $.prototype = DollarCollection.prototype;
+  $.extend = function () {
+    return Object.assign.apply(Object, [{}].concat(Array.from(arguments)));
+  };
+  $.each = function (collection, callback) {
+    if (Array.isArray(collection) || isNodeList(collection) || isCollection(collection)) {
+      for (let index = 0; index < collection.length; index += 1) {
+        if (callback.call(collection[index], index, collection[index]) === false) {
+          break;
+        }
+      }
+      return collection;
+    }
+    Object.keys(collection || {}).some((key) => callback.call(collection[key], key, collection[key]) === false);
+    return collection;
+  };
+  $.isArray = Array.isArray;
+  $.Event = function (type) {
+    return {
+      type,
+      defaultPrevented: false,
+      preventDefault: function () {
+        this.defaultPrevented = true;
+      },
+      isDefaultPrevented: function () {
+        return this.defaultPrevented;
+      }
+    };
+  };
+
   var OrgChart = function (elem, opts) {
-    this.$chartContainer = $(elem);
-    this.opts = opts;
+    if (!(this instanceof OrgChart)) {
+      return new OrgChart(elem, opts);
+    }
+    if (isPlainObject(elem) && !opts) {
+      this.opts = elem;
+      this.$chartContainer = $(elem.chartContainer || elem.container);
+    } else {
+      this.$chartContainer = $(elem);
+      this.opts = opts || {};
+    }
     this.defaultOptions = {
       'icons': {
         'theme': 'oci',
@@ -50,6 +913,9 @@
       'zoominLimit': 7,
       'zoomoutLimit': 0.5
     };
+    if (this.$chartContainer.length) {
+      this.init();
+    }
   };
   //
   OrgChart.prototype = {
@@ -72,13 +938,15 @@
           }
         }
       });
-      if (typeof MutationObserver !== 'undefined') {
+      if (typeof getWindow().MutationObserver !== 'undefined') {
         this.triggerInitEvent();
       }
-      var $root = Array.isArray(data) ? $chart.append($('<ul class="nodes"></ul>')).find('.nodes')
+      var isCollectionData = isCollection(data);
+      var $root = (!isCollectionData && Array.isArray(data))
+        ? $chart.append($('<ul class="nodes"></ul>')).find('.nodes')
         : $chart.append($('<ul class="nodes"><li class="hierarchy"></li></ul>')).find('.hierarchy');
 
-        if (data instanceof $) { // ul datasource
+        if (isCollectionData) { // ul datasource
           this.buildHierarchy($root, this.buildJsonDS(data.children()), 0, this.options);
         } else { // local json datasource
           if (data.relationship) {
@@ -106,6 +974,9 @@
       return this;
     },
     handleCompactNodes: function () {
+      if (!this.$chart || !this.$chart.length) {
+        return;
+      }
       // caculate the compact nodes' level which is used to add different styles
       this.$chart.find('.node.compact')
         .each((index, node) => {
@@ -122,15 +993,19 @@
     //
     triggerInitEvent: function () {
       var that = this;
-      var mo = new MutationObserver(function (mutations) {
+      var MutationObserverCtor = getWindow().MutationObserver;
+      var mo = new MutationObserverCtor(function (mutations) {
         mo.disconnect();
         initTime:
         for (var i = 0; i < mutations.length; i++) {
           for (var j = 0; j < mutations[i].addedNodes.length; j++) {
-            if (mutations[i].addedNodes[j].classList.contains('orgchart')) {
+            if (mutations[i].addedNodes[j].classList && mutations[i].addedNodes[j].classList.contains('orgchart')) {
               that.handleCompactNodes();
+              if (!that.$chart || !that.$chart.length) {
+                break initTime;
+              }
               if (that.options.initCompleted && typeof that.options.initCompleted === 'function') {
-                that.options.initCompleted(that.$chart);
+                that.options.initCompleted(that.$chart[0]);
               }
               var initEvent = $.Event('init.orgchart');
               that.$chart.trigger(initEvent);
@@ -280,13 +1155,13 @@
     bindPan: function () {
       this.$chartContainer.css('overflow', 'hidden');
       this.$chart.on('mousedown touchstart', this.panStartHandler);
-      $(document).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
+      $(getDocument()).on('mouseup touchend', { 'chart': this.$chart }, this.panEndHandler);
     },
     //
     unbindPan: function () {
       this.$chartContainer.css('overflow', 'auto');
       this.$chart.off('mousedown touchstart', this.panStartHandler);
-      $(document).off('mouseup touchend', this.panEndHandler);
+      $(getDocument()).off('mouseup touchend', this.panEndHandler);
     },
     //
     zoomWheelHandler: function (e) {
@@ -327,14 +1202,14 @@
     bindZoom: function () {
       this.$chartContainer.on('wheel', { 'oc': this }, this.zoomWheelHandler);
       this.$chartContainer.on('touchstart', { 'oc': this }, this.zoomStartHandler);
-      $(document).on('touchmove', { 'oc': this }, this.zoomingHandler);
-      $(document).on('touchend', { 'oc': this }, this.zoomEndHandler);
+      $(getDocument()).on('touchmove', { 'oc': this }, this.zoomingHandler);
+      $(getDocument()).on('touchend', { 'oc': this }, this.zoomEndHandler);
     },
     unbindZoom: function () {
       this.$chartContainer.off('wheel', this.zoomWheelHandler);
       this.$chartContainer.off('touchstart', this.zoomStartHandler);
-      $(document).off('touchmove', this.zoomingHandler);
-      $(document).off('touchend', this.zoomEndHandler);
+      $(getDocument()).off('touchmove', this.zoomingHandler);
+      $(getDocument()).off('touchend', this.zoomEndHandler);
     },
     //
     getPinchDist: function (e) {
@@ -343,6 +1218,7 @@
     },
     //
     setChartScale: function ($chart, newScale) {
+      $chart = toCollection($chart);
       var opts = $chart.data('options');
       var lastTf = $chart.css('transform');
       var matrix = '';
@@ -352,12 +1228,12 @@
       } else {
         matrix = lastTf.split(',');
         if (lastTf.indexOf('3d') === -1) {
-          targetScale = Math.abs(window.parseFloat(matrix[3]) * newScale);
+          targetScale = Math.abs(getWindow().parseFloat(matrix[3]) * newScale);
           if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
           }
         } else {
-          targetScale = Math.abs(window.parseFloat(matrix[1]) * newScale);
+          targetScale = Math.abs(getWindow().parseFloat(matrix[1]) * newScale);
           if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
             $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
           }
@@ -366,6 +1242,7 @@
     },
     //
     buildJsonDS: function ($li) {
+      $li = toCollection($li);
       var that = this;
       var subObj = {
         'name': $li.contents().eq(0).text().trim(),
@@ -403,6 +1280,7 @@
     },
     //
     loopChart: function ($chart, includeNodeData) {
+      $chart = toCollection($chart);
       includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
       var that = this;
       var $node = $chart.find('.node:first');
@@ -443,6 +1321,7 @@
     },
     // detect the exist/display state of related node
     getNodeState: function ($node, relation) {
+      $node = toCollection($node);
       var $target = {};
       var isVerticalNode = !!$node.closest('vertical').length;
       var relation = relation || 'self';
@@ -505,6 +1384,7 @@
     },
     // find the related nodes
     getRelatedNodes: function ($node, relation) {
+      $node = toCollection($node);
       if (!$node || !($node instanceof $) || !$node.is('.node')) {
         return $();
       }
@@ -524,6 +1404,7 @@
     },
     // recursively hide the ancestor node and sibling nodes of the specified node
     hideParent: function ($node) {
+      $node = toCollection($node);
       var $parent = $node.closest('.nodes').siblings('.node');
       if ($parent.find('.spinner').length) {
         $node.closest('.orgchart').data('inAjax', false);
@@ -552,6 +1433,7 @@
     },
     // show the parent node of the specified node
     showParent: function ($node) {
+      $node = toCollection($node);
       // just show only one superior level
       var $parent = $node.closest('.nodes').siblings('.node').removeClass('hidden');
       // just show only one line
@@ -582,6 +1464,7 @@
     },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function ($node) {
+      $node = toCollection($node);
       $node.closest('.hierarchy').addClass('isChildrenCollapsed');
       var $lowerLevel = $node.siblings('.nodes');
       this.stopAjax($lowerLevel);
@@ -606,6 +1489,7 @@
     },
     // show the children nodes of the specified node
     showChildren: function ($node) {
+      $node = toCollection($node);
       var that = this;
       $node.closest('.hierarchy').removeClass('isChildrenCollapsed');
       var $levels = $node.siblings('.nodes');
@@ -629,15 +1513,13 @@
       var direction = event.data.direction;
       var $siblings = direction ? (direction === 'left' ? $nodeContainer.prevAll(':not(.hidden)') : $nodeContainer.nextAll(':not(.hidden)')) : $nodeContainer.siblings();
       event.data.animatedNodes.removeClass('sliding');
-      $siblings.find('.node:gt(0)').filter(this.isVisibleNode.bind(this))
-        .removeClass('slide-left slide-right')
-        .addClass(function() {
-          if (that.options.compact) {
-            return '';
-          } else {
-            return 'slide-up';
-          }
-        });
+      $siblings.each(function () {
+        $(this).find('.node').filter(that.isVisibleNode.bind(that)).slice(1)
+          .removeClass('slide-left slide-right')
+          .addClass(function() {
+            return that.options.compact ? '' : 'slide-up';
+          });
+      });
       $siblings.find('.nodes, .vertical').addClass('hidden')
         .end().addClass('hidden');
 
@@ -647,6 +1529,7 @@
     },
     // hide the sibling nodes of the specified node
     hideSiblings: function ($node, direction) {
+      $node = toCollection($node);
       var that = this;
       var $nodeContainer = $node.closest('.hierarchy').addClass('isSiblingsCollapsed');
       if ($nodeContainer.siblings().find('.spinner').length) {
@@ -687,6 +1570,7 @@
     },
     // show the sibling nodes of the specified node
     showSiblings: function ($node, direction) {
+      $node = toCollection($node);
       var that = this;
       // firstly, show the sibling nodes
       var $siblings = $();
@@ -727,6 +1611,7 @@
     },
     // start up loading status for requesting new nodes
     startLoading: function ($edge) {
+      $edge = toCollection($edge);
       var $chart = this.$chart;
       if (typeof $chart.data('inAjax') !== 'undefined' && $chart.data('inAjax') === true) {
         return false;
@@ -741,6 +1626,7 @@
     },
     // terminate loading status for requesting new nodes
     endLoading: function ($edge) {
+      $edge = toCollection($edge);
       var $node = $edge.parent();
       $edge.removeClass('hidden');
       $node.find('.spinner').remove();
@@ -750,6 +1636,7 @@
     },
     // whether the cursor is hovering over the node
     isInAction: function ($node) {
+      $node = toCollection($node);
       // TODO: 展开/折叠的按钮不止4个箭头，还有toggleBtn
       return [
         this.options.icons.expandToUp,
@@ -760,10 +1647,12 @@
     },
     //
     switchVerticalArrow: function ($arrow) {
+      $arrow = toCollection($arrow);
       $arrow.toggleClass(`${this.options.icons.expandToUp} ${this.options.icons.collapseToDown}`);
     },
     //
     switchHorizontalArrow: function ($node) {
+      $node = toCollection($node);
       var opts = this.options;
       if (opts.toggleSiblingsResp && (typeof opts.ajaxURL === 'undefined' || $node.closest('.nodes').data('siblingsLoaded'))) {
         var $prevSib = $node.parent().prev();
@@ -985,13 +1874,13 @@
       var $nodeDiv = $(event.target);
       var opts = this.options;
       var origEvent = event.originalEvent;
-      var isFirefox = /firefox/.test(window.navigator.userAgent.toLowerCase());
+      var isFirefox = /firefox/.test(getWindow().navigator.userAgent.toLowerCase());
       var ghostNode, nodeCover;
-      if (!document.querySelector('.ghost-node')) {
-        ghostNode = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      if (!getDocument().querySelector('.ghost-node')) {
+        ghostNode = getDocument().createElementNS("http://www.w3.org/2000/svg", "svg");
         if (!ghostNode.classList) return;
         ghostNode.classList.add('ghost-node');
-        nodeCover = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        nodeCover = getDocument().createElementNS('http://www.w3.org/2000/svg','rect');
         ghostNode.appendChild(nodeCover);
         $nodeDiv.closest('.orgchart').append(ghostNode);
       } else {
@@ -1000,7 +1889,7 @@
       }
       var transValues = $nodeDiv.closest('.orgchart').css('transform').split(',');
       var isHorizontal = opts.direction === 't2b' || opts.direction === 'b2t';
-      var scale = Math.abs(window.parseFloat(isHorizontal ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
+      var scale = Math.abs(getWindow().parseFloat(isHorizontal ? transValues[0].slice(transValues[0].indexOf('(') + 1) : transValues[1]));
       ghostNode.setAttribute('width', isHorizontal ? $nodeDiv.outerWidth(false) : $nodeDiv.outerHeight(false));
       ghostNode.setAttribute('height', isHorizontal ? $nodeDiv.outerHeight(false) : $nodeDiv.outerWidth(false));
       nodeCover.setAttribute('x',5 * scale);
@@ -1025,7 +1914,7 @@
       if (isFirefox) { // hack for old version of Firefox(< 48.0)
         nodeCover.setAttribute('fill', 'rgb(255, 255, 255)');
         nodeCover.setAttribute('stroke', 'rgb(191, 0, 0)');
-        var ghostNodeWrapper = document.createElement('img');
+        var ghostNodeWrapper = getDocument().createElement('img');
         ghostNodeWrapper.src = 'data:image/svg+xml;utf8,' + (new XMLSerializer()).serializeToString(ghostNode);
         origEvent.dataTransfer.setDragImage(ghostNodeWrapper, xOffset, yOffset);
       } else {
@@ -1214,7 +2103,7 @@
       // move our dragimage so it follows our finger
       this.moveDragImage(event, this.touchDragImage);
 
-      var $touching = $(document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY));
+      var $touching = $(getDocument().elementFromPoint(event.touches[0].clientX, event.touches[0].clientY));
       var $touchingNodes = $touching.closest('div.node');
       if ($touchingNodes.length > 0) {
         var touchingNodeElement = $touchingNodes[0];
@@ -1247,8 +2136,8 @@
       else {
           // we did not move, so this was a 'press' touch (fake a click)
           var firstTouch = event.changedTouches[0];
-          var fakeMouseClickEvent = document.createEvent('MouseEvents');
-          fakeMouseClickEvent.initMouseEvent('click', true, true, window, 1, firstTouch.screenX, firstTouch.screenY, firstTouch.clientX, firstTouch.clientY, event.ctrlKey, event.altKey, event.shiftKey, event.metaKey, 0, null);
+          var fakeMouseClickEvent = getDocument().createEvent('MouseEvents');
+          fakeMouseClickEvent.initMouseEvent('click', true, true, getWindow(), 1, firstTouch.screenX, firstTouch.screenY, firstTouch.clientX, firstTouch.clientY, event.ctrlKey, event.altKey, event.shiftKey, event.metaKey, 0, null);
           event.target.dispatchEvent(fakeMouseClickEvent);
       }
       this.touchHandled = false;
@@ -1262,7 +2151,7 @@
       var sourcePoint = this.getTouchPoint(event);
       this.touchDragImageOffset = { x: sourcePoint.x - sourceRectangle.left, y: sourcePoint.y - sourceRectangle.top };
       dragImage.style.opacity = '0.5';
-      document.body.appendChild(dragImage);
+      getDocument().body.appendChild(dragImage);
       return dragImage;
     },
     //
@@ -1329,6 +2218,7 @@
     },
     //
     bindDragDrop: function ($node) {
+      $node = toCollection($node);
       $node.on('dragstart', this.dragstartHandler.bind(this))
         .on('dragover', this.dragoverHandler.bind(this))
         .on('dragend', this.dragendHandler.bind(this))
@@ -1339,64 +2229,82 @@
     },
     // create node
     createNode: function (data) {
-      var that = this;
       var opts = this.options;
       var level = data.level;
+      var flags = data.relationship || '';
+      var nodeClass = [
+        'node',
+        data.className || '',
+        data?.outsider ? 'outsider' : '',
+        level > opts.visibleLevel ? 'slide-up' : ''
+      ].filter(Boolean).join(' ');
+      var titleChunks = [];
+      var contentChunks = [];
+      var nodeChunks = [];
+      var shouldAddParentSymbol = Number(flags.substr(2, 1));
+
       if (data.children && data[opts.nodeId]) {
         $.each(data.children, function (index, child) {
           child.parentId = data[opts.nodeId]
         });
       }
+
+      if (shouldAddParentSymbol) {
+        titleChunks.push(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
+      }
+      titleChunks.push(data[opts.nodeTitle]);
+
+      if (opts.nodeTemplate) {
+        nodeChunks.push(opts.nodeTemplate(data));
+      } else {
+        nodeChunks.push(`<div class="title">${titleChunks.join('')}</div>`);
+        if (typeof opts.nodeContent !== 'undefined') {
+          contentChunks.push(`<div class="content">${data[opts.nodeContent] || ''}</div>`);
+        }
+        nodeChunks.push(contentChunks.join(''));
+      }
+
+      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.vertical) {
+        if (shouldAddParentSymbol) {
+          nodeChunks.push(`<i class="toggleBtn ${opts.icons.theme}"></i>`);
+        }
+      } else if (data.hybrid) {
+        if (shouldAddParentSymbol) {
+          nodeChunks.push(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`);
+        }
+      } else if (data.compact) {
+        if (shouldAddParentSymbol) {
+          nodeChunks.push(`<i class="${opts.icons.theme} ${opts.icons.backToCompact} backToCompactSymbol hidden"></i>`);
+          nodeChunks.push(`<i class="${opts.icons.theme} ${opts.icons.backToLoose} backToLooseSymbol"></i>`);
+        }
+      } else if (!data.associatedCompact) {
+        if (Number(flags.substr(0, 1))) {
+          nodeChunks.push(`<i class="edge verticalEdge topEdge ${opts.icons.theme}"></i>`);
+        }
+        if (Number(flags.substr(1, 1))) {
+          nodeChunks.push(`<i class="edge horizontalEdge rightEdge ${opts.icons.theme}"></i>`);
+          nodeChunks.push(`<i class="edge horizontalEdge leftEdge ${opts.icons.theme}"></i>`);
+        }
+        if (shouldAddParentSymbol) {
+          nodeChunks.push(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`);
+        }
+      }
+
       // construct the content of node
       var $nodeDiv = $('<div' + (opts.draggable ? ' draggable="true"' : '') + (data[opts.nodeId] ? ' id="' + data[opts.nodeId] + '"' : '') + (data.parentId ? ' data-parent="' + data.parentId + '"' : '') + '>')
-        .addClass('node ' 
-        + (data.className || '')
-        + (data?.outsider ? 'outsider' : '')
-        +  (level > opts.visibleLevel ? ' slide-up' : ''));
+        .addClass(nodeClass);
       if (opts.nodeTemplate) {
-        $nodeDiv.append(opts.nodeTemplate(data));
+        $nodeDiv.append(nodeChunks.join(''));
       } else {
-        $nodeDiv.append('<div class="title">' + data[opts.nodeTitle] + '</div>')
-          .append(typeof opts.nodeContent !== 'undefined' ? '<div class="content">' + (data[opts.nodeContent] || '') + '</div>' : '');
+        $nodeDiv.append(nodeChunks.join(''));
       }
       //
       var nodeData = $.extend({}, data);
       delete nodeData.children;
       $nodeDiv.data('nodeData', nodeData);
-      // append 4 direction arrows or expand/collapse buttons or reset buttons
-      var flags = data.relationship || '';
-      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.vertical) {
-        if (Number(flags.substr(2,1))) {
-          $nodeDiv.append(`<i class="toggleBtn ${opts.icons.theme}"></i>`)
-            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
-        }
-      } else if (data.hybrid) {
-        if (Number(flags.substr(2,1))) {
-          $nodeDiv.append(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`)
-            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
-        }
-      } else if (data.compact) {
+      $nodeDiv[0].__ocNodeData = nodeData;
+      if (data.compact) {
         $nodeDiv.css('grid-template-columns', `repeat(${Math.floor(Math.sqrt(data.children.length + 1))}, auto)`);
-        if (Number(flags.substr(2,1))) {
-          $nodeDiv.append(`
-            <i class="${opts.icons.theme} ${opts.icons.backToCompact} backToCompactSymbol hidden"></i>
-            <i class="${opts.icons.theme} ${opts.icons.backToLoose} backToLooseSymbol"></i>
-            `)
-            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
-        }
-      } else if (data.associatedCompact) {
-   
-      } else {
-        if (Number(flags.substr(0,1))) {
-          $nodeDiv.append(`<i class="edge verticalEdge topEdge ${opts.icons.theme}"></i>`);
-        }
-        if(Number(flags.substr(1,1))) {
-          $nodeDiv.append(`<i class="edge horizontalEdge rightEdge ${opts.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${opts.icons.theme}"></i>`);
-        }
-        if(Number(flags.substr(2,1))) {
-          $nodeDiv.append(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`)
-            .children('.title').prepend(`<i class="${opts.icons.theme} ${opts.icons.parentNode} parentNodeSymbol"></i>`);
-        }
       }
 
       $nodeDiv.on('mouseenter mouseleave', this.nodeEnterLeaveHandler.bind(this));
@@ -1416,7 +2324,7 @@
       }
       // allow user to append dom modification after finishing node create of orgchart
       if (opts.createNode) {
-        opts.createNode($nodeDiv, data);
+        opts.createNode($nodeDiv[0], data);
       }
 
       return $nodeDiv;
@@ -1534,6 +2442,7 @@
     },
     // exposed method
     addChildren: function ($node, data) {
+      $node = toCollection($node);
       this.buildChildNode($node.closest('.hierarchy'), data);
       if (!$node.find('.parentNodeSymbol').length) {
         $node.children('.title').prepend(`<i class="${this.options.icons.theme} ${this.options.icons.parentNode} parentNodeSymbol"></i>`);
@@ -1561,6 +2470,7 @@
     },
     // exposed method
     addParent: function ($currentRoot, data) {
+      $currentRoot = toCollection($currentRoot);
       this.buildParentNode($currentRoot, data);
       if (!$currentRoot.children('.topEdge').length) {
         $currentRoot.children('.title').after(`<i class="edge verticalEdge topEdge ${this.options.icons.theme}"></i>`);
@@ -1591,6 +2501,7 @@
     },
     //
     addSiblings: function ($node, data) {
+      $node = toCollection($node);
       this.buildSiblingNode($node.closest('.hierarchy'), data);
       $node.closest('.nodes').data('siblingsLoaded', true);
       if (!$node.children('.leftEdge').length) {
@@ -1603,6 +2514,7 @@
     },
     // remove node and its descendent nodes
     removeNodes: function ($node) {
+      $node = toCollection($node);
       var $wrapper = $node.closest('.hierarchy').parent();
       if ($wrapper.parent().is('.hierarchy')) {
         if (this.getNodeState($node, 'siblings').exist) {
@@ -1652,8 +2564,8 @@
       var doc = {};
       var docWidth = Math.floor(canvas.width);
       var docHeight = Math.floor(canvas.height);
-      if (!window.jsPDF) {
-        window.jsPDF = window.jspdf.jsPDF;
+      if (!getWindow().jsPDF) {
+        getWindow().jsPDF = getWindow().jspdf.jsPDF;
       }
 
       if (docWidth > docHeight) {
@@ -1675,13 +2587,13 @@
     //
     exportPNG: function(canvas, exportFilename){
       var that = this;
-      var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-      var isFf = !!window.sidebar;
+      var isWebkit = 'WebkitAppearance' in getDocument().documentElement.style;
+      var isFf = !!getWindow().sidebar;
       var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
       var $chartContainer = this.$chartContainer;
 
       if ((!isWebkit && !isFf) || isEdge) {
-        window.navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
+        getWindow().navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
       } else {
         var selector = '.download-btn' + (that.options.chartClass !== '' ? '.' + that.options.chartClass : '');
 
@@ -1734,8 +2646,13 @@
     }
   };
 
-  $.fn.orgchart = function (opts) {
-    return new OrgChart(this, opts).init();
-  };
-
+  OrgChart.$ = $;
+  OrgChart.utils = { $: $ };
+  if (!getWindow().$) {
+    getWindow().$ = $;
+  }
+  if (!getWindow().jQuery) {
+    getWindow().jQuery = $;
+  }
+  return OrgChart;
 }));

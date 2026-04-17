@@ -57,162 +57,201 @@
     <button type="button" id="btn-delete-nodes">Delete</button>
     <button type="button" id="btn-reset">Reset</button>
   </div>
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/html2canvas.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
+      const chartContainer = document.getElementById('chart-container');
+      const selectedNodeInput = document.getElementById('selected-node');
+      const editPanel = document.getElementById('edit-panel');
+      const newNodeList = document.getElementById('new-nodelist');
+      const nodeTypePanel = document.getElementById('node-type-panel');
+      let selectedNode = null;
 
-    var datascource = {
-      'name': 'Ball game',
-      'children': [
-        { 'name': 'Football' },
-        { 'name': 'Basketball' },
-        { 'name': 'Volleyball' }
-      ]
-    };
+      const datascource = {
+        'name': 'Ball game',
+        'children': [
+          { 'name': 'Football' },
+          { 'name': 'Basketball' },
+          { 'name': 'Volleyball' }
+        ]
+      };
 
-    var getId = function() {
-      return (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001);
-    };
+      const getId = () => (Date.now() * 1000) + Math.floor(Math.random() * 1001);
+      const getRootNode = () => chartContainer.querySelector('.orgchart .node');
+      const getCheckedNodeType = () => document.querySelector('input[name="node-type"]:checked');
+      const getCheckedChartState = () => document.querySelector('input[name="chart-state"]:checked');
+      const getNewNodeValues = () => Array.from(newNodeList.querySelectorAll('.new-node'))
+        .map((input) => input.value.trim())
+        .filter(Boolean);
+      const clearSelection = () => {
+        selectedNode = null;
+        selectedNodeInput.value = '';
+      };
+      const syncChartEditState = () => {
+        const isEditMode = getCheckedChartState()?.value === 'edit';
+        const chartElement = chartContainer.querySelector('.orgchart');
+        if (chartElement) {
+          chartElement.classList.toggle('edit-state', isEditMode);
+        }
+      };
 
-    var oc = $('#chart-container').orgchart({
-      'data' : datascource,
-      'verticalLevel': 3,
-      'createNode': function($node, data) {
-        $node[0].id = getId();
-      }
-    });
-
-    oc.$chartContainer.on('click', '.node', function() {
-      var $this = $(this);
-      $('#selected-node').val($this.find('.title').text()).data('node', $this);
-    });
-
-    oc.$chartContainer.on('click', '.orgchart', function(event) {
-      if (!$(event.target).closest('.node').length) {
-        $('#selected-node').val('');
-      }
-    });
-
-    $('input[name="chart-state"]').on('click', function() {
-      $('.orgchart').toggleClass('edit-state', this.value !== 'view');
-      $('#edit-panel').toggleClass('edit-state', this.value === 'view');
-      if ($(this).val() === 'edit') {
-        $('.orgchart').find('.hidden').removeClass('hidden')
-          .end().find('.hierarchy').removeClass('isCollapsedDescendant isChildrenCollapsed isSiblingsCollapsed isCollapsedSibling')
-          .find('.node').removeClass('slide-up slide-down slide-right slide-left');
-      } else {
-        $('#btn-reset').trigger('click');
-      }
-    });
-
-    $('input[name="node-type"]').on('click', function() {
-      var $this = $(this);
-      if ($this.val() === 'parent') {
-        $('#edit-panel').addClass('edit-parent-node');
-        $('#new-nodelist').children(':gt(0)').remove();
-      } else {
-        $('#edit-panel').removeClass('edit-parent-node');
-      }
-    });
-
-    $('#btn-add-input').on('click', function() {
-      $('#new-nodelist').append('<li><input type="text" class="new-node"></li>');
-    });
-
-    $('#btn-remove-input').on('click', function() {
-      var inputs = $('#new-nodelist').children('li');
-      if (inputs.length > 1) {
-        inputs.last().remove();
-      }
-    });
-
-    $('#btn-add-nodes').on('click', function() {
-      var $chartContainer = $('#chart-container');
-      var nodeVals = [];
-      $('#new-nodelist').find('.new-node').each(function(index, item) {
-        var validVal = item.value.trim();
-        if (validVal.length) {
-          nodeVals.push(validVal);
+      let oc = new OrgChart({
+        chartContainer: '#chart-container',
+        'data' : datascource,
+        'verticalLevel': 3,
+        'createNode': function(node) {
+          node.id = getId();
         }
       });
-      var $node = $('#selected-node').data('node');
-      if (!nodeVals.length) {
-        alert('Please input value for new node');
-        return;
-      }
-      var nodeType = $('input[name="node-type"]:checked');
-      if (!nodeType.length) {
-        alert('Please select a node type');
-        return;
-      }
-      if (nodeType.val() !== 'parent' && !$('.orgchart').length) {
-        alert('Please creat the root node firstly when you want to build up the orgchart from the scratch');
-        return;
-      }
-      if (nodeType.val() !== 'parent' && !$node) {
-        alert('Please select one node in orgchart');
-        return;
-      }
-      if (nodeType.val() === 'parent') {
-        if (!$chartContainer.children('.orgchart').length) {// if the original chart has been deleted
-          oc = $chartContainer.orgchart({
-            'data' : { 'name': nodeVals[0] },
-            'chartClass': 'edit-state',
-            'exportButton': true,
-            'exportFilename': 'SportsChart',
-            'createNode': function($node, data) {
-              $node[0].id = getId();
+
+      chartContainer.addEventListener('click', (event) => {
+        const clickedNode = event.target.closest('.node');
+        if (clickedNode && chartContainer.contains(clickedNode)) {
+          selectedNode = clickedNode;
+          const titleElement = clickedNode.querySelector('.title');
+          selectedNodeInput.value = titleElement ? titleElement.textContent.trim() : '';
+          return;
+        }
+        if (event.target.closest('.orgchart')) {
+          clearSelection();
+        }
+      });
+
+      document.querySelectorAll('input[name="chart-state"]').forEach((radio) => {
+        radio.addEventListener('click', () => {
+          const isEditMode = radio.value === 'edit';
+          const chartElement = chartContainer.querySelector('.orgchart');
+          if (chartElement) {
+            chartElement.classList.toggle('edit-state', isEditMode);
+          }
+          editPanel.classList.toggle('edit-state', !isEditMode);
+          if (isEditMode) {
+            const orgchart = chartContainer.querySelector('.orgchart');
+            if (orgchart) {
+              orgchart.querySelectorAll('.hidden').forEach((element) => element.classList.remove('hidden'));
+              orgchart.querySelectorAll('.hierarchy').forEach((element) => {
+                element.classList.remove('isCollapsedDescendant', 'isChildrenCollapsed', 'isSiblingsCollapsed', 'isCollapsedSibling');
+              });
+              orgchart.querySelectorAll('.node').forEach((element) => {
+                element.classList.remove('slide-up', 'slide-down', 'slide-right', 'slide-left');
+              });
             }
-          });
-        } else {
-          oc.addParent($chartContainer.find('.node:first'), { 'name': nodeVals[0], 'id': getId() });
+          } else {
+            document.getElementById('btn-reset').click();
+          }
+        });
+      });
+
+      document.querySelectorAll('input[name="node-type"]').forEach((radio) => {
+        radio.addEventListener('click', () => {
+          if (radio.value === 'parent') {
+            editPanel.classList.add('edit-parent-node');
+            Array.from(newNodeList.children).slice(1).forEach((item) => item.remove());
+          } else {
+            editPanel.classList.remove('edit-parent-node');
+          }
+        });
+      });
+
+      document.getElementById('btn-add-input').addEventListener('click', () => {
+        const item = document.createElement('li');
+        item.innerHTML = '<input type="text" class="new-node">';
+        newNodeList.appendChild(item);
+      });
+
+      document.getElementById('btn-remove-input').addEventListener('click', () => {
+        if (newNodeList.children.length > 1) {
+          newNodeList.lastElementChild.remove();
         }
-      } else if (nodeType.val() === 'siblings') {
-        if ($node[0].id === oc.$chart.find('.node:first')[0].id) {
-          alert('You are not allowed to directly add sibling nodes to root node');
+      });
+
+      document.getElementById('btn-add-nodes').addEventListener('click', () => {
+        const nodeVals = getNewNodeValues();
+        const nodeType = getCheckedNodeType();
+        const rootNode = getRootNode();
+
+        if (!nodeVals.length) {
+          alert('Please input value for new node');
           return;
         }
-        oc.addSiblings($node, nodeVals.map(function (item) {
-            return { 'name': item, 'relationship': '110', 'id': getId() };
-          }));
-      } else {
-        if (!$node.siblings('.nodes').length) {
-          var rel = nodeVals.length > 1 ? '110' : '100';
-          oc.addChildren($node, nodeVals.map(function (item) {
-              return { 'name': item, 'relationship': rel, 'id': getId() };
-            }));
-        } else {
-          oc.addSiblings($node.siblings('.nodes').find('.node:first'), nodeVals.map(function (item) {
-              return { 'name': item, 'relationship': '110', 'id': getId() };
-            }));
-        }
-      }
-    });
-
-    $('#btn-delete-nodes').on('click', function() {
-      var $node = $('#selected-node').data('node');
-      if (!$node) {
-        alert('Please select one node in orgchart');
-        return;
-      } else if ($node[0] === $('.orgchart').find('.node:first')[0]) {
-        if (!window.confirm('Are you sure you want to delete the whole chart?')) {
+        if (!nodeType) {
+          alert('Please select a node type');
           return;
         }
-      }
-      oc.removeNodes($node);
-      $('#selected-node').val('').data('node', null);
-    });
+        if (nodeType.value !== 'parent' && !chartContainer.querySelector('.orgchart')) {
+          alert('Please creat the root node firstly when you want to build up the orgchart from the scratch');
+          return;
+        }
+        if (nodeType.value !== 'parent' && !selectedNode) {
+          alert('Please select one node in orgchart');
+          return;
+        }
 
-    $('#btn-reset').on('click', function() {
-      $('.orgchart').find('.focused').removeClass('focused');
-      $('#selected-node').val('');
-      $('#new-nodelist').find('input:first').val('').parent().siblings().remove();
-      $('#node-type-panel').find('input').prop('checked', false);
-    });
+        if (nodeType.value === 'parent') {
+          if (!chartContainer.querySelector('.orgchart')) {
+            oc = new OrgChart({
+              chartContainer: '#chart-container',
+              'data' : { 'name': nodeVals[0] },
+              'chartClass': 'edit-state',
+              'exportButton': true,
+              'exportFilename': 'SportsChart',
+              'verticalLevel': 3,
+              'createNode': function(node) {
+                node.id = getId();
+              }
+            });
+            syncChartEditState();
+          } else {
+            oc.addParent(rootNode, { 'name': nodeVals[0], 'id': getId() });
+          }
+          return;
+        }
 
-  });
+        if (nodeType.value === 'siblings') {
+          if (selectedNode.id === rootNode.id) {
+            alert('You are not allowed to directly add sibling nodes to root node');
+            return;
+          }
+          oc.addSiblings(selectedNode, nodeVals.map((item) => ({ 'name': item, 'relationship': '110', 'id': getId() })));
+          return;
+        }
+
+        const childLevel = selectedNode.nextElementSibling;
+        if (!childLevel || !childLevel.classList.contains('nodes')) {
+          const rel = nodeVals.length > 1 ? '110' : '100';
+          oc.addChildren(selectedNode, nodeVals.map((item) => ({ 'name': item, 'relationship': rel, 'id': getId() })));
+        } else {
+          oc.addSiblings(childLevel.querySelector('.node'), nodeVals.map((item) => ({ 'name': item, 'relationship': '110', 'id': getId() })));
+        }
+      });
+
+      document.getElementById('btn-delete-nodes').addEventListener('click', () => {
+        const rootNode = getRootNode();
+        if (!selectedNode) {
+          alert('Please select one node in orgchart');
+          return;
+        }
+        if (rootNode && selectedNode === rootNode && !window.confirm('Are you sure you want to delete the whole chart?')) {
+          return;
+        }
+        oc.removeNodes(selectedNode);
+        clearSelection();
+      });
+
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        chartContainer.querySelectorAll('.focused').forEach((element) => element.classList.remove('focused'));
+        clearSelection();
+        const inputs = newNodeList.querySelectorAll('input');
+        if (inputs.length) {
+          inputs[0].value = '';
+        }
+        Array.from(newNodeList.children).slice(1).forEach((item) => item.remove());
+        nodeTypePanel.querySelectorAll('input').forEach((input) => {
+          input.checked = false;
+        });
+      });
+    });
   </script>
   </body>
 </html>

@@ -14,11 +14,9 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
       var datascource = {
         'name': 'Lao Lao',
@@ -45,19 +43,21 @@
         ]
       };
 
-      $('#chart-container').orgchart({
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
         'visibleLevel': 2,
         'pan': true,
         'data' : datascource,
         'nodeContent': 'title',
-        'createNode': function($node, data) {
-          $node.on('click', function(event) {
-            if (!$(event.target).is('.edge, .toggleBtn')) {
-              var $this = $(this);
-              var $chart = $this.closest('.orgchart');
-              var newX = window.parseInt(($chart.outerWidth(true)/2) - ($this.offset().left - $chart.offset().left) - ($this.outerWidth(true)/2));
-              var newY = window.parseInt(($chart.outerHeight(true)/2) - ($this.offset().top - $chart.offset().top) - ($this.outerHeight(true)/2));
-              $chart.css('transform', 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')');
+        'createNode': function(node) {
+          node.addEventListener('click', (event) => {
+            if (!event.target.closest('.edge, .toggleBtn')) {
+              const chart = node.closest('.orgchart');
+              const chartRect = chart.getBoundingClientRect();
+              const nodeRect = node.getBoundingClientRect();
+              const newX = window.parseInt((chartRect.width / 2) - (nodeRect.left - chartRect.left) - (nodeRect.width / 2));
+              const newY = window.parseInt((chartRect.height / 2) - (nodeRect.top - chartRect.top) - (nodeRect.height / 2));
+              chart.style.transform = 'matrix(1, 0, 0, 1, ' + newX + ', ' + newY + ')';
             }
           });
         }

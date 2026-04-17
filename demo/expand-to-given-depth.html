@@ -12,11 +12,9 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'name': 'Lao Lao',
@@ -49,28 +47,34 @@
     };
 
     var showDescendents = function(node, visibleLevel) {
-      if (visibleLevel === 1) {
+      if (visibleLevel <= 1) {
         return false;
       }
-      $(node).closest('tr').siblings(':last').children().find('.node:first').each(function(index, node) {
-        var $temp = $(node).closest('tr').siblings().removeClass('hidden');
-        var $children = $temp.last().children().find('.node:first');
-        if ($children.length) {
-          $children[0].style.offsetWidth = $children[0].offsetWidth;
+      const hierarchy = node.closest('.hierarchy');
+      const childrenLayer = hierarchy ? hierarchy.querySelector(':scope > .nodes') : null;
+      if (!childrenLayer) {
+        return false;
+      }
+      childrenLayer.classList.remove('hidden');
+      hierarchy.classList.remove('isChildrenCollapsed');
+      Array.from(childrenLayer.children).forEach((childHierarchy) => {
+        const childNode = childHierarchy.querySelector(':scope > .node');
+        if (childNode) {
+          childNode.classList.remove('slide-up');
+          showDescendents(childNode, visibleLevel - 1);
         }
-        $children.removeClass('slide-up');
-        showDescendents(node, visibleLevel--);
       });
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'visibleLevel': 2,
       'data' : datascource,
       'nodeContent': 'title',
-      'createNode': function($node, data) {
-        $node.on('click', '.edge', function (event) {
-          if ($(event.target).is('.fa-chevron-down')) {
-            showDescendents(this, 3);
+      'createNode': function(node) {
+        node.addEventListener('click', (event) => {
+          if (event.target.matches('.bottomEdge.oci-chevron-down, .toggleBtn.oci-plus-square, .toggleBtn.oci-chevron-down')) {
+            showDescendents(node, 3);
           }
         });
       }

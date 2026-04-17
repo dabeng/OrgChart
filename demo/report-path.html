@@ -24,11 +24,14 @@
     <button type="button" id="btn-report-path">draw report path</button>
     <button type="button" id="btn-reset">reset</button>
   </div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
+
+    const chartContainer = document.getElementById('chart-container');
+    const selectedNodeInput = document.getElementById('selected-node');
+    const reportButton = document.getElementById('btn-report-path');
+    const resetButton = document.getElementById('btn-reset');
 
     var datascource = {
       'name': 'Lao Lao',
@@ -61,40 +64,57 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title'
     });
 
-    oc.$chart.find('.node').on('click', function() {
-      $('#selected-node').val($(this).children('.title').text());
+    chartContainer.addEventListener('click', (event) => {
+      const clickedNode = event.target.closest('.node');
+      if (!clickedNode || !chartContainer.contains(clickedNode)) {
+        return;
+      }
+      const titleElement = clickedNode.querySelector('.title');
+      selectedNodeInput.value = titleElement ? titleElement.textContent.trim() : '';
     });
 
-    $('#btn-report-path').on('click', function() {
-      var $selected = $('#chart-container').find('.node.focused');
-      if ($selected.length) {
-        $selected.parents('.nodes').children(':has(.focused)').find('.node:first').each(function(index, superior) {
-          if (!$(superior).find('.horizontalEdge:first').closest('.node').parent().siblings().is('.hidden')) {
-            $(superior).find('.horizontalEdge:first').trigger('click');
+    reportButton.addEventListener('click', () => {
+      const selected = chartContainer.querySelector('.node.focused');
+      if (selected) {
+        let hierarchy = selected.closest('.hierarchy');
+        while (hierarchy) {
+          const parentNodes = hierarchy.parentElement;
+          const parentHierarchy = parentNodes ? parentNodes.closest('.hierarchy') : null;
+          if (!parentHierarchy) {
+            break;
           }
-        });
-        $(this).prop('disabled', true);
+          const superior = parentHierarchy.querySelector(':scope > .node');
+          const horizontalEdge = superior ? superior.querySelector('.horizontalEdge') : null;
+          const hasHiddenSibling = Array.from(parentHierarchy.parentElement.children)
+            .some((sibling) => sibling !== parentHierarchy && sibling.classList.contains('hidden'));
+          if (horizontalEdge && !hasHiddenSibling) {
+            horizontalEdge.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+          }
+          hierarchy = parentHierarchy;
+        }
+        reportButton.disabled = true;
       } else {
         alert('please select the node firstly');
       }
     });
 
-    $('#btn-reset').on('click', function() {
-      $('#chart-container')
-        .find('.hidden').removeClass('hidden')
-        .end().find('.slide-up, .slide-right, .slide-left, .focused')
-        .removeClass('slide-up slide-right slide-left focused');
-      $('#chart-container')
-        .find('.isCollapsedSibling, .isChildrenCollapsed, .isSiblingsCollapsed')
-        .removeClass('isCollapsedSibling isChildrenCollapsed isSiblingsCollapsed');
-        
-      $('#btn-report-path').prop('disabled', false);
-      $('#selected-node').val('');
+    resetButton.addEventListener('click', () => {
+      chartContainer.querySelectorAll('.hidden').forEach((element) => element.classList.remove('hidden'));
+      chartContainer.querySelectorAll('.slide-up, .slide-right, .slide-left, .focused').forEach((element) => {
+        element.classList.remove('slide-up', 'slide-right', 'slide-left', 'focused');
+      });
+      chartContainer.querySelectorAll('.isCollapsedSibling, .isChildrenCollapsed, .isSiblingsCollapsed').forEach((element) => {
+        element.classList.remove('isCollapsedSibling', 'isChildrenCollapsed', 'isSiblingsCollapsed');
+      });
+
+      reportButton.disabled = false;
+      selectedNodeInput.value = '';
     });
 
   });

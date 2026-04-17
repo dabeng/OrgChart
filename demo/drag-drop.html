@@ -13,12 +13,10 @@
 </head>
 <body>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" src="js/jquery.orgchart.js"></script>
   <script type="text/javascript" src="js/json-digger.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
     var datascource = {
       'name': 'Lao Lao',
@@ -42,23 +40,26 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datascource,
       'nodeContent': 'title',
       'draggable': true,
-      'dropCriteria': function($draggedNode, $dragZone, $dropZone) {
-        if($draggedNode.find('.content').text().indexOf('manager') > -1 && $dropZone.find('.content').text().indexOf('engineer') > -1) {
+      'dropCriteria': function(draggedNode, dragZone, dropZone) {
+        const draggedContent = draggedNode[0].querySelector('.content')?.textContent || '';
+        const dropContent = dropZone[0].querySelector('.content')?.textContent || '';
+        if (draggedContent.indexOf('manager') > -1 && dropContent.indexOf('engineer') > -1) {
           return false;
         }
         return true;
       }
     });
 
-    oc.$chart.on('nodedrop.orgchart', function(event, extraParams) {
-      console.log('draggedNode:' + extraParams.draggedNode.children('.title').text()
-        + ', dragZone:' + extraParams.dragZone.children('.title').text()
-        + ', dropZone:' + extraParams.dropZone.children('.title').text()
-      );
+    oc.$chart[0].addEventListener('nodedrop.orgchart', (event) => {
+      const extraParams = event.detail;
+      console.log('draggedNode:' + extraParams.draggedNode[0].querySelector('.title').textContent
+        + ', dragZone:' + extraParams.dragZone[0].querySelector('.title').textContent
+        + ', dropZone:' + extraParams.dropZone[0].querySelector('.title').textContent);
     });
 
   });
