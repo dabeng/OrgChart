@@ -40,7 +40,7 @@ $ bower install orgchart
 # From version 1.0.4 on, users can install orgchart with npm
 $ npm install orgchart
 ```
-`require('orgchart')`會把orgchart插件追加到jQuery對象上。orgchart模塊本身並不導出任何東西。
+在 CommonJS 環境中，`require('orgchart')`會直接導出 `OrgChart` 構造函數。
 
 可參考這個例子, [在React中使用jQuery Orchart](https://stackblitz.com/edit/vitejs-vite-hqv4nbdt)
 
@@ -208,7 +208,10 @@ var datascource = [
 
 ### 實例化組織結構圖
 ```js
-var oc = $('#chartContainerId').orgchart(options);
+var oc = new OrgChart({
+  chartContainer: '#chartContainerId',
+  data: datasource
+});
 ```
 
 ### 數據源示例
@@ -257,7 +260,7 @@ var oc = $('#chartContainerId').orgchart(options);
   <tbody>
     <tr>
       <td>data</td>
-      <td>json / jquery object</td>
+      <td>json / HTMLUListElement</td>
       <td>是</td>
       <td></td>
       <td>用于構造組織結構圖的數據源。它的值可以是JSON或能提供數據的ul元素。</td>
@@ -358,7 +361,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>function</td>
       <td>否</td>
       <td></td>
-      <td>爲該選項提供的函數，會在默認節點結構創建完畢後調用。利用傳入的兩個參數--"$node"和"data"，可以幫助開發者定制或改動現有的節點結構。</td>
+      <td>爲該選項提供的函數，會在默認節點結構創建完畢後調用。利用傳入的兩個參數--"node"和"data"，可以幫助開發者定制或改動現有的節點結構。</td>
     </tr>
     <tr>
       <td>exportButton</td>
@@ -414,7 +417,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>function</td>
       <td>否</td>
       <td></td>
-      <td>組織結構圖初始化完成後，該選項指定的回調函數被觸發。該函數接受一個參數--"$chart", 即初始化後的組織結構圖jquery對象。</td>
+      <td>組織結構圖初始化完成後，該選項指定的回調函數被觸發。該函數接受一個參數--"chart", 即初始化後的組織結構圖元素。</td>
     </tr>
   </tbody>
 </table>
@@ -479,8 +482,8 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>用于構造後代節點的數據源</td>
     </tr>
     <tr>
-      <td>$parent</td>
-      <td>jquery object</td>
+      <td>parent</td>
+      <td>HTMLElement</td>
       <td>yes</td>
       <td></td>
       <td>後代節點要追加到的父節點對象</td>
@@ -488,7 +491,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tbody>
 </table>
 
-#### addParent(data)
+#### addParent(currentRoot, data)
 爲當前的組織結構圖增加父節點。
 <table>
   <thead>
@@ -502,6 +505,13 @@ var oc = $('#chartContainerId').orgchart(options);
   </thead>
   <tbody>
     <tr>
+      <td>currentRoot</td>
+      <td>HTMLElement</td>
+      <td>是</td>
+      <td></td>
+      <td>當前組織結構圖的根節點，新父節點會包裹這個根節點</td>
+    </tr>
+    <tr>
       <td>data</td>
       <td>json object</td>
       <td>是</td>
@@ -511,7 +521,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tbody>
 </table>
 
-#### addSiblings($node, data)
+#### addSiblings(node, data)
 爲指定的節點增加兄弟節點。
 <table>
   <thead>
@@ -525,8 +535,8 @@ var oc = $('#chartContainerId').orgchart(options);
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>是</td>
       <td></td>
       <td>基于該節點增加其兄弟節點</td>
@@ -541,7 +551,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tbody>
 </table>
 
-#### addChildren($node, data)
+#### addChildren(node, data)
 爲指定的節點增加孩子節點。
 <table>
   <thead>
@@ -555,8 +565,8 @@ var oc = $('#chartContainerId').orgchart(options);
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>是</td>
       <td></td>
       <td>基于該節點增加其孩子節點</td>
@@ -571,7 +581,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tbody>
 </table>
 
-#### removeNodes($node）
+#### removeNodes(node）
 刪除指定的節點及其後代節點。
 <table>
   <thead>
@@ -585,8 +595,8 @@ var oc = $('#chartContainerId').orgchart(options);
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>是</td>
       <td></td>
       <td>待刪除的節點。</td>
@@ -614,7 +624,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tr>
 </table>
 
-#### hideParent($node)
+#### hideParent(node)
 隱藏指定節點的父節點。當然其兄弟節點及祖先節點也一並隱藏了。
 <table>
   <tr>
@@ -625,15 +635,15 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td>None</td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
 </table>
 
-#### showParent($node)
+#### showParent(node)
 顯示指定節點的父節點。但不包括更上一層的祖先節點。
 
 <table>
@@ -645,15 +655,15 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
 </table>
 
-#### hideChildren($node)
+#### hideChildren(node)
 隱藏指定節點的孩子節點。當然這其中包含了所有的後代節點。
 
 <table>
@@ -665,15 +675,15 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
 </table>
 
-#### showChildren($node)
+#### showChildren(node)
 顯示指定節點的孩子節點。默認只顯示緊鄰的下一個層級，並不包括所有的後代節點。
 
 <table>
@@ -685,15 +695,15 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
 </table>
 
-#### hideSiblings($node, direction)
+#### hideSiblings(node, direction)
 隱藏指定節點的兄弟節點。
 
 <table>
@@ -705,11 +715,11 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -720,7 +730,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tr>
 </table>
 
-#### showSiblings($node, direction)
+#### showSiblings(node, direction)
 顯示指定節點的兄弟節點。
 
 <table>
@@ -732,11 +742,11 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>It's the desired JQuery Object to show its siblings nodes</td>
+    <td>指定節點元素。</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -747,7 +757,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tr>
 </table>
 
-#### getNodeState($node, relation)
+#### getNodeState(node, relation)
 該方法幫你了解指定節點的相關節點的顯示狀況。
 
 <table>
@@ -759,11 +769,11 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
   <tr>
     <td>relation</td>
@@ -781,7 +791,7 @@ var oc = $('#chartContainerId').orgchart(options);
   "visible":true|false, // 標識相關節點當前是否可見
 }
 ```
-#### getRelatedNodes($node, relation)
+#### getRelatedNodes(node, relation)
 獲得指定節點的關聯節點。
 
 <table>
@@ -793,11 +803,11 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td></td>
-    <td>指定節點的jquery對象。</td>
+    <td>指定節點元素。</td>
   </tr>
   <tr>
     <td>relation</td>
@@ -808,7 +818,7 @@ var oc = $('#chartContainerId').orgchart(options);
   </tr>
 </table>
 
-#### setChartScale($chart, newScale)
+#### setChartScale(chart, newScale)
 用這個方法可以幫你爲指定的組織結構圖設置新的scale系數。
 
 <table>
@@ -820,8 +830,8 @@ var oc = $('#chartContainerId').orgchart(options);
     <th>描述</th>
   </tr>
   <tr>
-    <td>$chart</td>
-    <td>JQuery Object</td>
+    <td>chart</td>
+    <td>HTMLElement</td>
     <td>是</td>
     <td>None</td>
     <td>組織結構圖容器中的某一個圖。</td>

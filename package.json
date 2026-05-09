@@ -2,9 +2,9 @@
   "name": "orgchart",
   "version": "5.0.0",
   "description": "Simple and direct organization chart(tree-like hierarchy) library based on pure DOM.",
-  "main": "./dist/js/jquery.orgchart.min.js",
+  "main": "./dist/js/orgchart.min.js",
   "style": [
-    "./dist/css/jquery.orgchart.min.css"
+    "./dist/css/orgchart.min.css"
   ],
   "scripts": {
     "test": "gulp test",

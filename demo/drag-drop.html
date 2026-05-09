@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>Organization Chart Plugin</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container { height: 600px; }
@@ -13,7 +13,7 @@
 </head>
 <body>
   <div id="chart-container"></div>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript" src="js/json-digger.js"></script>
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
@@ -46,8 +46,8 @@
       'nodeContent': 'title',
       'draggable': true,
       'dropCriteria': function(draggedNode, dragZone, dropZone) {
-        const draggedContent = draggedNode[0].querySelector('.content')?.textContent || '';
-        const dropContent = dropZone[0].querySelector('.content')?.textContent || '';
+        const draggedContent = draggedNode.querySelector('.content')?.textContent || '';
+        const dropContent = dropZone.querySelector('.content')?.textContent || '';
         if (draggedContent.indexOf('manager') > -1 && dropContent.indexOf('engineer') > -1) {
           return false;
         }
@@ -55,11 +55,11 @@
       }
     });
 
-    oc.$chart[0].addEventListener('nodedrop.orgchart', (event) => {
+    oc.chart.addEventListener('nodedrop.orgchart', (event) => {
       const extraParams = event.detail;
-      console.log('draggedNode:' + extraParams.draggedNode[0].querySelector('.title').textContent
-        + ', dragZone:' + extraParams.dragZone[0].querySelector('.title').textContent
-        + ', dropZone:' + extraParams.dropZone[0].querySelector('.title').textContent);
+      console.log('draggedNode:' + extraParams.draggedNode.querySelector('.title').textContent
+        + ', dragZone:' + extraParams.dragZone.querySelector('.title').textContent
+        + ', dropZone:' + extraParams.dropZone.querySelector('.title').textContent);
     });
 
   });
