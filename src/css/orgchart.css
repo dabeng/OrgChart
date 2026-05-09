@@ -88,6 +88,70 @@
   justify-content: center;
 }
 
+.orgchart-minimap {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 25;
+  width: 180px;
+  height: 120px;
+  padding: 8px;
+  border: 1px solid rgba(68, 68, 68, 0.18);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
+.orgchart-minimap-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 5px;
+  background-image: linear-gradient(rgba(68, 68, 68, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(68, 68, 68, 0.05) 1px, transparent 1px);
+  background-size: 10px 10px;
+  background-color: #f9fbfc;
+}
+
+.orgchart-minimap-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.orgchart-minimap .orgchart,
+.orgchart-minimap .orgchart ul,
+.orgchart-minimap .orgchart li,
+.orgchart-minimap .orgchart .node,
+.orgchart-minimap .orgchart .edge,
+.orgchart-minimap .orgchart .verticalNodes,
+.orgchart-minimap .orgchart .verticalNode,
+.orgchart-minimap .orgchart .nodes {
+  pointer-events: none;
+}
+
+.orgchart-minimap .orgchart {
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  background-image: none;
+}
+
+.orgchart-minimap-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 12px;
+  min-height: 12px;
+  border: 2px solid rgba(28, 111, 197, 0.9);
+  border-radius: 4px;
+  background-color: rgba(28, 111, 197, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 0 999px rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
+  cursor: move;
+}
+
 .orgchart .hierarchy {
   position: relative;
 }
