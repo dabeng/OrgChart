@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Edit Chart Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
@@ -33,6 +33,10 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Edit Chart Demo</h1>
+    <p>This demo uses the edit panel to add parent, child, and sibling nodes, delete nodes, and reset the chart state.</p>
+  </section>
   <div id="chart-container"></div>
   <div id="edit-panel">
     <span id="chart-state-panel" class="radio-panel">
@@ -68,7 +72,7 @@
     const nodeTypePanel = document.getElementById('node-type-panel');
     let selectedNode = null;
 
-    const datascource = {
+    const datasource = {
       'name': 'Ball game',
       'children': [
         { 'name': 'Football' },
@@ -99,7 +103,7 @@
 
     let oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data' : datascource,
+      'data' : datasource,
       'createNode': function(node) {
         node.id = getId();
       }

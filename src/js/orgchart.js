@@ -678,18 +678,41 @@
     zoomWheelHandler: function (e) {
       const nativeEvent = e.originalEvent || e;
       const orgChart = e.orgChart;
+      const chartContainerElement = orgChart ? orgChart.chartContainer : null;
+      const chartContainerRect = chartContainerElement && typeof chartContainerElement.getBoundingClientRect === 'function'
+        ? chartContainerElement.getBoundingClientRect()
+        : null;
+      const hasPointerPosition = nativeEvent && typeof nativeEvent.clientX === 'number' && typeof nativeEvent.clientY === 'number';
+      let zoomAnchor = null;
+
+      if (!orgChart || !orgChart.chart || !chartContainerElement) {
+        return;
+      }
+
+      if (chartContainerRect && hasPointerPosition) {
+        if (nativeEvent.clientX < chartContainerRect.left || nativeEvent.clientX > chartContainerRect.right
+          || nativeEvent.clientY < chartContainerRect.top || nativeEvent.clientY > chartContainerRect.bottom) {
+          return;
+        }
+
+        zoomAnchor = {
+          x: nativeEvent.clientX,
+          y: nativeEvent.clientY
+        };
+      }
 
       if (nativeEvent && typeof nativeEvent.preventDefault === 'function') {
         nativeEvent.preventDefault();
       }
       const newScale  = 1 + (nativeEvent.deltaY > 0 ? -0.2 : 0.2);
-      orgChart.setChartScale(orgChart.chart, newScale);
+      orgChart.setChartScale(orgChart.chart, newScale, zoomAnchor);
     },
     //
     zoomStartHandler: function (e) {
       let orgChart;
       let chartElement;
       let dist;
+      let pinchCenter;
       const nativeEvent = e.originalEvent || e;
 
       if(nativeEvent.touches && nativeEvent.touches.length === 2) {
@@ -700,7 +723,10 @@
         }
         setState(chartElement, 'pinching', true);
         dist = orgChart.getPinchDist(nativeEvent);
+        pinchCenter = orgChart.getPinchCenter(nativeEvent);
         setState(chartElement, 'pinchDistStart', dist);
+        setState(chartElement, 'pinchCenterStart', pinchCenter);
+        setState(chartElement, 'pinchCenterEnd', pinchCenter);
       }
     },
     zoomingHandler: function (e) {
@@ -708,24 +734,29 @@
       const orgChart = e.orgChart;
       const chartElement = orgChart.chart;
       let dist;
+      let pinchCenter;
 
       if(chartElement && getState(chartElement, 'pinching')) {
         dist = orgChart.getPinchDist(nativeEvent);
+        pinchCenter = orgChart.getPinchCenter(nativeEvent);
         setState(chartElement, 'pinchDistEnd', dist);
+        setState(chartElement, 'pinchCenterEnd', pinchCenter);
       }
     },
     zoomEndHandler: function (e) {
       const orgChart = e.orgChart;
       const chartElement = orgChart.chart;
       let diff;
+      let pinchCenter;
 
       if(chartElement && getState(chartElement, 'pinching')) {
         setState(chartElement, 'pinching', false);
         diff = getState(chartElement, 'pinchDistEnd') - getState(chartElement, 'pinchDistStart');
+        pinchCenter = getState(chartElement, 'pinchCenterEnd') || getState(chartElement, 'pinchCenterStart') || null;
         if (diff > 0) {
-          orgChart.setChartScale(orgChart.chart, 1.2);
+          orgChart.setChartScale(orgChart.chart, 1.2, pinchCenter);
         } else if (diff < 0) {
-          orgChart.setChartScale(orgChart.chart, 0.8);
+          orgChart.setChartScale(orgChart.chart, 0.8, pinchCenter);
         }
       }
     },
@@ -817,36 +848,100 @@
       return Math.sqrt((nativeEvent.touches[0].clientX - nativeEvent.touches[1].clientX) * (nativeEvent.touches[0].clientX - nativeEvent.touches[1].clientX) +
       (nativeEvent.touches[0].clientY - nativeEvent.touches[1].clientY) * (nativeEvent.touches[0].clientY - nativeEvent.touches[1].clientY));
     },
+    getPinchCenter: function (e) {
+      const nativeEvent = e.originalEvent || e;
+
+      return {
+        x: (nativeEvent.touches[0].clientX + nativeEvent.touches[1].clientX) / 2,
+        y: (nativeEvent.touches[0].clientY + nativeEvent.touches[1].clientY) / 2
+      };
+    },
     //
-    setChartScale: function (chartEl, newScale) {
+    setChartScale: function (chartEl, newScale, zoomAnchor) {
       const chartElement = getElement(chartEl);
+      const chartContainerElement = this.chartContainer;
       let opts;
-      let lastTf;
-      let matrix = '';
+      let currentTransform;
+      let chartRect;
+      let matrixValues;
+      let currentScale = 1;
+      let currentTranslateX = 0;
+      let currentTranslateY = 0;
       let targetScale = 1;
+      let anchorX;
+      let anchorY;
+      let localAnchorX;
+      let localAnchorY;
+      let baseLeft;
+      let baseTop;
+      let containerRect;
+      let targetTranslateX;
+      let targetTranslateY;
 
       if (!chartElement) {
         return;
       }
 
       opts = getState(chartElement, 'options');
-      lastTf = chartElement.style.transform || getWindow().getComputedStyle(chartElement).transform || 'none';
-      if (lastTf === 'none') {
-        chartElement.style.transform = 'scale(' + newScale + ',' + newScale + ')';
-      } else {
-        matrix = lastTf.split(',');
-        if (lastTf.indexOf('3d') === -1) {
-          targetScale = Math.abs(getWindow().parseFloat(matrix[3]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
-            chartElement.style.transform = lastTf + ' scale(' + newScale + ',' + newScale + ')';
-          }
-        } else {
-          targetScale = Math.abs(getWindow().parseFloat(matrix[1]) * newScale);
-          if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
-            chartElement.style.transform = lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)';
-          }
+      currentTransform = getWindow().getComputedStyle(chartElement).transform || chartElement.style.transform || 'none';
+      if (currentTransform && currentTransform !== 'none') {
+        if (currentTransform.indexOf('matrix3d(') === 0) {
+          matrixValues = currentTransform.slice(9, -1).split(',').map(function (value) {
+            return getWindow().parseFloat(value.trim());
+          });
+          currentScale = Math.abs(matrixValues[0]) || 1;
+          currentTranslateX = matrixValues[12] || 0;
+          currentTranslateY = matrixValues[13] || 0;
+        } else if (currentTransform.indexOf('matrix(') === 0) {
+          matrixValues = currentTransform.slice(7, -1).split(',').map(function (value) {
+            return getWindow().parseFloat(value.trim());
+          });
+          currentScale = Math.abs(matrixValues[0]) || 1;
+          currentTranslateX = matrixValues[4] || 0;
+          currentTranslateY = matrixValues[5] || 0;
+        } else if (currentTransform.indexOf('scale3d(') === 0) {
+          matrixValues = currentTransform.slice(8, -1).split(',').map(function (value) {
+            return getWindow().parseFloat(value.trim());
+          });
+          currentScale = Math.abs(matrixValues[0]) || 1;
+        } else if (currentTransform.indexOf('scale(') === 0) {
+          matrixValues = currentTransform.slice(6, -1).split(',').map(function (value) {
+            return getWindow().parseFloat(value.trim());
+          });
+          currentScale = Math.abs(matrixValues[0]) || 1;
         }
       }
+
+      targetScale = currentScale * newScale;
+      if (!(targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit)) {
+        return;
+      }
+
+      targetTranslateX = currentTranslateX;
+      targetTranslateY = currentTranslateY;
+      chartRect = typeof chartElement.getBoundingClientRect === 'function'
+        ? chartElement.getBoundingClientRect()
+        : null;
+      if (!zoomAnchor && chartContainerElement && typeof chartContainerElement.getBoundingClientRect === 'function') {
+        containerRect = chartContainerElement.getBoundingClientRect();
+        zoomAnchor = {
+          x: containerRect.left + (containerRect.width / 2),
+          y: containerRect.top + (containerRect.height / 2)
+        };
+      }
+      if (zoomAnchor && chartRect && typeof zoomAnchor.x === 'number' && typeof zoomAnchor.y === 'number' && currentScale !== 0) {
+        anchorX = zoomAnchor.x;
+        anchorY = zoomAnchor.y;
+        localAnchorX = (anchorX - chartRect.left) / currentScale;
+        localAnchorY = (anchorY - chartRect.top) / currentScale;
+        baseLeft = chartRect.left - currentTranslateX;
+        baseTop = chartRect.top - currentTranslateY;
+        targetTranslateX = anchorX - baseLeft - (localAnchorX * targetScale);
+        targetTranslateY = anchorY - baseTop - (localAnchorY * targetScale);
+      }
+
+      chartElement.style.transformOrigin = '0 0';
+      chartElement.style.transform = 'matrix(' + targetScale + ', 0, 0, ' + targetScale + ', ' + targetTranslateX + ', ' + targetTranslateY + ')';
     },
     //
     buildJsonDS: function (liEl) {

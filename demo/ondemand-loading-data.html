@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart On-Demand Loading Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>On-Demand Loading Demo</h1>
+    <p>This demo loads ancestors and descendants only when users expand the corresponding branches.</p>
+  </section>
   <div id="chart-container"></div>
   <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
@@ -45,7 +49,7 @@
       window.setTimeout(() => resolve(responseMap[url]), 1000);
     });
 
-    const datascource = {
+    const datasource = {
       'id': 'n1',
       'name': 'Su Miao',
       'title': 'department manager',
@@ -58,7 +62,7 @@
 
     const oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data' : datascource,
+      'data' : datasource,
       'nodeContent': 'title',
       'nodeId': 'id'
     });

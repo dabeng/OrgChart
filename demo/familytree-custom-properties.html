@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Family Tree Custom Properties Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/fontawesome.min.css">
   <link rel="stylesheet" href="css/orgchart.css">
@@ -30,12 +30,16 @@
 </head>
 
 <body>
+  <section class="demo-notes">
+    <h1>Family Tree Custom Properties Demo</h1>
+    <p>This demo extends the family-tree layout with custom relationship properties such as gender, ex, and adopted markers.</p>
+  </section>
   <div id="chart-container"></div>
   <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
 
-      var datascource = [
+      const datasource = [
         [
           { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
           {
@@ -80,7 +84,7 @@
 
       const oc = new OrgChart({
       chartContainer: '#chart-container',
-        'data': datascource,
+        'data': datasource,
         'nodeContent': 'title',
         'nodeID': 'id',
         'createNode': function (node, data) {

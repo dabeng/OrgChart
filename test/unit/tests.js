@@ -2049,13 +2049,31 @@ describe('orgchart -- unit tests', function () {
 
   it('setChartScale() accepts a native chart element', function () {
     oc.chart.style.transform = 'none';
+    sinon.stub(oc.chart, 'getBoundingClientRect').returns({ left: 0, top: 0 });
+    sinon.stub(oc.chartContainer, 'getBoundingClientRect').returns({
+      left: 0,
+      top: 0,
+      right: 200,
+      bottom: 100,
+      width: 200,
+      height: 100
+    });
     oc.setChartScale(oc.chart, 1.2);
 
-    oc.chart.style.transform.should.equal('scale(1.2,1.2)');
+    oc.chart.style.transform.should.equal('matrix(1.2, 0, 0, 1.2, -20, -10)');
+  });
+
+  it('setChartScale() keeps the chart-local anchor fixed even when the chart is offset inside the container', function () {
+    sinon.stub(oc.chart, 'getBoundingClientRect').returns({ left: 100, top: 200 });
+    oc.chart.style.transform = 'matrix(1, 0, 0, 1, 0, 0)';
+    oc.setChartScale(oc.chart, 1.2, { x: 160, y: 245 });
+
+    oc.chart.style.transform.should.equal('matrix(1.2, 0, 0, 1.2, -12, -9)');
   });
 
   it('zoomStartHandler() stores pinch state on the native chart element', function () {
     const pinchDistStub = sinon.stub(oc, 'getPinchDist').returns(12);
+    const pinchCenterStub = sinon.stub(oc, 'getPinchCenter').returns({ x: 20, y: 30 });
 
     oc.zoomStartHandler({
       orgChart: oc,
@@ -2064,12 +2082,16 @@ describe('orgchart -- unit tests', function () {
 
     getState(oc.chart, 'pinching').should.equal(true);
     getState(oc.chart, 'pinchDistStart').should.equal(12);
+    getState(oc.chart, 'pinchCenterStart').should.deep.equal({ x: 20, y: 30 });
+    getState(oc.chart, 'pinchCenterEnd').should.deep.equal({ x: 20, y: 30 });
 
     pinchDistStub.restore();
+    pinchCenterStub.restore();
   });
 
   it('zoomStartHandler() accepts wrapped native touch payloads', function () {
     const pinchDistStub = sinon.stub(oc, 'getPinchDist').returns(12);
+    const pinchCenterStub = sinon.stub(oc, 'getPinchCenter').returns({ x: 20, y: 30 });
 
     oc.zoomStartHandler({
       orgChart: oc,
@@ -2080,23 +2102,29 @@ describe('orgchart -- unit tests', function () {
 
     getState(oc.chart, 'pinching').should.equal(true);
     getState(oc.chart, 'pinchDistStart').should.equal(12);
+    getState(oc.chart, 'pinchCenterStart').should.deep.equal({ x: 20, y: 30 });
 
     pinchDistStub.restore();
+    pinchCenterStub.restore();
   });
 
   it('zoomingHandler() stores pinch distance on the native chart element', function () {
     const pinchDistStub = sinon.stub(oc, 'getPinchDist').returns(18);
+    const pinchCenterStub = sinon.stub(oc, 'getPinchCenter').returns({ x: 24, y: 36 });
 
     setState(oc.chart, 'pinching', true);
     oc.zoomingHandler({ orgChart: oc });
 
     getState(oc.chart, 'pinchDistEnd').should.equal(18);
+    getState(oc.chart, 'pinchCenterEnd').should.deep.equal({ x: 24, y: 36 });
 
     pinchDistStub.restore();
+    pinchCenterStub.restore();
   });
 
   it('zoomingHandler() accepts wrapped native touch payloads', function () {
     const pinchDistStub = sinon.stub(oc, 'getPinchDist').returns(18);
+    const pinchCenterStub = sinon.stub(oc, 'getPinchCenter').returns({ x: 24, y: 36 });
 
     setState(oc.chart, 'pinching', true);
     oc.zoomingHandler({
@@ -2107,8 +2135,10 @@ describe('orgchart -- unit tests', function () {
     });
 
     getState(oc.chart, 'pinchDistEnd').should.equal(18);
+    getState(oc.chart, 'pinchCenterEnd').should.deep.equal({ x: 24, y: 36 });
 
     pinchDistStub.restore();
+    pinchCenterStub.restore();
   });
 
   it('getPinchDist() accepts a native touch payload', function () {
@@ -2119,36 +2149,64 @@ describe('orgchart -- unit tests', function () {
     distance.should.equal(5);
   });
 
-  it('zoomWheelHandler() passes a native chart element to setChartScale()', function () {
-    const spy = sinon.spy(oc, 'setChartScale');
-    const preventDefaultSpy = sinon.spy();
-
-    oc.zoomWheelHandler({
-      orgChart: oc,
-      originalEvent: {
-        deltaY: -1,
-        preventDefault: preventDefaultSpy
-      }
+  it('getPinchCenter() accepts a native touch payload', function () {
+    const pinchCenter = oc.getPinchCenter({
+      touches: [{ clientX: 10, clientY: 20 }, { clientX: 30, clientY: 40 }]
     });
 
-    preventDefaultSpy.should.have.been.calledOnce;
-    spy.should.have.been.calledWith(oc.chart, 1.2);
+    pinchCenter.should.deep.equal({ x: 20, y: 30 });
   });
 
-  it('zoomWheelHandler() accepts wrapped native wheel payloads without an explicit preventDefault wrapper', function () {
+  it('zoomWheelHandler() passes the mouse anchor to setChartScale()', function () {
     const spy = sinon.spy(oc, 'setChartScale');
     const preventDefaultSpy = sinon.spy();
+    sinon.stub(oc.chartContainer, 'getBoundingClientRect').returns({
+      left: 10,
+      top: 20,
+      right: 210,
+      bottom: 120,
+      width: 200,
+      height: 100
+    });
 
     oc.zoomWheelHandler({
       orgChart: oc,
       originalEvent: {
         deltaY: -1,
+        clientX: 60,
+        clientY: 45,
         preventDefault: preventDefaultSpy
       }
     });
 
     preventDefaultSpy.should.have.been.calledOnce;
-    spy.should.have.been.calledWith(oc.chart, 1.2);
+    spy.should.have.been.calledWith(oc.chart, 1.2, { x: 60, y: 45 });
+  });
+
+  it('zoomWheelHandler() ignores wheel input when the pointer is outside the chart container', function () {
+    const spy = sinon.spy(oc, 'setChartScale');
+    const preventDefaultSpy = sinon.spy();
+    sinon.stub(oc.chartContainer, 'getBoundingClientRect').returns({
+      left: 10,
+      top: 20,
+      right: 210,
+      bottom: 120,
+      width: 200,
+      height: 100
+    });
+
+    oc.zoomWheelHandler({
+      orgChart: oc,
+      originalEvent: {
+        deltaY: -1,
+        clientX: 5,
+        clientY: 45,
+        preventDefault: preventDefaultSpy
+      }
+    });
+
+    preventDefaultSpy.should.not.have.been.called;
+    spy.should.not.have.been.called;
   });
 
   it('bindZoom() wires wheel events with the native chart container', function () {
@@ -2185,9 +2243,10 @@ describe('orgchart -- unit tests', function () {
     setState(oc.chart, 'pinching', true);
     setState(oc.chart, 'pinchDistStart', 10);
     setState(oc.chart, 'pinchDistEnd', 20);
+    setState(oc.chart, 'pinchCenterEnd', { x: 50, y: 60 });
     oc.zoomEndHandler({ orgChart: oc });
 
-    spy.should.have.been.calledWith(oc.chart, 1.2);
+    spy.should.have.been.calledWith(oc.chart, 1.2, { x: 50, y: 60 });
   });
 
   it('createNode() passes a native node to bindDragDrop() when draggable is enabled', function () {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Filter Node Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
@@ -29,6 +29,10 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Filter Node Demo</h1>
+    <p>This demo filters nodes by keyword and highlights the visible path that leads to each match.</p>
+  </section>
   <div id="chart-container"></div>
   <div id="edit-panel" class="view-state">
     <input type="text" id="key-word">
@@ -134,7 +138,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -167,7 +171,7 @@
 
     const oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data' : datascource,
+      'data' : datasource,
       'nodeContent': 'title'
     });
 

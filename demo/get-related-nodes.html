@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Related Nodes Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
@@ -58,6 +58,10 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Related Nodes Demo</h1>
+    <p>This demo highlights the selected node's parents, siblings, and children and explains the meaning of each color in the legend.</p>
+  </section>
   <div id="chart-legend">
     <div id="chart-legend__title">Legend</div>
     <div class="chart-legend__item">
@@ -78,7 +82,7 @@
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [

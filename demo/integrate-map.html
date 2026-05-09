@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Map Integration Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.18.2/ol.css">
   <link rel="stylesheet" href="css/orgchart.css">
@@ -25,6 +25,10 @@
   </style>
 </head>
 <body id="pageBody">
+  <section class="demo-notes demo-notes--overlay">
+    <h1>Map Integration Demo</h1>
+    <p>This demo overlays the org chart on a map and recenters the map view when users click a node with geographic coordinates.</p>
+  </section>
   <div id="chart-container"></div>
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.18.2/ol.js"></script>
@@ -32,7 +36,7 @@
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
 
-    var map = new ol.Map({
+    const map = new ol.Map({
       layers: [
         new ol.layer.Tile({
           source: new ol.source.Stamen({
@@ -56,7 +60,7 @@
 
     document.body.prepend(map.getViewport());
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'President Office',
       'position': [-87.6297980, 41.8781140],
@@ -74,19 +78,19 @@
 
     const oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data' : datascource,
+      'data' : datasource,
       'nodeContent': 'title',
       'createNode': function(node, data) {
         node.addEventListener('click', () => {
-          var view = map.getView();
-          var duration = 2000;
-          var start = +new Date();
-          var pan = ol.animation.pan({
+          const view = map.getView();
+          const duration = 2000;
+          const start = +new Date();
+          const pan = ol.animation.pan({
             duration: duration,
             source:  view.getCenter(),
             start: start
           });
-          var bounce = ol.animation.bounce({
+          const bounce = ol.animation.bounce({
             duration: duration,
             resolution: 4 * view.getResolution(),
             start: start
