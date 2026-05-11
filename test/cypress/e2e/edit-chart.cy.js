@@ -31,6 +31,26 @@ describe('Edit Chart', () => {
     });
   });
 
+  it('add parent to a non-root node without changing its branch', () => {
+    cy.get(football).click();
+    cy.get(newNodes).eq(0).type('Indoor sports');
+    cy.get(parentRel).click();
+    cy.get(addBtn).click();
+
+    cy.get(ballgame).should(($root) => {
+      const rootChildNodes = $root[0].nextElementSibling;
+      const rootChildren = Array.from(rootChildNodes.children);
+      const localParentHierarchy = rootChildren.find((hierarchy) =>
+        hierarchy.querySelector(':scope > .node > .title').textContent === 'Indoor sports'
+      );
+
+      expect(rootChildren).to.have.length(3);
+      expect(localParentHierarchy.querySelector(':scope > .nodes > .hierarchy > .node > .title').textContent).to.equal('Football');
+      expect(rootChildren.map((hierarchy) => hierarchy.querySelector(':scope > .node > .title').textContent))
+        .to.include.members(['Indoor sports', 'Basketball', 'Volleyball']);
+    });
+  });
+
   it('add child nodes -- Futsal and Beach football', () => {
     cy.get(football).click();
     cy.get(newNodes).eq(0).type('Futsal');

@@ -108,13 +108,16 @@ describe('Pan & Zoom', () => {
       .then(($node) => {
         const beforeCenter = getNodeCenter($node);
 
-        cy.get(chartContainer).trigger('wheel', {
-          eventConstructor: 'WheelEvent',
-          deltaY: -1,
-          clientX: beforeCenter.x,
-          clientY: beforeCenter.y,
-          bubbles: true,
-          cancelable: true
+        cy.get(chartContainer).then(($container) => {
+          const wheelEvent = new $container[0].ownerDocument.defaultView.WheelEvent('wheel', {
+            deltaY: -1,
+            clientX: beforeCenter.x,
+            clientY: beforeCenter.y,
+            bubbles: true,
+            cancelable: true
+          });
+
+          $container[0].dispatchEvent(wheelEvent);
         });
 
         cy.contains('.node .title', 'Lao Lao')

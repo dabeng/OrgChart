@@ -1,6 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+const sinonChai = require('sinon-chai').default;
 const should = chai.should();
 
 chai.use(sinonChai);
@@ -887,7 +887,7 @@ describe('orgchart -- init and builder unit tests', function () {
         { id: 'n12', name: 'Spouse B', relationship: '001', outsider: true }
       ]]);
 
-      queryAll(':scope > .node', hierarchyEl).map(function (nodeEl) {
+      queryAll('.node', hierarchyEl).map(function (nodeEl) {
         return nodeEl.id;
       }).should.deep.equal(['n11', 'n12']);
     });
@@ -900,7 +900,7 @@ describe('orgchart -- init and builder unit tests', function () {
         children: [{ id: 'n12', name: 'Child', relationship: '000' }]
       });
 
-      should.equal(query(':scope > .node', hierarchyEl).id, 'n12');
+      should.equal(query('.node', hierarchyEl).id, 'n12');
       should.exist(query('#n12', hierarchyEl));
     });
 
@@ -1029,6 +1029,7 @@ describe('orgchart -- init and builder unit tests', function () {
       jsPDFSpy.firstCall.args[0].orientation.should.equal('landscape');
       jsPDFSpy.firstCall.args[0].format.should.deep.equal([500, 200]);
       addImageSpy.should.have.been.calledOnce;
+      addImageSpy.should.have.been.calledWith('data:image/png;base64,fake', 'png', 0, 0, 500, 200);
       saveSpy.should.have.been.calledOnce;
       saveSpy.firstCall.args[0].should.equal('WideChart.pdf');
 
@@ -1062,7 +1063,36 @@ describe('orgchart -- init and builder unit tests', function () {
       jsPDFSpy.firstCall.args[0].orientation.should.equal('portrait');
       jsPDFSpy.firstCall.args[0].format.should.deep.equal([500, 200]);
       addImageSpy.should.have.been.calledOnce;
+      addImageSpy.should.have.been.calledWith('data:image/png;base64,fake', 'png', 0, 0, 200, 500);
       saveSpy.should.have.been.calledOnce;
+
+      global.jsPDF = originalJsPDF;
+      window.jsPDF = originalWindowJsPDF;
+    });
+
+    it('exportPDF() preserves logical dimensions for high-resolution canvases', function () {
+      const originalJsPDF = global.jsPDF;
+      const originalWindowJsPDF = window.jsPDF;
+      const addImageSpy = sinon.spy();
+      const jsPDFSpy = sinon.spy(function () {
+        this.addImage = addImageSpy;
+        this.save = sinon.spy();
+      });
+      const canvas = {
+        width: 1000,
+        height: 400,
+        toDataURL: function () {
+          return 'data:image/png;base64,fake';
+        }
+      };
+
+      global.jsPDF = jsPDFSpy;
+      window.jsPDF = jsPDFSpy;
+
+      oc.exportPDF(canvas, 'HighResolutionChart', 2);
+
+      jsPDFSpy.firstCall.args[0].format.should.deep.equal([500, 200]);
+      addImageSpy.should.have.been.calledWith('data:image/png;base64,fake', 'png', 0, 0, 500, 200);
 
       global.jsPDF = originalJsPDF;
       window.jsPDF = originalWindowJsPDF;
@@ -1179,6 +1209,8 @@ describe('orgchart -- init and builder unit tests', function () {
           element.should.equal(oc.chart);
           options.width.should.equal(oc.chart.clientWidth);
           options.height.should.equal(oc.chart.clientHeight);
+          options.scale.should.equal(2);
+          options.useCORS.should.equal(true);
         } catch (error) {
           global.html2canvas = originalHtml2canvas;
           window.html2canvas = originalWindowHtml2canvas;

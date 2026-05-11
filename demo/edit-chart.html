@@ -204,7 +204,7 @@
           });
           syncChartEditState();
         } else {
-          oc.addParent(rootNode, { 'name': nodeVals[0], 'id': getId() });
+          oc.addParent(selectedNode || rootNode, { 'name': nodeVals[0], 'id': getId() });
         }
         return;
       }

@@ -1,6 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+const sinonChai = require('sinon-chai').default;
 const should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
@@ -159,6 +159,20 @@ describe('orgchart -- integration tests', function () {
 
     siblingElements($laolao.closest('.nodes'), '.node').should.lengthOf(1);
     query('.node', oc.chart).should.equal(query('#n0'));
+    oc.getHierarchy().should.deep.equal(expectedHierarchy);
+  });
+
+  it('inserts a parent between a non-root node and its existing parent', function () {
+    const expectedHierarchy = cloneValue(hierarchy);
+
+    expectedHierarchy.children[0] = {
+      id: 'n0',
+      children: [expectedHierarchy.children[0]]
+    };
+    oc.addParent($bomiao, { 'name': 'Lao Ye', 'id': 'n0' });
+
+    query('#n0').closest('.hierarchy').parentElement.parentElement.querySelector(':scope > .node').should.equal(query('#n1'));
+    query('#n2').closest('.hierarchy').parentElement.previousElementSibling.should.equal(query('#n0'));
     oc.getHierarchy().should.deep.equal(expectedHierarchy);
   });
 
@@ -538,6 +552,72 @@ describe('orgchart -- integration tests', function () {
     });
   });
 
+  describe('runtime option flows', function () {
+    it('rebuilds the rendered hierarchy through setOptions({ data })', function () {
+      const replacementData = {
+        id: 'r1',
+        name: 'Replacement Root',
+        children: [{ id: 'r2', name: 'Replacement Child' }]
+      };
+      const previousChart = oc.chart;
+
+      oc.setOptions({ data: replacementData });
+
+      oc.chart.should.not.equal(previousChart);
+      should.not.exist(query('#n1', $container));
+      query('#r1', oc.chart).querySelector('.title').textContent.should.equal('Replacement Root');
+      oc.getChildren(query('#r1', oc.chart)).map(function (nodeEl) { return nodeEl.id; }).should.deep.equal(['r2']);
+      oc.getHierarchy().should.deep.equal({ id: 'r1', children: [{ id: 'r2' }] });
+    });
+
+    it('moves the chart through the minimap viewport and cleans up when disabled', function () {
+      const minimapChart = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        minimap: true
+      });
+      const minimapElement = query('.orgchart-minimap', $container);
+      const minimapStage = query('.orgchart-minimap-stage', minimapElement);
+      const minimapViewport = query('.orgchart-minimap-viewport', minimapElement);
+      const containerRectStub = sinon.stub(minimapChart.chartContainer, 'getBoundingClientRect').returns({
+        left: 0, top: 0, right: 400, bottom: 240, width: 400, height: 240
+      });
+      const chartRectStub = sinon.stub(minimapChart.chart, 'getBoundingClientRect').returns({
+        left: -100, top: -50, right: 900, bottom: 550, width: 1000, height: 600
+      });
+      const stageRectStub = sinon.stub(minimapStage, 'getBoundingClientRect').returns({
+        left: 0, top: 0, right: 180, bottom: 104, width: 180, height: 104
+      });
+      const viewportRectStub = sinon.stub(minimapViewport, 'getBoundingClientRect').returns({
+        left: 20, top: 10, right: 89, bottom: 52, width: 69, height: 42
+      });
+
+      Object.defineProperty(minimapStage, 'clientWidth', { configurable: true, value: 180 });
+      Object.defineProperty(minimapStage, 'clientHeight', { configurable: true, value: 104 });
+      minimapChart.updateMinimap(true);
+
+      dispatchEventWithProperties(minimapViewport, 'mousedown', {
+        clientX: 20,
+        clientY: 10,
+        preventDefault: function () {}
+      });
+      dispatchEventWithProperties(document, 'mousemove', { clientX: 40, clientY: 30 });
+      dispatchNativeEvent(document, 'mouseup');
+
+      minimapChart.chart.style.transform.should.not.equal('');
+      should.equal(getState(minimapChart.chart, 'minimapDragState'), null);
+
+      minimapChart.setOptions('minimap', false);
+
+      should.not.exist(query('.orgchart-minimap', $container));
+      $container.style.position.should.equal('');
+      containerRectStub.restore();
+      chartRectStub.restore();
+      stageRectStub.restore();
+      viewportRectStub.restore();
+    });
+  });
+
   describe('hybrid vertical flows', function () {
     it('expands and collapses vertical descendants through toggle button clicks', function () {
       let hybridChart;
@@ -738,6 +818,45 @@ describe('orgchart -- integration tests', function () {
       }).should.deep.equal(['n3', 'n4']);
 
       global.JSONDigger = originalJSONDigger;
+    });
+
+    it('adds a vertical toggle when hybrid drag and drop gives a leaf node children', async function () {
+      const originalJSONDigger = global.JSONDigger;
+      const hybridData = {
+        id: 'n1',
+        name: 'Root',
+        children: [
+          {
+            id: 'n2',
+            name: 'Source Parent',
+            children: [{ id: 'n3', name: 'Dragged Node' }]
+          },
+          { id: 'n4', name: 'Drop Node' }
+        ]
+      };
+      const hybridChart = new OrgChart({
+        chartContainer: '#chart-container',
+        data: hybridData,
+        draggable: true,
+        verticalLevel: 2
+      });
+      const draggedNode = query('#n3', hybridChart.chart);
+      const dropNode = query('#n4', hybridChart.chart);
+
+      global.JSONDigger = require('json-digger');
+      try {
+        setState(hybridChart.chart, 'dragged', draggedNode);
+        dropNode.classList.add('allowedDrop');
+        await hybridChart.dropHandler({
+          dropZone: dropNode,
+          originalEvent: { currentTarget: dropNode }
+        });
+
+        query('#n4', hybridChart.chart).querySelector(':scope > .toggleBtn').should.exist;
+        query('#n3', hybridChart.chart).closest('.hierarchy').parentElement.previousElementSibling.id.should.equal('n4');
+      } finally {
+        global.JSONDigger = originalJSONDigger;
+      }
     });
   });
 

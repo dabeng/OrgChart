@@ -11,6 +11,9 @@
 ## 寫在前面的話
 感謝[wesnolte](https://github.com/wesnolte)的非常棒的作品-- [jOrgChart](https://github.com/wesnolte/jOrgChart)。用嵌套的table來構造樹狀結構，用td的border來構造節點間的連線，非常有創意。天然地降低了前端程序員在構造樹狀結構時的工作量和難度，要知道，利用D3.js中的腦圖去達到同樣效果，開發周期就會長好多。哪怕你對svg，canvas等高級的制圖API了然于胸，當你的樹狀結構圖激發出HR大姐的各種天馬行空的需求時，你會坦誠的承認svg或canvas這種重型武器拖累了你的快速解決一小戳敵人的能力。相比較而言，用單純的**HTML5 + CSS3**的解決方案就像是 **“小米 + 步槍”的輕步兵**，天然地降低了你在實現樹狀結構圖的難度，同時給予你更大的定制空間去面對基于這個結構圖衍生出的種種瑣碎需求。只要你的需求足夠多，基于這個樹狀結構圖，打造出一個完備的HR系統，也是可以期待的。實際上，網絡上很多OrgChart商業軟件就是圍繞著一個樹狀結構核心模型展開的業務邏輯實現。
 
+- 自 5.0 版本起，使用者可以建立家譜樹。
+- 自 6.0 版本起，OrgChart 元件已回歸原生實作，不再依賴 jQuery。
+
 ## 功能特性
 - 支持本地和遠程的數據源。
 - 用戶可以展開/折疊節點或子樹，方便地浏覽局部的結構圖。
@@ -194,6 +197,12 @@ var datascource = [
 - [我想往族譜裏追加一些自定義的標識](https://dabeng.github.io/OrgChart/familytree-custom-properties.html)
 
 ![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
+
+- [我想通過小地圖導航組織結構圖](https://dabeng.github.io/OrgChart/minimap.html)
+
+![minimap](http://dabeng.github.io/OrgChart/img/minimap.png)
+
+啓用 `minimap` 選項即可顯示概覽導航器。拖動其中的視口可以移動組織結構圖，在小地圖上滾動鼠標滾輪可以縮放。
 
 ### 本地運行orgchart
 

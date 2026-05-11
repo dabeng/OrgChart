@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>OrgChart Hybrid Layout Demo</title>
@@ -7,10 +8,16 @@
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
-    #chart-container { height:  620px; }
-    .orgchart { padding-bottom: 20px; }
+    #chart-container {
+      height: 620px;
+    }
+
+    .orgchart {
+      padding-bottom: 20px;
+    }
   </style>
 </head>
+
 <body>
   <section class="demo-notes">
     <h1>Hybrid Layout Demo</h1>
@@ -21,54 +28,73 @@
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', () => {
 
-    const datasource = {
-      'id': '1',
-      'name': 'Lao Lao',
-      'title': 'general manager',
-      'children': [
-        { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
-        { 'id': '3', 'name': 'Su Miao', 'title': 'department manager',
-          'children': [
-            { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
-            { 'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
-              'children': [
-                { 'id': '6', 'name': 'Pang Pang', 'title': 'engineer' },
-                { 'id': '7', 'name': 'Dan Dan', 'title': 'UE engineer' ,
+      const datasource = {
+        'id': '1',
+        'name': 'Lao Lao',
+        'title': 'general manager',
+        'children': [
+          { 'id': '2', 'name': 'Bo Miao', 'title': 'department manager' },
+          {
+            'id': '3', 'name': 'Su Miao', 'title': 'department manager',
+            'children': [
+              { 'id': '4', 'name': 'Tie Hua', 'title': 'senior engineer' },
+              {
+                'id': '5', 'name': 'Hei Hei', 'title': 'senior engineer',
                 'children': [
-                  { 'id': '8', 'name': 'Er Dan', 'title': 'engineer' },
-                  { 'id': '9', 'name': 'San Dan', 'title': 'engineer',
+                  {
+                    'id': '6', 'name': 'Pang Pang', 'title': 'engineer',
                     'children': [
-                      { 'id': '10', 'name': 'Si Dan', 'title': 'intern' },
-                      { 'id': '11', 'name': 'Wu Dan', 'title': 'intern' }
+                      {
+                        'id': '18', 'name': 'Er Pang', 'title': 'engineer',
+                        'children': [
+                          { 'id': '19', 'name': 'San Pang', 'title': 'intern' }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    'id': '7', 'name': 'Dan Dan', 'title': 'UE engineer',
+                    'children': [
+                      { 'id': '8', 'name': 'Er Dan', 'title': 'engineer' },
+                      {
+                        'id': '9', 'name': 'San Dan', 'title': 'engineer',
+                        'children': [
+                          { 'id': '10', 'name': 'Si Dan', 'title': 'intern' },
+                          { 'id': '11', 'name': 'Wu Dan', 'title': 'intern' }
+                        ]
+                      },
+                      { 'id': '12', 'name': 'Liu Dan', 'title': 'engineer' },
                     ]
                   }
-                ]}
-              ]
-            }
-          ]
-        },
-        { 'id': '13', 'name': 'Chun Miao', 'title': 'department manager', 'hybrid': true,
-          'children': [
-            { 'id': '14', 'name': 'Bing Qin', 'title': 'senior engineer' },
-            { 'id': '15', 'name': 'Yue Yue', 'title': 'senior engineer',
-              'children': [
-                { 'id': '16', 'name': 'Er Yue', 'title': 'engineer' },
-                { 'id': '17', 'name': 'San Yue', 'title': 'UE engineer' }
-              ]
-            }
-          ]
-        }
-      ]
-    };
+                ]
+              }
+            ]
+          },
+          {
+            'id': '13', 'name': 'Chun Miao', 'title': 'department manager', 'hybrid': true,
+            'children': [
+              { 'id': '14', 'name': 'Bing Qin', 'title': 'senior engineer' },
+              {
+                'id': '15', 'name': 'Yue Yue', 'title': 'senior engineer',
+                'children': [
+                  { 'id': '16', 'name': 'Er Yue', 'title': 'engineer' },
+                  { 'id': '17', 'name': 'San Yue', 'title': 'UE engineer' }
+                ]
+              }
+            ]
+          }
+        ]
+      };
 
-    const oc = new OrgChart({
-      chartContainer: '#chart-container',
-      'data' : datasource,
-      'nodeContent': 'title',
-      'verticalLevel': 5
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        'data': datasource,
+        'nodeContent': 'title',
+        'verticalLevel': 5
+      });
+
     });
-
-  });
   </script>
-  </body>
+</body>
+
 </html>

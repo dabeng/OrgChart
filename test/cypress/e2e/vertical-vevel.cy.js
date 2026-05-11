@@ -15,14 +15,16 @@ describe('Hybrid(horizontal + vertical) Chart', () => {
   const wudan = '.node:contains("Wu Dan")';
 
   it('toggle the vertical nodes', () => {
-    cy.get(dandan).find('.toggleBtn').click();
+    cy.get(dandan).find('.toggleBtn').click({ force: true });
+    cy.get(dandan).find('.toggleBtn').should('have.class', 'oci-minus-square');
     cy.get(erdan).get(sandan).should('be.visible');
     cy.get(sidan).get(wudan).should('not.be.visible');
   
-    cy.get(heihei).find('.toggleBtn').click();
+    cy.get(heihei).find('.toggleBtn').click({ force: true });
+    cy.get(heihei).find('.toggleBtn').should('have.class', 'oci-plus-square');
     cy.get(pangpang).get(dandan).get(erdan).get(sandan).should('not.be.visible');
   
-    cy.get(heihei).find('.toggleBtn').click();
+    cy.get(heihei).find('.toggleBtn').click({ force: true });
     cy.get(pangpang).get(dandan).should('be.visible');
   });
 

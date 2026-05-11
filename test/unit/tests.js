@@ -1,6 +1,6 @@
 const chai = require("chai");
 const sinon = require("sinon");
-const sinonChai = require("sinon-chai");
+const sinonChai = require("sinon-chai").default;
 const should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
@@ -536,6 +536,15 @@ describe('orgchart -- unit tests', function () {
     spy2.should.have.been.callCount(2);
     spy2.getCall(0).args[0].should.equal($heihei);
     spy2.getCall(1).args[0].should.equal($sumiao);
+  });
+
+  it('hideParent() hides the transitioned parent node', function () {
+    oc.hideParent($sumiao);
+
+    triggerEvent($laolao, 'transitionend');
+
+    $laolao.classList.contains('sliding').should.equal(false);
+    $laolao.classList.contains('hidden').should.equal(true);
   });
 
   it('hideParent() clears inAjax when the parent node contains a spinner', function () {
@@ -1279,6 +1288,19 @@ describe('orgchart -- unit tests', function () {
 
     spy.should.have.been.calledWith($sumiao);
     spy.restore();
+  });
+
+  it('hEdgeClickHandler() restores the collapsed parent after topEdgeClickHandler()', function () {
+    oc.topEdgeClickHandler({ edge: query('.topEdge', $sumiao), node: $sumiao });
+    triggerEvent($bomiao, 'transitionend');
+    triggerEvent($laolao, 'transitionend');
+
+    oc.hEdgeClickHandler({ edge: query('.leftEdge', $sumiao), node: $sumiao });
+
+    closestElement($sumiao, '.hierarchy').classList.contains('isAncestorsCollapsed').should.equal(false);
+    $laolao.classList.contains('hidden').should.equal(false);
+    $laolao.classList.contains('slide-down').should.equal(false);
+    $laolao.classList.contains('sliding').should.equal(true);
   });
 
   it('startLoading() and endLoading() accept a native edge node', function () {
@@ -2440,6 +2462,8 @@ describe('orgchart -- unit tests', function () {
         element.should.equal(oc.chart);
         options.width.should.equal(oc.chart.clientWidth);
         options.height.should.equal(oc.chart.clientHeight);
+        options.scale.should.equal(2);
+        options.useCORS.should.equal(true);
       } catch (error) {
         done(error);
         return {

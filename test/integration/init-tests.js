@@ -1,6 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+const sinonChai = require('sinon-chai').default;
 const should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
@@ -200,6 +200,62 @@ describe('orgchart -- integration tests', function () {
       // spy.should.always.have.been.calledOn(oc);
     });
 
+    it('renders custom data fields and invokes createNode after the node markup is built', function () {
+      const createNode = sinon.spy(function (nodeElement, data) {
+        nodeElement.setAttribute('data-role', data.role);
+      });
+
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: {
+          key: 'n1',
+          label: 'Director',
+          role: 'Operations',
+          children: [{ key: 'n2', label: 'Engineer', role: 'Platform' }]
+        },
+        nodeId: 'key',
+        nodeTitle: 'label',
+        nodeContent: 'role',
+        createNode: createNode
+      });
+
+      query('#n1 .title', oc.chart).textContent.should.equal('Director');
+      query('#n1 .content', oc.chart).textContent.should.equal('Operations');
+      query('#n2', oc.chart).getAttribute('data-role').should.equal('Platform');
+      createNode.should.have.been.calledTwice;
+      createNode.firstCall.args[0].querySelector('.title').textContent.should.equal('Director');
+    });
+
+    it('renders custom node templates instead of the default title and content markup', function () {
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        nodeTemplate: function (data) {
+          return '<section class="employee-card" data-name="' + data.name + '">' + data.name + '</section>';
+        }
+      });
+
+      query('#n1 .employee-card', oc.chart).getAttribute('data-name').should.equal('Lao Lao');
+      query('#n2 .employee-card', oc.chart).textContent.should.equal('Bo Miao');
+      should.not.exist(query('#n1 > .title', oc.chart));
+    });
+
+    it('dispatches init.orgchart after initCompleted receives the rendered chart', function (done) {
+      const initCompleted = sinon.spy(function (chartElement) {
+        chartElement.addEventListener('init.orgchart', function () {
+          initCompleted.should.have.been.calledOnce;
+          initCompleted.firstCall.args[0].should.equal(chartElement);
+          done();
+        }, { once: true });
+      });
+
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        initCompleted: initCompleted
+      });
+    });
+
     it('initialize chart with default className', function () {
       oc = new OrgChart({
         chartContainer: '#chart-container',
@@ -225,6 +281,19 @@ describe('orgchart -- integration tests', function () {
         'direction': 'b2t'
       });
       oc.chart.classList.contains('b2t').should.be.true;
+    });
+
+    it('applies horizontal direction classes', function () {
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        direction: 'l2r'
+      });
+      oc.chart.classList.contains('l2r').should.be.true;
+
+      oc.init({ direction: 'r2l' });
+      oc.chart.classList.contains('r2l').should.be.true;
+      oc.chart.classList.contains('l2r').should.be.false;
     });
 
     it('reinitialize chart with drggable feature', function () {

@@ -1,5 +1,5 @@
 /*
- * jQuery OrgChart Plugin
+ * JavaScript OrgChart Component
  * https://github.com/dabeng/OrgChart
  *
  * Copyright 2016, dabeng
@@ -255,6 +255,144 @@
     return event;
   }
 
+  function clampValue(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function isTransparentColor(colorValue) {
+    const normalizedColor = (colorValue || '').replace(/\s+/g, '').toLowerCase();
+
+    return !normalizedColor
+      || normalizedColor === 'transparent'
+      || normalizedColor === 'rgba(0,0,0,0)'
+      || normalizedColor === 'hsla(0,0%,0%,0)';
+  }
+
+  function toReadableMinimapColor(colorValue) {
+    const rgbaMatch = /^rgba?\(([^)]+)\)$/i.exec((colorValue || '').trim());
+    const darkenFactor = 0.68;
+    let channelValues;
+
+    if (!rgbaMatch) {
+      return colorValue;
+    }
+
+    channelValues = rgbaMatch[1].split(',').slice(0, 3).map(function (value) {
+      return clampValue(Math.round(parseFloat(value.trim()) * darkenFactor), 0, 255);
+    });
+
+    if (channelValues.some(function (value) { return Number.isNaN(value); })) {
+      return colorValue;
+    }
+
+    return 'rgb(' + channelValues.join(', ') + ')';
+  }
+
+  function getMinimapNodeColor(nodeElement) {
+    const fallbackColor = 'rgba(217, 83, 79, 0.8)';
+    const titleElement = nodeElement ? nodeElement.querySelector('.title') : null;
+    const primaryColor = titleElement ? getWindow().getComputedStyle(titleElement).backgroundColor : '';
+    const secondaryColorCandidates = [
+      nodeElement,
+      titleElement,
+      nodeElement ? nodeElement.querySelector('.content') : null
+    ].flatMap(function (element) {
+      const style = element ? getWindow().getComputedStyle(element) : null;
+
+      if (!style) {
+        return [];
+      }
+
+      return [
+        style.backgroundColor,
+        style.borderTopColor,
+        style.borderRightColor,
+        style.borderBottomColor,
+        style.borderLeftColor
+      ];
+    });
+
+    return toReadableMinimapColor((!isTransparentColor(primaryColor) && primaryColor) || secondaryColorCandidates.find(function (color) {
+      return !isTransparentColor(color);
+    }) || fallbackColor);
+  }
+
+  const MINIMAP_NODE_HEIGHT = 18;
+
+  function renderMinimapNodes(chartElement, minimapContentElement, chartRect, chartScale) {
+    const fragment = getDocument().createDocumentFragment();
+
+    Array.from(chartElement.querySelectorAll('.node')).filter(function (nodeElement) {
+      return isVisibleElement(nodeElement);
+    }).forEach(function (nodeElement) {
+      const nodeRect = nodeElement.getBoundingClientRect();
+      const minimapNodeElement = getDocument().createElement('div');
+      const nodeTop = (nodeRect.top - chartRect.top) / chartScale;
+
+      minimapNodeElement.className = 'orgchart-minimap-node';
+      minimapNodeElement.style.left = Math.max((nodeRect.left - chartRect.left) / chartScale, 0) + 'px';
+      minimapNodeElement.style.top = Math.max(nodeTop + ((nodeRect.height / chartScale - MINIMAP_NODE_HEIGHT) / 2), 0) + 'px';
+      minimapNodeElement.style.width = Math.max(nodeRect.width / chartScale, 6) + 'px';
+      minimapNodeElement.style.height = MINIMAP_NODE_HEIGHT + 'px';
+      minimapNodeElement.style.backgroundColor = getMinimapNodeColor(nodeElement);
+      fragment.appendChild(minimapNodeElement);
+    });
+
+    minimapContentElement.innerHTML = '';
+    minimapContentElement.appendChild(fragment);
+  }
+
+  function getChartTransform(chartElement) {
+    let currentTransform;
+    let matrixValues;
+    let currentScale = 1;
+    let currentTranslateX = 0;
+    let currentTranslateY = 0;
+
+    if (!chartElement) {
+      return {
+        scale: currentScale,
+        translateX: currentTranslateX,
+        translateY: currentTranslateY
+      };
+    }
+
+    currentTransform = getWindow().getComputedStyle(chartElement).transform || chartElement.style.transform || 'none';
+    if (currentTransform && currentTransform !== 'none') {
+      if (currentTransform.indexOf('matrix3d(') === 0) {
+        matrixValues = currentTransform.slice(9, -1).split(',').map(function (value) {
+          return getWindow().parseFloat(value.trim());
+        });
+        currentScale = Math.abs(matrixValues[0]) || 1;
+        currentTranslateX = matrixValues[12] || 0;
+        currentTranslateY = matrixValues[13] || 0;
+      } else if (currentTransform.indexOf('matrix(') === 0) {
+        matrixValues = currentTransform.slice(7, -1).split(',').map(function (value) {
+          return getWindow().parseFloat(value.trim());
+        });
+        currentScale = Math.abs(matrixValues[0]) || 1;
+        currentTranslateX = matrixValues[4] || 0;
+        currentTranslateY = matrixValues[5] || 0;
+      } else if (currentTransform.indexOf('scale3d(') === 0) {
+        matrixValues = currentTransform.slice(8, -1).split(',').map(function (value) {
+          return getWindow().parseFloat(value.trim());
+        });
+        currentScale = Math.abs(matrixValues[0]) || 1;
+      } else if (currentTransform.indexOf('scale(') === 0) {
+        matrixValues = currentTransform.slice(6, -1).split(',').map(function (value) {
+          return getWindow().parseFloat(value.trim());
+        });
+        currentScale = Math.abs(matrixValues[0]) || 1;
+      }
+    }
+
+    return {
+      scale: currentScale,
+      translateX: currentTranslateX,
+      translateY: currentTranslateY
+    };
+  }
+
   const OrgChart = function (elem, opts) {
     if (!(this instanceof OrgChart)) {
       return new OrgChart(elem, opts);
@@ -290,9 +428,11 @@
       'exportButtonName': 'Export',
       'exportFilename': 'OrgChart',
       'exportFileextension': 'png',
+      'exportScale': 2,
       'draggable': false,
       'direction': 't2b',
       'pan': false,
+      'minimap': false,
       'zoom': false,
       'zoominLimit': 7,
       'zoomoutLimit': 0.5
@@ -302,7 +442,7 @@
     }
   };
 
-  if (typeof process === 'object' && process && process.env && process.env.ORGCHART_TEST === '1') {
+  if (typeof module === 'object' && typeof module.exports === 'object') {
     Object.defineProperty(OrgChart, '__testing__', {
       value: {
         getState: getState,
@@ -322,6 +462,7 @@
       let rootNodesContainerElement;
       let rootHierarchyElement;
 
+      this.detachMinimap();
       if (this.chart) {
         this.chart.remove();
       }
@@ -382,6 +523,10 @@
 
       if (this.options.zoom) {
         this.bindZoom();
+      }
+
+      if (this.options.minimap) {
+        this.attachMinimap();
       }
 
       return this;
@@ -478,6 +623,17 @@
             this.unbindZoom();
           }
         }
+        if (opts === 'minimap') {
+          this.options = mergeObjects({}, this.options || {}, { minimap: val });
+          if (this.chart) {
+            setState(this.chart, 'options', this.options);
+          }
+          if (val) {
+            this.attachMinimap();
+          } else {
+            this.detachMinimap();
+          }
+        }
       }
       if (typeof opts === 'object') {
         if (opts.data) {
@@ -497,13 +653,334 @@
               this.unbindZoom();
             }
           }
+          if (typeof opts.minimap !== 'undefined') {
+            this.options = mergeObjects({}, this.options || {}, { minimap: opts.minimap });
+            if (this.chart) {
+              setState(this.chart, 'options', this.options);
+            }
+            if (opts.minimap) {
+              this.attachMinimap();
+            } else {
+              this.detachMinimap();
+            }
+          }
         }
       }
 
       return this;
     },
+    attachMinimap: function () {
+      const orgChart = this;
+      const chartContainerElement = this.chartContainer;
+      const chartElement = this.chart;
+      let minimapElement;
+      let minimapStageElement;
+      let minimapContentElement;
+      let minimapViewportElement;
+      let minimapWheelBoundHandler;
+      let minimapPointerDownBoundHandler;
+      let minimapMutationObserver;
+
+      if (!chartContainerElement || !chartElement) {
+        return;
+      }
+
+      this.detachMinimap();
+      if (!getWindow().getComputedStyle(chartContainerElement).position || getWindow().getComputedStyle(chartContainerElement).position === 'static') {
+        setState(chartContainerElement, 'minimapOriginalPosition', chartContainerElement.style.position || '');
+        setState(chartContainerElement, 'minimapManagedPosition', true);
+        chartContainerElement.style.position = 'relative';
+      }
+
+      minimapElement = getDocument().createElement('div');
+      minimapElement.className = 'orgchart-minimap';
+      minimapStageElement = getDocument().createElement('div');
+      minimapStageElement.className = 'orgchart-minimap-stage';
+      minimapContentElement = getDocument().createElement('div');
+      minimapContentElement.className = 'orgchart-minimap-content';
+      minimapViewportElement = getDocument().createElement('div');
+      minimapViewportElement.className = 'orgchart-minimap-viewport';
+
+      minimapStageElement.appendChild(minimapContentElement);
+      minimapStageElement.appendChild(minimapViewportElement);
+      minimapElement.appendChild(minimapStageElement);
+      chartContainerElement.appendChild(minimapElement);
+
+      minimapWheelBoundHandler = function (event) {
+        orgChart.minimapWheelHandler(event);
+      };
+      minimapPointerDownBoundHandler = function (event) {
+        orgChart.minimapStartHandler(event);
+      };
+
+      minimapElement.addEventListener('wheel', minimapWheelBoundHandler);
+      minimapViewportElement.addEventListener('mousedown', minimapPointerDownBoundHandler);
+
+      if (typeof getWindow().MutationObserver !== 'undefined') {
+        minimapMutationObserver = new (getWindow().MutationObserver)(function () {
+          orgChart.updateMinimap(true);
+        });
+        minimapMutationObserver.observe(chartElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['class']
+        });
+      }
+
+      setState(chartElement, 'minimapElement', minimapElement);
+      setState(chartElement, 'minimapStageElement', minimapStageElement);
+      setState(chartElement, 'minimapContentElement', minimapContentElement);
+      setState(chartElement, 'minimapViewportElement', minimapViewportElement);
+      setState(chartElement, 'minimapWheelBoundHandler', minimapWheelBoundHandler);
+      setState(chartElement, 'minimapPointerDownBoundHandler', minimapPointerDownBoundHandler);
+      setState(chartElement, 'minimapMutationObserver', minimapMutationObserver || null);
+
+      this.updateMinimap(true);
+    },
+    detachMinimap: function () {
+      const chartContainerElement = this.chartContainer;
+      const chartElement = this.chart;
+      let minimapElement;
+      let minimapViewportElement;
+      let minimapWheelBoundHandler;
+      let minimapPointerDownBoundHandler;
+      let minimapMoveBoundHandler;
+      let minimapEndBoundHandler;
+      let minimapMutationObserver;
+
+      if (chartElement) {
+        minimapElement = getState(chartElement, 'minimapElement');
+        minimapViewportElement = getState(chartElement, 'minimapViewportElement');
+        minimapWheelBoundHandler = getState(chartElement, 'minimapWheelBoundHandler');
+        minimapPointerDownBoundHandler = getState(chartElement, 'minimapPointerDownBoundHandler');
+        minimapMoveBoundHandler = getState(chartElement, 'minimapMoveBoundHandler');
+        minimapEndBoundHandler = getState(chartElement, 'minimapEndBoundHandler');
+        minimapMutationObserver = getState(chartElement, 'minimapMutationObserver');
+
+        if (minimapElement && minimapWheelBoundHandler) {
+          minimapElement.removeEventListener('wheel', minimapWheelBoundHandler);
+        }
+        if (minimapViewportElement && minimapPointerDownBoundHandler) {
+          minimapViewportElement.removeEventListener('mousedown', minimapPointerDownBoundHandler);
+        }
+        if (minimapMoveBoundHandler) {
+          getDocument().removeEventListener('mousemove', minimapMoveBoundHandler);
+        }
+        if (minimapEndBoundHandler) {
+          getDocument().removeEventListener('mouseup', minimapEndBoundHandler);
+        }
+        if (minimapMutationObserver) {
+          minimapMutationObserver.disconnect();
+        }
+        if (minimapElement && minimapElement.parentElement) {
+          minimapElement.remove();
+        }
+
+        [
+          'minimapElement',
+          'minimapStageElement',
+          'minimapContentElement',
+          'minimapViewportElement',
+          'minimapWheelBoundHandler',
+          'minimapPointerDownBoundHandler',
+          'minimapMoveBoundHandler',
+          'minimapEndBoundHandler',
+          'minimapMutationObserver',
+          'minimapDragState',
+          'minimapScale',
+          'minimapOffsetX',
+          'minimapOffsetY',
+          'minimapContentWidth',
+          'minimapContentHeight'
+        ].forEach(function (key) {
+          setState(chartElement, key, null);
+        });
+      }
+
+      if (chartContainerElement && getState(chartContainerElement, 'minimapManagedPosition')) {
+        chartContainerElement.style.position = getState(chartContainerElement, 'minimapOriginalPosition') || '';
+        setState(chartContainerElement, 'minimapManagedPosition', null);
+        setState(chartContainerElement, 'minimapOriginalPosition', null);
+      }
+    },
+    minimapWheelHandler: function (event) {
+      const chartContainerElement = this.chartContainer;
+
+      if (!this.chart || !chartContainerElement) {
+        return;
+      }
+      if (typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+
+      this.setChartScale(this.chart, 1 + (event.deltaY > 0 ? -0.2 : 0.2), {
+        x: chartContainerElement.getBoundingClientRect().left + (chartContainerElement.clientWidth / 2),
+        y: chartContainerElement.getBoundingClientRect().top + (chartContainerElement.clientHeight / 2)
+      });
+    },
+    minimapStartHandler: function (event) {
+      const chartElement = this.chart;
+      const minimapViewportElement = chartElement ? getState(chartElement, 'minimapViewportElement') : null;
+      const minimapMoveBoundHandler = this.minimapMoveHandler.bind(this);
+      const minimapEndBoundHandler = this.minimapEndHandler.bind(this);
+      const viewportRect = minimapViewportElement ? minimapViewportElement.getBoundingClientRect() : null;
+
+      if (!chartElement || !minimapViewportElement || !viewportRect) {
+        return;
+      }
+      if (typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+
+      setState(chartElement, 'minimapDragState', {
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        startLeft: viewportRect.left,
+        startTop: viewportRect.top,
+        viewportWidth: viewportRect.width,
+        viewportHeight: viewportRect.height
+      });
+      setState(chartElement, 'minimapMoveBoundHandler', minimapMoveBoundHandler);
+      setState(chartElement, 'minimapEndBoundHandler', minimapEndBoundHandler);
+      getDocument().addEventListener('mousemove', minimapMoveBoundHandler);
+      getDocument().addEventListener('mouseup', minimapEndBoundHandler);
+    },
+    minimapMoveHandler: function (event) {
+      const chartElement = this.chart;
+      const dragState = chartElement ? getState(chartElement, 'minimapDragState') : null;
+      const minimapStageElement = chartElement ? getState(chartElement, 'minimapStageElement') : null;
+      let stageRect;
+
+      if (!chartElement || !dragState || !minimapStageElement) {
+        return;
+      }
+
+      stageRect = minimapStageElement.getBoundingClientRect();
+      this.moveChartFromMinimap(
+        dragState.startLeft + (event.clientX - dragState.startClientX) - stageRect.left,
+        dragState.startTop + (event.clientY - dragState.startClientY) - stageRect.top,
+        dragState.viewportWidth,
+        dragState.viewportHeight
+      );
+    },
+    minimapEndHandler: function () {
+      const chartElement = this.chart;
+      const minimapMoveBoundHandler = chartElement ? getState(chartElement, 'minimapMoveBoundHandler') : null;
+      const minimapEndBoundHandler = chartElement ? getState(chartElement, 'minimapEndBoundHandler') : null;
+
+      if (minimapMoveBoundHandler) {
+        getDocument().removeEventListener('mousemove', minimapMoveBoundHandler);
+        setState(chartElement, 'minimapMoveBoundHandler', null);
+      }
+      if (minimapEndBoundHandler) {
+        getDocument().removeEventListener('mouseup', minimapEndBoundHandler);
+        setState(chartElement, 'minimapEndBoundHandler', null);
+      }
+      if (chartElement) {
+        setState(chartElement, 'minimapDragState', null);
+      }
+    },
+    moveChartFromMinimap: function (stageLeft, stageTop, viewportWidth, viewportHeight) {
+      const chartElement = this.chart;
+      const chartContainerElement = this.chartContainer;
+      const minimapStageElement = chartElement ? getState(chartElement, 'minimapStageElement') : null;
+      const minimapScale = chartElement ? getState(chartElement, 'minimapScale') : null;
+      const minimapOffsetX = chartElement ? getState(chartElement, 'minimapOffsetX') : 0;
+      const minimapOffsetY = chartElement ? getState(chartElement, 'minimapOffsetY') : 0;
+      const minimapContentWidth = chartElement ? getState(chartElement, 'minimapContentWidth') : 0;
+      const minimapContentHeight = chartElement ? getState(chartElement, 'minimapContentHeight') : 0;
+      const chartTransform = getChartTransform(chartElement);
+      const chartRect = chartElement ? chartElement.getBoundingClientRect() : null;
+      const containerRect = chartContainerElement ? chartContainerElement.getBoundingClientRect() : null;
+      let localViewportWidth;
+      let localViewportHeight;
+      let localLeft;
+      let localTop;
+      let baseLeft;
+      let baseTop;
+
+      if (!chartElement || !chartContainerElement || !minimapStageElement || !minimapScale || !chartRect || !containerRect) {
+        return;
+      }
+
+      localViewportWidth = viewportWidth / minimapScale;
+      localViewportHeight = viewportHeight / minimapScale;
+      localLeft = clampValue((stageLeft - minimapOffsetX) / minimapScale, 0, Math.max(minimapContentWidth - localViewportWidth, 0));
+      localTop = clampValue((stageTop - minimapOffsetY) / minimapScale, 0, Math.max(minimapContentHeight - localViewportHeight, 0));
+      baseLeft = chartRect.left - chartTransform.translateX;
+      baseTop = chartRect.top - chartTransform.translateY;
+
+      chartElement.style.transformOrigin = '0 0';
+      chartElement.style.transform = 'matrix(' + chartTransform.scale + ', 0, 0, ' + chartTransform.scale + ', '
+        + (containerRect.left - baseLeft - (localLeft * chartTransform.scale)) + ', '
+        + (containerRect.top - baseTop - (localTop * chartTransform.scale)) + ')';
+      this.updateMinimap();
+    },
+    updateMinimap: function (forceRefresh) {
+      const chartElement = this.chart;
+      const chartContainerElement = this.chartContainer;
+      const minimapStageElement = chartElement ? getState(chartElement, 'minimapStageElement') : null;
+      const minimapContentElement = chartElement ? getState(chartElement, 'minimapContentElement') : null;
+      const minimapViewportElement = chartElement ? getState(chartElement, 'minimapViewportElement') : null;
+      const chartTransform = getChartTransform(chartElement);
+      const chartRect = chartElement ? chartElement.getBoundingClientRect() : null;
+      const containerRect = chartContainerElement ? chartContainerElement.getBoundingClientRect() : null;
+      let contentWidth;
+      let contentHeight;
+      let stageWidth;
+      let stageHeight;
+      let minimapScale;
+      let minimapOffsetX;
+      let minimapOffsetY;
+      let viewportLeft;
+      let viewportTop;
+      let viewportWidth;
+      let viewportHeight;
+
+      if (!this.options || !this.options.minimap || !chartElement || !chartContainerElement || !minimapStageElement || !minimapContentElement || !minimapViewportElement || !chartRect || !containerRect) {
+        return;
+      }
+
+      contentWidth = chartTransform.scale !== 0 && chartRect.width
+        ? chartRect.width / chartTransform.scale
+        : (chartElement.scrollWidth || chartElement.offsetWidth || 1);
+      contentHeight = chartTransform.scale !== 0 && chartRect.height
+        ? chartRect.height / chartTransform.scale
+        : (chartElement.scrollHeight || chartElement.offsetHeight || 1);
+      stageWidth = minimapStageElement.clientWidth || 180;
+      stageHeight = minimapStageElement.clientHeight || 120;
+      minimapScale = Math.min(stageWidth / Math.max(contentWidth, 1), stageHeight / Math.max(contentHeight, 1));
+      minimapOffsetX = (stageWidth - (contentWidth * minimapScale)) / 2;
+      minimapOffsetY = (stageHeight - (contentHeight * minimapScale)) / 2;
+
+      minimapContentElement.style.width = contentWidth + 'px';
+      minimapContentElement.style.height = contentHeight + 'px';
+      minimapContentElement.style.transformOrigin = '0 0';
+      minimapContentElement.style.transform = 'translate(' + minimapOffsetX + 'px, ' + minimapOffsetY + 'px) scale(' + minimapScale + ')';
+
+      if (forceRefresh || !minimapContentElement.firstElementChild) {
+        renderMinimapNodes(chartElement, minimapContentElement, chartRect, chartTransform.scale || 1);
+      }
+
+      viewportLeft = clampValue((containerRect.left - chartRect.left) / chartTransform.scale, 0, Math.max(contentWidth, 0));
+      viewportTop = clampValue((containerRect.top - chartRect.top) / chartTransform.scale, 0, Math.max(contentHeight, 0));
+      viewportWidth = Math.min(contentWidth, containerRect.width / chartTransform.scale);
+      viewportHeight = Math.min(contentHeight, containerRect.height / chartTransform.scale);
+
+      minimapViewportElement.style.width = Math.max(viewportWidth * minimapScale, 12) + 'px';
+      minimapViewportElement.style.height = Math.max(viewportHeight * minimapScale, 12) + 'px';
+      minimapViewportElement.style.transform = 'translate(' + (minimapOffsetX + (viewportLeft * minimapScale)) + 'px, ' + (minimapOffsetY + (viewportTop * minimapScale)) + 'px)';
+
+      setState(chartElement, 'minimapScale', minimapScale);
+      setState(chartElement, 'minimapOffsetX', minimapOffsetX);
+      setState(chartElement, 'minimapOffsetY', minimapOffsetY);
+      setState(chartElement, 'minimapContentWidth', contentWidth);
+      setState(chartElement, 'minimapContentHeight', contentHeight);
+    },
     //
     panStartHandler: function (e) {
+      const orgChart = this;
       const nativeEvent = e.originalEvent || e;
       const chartElement = getElement(e.chart || nativeEvent.currentTarget);
       const targetElement = getElement(nativeEvent.target);
@@ -588,6 +1065,7 @@
             matrix[13] = ' ' + newY;
           }
           chartElement.style.transform = matrix.join(',');
+          orgChart.updateMinimap();
         }
       };
 
@@ -861,9 +1339,7 @@
       const chartElement = getElement(chartEl);
       const chartContainerElement = this.chartContainer;
       let opts;
-      let currentTransform;
       let chartRect;
-      let matrixValues;
       let currentScale = 1;
       let currentTranslateX = 0;
       let currentTranslateY = 0;
@@ -883,34 +1359,9 @@
       }
 
       opts = getState(chartElement, 'options');
-      currentTransform = getWindow().getComputedStyle(chartElement).transform || chartElement.style.transform || 'none';
-      if (currentTransform && currentTransform !== 'none') {
-        if (currentTransform.indexOf('matrix3d(') === 0) {
-          matrixValues = currentTransform.slice(9, -1).split(',').map(function (value) {
-            return getWindow().parseFloat(value.trim());
-          });
-          currentScale = Math.abs(matrixValues[0]) || 1;
-          currentTranslateX = matrixValues[12] || 0;
-          currentTranslateY = matrixValues[13] || 0;
-        } else if (currentTransform.indexOf('matrix(') === 0) {
-          matrixValues = currentTransform.slice(7, -1).split(',').map(function (value) {
-            return getWindow().parseFloat(value.trim());
-          });
-          currentScale = Math.abs(matrixValues[0]) || 1;
-          currentTranslateX = matrixValues[4] || 0;
-          currentTranslateY = matrixValues[5] || 0;
-        } else if (currentTransform.indexOf('scale3d(') === 0) {
-          matrixValues = currentTransform.slice(8, -1).split(',').map(function (value) {
-            return getWindow().parseFloat(value.trim());
-          });
-          currentScale = Math.abs(matrixValues[0]) || 1;
-        } else if (currentTransform.indexOf('scale(') === 0) {
-          matrixValues = currentTransform.slice(6, -1).split(',').map(function (value) {
-            return getWindow().parseFloat(value.trim());
-          });
-          currentScale = Math.abs(matrixValues[0]) || 1;
-        }
-      }
+      currentScale = getChartTransform(chartElement).scale;
+      currentTranslateX = getChartTransform(chartElement).translateX;
+      currentTranslateY = getChartTransform(chartElement).translateY;
 
       targetScale = currentScale * newScale;
       if (!(targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit)) {
@@ -942,6 +1393,7 @@
 
       chartElement.style.transformOrigin = '0 0';
       chartElement.style.transform = 'matrix(' + targetScale + ', 0, 0, ' + targetScale + ', ' + targetTranslateX + ', ' + targetTranslateY + ')';
+      this.updateMinimap();
     },
     //
     buildJsonDS: function (liEl) {
@@ -1253,6 +1705,7 @@
         parentEl.classList.add('sliding', 'slide-down');
         parentEl.addEventListener('transitionend', function (event) {
           event.animatedNode = parentEl;
+            event.parent = parentEl;
           OrgChart.prototype.hideParentEnd(event);
         }, { once: true });
       }
@@ -2629,6 +3082,7 @@
         } else {
           dropNodeData.children = [draggedNodeCopy];
         }
+		orgChart.attachRel(datasource, '00');
         orgChart.init({ 'data': datasource });
       } else {
         // The folowing code snippets are used to process horizontal chart
@@ -3158,8 +3612,29 @@
     // build the child nodes of specific node
     buildChildNode: function (appendToEl, data) {
       const parentHierarchyEl = appendToEl;
+      const existingChildNodesElement = parentHierarchyEl
+        ? Array.from(parentHierarchyEl.children || []).find(function (childEl) {
+            return childEl.classList && childEl.classList.contains('nodes');
+          }) || null
+        : null;
+      const orgChart = this;
 
-      this.buildHierarchy(parentHierarchyEl, { 'children': data });
+      if (!parentHierarchyEl) {
+        return;
+      }
+
+      if (!existingChildNodesElement) {
+        this.buildHierarchy(parentHierarchyEl, { 'children': data });
+        return;
+      }
+
+      forEachValue(data, function () {
+        const childHierarchyElement = getDocument().createElement('li');
+
+        childHierarchyElement.className = 'hierarchy';
+        existingChildNodesElement.appendChild(childHierarchyElement);
+        orgChart.buildHierarchy(childHierarchyElement, this);
+      });
     },
     // exposed method
     addChildren: function (nodeEl, data) {
@@ -3198,8 +3673,11 @@
     buildParentNode: function (currentRootEl, data) {
       const currentRootElement = getElement(currentRootEl);
       let currentRootListElement;
+      let currentRootHierarchyElement;
+      let parentHierarchyElement;
       let newRootWrapperElement;
       let newRootHierarchyElement;
+      let newChildNodesElement;
 
       if (!currentRootElement) {
         return;
@@ -3207,12 +3685,24 @@
 
       data.relationship = data.relationship || '001';
       currentRootListElement = currentRootElement.closest('ul');
+      currentRootHierarchyElement = currentRootElement.closest('.hierarchy');
+      parentHierarchyElement = currentRootListElement ? currentRootListElement.closest('.hierarchy') : null;
       newRootWrapperElement = getDocument().createElement('ul');
       newRootWrapperElement.className = 'nodes';
       newRootHierarchyElement = getDocument().createElement('li');
       newRootHierarchyElement.className = 'hierarchy';
-      newRootWrapperElement.appendChild(newRootHierarchyElement);
       newRootHierarchyElement.appendChild(this.createNode(data));
+
+      if (parentHierarchyElement && currentRootHierarchyElement) {
+        newChildNodesElement = getDocument().createElement('ul');
+        newChildNodesElement.className = 'nodes';
+        newRootHierarchyElement.appendChild(newChildNodesElement);
+        currentRootListElement.replaceChild(newRootHierarchyElement, currentRootHierarchyElement);
+        newChildNodesElement.appendChild(currentRootHierarchyElement);
+        return;
+      }
+
+      newRootWrapperElement.appendChild(newRootHierarchyElement);
       if (this.chart) {
         this.chart.prepend(newRootWrapperElement);
       }
@@ -3311,7 +3801,7 @@
         this.buildChildNode(parentHierarchyElement, data);
         newSiblingContainerElement = getLastNodesChild(parentHierarchyElement);
         newSiblingHierarchyElements = getHierarchyChildren(newSiblingContainerElement);
-        if (existingSiblingCount > 1) {
+        if (existingSiblingCount > 1 && newSiblingContainerElement !== nodeChartParentElement) {
           existingHierarchyElements = getHierarchyChildren(nodeChartParentElement);
           existingHierarchyElements.forEach(function (existingSiblingEl) {
             if (newSiblingHierarchyElements[0] && newSiblingHierarchyElements[0].parentElement) {
@@ -3319,7 +3809,7 @@
             }
           });
           removeIfEmpty(nodeChartParentElement);
-        } else {
+        } else if (newSiblingContainerElement !== nodeChartParentElement) {
           insertAnchorElement = newSiblingHierarchyElements[insertPosition] || null;
           if (insertAnchorElement && insertAnchorElement.parentElement) {
             insertAnchorElement.parentElement.insertBefore(nodeChartElement, insertAnchorElement.nextSibling);
@@ -3475,10 +3965,11 @@
       droppedOnNodeEl.dispatchEvent(createTriggeredEvent('drop'));
     },
     //
-    exportPDF: function(canvas, exportFilename){
+    exportPDF: function(canvas, exportFilename, exportScale){
       let doc = {};
-      const docWidth = Math.floor(canvas.width);
-      const docHeight = Math.floor(canvas.height);
+      const scale = exportScale > 0 ? exportScale : 1;
+      const docWidth = Math.floor(canvas.width / scale);
+      const docHeight = Math.floor(canvas.height / scale);
       if (!getWindow().jsPDF) {
         getWindow().jsPDF = getWindow().jspdf.jsPDF;
       }
@@ -3496,7 +3987,7 @@
           format: [docHeight, docWidth]
         });
       }
-      doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+      doc.addImage(canvas.toDataURL(), 'png', 0, 0, docWidth, docHeight);
       doc.save(exportFilename + '.pdf');
     },
     //
@@ -3539,6 +4030,7 @@
       let maskElement;
       let sourceChartElement;
       let isHorizontalDirection;
+      let exportScale;
 
       exportFilename = (typeof exportFilename !== 'undefined') ?  exportFilename : this.options.exportFilename;
       exportFileextension = (typeof exportFileextension !== 'undefined') ?  exportFileextension : this.options.exportFileextension;
@@ -3564,9 +4056,12 @@
         return !chartEl.classList.contains('hidden');
       }) || null;
       isHorizontalDirection = orgChart.options.direction === 'l2r' || orgChart.options.direction === 'r2l';
+      exportScale = orgChart.options.exportScale > 0 ? orgChart.options.exportScale : 1;
       html2canvas(sourceChartElement, {
         'width': isHorizontalDirection ? sourceChartElement.clientHeight : sourceChartElement.clientWidth,
         'height': isHorizontalDirection ? sourceChartElement.clientWidth : sourceChartElement.clientHeight,
+        'scale': exportScale,
+        'useCORS': true,
         'onclone': function (cloneDoc) {
           const clonedContainerElement = cloneDoc.querySelector('.canvasContainer');
           let clonedChartElement;
@@ -3590,7 +4085,7 @@
         }
 
         if (exportFileextension.toLowerCase() === 'pdf') {
-          orgChart.exportPDF(canvas, exportFilename);
+          orgChart.exportPDF(canvas, exportFilename, exportScale);
         } else {
           orgChart.exportPNG(canvas, exportFilename);
         }

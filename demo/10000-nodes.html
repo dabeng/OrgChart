@@ -43,7 +43,7 @@
     }
 
     #chart-container {
-      min-height: calc(100vh - 108px);
+      min-height: calc(100vh - 150px);
       padding: 24px;
       box-sizing: border-box;
       overflow: auto;
@@ -116,6 +116,7 @@
         window.largeOrgChart = new OrgChart({
           chartContainer: '#chart-container',
           data: datasource,
+          'verticalLevel': 3,
           initCompleted: function () {
             requestAnimationFrame(function () {
               const renderEnd = performance.now();

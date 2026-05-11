@@ -13,6 +13,8 @@ First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great w
 Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo. 
 - Since version 3.0, we use nested ul to construct tree-like chart instead of nested table.
 - Since version 4.0, users build up the ajax datasoure by themselves.
+- Since version 5.0, users are allowed to build up the family tree.
+- Since version 6.0, The orgchart component has been reverted to native implementation and no longer relies on jQuery.
 
 ## Features
 - Supports both local data and remote data (JSON).
@@ -211,6 +213,12 @@ var datascource = [
 - [I want to add property tags to family tree](https://dabeng.github.io/OrgChart/familytree-custom-properties.html)
 
 ![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
+
+- [I want to navigate the orgchart with a minimap](https://dabeng.github.io/OrgChart/minimap.html)
+
+![minimap](http://dabeng.github.io/OrgChart/img/minimap.png)
+
+Enable the `minimap` option to display an overview navigator. Drag its viewport to move the chart, or use the mouse wheel over the minimap to zoom.
 
 ### how to start up demos locally
 

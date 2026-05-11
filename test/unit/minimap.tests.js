@@ -1,6 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+const sinonChai = require('sinon-chai').default;
 
 chai.use(sinonChai);
 require('jsdom-global')();
@@ -105,7 +105,8 @@ describe('orgchart minimap unit tests', function () {
     chai.expect(query('.orgchart-minimap', container)).to.not.equal(null);
     chai.expect(query('.orgchart-minimap-stage', container)).to.not.equal(null);
     chai.expect(query('.orgchart-minimap-viewport', container)).to.not.equal(null);
-    chai.expect(query('.orgchart-minimap .orgchart', container)).to.not.equal(null);
+    chai.expect(query('.orgchart-minimap-node', container)).to.not.equal(null);
+    chai.expect(query('.orgchart-minimap .orgchart', container)).to.equal(null);
   });
 
   it('toggles the minimap overlay through setOptions()', function () {
@@ -136,6 +137,36 @@ describe('orgchart minimap unit tests', function () {
     chai.expect(parseFloat(viewport.style.width)).to.be.closeTo(69.33333333333333, 0.000001);
     chai.expect(parseFloat(viewport.style.height)).to.be.closeTo(41.6, 0.000001);
     chai.expect(viewport.style.transform).to.equal('translate(20.666666666666664px, 8.666666666666668px)');
+  });
+
+  it('renders simplified minimap color blocks from the chart nodes', function () {
+    let stage;
+    let minimapNode;
+    const nodeElements = Array.from(chart.chart.querySelectorAll('.node'));
+
+    nodeElements[0].querySelector('.title').style.backgroundColor = 'rgba(200, 100, 50, 0.4)';
+    chart.setOptions('minimap', true);
+    stage = query('.orgchart-minimap-stage', container);
+    setClientSize(container, 400, 240);
+    setClientSize(stage, 180, 104);
+    restorableDoubles.push(stubRect(container, { left: 0, top: 0, width: 400, height: 240 }));
+    restorableDoubles.push(stubRect(chart.chart, { left: 0, top: 0, width: 1000, height: 600 }));
+    nodeElements.forEach(function (nodeElement, index) {
+      restorableDoubles.push(stubRect(nodeElement, {
+        left: 20 + (index * 40),
+        top: 10 + (index * 30),
+        width: 130,
+        height: 40
+      }));
+    });
+
+    chart.updateMinimap(true);
+    minimapNode = query('.orgchart-minimap-node', container);
+
+    chai.expect(query('.orgchart-minimap .orgchart', container)).to.equal(null);
+    chai.expect(container.querySelectorAll('.orgchart-minimap-node').length).to.equal(nodeElements.length);
+    chai.expect(minimapNode.style.backgroundColor).to.equal('rgb(136, 68, 34)');
+    chai.expect(minimapNode.style.height).to.equal('18px');
   });
 
   it('moves the main chart when the minimap viewport is dragged', function () {

@@ -85,6 +85,7 @@
 
     reportButton.addEventListener('click', () => {
       const selected = chartContainer.querySelector('.node.focused');
+      const selectedNodeName = selectedNodeInput.value;
       if (selected) {
         let hierarchy = selected.closest('.hierarchy');
         while (hierarchy) {
@@ -102,6 +103,11 @@
           }
           hierarchy = parentHierarchy;
         }
+        chartContainer.querySelectorAll('.node.focused').forEach((node) => {
+          node.classList.remove('focused');
+        });
+        selected.classList.add('focused');
+        selectedNodeInput.value = selectedNodeName;
         reportButton.disabled = true;
       } else {
         alert('please select the node firstly');

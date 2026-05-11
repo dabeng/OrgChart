@@ -8,6 +8,12 @@
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
     #chart-container {
       position: absolute;
       top: 10px;
@@ -29,6 +35,7 @@
     <h1>Map Integration Demo</h1>
     <p>This demo overlays the org chart on a map and recenters the map view when users click a node with geographic coordinates.</p>
   </section>
+  <div id="map"></div>
   <div id="chart-container"></div>
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.18.2/ol.js"></script>
@@ -39,26 +46,20 @@
     const map = new ol.Map({
       layers: [
         new ol.layer.Tile({
-          source: new ol.source.Stamen({
-            layer: 'watercolor'
+          source: new ol.source.XYZ({
+            attributions: '© OpenStreetMap contributors © CARTO',
+            crossOrigin: 'anonymous',
+            url: 'https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'
           }),
           preload: 4
-        }),
-        new ol.layer.Tile({
-          source: new ol.source.Stamen({
-            layer: 'terrain-labels'
-          }),
-          preload: 1
         })
       ],
-      target: 'pageBody',
+      target: 'map',
       view: new ol.View({
         center: ol.proj.transform([-87.6297980, 41.8781140], 'EPSG:4326', 'EPSG:3857'),
         zoom: 10
       })
     });
-
-    document.body.prepend(map.getViewport());
 
     const datasource = {
       'name': 'Lao Lao',

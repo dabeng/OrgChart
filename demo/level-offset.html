@@ -43,13 +43,11 @@
       'nodeContent': 'title',
       'createNode': function(node, data) {
         if (data.levelOffset) {
-          node.css({
-            'margin-top': (data.levelOffset * 70) + 'px',
-            '--top': (-11 - data.levelOffset * 70) + 'px',
-            '--height': (9 + data.levelOffset * 70) + 'px',
-            '--top-cross-point': (-13 - data.levelOffset * 70) + 'px',
-            '--height-cross-point': (11 + data.levelOffset * 70) + 'px'
-          });
+          node.style.marginTop = (data.levelOffset * 70) + 'px';
+          node.style.setProperty('--top', (-11 - data.levelOffset * 70) + 'px');
+          node.style.setProperty('--height', (9 + data.levelOffset * 70) + 'px');
+          node.style.setProperty('--top-cross-point', (-13 - data.levelOffset * 70) + 'px');
+          node.style.setProperty('--height-cross-point', (11 + data.levelOffset * 70) + 'px');
         }
       }
     });
