@@ -1571,7 +1571,7 @@
     },
     // build the sibling nodes of specific node
     buildSiblingNode: function ($nodeChart, data) {
-      var newSiblingCount = $.isArray(data) ? data.length : data.children.length;
+      var newSiblingCount = Array.isArray(data) ? data.length : data.children.length;
       var existingSibligCount = $nodeChart.parent().is('.nodes') ? $nodeChart.siblings().length + 1 : 1;
       var siblingCount = existingSibligCount + newSiblingCount;
       var insertPostion = (siblingCount > 1) ? Math.floor(siblingCount/2 - 1) : 0;

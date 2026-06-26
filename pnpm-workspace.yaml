@@ -1,0 +1,11 @@
+allowBuilds:
+  core-js: false
+  cypress: true
+  es5-ext: false
+  puppeteer: true
+  sinon: false
+  unrs-resolver: true
+overrides:
+  serialize-javascript: '>=7.0.5'
+  postcss: '>=8.5.10'
+  diff: '>=8.0.3'
