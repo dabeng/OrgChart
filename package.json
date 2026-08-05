@@ -1,6 +1,6 @@
 {
   "name": "orgchart",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "description": "Simple and direct organization chart(tree-like hierarchy) library based on pure DOM.",
   "main": "./dist/js/orgchart.min.js",
   "style": [
