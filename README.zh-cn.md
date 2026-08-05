@@ -432,13 +432,47 @@ var oc = new OrgChart({
 </table>
 
 ### 方法
-我们相信当你研究了[edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/)这个Demo后，会基本掌握orgchart插件的所有方法。
+使用 `new OrgChart(options)` 创建实例。`chartContainer` 和 `chart` 属性分别提供原生容器元素与已渲染的组织结构图元素。
 
-#### var oc = $container.orgchart(options)
-在指定容器元素内嵌入一个组织结构图。该方法接受的options参数的细节可以到上面的“选项”一节中查看。这里的oc是OrgChart类的实例。
+```js
+const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
+```
+
+公开 API 包括：`init`、`setOptions`、`attachMinimap`、`detachMinimap`、`updateMinimap`、`addAncestors`、`addDescendants`、`addParent`、`addSiblings`、`addChildren`、`removeNodes`、`getHierarchy`、`getNodeState`、`getParent`、`getChildren`、`getSiblings`、`getRelatedNodes`、`hideParent`、`showParent`、`hideChildren`、`showChildren`、`hideSiblings`、`showSiblings`、`setChartScale`、`export`、`exportPNG` 和 `exportPDF`。其中节点和图表参数均为原生 `HTMLElement`。
+
+#### API 参考
+| 调用 | 参数 | 返回值与调用行为 |
+| --- | --- | --- |
+| `oc.init(options)` | 部分选项对象；传入 `data` 可替换数据源。 | 重新构建图表并返回 `oc`。 |
+| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | 包含 `data`、`pan`、`zoom` 或 `minimap` 的对象；或受支持的选项名称及布尔值。 | `data` 会重建图表，其他选项切换相应功能；返回 `oc`。 |
+| `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` 可选；传入 `true` 会重绘节点预览。 | 创建、移除或刷新小地图。常规启用应使用 `setOptions('minimap', value)`。 |
+| `oc.addAncestors(data, parentId)` | 祖先数据，以及接收原根节点的祖先节点 id。 | 插入祖先层级；无返回值。 |
+| `oc.addDescendants(data, parent)` | 后代数据数组和已渲染的父 `.node`。 | 追加后代层级；无返回值。 |
+| `oc.addParent(currentRoot, data)` | 已渲染的根 `.node` 和新父节点数据。 | 用新父节点包裹当前根；无返回值。 |
+| `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | 已渲染的 `.node` 和兄弟节点或子节点数据数组。 | 增加渲染节点；无返回值。 |
+| `oc.removeNodes(node)` | 要删除的已渲染 `.node`。 | 删除该节点及其后代；无返回值。 |
+| `oc.getHierarchy(includeNodeData)` | 可选布尔值，默认 `false`。 | 返回层级对象；图表或必要节点 id 不可用时返回错误字符串。 |
+| `oc.getNodeState(node, relation)` | 已渲染 `.node`；`relation` 为 `parent`、`children` 或 `siblings`。 | 返回 `{ exist, visible }`。 |
+| `oc.getParent(node)` | 已渲染 `.node`。 | 返回父 `.node`，不存在时返回 `null`。 |
+| `oc.getChildren(node)`<br>`oc.getSiblings(node)` | 已渲染 `.node`。 | 返回直接子节点或兄弟节点 `.node` 元素数组。 |
+| `oc.getRelatedNodes(node, relation)` | 已渲染 `.node`；`relation` 为 `parent`、`children` 或 `siblings`。 | 通用关联查询；parent 返回节点或 `null`，其他关系返回数组。 |
+| `oc.hideParent(node)` / `oc.showParent(node)`<br>`oc.hideChildren(node)` / `oc.showChildren(node)` | 已渲染 `.node`。 | 通过图表过渡隐藏或显示关联分支；无返回值。 |
+| `oc.hideSiblings(node, direction)`<br>`oc.showSiblings(node, direction)` | 已渲染 `.node`；可选 `direction` 为 `left` 或 `right`。 | 隐藏或显示指定一侧的兄弟节点；省略方向时处理全部兄弟节点；无返回值。 |
+| `oc.setChartScale(chart, multiplier, zoomAnchor)` | 通常传入 `oc.chart`；正数的相对缩放倍数；可选视口坐标 `{ x, y }`。 | 在配置的缩放范围内缩放，提供 `zoomAnchor` 时固定该点。 |
+| `oc.export(filename, extension)` | 可选文件名和 `png` 或 `pdf` 扩展名。 | 按配置默认值开始导出；无法导出时返回 `false`。 |
+| `oc.exportPNG(canvas, filename)`<br>`oc.exportPDF(canvas, filename, exportScale)` | 已准备的 canvas、文件名；PDF 缩放默认 `1`。 | 将传入 canvas 直接下载为 PNG 或 PDF；通常应调用 `export()`。 |
 
 #### init(newOptions)
 当你想基于新的options或数据源刷新组织结构图时，这个方法就派上用场了。
+
+#### setOptions(options) / setOptions(name, value)
+无需重新构建图表即可更新 `pan`、`zoom` 或 `minimap`。可传入选项对象，或传入支持的选项名称和布尔值；传入包含 `data` 的对象时会重新构建图表。
+
+#### attachMinimap() / detachMinimap()
+创建或移除当前图表的小地图覆盖层。通常应使用 `setOptions('minimap', true|false)`，以保证选项状态和覆盖层保持同步。
+
+#### updateMinimap(forceRefresh)
+在修改图表变换或布局后重新计算小地图视口。传入 `true` 会重绘小地图中的节点预览。
 
 #### addAncestors(data, parentId)
 为当前的组织结构图增加祖先节点，可以不止一个层级。
@@ -470,7 +504,7 @@ var oc = new OrgChart({
   </tbody>
 </table>
 
-#### addDescendants(data, $parent)
+#### addDescendants(data, parent)
 为指定的父节点增加后代节点。
 <table>
   <thead>
@@ -590,7 +624,7 @@ var oc = new OrgChart({
   </tbody>
 </table>
 
-#### removeNodes(node）
+#### removeNodes(node)
 删除指定的节点及其后代节点。
 <table>
   <thead>
@@ -827,8 +861,19 @@ var oc = new OrgChart({
   </tr>
 </table>
 
-#### setChartScale(chart, newScale)
+#### getParent(node)
+返回指定节点的父节点；如果不存在父节点，则返回 `null`。
+
+#### getChildren(node)
+返回指定节点的直接子节点数组。返回值中的每一项都是原生 `HTMLElement`。
+
+#### getSiblings(node)
+返回指定节点的兄弟节点数组。返回值中的每一项都是原生 `HTMLElement`。
+
+#### setChartScale(chart, newScale, zoomAnchor)
 用这个方法可以帮你为指定的组织结构图设置新的scale系数。
+
+`zoomAnchor` 为可选参数，格式为视口坐标 `{ x, y }`。提供该参数后，缩放时会固定该坐标点。
 
 <table>
   <tr>
@@ -881,7 +926,21 @@ var oc = new OrgChart({
   </tr>
 </table>
 
+#### exportPNG(canvas, exportFilename)
+将准备好的 canvas 导出为 PNG 下载。当应用自行提供 canvas 时可直接调用；大多数场景应使用 `export()`。
+
+#### exportPDF(canvas, exportFilename, exportScale)
+将准备好的 canvas 导出为 PDF 下载。`exportScale` 是 canvas 的渲染缩放比例，用于保持 PDF 的逻辑尺寸；大多数场景应使用 `export()`。
+
 ### 事件
+
+OrgChart 会派发可冒泡的原生 `CustomEvent`。请使用 `addEventListener` 订阅，事件参数位于 `event.detail`。
+
+```js
+oc.chart.addEventListener('nodedrop.orgchart', function (event) {
+  const { draggedNode, dragZone, dropZone } = event.detail;
+});
+```
 
 <table>
   <thead>
@@ -894,23 +953,28 @@ var oc = new OrgChart({
   <tbody>
     <tr>
       <td>nodedrop.orgchart</td>
-      <td>draggedNode, dragZone, dropZone</td>
-      <td>当你拖拽一个节点，然后在目前区域松放时，该事件被触发。请参考实例 <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>。</td>
+      <td><code>event.detail</code>: draggedNode, dragZone, dropZone</td>
+      <td>在节点移动前于图表元素上触发。调用 <code>event.preventDefault()</code> 可取消本次拖放。</td>
+    </tr>
+    <tr>
+      <td>otherdropped.orgchart</td>
+      <td><code>event.detail</code>: draggedItem, dropZone</td>
+      <td>非 OrgChart 的可拖放项被放到节点上时，于图表元素上触发。</td>
     </tr>
     <tr>
       <td>init.orgchart</td>
-      <td>chart</td>
-      <td>当组织结构图初始化完成时，该事件触发。在响应事件处理器中，你可以访问到渲染出的任意节点。</td>
+      <td>无；<code>event.target</code> 为图表元素</td>
+      <td>图表渲染完成后触发。</td>
     </tr>
     <tr>
       <td>show-[relation].orgchart</td>
       <td></td>
-      <td>在显示指定节点的关联节点时，触发该事件。</td>
+      <td>关联节点显示时在该节点上触发；<code>relation</code> 为 parent、children 或 siblings。</td>
     </tr>
     <tr>
       <td>hide-[relation].orgchart</td>
       <td></td>
-      <td>在隐藏指定节点的关联节点时，触发该事件。</td>
+      <td>关联节点隐藏时在该节点上触发；<code>relation</code> 为 parent、children 或 siblings。</td>
     </tr>
   </tbody>
 </table>
@@ -921,9 +985,9 @@ var oc = new OrgChart({
 
 我们提供了一个CSS类"noncollapsable"，可以方便地完成这件事。
 ```js
-$('.orgchart').addClass('noncollapsable'); // 禁掉展开/折叠
+oc.chart.classList.add('noncollapsable'); // 禁掉展开/折叠
 
-$('.orgchart').removeClass('noncollapsable'); // 开启展开/折叠
+oc.chart.classList.remove('noncollapsable'); // 开启展开/折叠
 ```
 
 #### 为啥根节点消失了，看不到了？

@@ -1,6 +1,6 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.png)
 
-# [ç®€ä½“æ–‡æ¡£](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [ç¹é«”æ–‡æ¡£](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md)
+# [简体文档](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [繁體文档](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md)
 
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
@@ -499,13 +499,47 @@ var oc = new OrgChart({
 </table>
 
 ### Methods
-I'm sure that you can grasp the key points of the methods below after you try out demo -- [edit orgchart](http://dabeng.github.io/OrgChart/edit-orgchart/).
+Create an instance with `new OrgChart(options)`. Its `chartContainer` and `chart` properties expose the native container and rendered chart elements.
 
-#### var oc = $container.orgchart(options)
-Embeds an organization chart in designated container. Accepts an options object and you can go through the "options" section to find which options are required. Variable oc is the instance of class OrgChart.
+```js
+const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
+```
+
+The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `updateMinimap`, `addAncestors`, `addDescendants`, `addParent`, `addSiblings`, `addChildren`, `removeNodes`, `getHierarchy`, `getNodeState`, `getParent`, `getChildren`, `getSiblings`, `getRelatedNodes`, `hideParent`, `showParent`, `hideChildren`, `showChildren`, `hideSiblings`, `showSiblings`, `setChartScale`, `export`, `exportPNG`, and `exportPDF`. Arguments that refer to nodes or charts are native `HTMLElement` instances.
+
+#### API reference
+| Call | Parameters | Return value and behavior |
+| --- | --- | --- |
+| `oc.init(options)` | Partial options object; use `data` to replace the data source. | Rebuilds the chart and returns `oc`. |
+| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | Object containing `data`, `pan`, `zoom`, or `minimap`; or one of the supported names with a boolean value. | Rebuilds for `data`; toggles pan, zoom, or minimap otherwise; returns `oc`. |
+| `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` is optional; `true` redraws preview nodes. | Creates, removes, or refreshes the minimap. Prefer `setOptions('minimap', value)` for normal enablement. |
+| `oc.addAncestors(data, parentId)` | Ancestor data and the id of the ancestor node that receives the existing root. | Inserts ancestor hierarchy; no return value. |
+| `oc.addDescendants(data, parent)` | Array of descendant data and a rendered parent `.node`. | Appends descendant hierarchy; no return value. |
+| `oc.addParent(currentRoot, data)` | Rendered root `.node` and its new parent data. | Wraps the current root with a parent; no return value. |
+| `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | Rendered `.node` and an array of sibling or child data. | Adds rendered nodes; no return value. |
+| `oc.removeNodes(node)` | Rendered `.node` to remove. | Removes the node and its descendants; no return value. |
+| `oc.getHierarchy(includeNodeData)` | Optional boolean, default `false`. | Returns the hierarchy object; returns an error string when the chart or required node ids are unavailable. |
+| `oc.getNodeState(node, relation)` | Rendered `.node`; `relation` is `parent`, `children`, or `siblings`. | Returns `{ exist, visible }`. |
+| `oc.getParent(node)` | Rendered `.node`. | Returns its parent `.node`, or `null`. |
+| `oc.getChildren(node)`<br>`oc.getSiblings(node)` | Rendered `.node`. | Returns an array of direct child or sibling `.node` elements. |
+| `oc.getRelatedNodes(node, relation)` | Rendered `.node`; `relation` is `parent`, `children`, or `siblings`. | Equivalent generalized query; parent returns a node or `null`, other relations return arrays. |
+| `oc.hideParent(node)` / `oc.showParent(node)`<br>`oc.hideChildren(node)` / `oc.showChildren(node)` | Rendered `.node`. | Hides or reveals the related branch with the chart transition; no return value. |
+| `oc.hideSiblings(node, direction)`<br>`oc.showSiblings(node, direction)` | Rendered `.node`; optional `direction` is `left` or `right`. | Hides or reveals siblings on one side, or all siblings when omitted; no return value. |
+| `oc.setChartScale(chart, multiplier, zoomAnchor)` | Usually pass `oc.chart`; positive relative scale multiplier; optional viewport point `{ x, y }`. | Scales within configured zoom limits and keeps `zoomAnchor` fixed when supplied. |
+| `oc.export(filename, extension)` | Optional filename and `png` or `pdf` extension. | Starts export using configured defaults; returns `false` if the chart cannot be exported. |
+| `oc.exportPNG(canvas, filename)`<br>`oc.exportPDF(canvas, filename, exportScale)` | Prepared canvas; filename; PDF scale defaults to `1`. | Downloads the supplied canvas directly as PNG or PDF; normally call `export()` instead. |
 
 #### init(newOptions)
 It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
+
+#### setOptions(options) / setOptions(name, value)
+Updates `pan`, `zoom`, or `minimap` without rebuilding the chart. Pass an options object, or a supported option name and boolean value. Passing an object containing `data` rebuilds the chart.
+
+#### attachMinimap() / detachMinimap()
+Creates or removes the minimap overlay for the current chart. Usually use `setOptions('minimap', true|false)` so the option state and overlay stay synchronized.
+
+#### updateMinimap(forceRefresh)
+Recalculates the minimap viewport after changing the chart transform or layout. Pass `true` to redraw the minimap node preview.
 
 #### addAncestors(data, parentId)
 Adds the ancestors for current orgchart.
@@ -657,7 +691,7 @@ Adds child nodes for designed node.
   </tbody>
 </table>
 
-#### removeNodes(nodeï¼‰
+#### removeNodes(node)
 Removes the designated node and its descedant nodes.
 <table>
   <thead>
@@ -944,8 +978,10 @@ This method returns you the child nodes of the specified node.
   </tr>
 </table>
 
-#### setChartScale(chart, newScale)
+#### setChartScale(chart, newScale, zoomAnchor)
 This method helps you set the specified chart with new scale.
+
+`zoomAnchor` is optional and has the form `{ x, y }` in viewport coordinates. When provided, that point remains fixed while the chart is scaled.
 <table>
   <tr>
     <th>Name</th>
@@ -996,7 +1032,21 @@ This method allow you to export current orgchart as png or pdf file.
   </tr>
 </table>
 
+#### exportPNG(canvas, exportFilename)
+Exports a prepared canvas as a PNG download. This helper is useful when application code supplies its own canvas; most users should call `export()` instead.
+
+#### exportPDF(canvas, exportFilename, exportScale)
+Exports a prepared canvas as a PDF download. `exportScale` is the canvas render scale and is used to preserve the PDF's logical dimensions; most users should call `export()` instead.
+
 ### Events
+OrgChart dispatches bubbling native `CustomEvent` objects. Subscribe with `addEventListener`; event payloads are available on `event.detail`.
+
+```js
+oc.chart.addEventListener('nodedrop.orgchart', function (event) {
+  const { draggedNode, dragZone, dropZone } = event.detail;
+});
+```
+
 <table>
   <thead>
     <tr>
@@ -1008,23 +1058,28 @@ This method allow you to export current orgchart as png or pdf file.
   <tbody>
     <tr>
       <td>nodedrop.orgchart</td>
-      <td>draggedNode, dragZone, dropZone</td>
-      <td>The event's handler is where you can place your customized function after node drop over. For more details, please refer to <a target="_blank" href="http://dabeng.github.io/OrgChart/drag-drop/">example drag & drop</a>.</td>
+      <td><code>event.detail</code>: draggedNode, dragZone, dropZone</td>
+      <td>Fires on the chart before a node is moved. Call <code>event.preventDefault()</code> to cancel the drop.</td>
+    </tr>
+    <tr>
+      <td>otherdropped.orgchart</td>
+      <td><code>event.detail</code>: draggedItem, dropZone</td>
+      <td>Fires on the chart when a non-OrgChart draggable item is dropped onto a node.</td>
     </tr>
     <tr>
       <td>init.orgchart</td>
-      <td>chart</td>
-      <td>Initialisation complete event - fired when Organization Chart has been fully initialised and data loaded.</td>
+      <td>None; <code>event.target</code> is the chart element</td>
+      <td>Fires after the chart has been rendered.</td>
     </tr>
     <tr>
       <td>show-[relation].orgchart</td>
       <td></td>
-      <td>This event is fired when related nodes of a node become visible.</td>
+      <td>Fires on the node when related nodes become visible. <code>relation</code> is parent, children, or siblings.</td>
     </tr>
     <tr>
       <td>hide-[relation].orgchart</td>
       <td></td>
-      <td>This event if fired when related nodes of a node are collapsed.</td>
+      <td>Fires on the node when related nodes are hidden. <code>relation</code> is parent, children, or siblings.</td>
     </tr>
   </tbody>
 </table>
@@ -1035,9 +1090,9 @@ This use case is inspired by the [issue](https://github.com/dabeng/OrgChart/issu
 
 Users can enable/disable exapand/collapse feature with className "noncollapsable" as shown below.
 ```js
-$('.orgchart').addClass('noncollapsable'); // deactivate
+oc.chart.classList.add('noncollapsable'); // deactivate
 
-$('.orgchart').removeClass('noncollapsable'); // activate
+oc.chart.classList.remove('noncollapsable'); // activate
 ```
 
 #### Why is the root node gone?
@@ -1046,7 +1101,7 @@ For details, please refer to the [issue](https://github.com/dabeng/OrgChart/issu
 
 Users can embed any clear up logics into the click handler of the reset buttton as shown below.
 ```js
-$('.orgchart').css('transform',''); // remove the tansform settings
+oc.chart.style.transform = ''; // remove transform settings
 ```
 
 ## Browser Compatibility
