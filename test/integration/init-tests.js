@@ -1,24 +1,39 @@
-var chai = require('chai');
-var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
-var should = chai.should();
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai').default;
+const should = chai.should();
 chai.use(sinonChai);
 require('jsdom-global')();
-var $ = require('jquery');
-require('../../src/js/jquery.orgchart');
+const OrgChart = require('../../src/js/orgchart');
+
+function query(selector, root) {
+  return (root || document).querySelector(selector);
+}
+
+function queryAll(selector, root) {
+  return Array.from((root || document).querySelectorAll(selector));
+}
+
+function createElementFromHtml(html) {
+  const template = document.createElement('template');
+
+  template.innerHTML = html.trim();
+  return template.content.firstElementChild;
+}
 
 describe('orgchart -- integration tests', function () {
-  document.body.innerHTML = '<div id="chart-container"></div>';
-  var $container = $('#chart-container'),
-  ds = {
+  let container;
+
+  const ds = {
     'id': 'n1',
     'name': 'Lao Lao',
     'children': [
       { 'id': 'n2', 'name': 'Bo Miao' },
       { 'id': 'n3', 'name': 'Su Miao' }
     ]
-  },
-  fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
+  };
+
+  const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
     '<div id="n1" class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol">' +
     '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes">' +
     '<li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
@@ -27,23 +42,30 @@ describe('orgchart -- integration tests', function () {
     '</i></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
     '<div class="title">Su Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
     '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci">' +
-    '</i></div></li></ul></li></ul></div>',
-  oc = {};
-    
+    '</i></div></li></ul></li></ul></div>';
+
+  let oc = {};
+
+  beforeEach(function () {
+    document.body.innerHTML = '<div id="chart-container"></div>';
+    container = document.getElementById('chart-container');
+  });
+
   afterEach(function () {
-    $container.empty();
+    container.innerHTML = '';
   });
 
   describe('init()', function () {
     it('initialize chart with json datasource', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds
       });
-      $container.html().should.equal(fragment);
+      container.innerHTML.should.equal(fragment);
     });
 
     it('initialize chart with <ul> datasource', function () {
-      var $ul = $(
+      const ulElement = createElementFromHtml(
         '<ul id="ul-data">' +
           '<li data-id="n1">Lao Lao' +
             '<ul>' +
@@ -53,39 +75,42 @@ describe('orgchart -- integration tests', function () {
           '</li>' +
         '</ul>'
       );
-      $('body').append($ul);
-      oc = $container.orgchart({
-        'data': $('#ul-data')
+      document.body.appendChild(ulElement);
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        'data': ulElement
       });
-      $container.html().should.equal(fragment);
-      $ul.remove();
+      container.innerHTML.should.equal(fragment);
+      ulElement.remove();
     });
 
     it('initialize chart with the given visible level', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'visibleLevel': 1
       });
-      oc.$chart.find('.hierarchy:first').is('.hidden').should.be.false;
-      oc.$chart.find('.nodes').eq(1).is('.hidden').should.be.true;
-      oc.$chart.find('.node.slide-up').should.lengthOf(2);
+      query('.hierarchy', oc.chart).classList.contains('hidden').should.be.false;
+      queryAll('.nodes', oc.chart)[1].classList.contains('hidden').should.be.true;
+      queryAll('.node.slide-up', oc.chart).should.lengthOf(2);
     });
 
     it('initialize chart with the given vertical level', function () {
-      var fragment = '<li class="hierarchy"><div id="n1" class="node"><div class="title">' +
+      const fragment = '<li class="hierarchy"><div id="n1" class="node"><div class="title">' +
         '<i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci">' +
         '</i></div><ul class="nodes vertical"><li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
         '<div class="title">Bo Miao</div></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
         '<div class="title">Su Miao</div></div></li></ul></li>';
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'verticalLevel': 2
       });
-      oc.$chart.find('.nodes:first').html().should.equal(fragment);
+      query('.nodes', oc.chart).innerHTML.should.equal(fragment);
     });
 
     context('initialize chart with various combinations of "visibleLevel" and "verticalLevel" ', function () {
-      var ds = {
+      const ds = {
         'name': 'Lao Lao',
         'children': [
           { 'name': 'Bo Miao'
@@ -100,7 +125,7 @@ describe('orgchart -- integration tests', function () {
       };
 
       it('verticalLevel=2 and visibleLevel=1', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol">' +
           '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
           '<ul class="nodes hidden vertical"><li class="hierarchy"><div class="node slide-up">' +
@@ -110,16 +135,17 @@ describe('orgchart -- integration tests', function () {
           '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div>' +
           '</div></li><li class="hierarchy"><div class="node slide-up">' +
           '<div class="title">Hei Hei</div></div></li></ul></li></ul></li></ul></div>';
-        oc = $container.orgchart({
+        oc = new OrgChart({
+          chartContainer: '#chart-container',
           'data': ds,
           'verticalLevel': 2,
           'visibleLevel': 1
         });
-        $container.html().should.equal(fragment);
+        container.innerHTML.should.equal(fragment);
       });
 
       it('verticalLevel=2 and visibleLevel=2', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
@@ -128,16 +154,17 @@ describe('orgchart -- integration tests', function () {
           '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div></div>' +
           '</li><li class="hierarchy"><div class="node slide-up"><div class="title">Hei Hei</div>' +
           '</div></li></ul></li></ul></li></ul></div>';
-        oc = $container.orgchart({
+        oc = new OrgChart({
+          chartContainer: '#chart-container',
           'data': ds,
           'verticalLevel': 2,
           'visibleLevel': 2
         });
-        $container.html().should.equal(fragment);
+        container.innerHTML.should.equal(fragment);
       });
 
       it('verticalLevel=2 and visibleLevel=3', function () {
-        var fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
           '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div>' +
           '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
           '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
@@ -146,81 +173,160 @@ describe('orgchart -- integration tests', function () {
           '<li class="hierarchy"><div class="node"><div class="title">Tie Hua</div></div>' +
           '</li><li class="hierarchy"><div class="node"><div class="title">Hei Hei</div></div>' +
           '</li></ul></li></ul></li></ul></div>';
-        oc = $container.orgchart({
+        oc = new OrgChart({
+          chartContainer: '#chart-container',
           'data': ds,
           'verticalLevel': 2,
           'visibleLevel': 3
         });
-        $container.html().should.equal(fragment);
+        container.innerHTML.should.equal(fragment);
       });
     });
 
     it('initCompleted should be invoked immediately after construting one node', function () {
-      var spy = sinon.spy();
-      oc = $container.orgchart({
+      const spy = sinon.spy();
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'createNode': spy
       });
       spy.should.have.been.callCount(3);
-      spy.should.have.been.calledWithMatch($('#n1'),{ 'id': 'n1', 'name': 'Lao Lao' });
-      spy.should.have.been.calledWithMatch($('#n2'),{ 'id': 'n2', 'name': 'Bo Miao' });
-      spy.should.have.been.calledWithMatch($('#n3'),{ 'id': 'n3', 'name': 'Su Miao' });
+      spy.getCall(0).args[0].id.should.equal('n1');
+      spy.getCall(0).args[1].id.should.equal('n1');
+      spy.getCall(1).args[0].id.should.equal('n2');
+      spy.getCall(1).args[1].id.should.equal('n2');
+      spy.getCall(2).args[0].id.should.equal('n3');
+      spy.getCall(2).args[1].id.should.equal('n3');
       // spy.should.always.have.been.calledOn(oc);
     });
 
+    it('renders custom data fields and invokes createNode after the node markup is built', function () {
+      const createNode = sinon.spy(function (nodeElement, data) {
+        nodeElement.setAttribute('data-role', data.role);
+      });
+
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: {
+          key: 'n1',
+          label: 'Director',
+          role: 'Operations',
+          children: [{ key: 'n2', label: 'Engineer', role: 'Platform' }]
+        },
+        nodeId: 'key',
+        nodeTitle: 'label',
+        nodeContent: 'role',
+        createNode: createNode
+      });
+
+      query('#n1 .title', oc.chart).textContent.should.equal('Director');
+      query('#n1 .content', oc.chart).textContent.should.equal('Operations');
+      query('#n2', oc.chart).getAttribute('data-role').should.equal('Platform');
+      createNode.should.have.been.calledTwice;
+      createNode.firstCall.args[0].querySelector('.title').textContent.should.equal('Director');
+    });
+
+    it('renders custom node templates instead of the default title and content markup', function () {
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        nodeTemplate: function (data) {
+          return '<section class="employee-card" data-name="' + data.name + '">' + data.name + '</section>';
+        }
+      });
+
+      query('#n1 .employee-card', oc.chart).getAttribute('data-name').should.equal('Lao Lao');
+      query('#n2 .employee-card', oc.chart).textContent.should.equal('Bo Miao');
+      should.not.exist(query('#n1 > .title', oc.chart));
+    });
+
+    it('dispatches init.orgchart after initCompleted receives the rendered chart', function (done) {
+      const initCompleted = sinon.spy(function (chartElement) {
+        chartElement.addEventListener('init.orgchart', function () {
+          initCompleted.should.have.been.calledOnce;
+          initCompleted.firstCall.args[0].should.equal(chartElement);
+          done();
+        }, { once: true });
+      });
+
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        initCompleted: initCompleted
+      });
+    });
+
     it('initialize chart with default className', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'chartClass': 'demo'
       });
-      oc.$chart.is('.demo').should.be.true;
+      oc.chart.classList.contains('demo').should.be.true;
     });
 
     it('initialize chart with export button', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'exportButton': true
       });
-      $('.oc-export-btn').prop('outerHTML').should.equal('<button class="oc-export-btn">Export</button>');
+      query('.oc-export-btn').outerHTML.should.equal('<button class="oc-export-btn">Export</button>');
     });
 
     it('initialize chart with "bottom to top" direction', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds,
         'direction': 'b2t'
       });
-      oc.$chart.is('.b2t').should.be.true;
+      oc.chart.classList.contains('b2t').should.be.true;
+    });
+
+    it('applies horizontal direction classes', function () {
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: ds,
+        direction: 'l2r'
+      });
+      oc.chart.classList.contains('l2r').should.be.true;
+
+      oc.init({ direction: 'r2l' });
+      oc.chart.classList.contains('r2l').should.be.true;
+      oc.chart.classList.contains('l2r').should.be.false;
     });
 
     it('reinitialize chart with drggable feature', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds
       });
-      var spy = sinon.spy(oc, 'bindDragDrop');
+      const spy = sinon.spy(oc, 'bindDragDrop');
       oc.init({ 'draggable': true });
       spy.should.have.been.callCount(3);
-      spy.should.have.been.calledWith($('#n1'));
-      spy.should.have.been.calledWithMatch($('#n2'));
-      spy.should.have.been.calledWithMatch($('#n3'));
+      spy.getCall(0).args[0].id.should.equal('n1');
+      spy.getCall(1).args[0].id.should.equal('n2');
+      spy.getCall(2).args[0].id.should.equal('n3');
     });
 
     it('reinitialize chart with pan feature', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds
       });
-      var spy = sinon.spy(oc, 'bindPan');
+      const spy = sinon.spy(oc, 'bindPan');
       oc.init({ 'pan': true });
       spy.should.have.been.callCount(1);
     });
 
     it('reinitialize chart with zoom feature', function () {
-      oc = $container.orgchart({
+      oc = new OrgChart({
+        chartContainer: '#chart-container',
         'data': ds
       });
-      var spy = sinon.spy(oc, 'bindZoom');
+      const spy = sinon.spy(oc, 'bindZoom');
       oc.init({ 'zoom': true });
       spy.should.have.been.callCount(1);
     });
   });
-
 });

@@ -1,6 +1,6 @@
 ![OrgChart](http://dabeng.github.io/OrgChart/img/heading.png)
 
-# [简体文档](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [繁體文档](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md)
+# [ç®€ä½“æ–‡æ¡£](https://github.com/dabeng/OrgChart/blob/master/README.zh-cn.md), [ç¹é«”æ–‡æ¡£](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md)
 
 # [ES6 Version](http://github.com/dabeng/OrgChart.js)
 # [Web Components Version](http://github.com/dabeng/OrgChart-Webcomponents)
@@ -13,6 +13,8 @@ First of all, thanks a lot for [wesnolte](https://github.com/wesnolte)'s great w
 Unfortunately, it's long time not to see the update of jOrgChart. on the other hand, I got some interesting ideas to add, so I choose to create a new repo. 
 - Since version 3.0, we use nested ul to construct tree-like chart instead of nested table.
 - Since version 4.0, users build up the ajax datasoure by themselves.
+- Since version 5.0, users are allowed to build up the family tree.
+- Since version 6.0, The orgchart component has been reverted to native implementation and no longer relies on jQuery.
 
 ## Features
 - Supports both local data and remote data (JSON).
@@ -32,7 +34,7 @@ Users could find the related CDN support for OrgChart's CSS and JavaScript.
 [![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
 
 ## Installation
-Of course, you can directly use the standalone build by including dist/js/jquery.orgchart.js and dist/css/jquery.orgchart.css in your webapps.
+Of course, you can directly use the standalone build by including dist/js/orgchart.js and dist/css/orgchart.css in your webapps.
 ### Install with Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies
@@ -44,7 +46,7 @@ $ bower install orgchart
 # From version 1.0.4 on, users can install orgchart with npm
 $ npm install orgchart
 ```
-require('orgchart') will load orgchart plugin onto the jQuery object. The orgchart module itself does not export anything.
+In CommonJS environments, `require('orgchart')` exports the `OrgChart` constructor directly.
 
 FYI, [How to use jQuery Orchart in React](https://stackblitz.com/edit/vitejs-vite-hqv4nbdt)
 
@@ -212,6 +214,12 @@ var datascource = [
 
 ![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
 
+- [I want to navigate the orgchart with a minimap](https://dabeng.github.io/OrgChart/minimap.html)
+
+![minimap](http://dabeng.github.io/OrgChart/img/minimap.png)
+
+Enable the `minimap` option to display an overview navigator. Drag its viewport to move the chart, or use the mouse wheel over the minimap to zoom.
+
 ### how to start up demos locally
 
 - you have to install node.js v6+ because our unit tests are based on jsdom v11
@@ -225,7 +233,10 @@ var datascource = [
 
 ### Instantiation Statement
 ```js
-var oc = $('#chartContainerId').orgchart(options);
+var oc = new OrgChart({
+  chartContainer: '#chartContainerId',
+  data: datasource
+});
 ```
 
 ### Structure of Datasource
@@ -236,7 +247,7 @@ var oc = $('#chartContainerId').orgchart(options);
   'collapsed': true, // By default, the children nodes of current node is hidden.
   'className': 'top-level', // It's a optional property
   // which will be used as className attribute of node.
-  'nodeTitle': 'name', // This property is used to retrieve “title” value in datasource
+  'nodeTitle': 'name', // This property is used to retrieve â€œtitleâ€ value in datasource
   'nodeContent': 'title',// This property is used to retrieve "content" value in datasource
   'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
   // you should use json datsource (local or remote) and set this property.
@@ -296,10 +307,10 @@ var oc = $('#chartContainerId').orgchart(options);
   <tbody>
     <tr>
       <td>data</td>
-      <td>json or jquery object</td>
+      <td>json or HTMLUListElement</td>
       <td>yes</td>
       <td></td>
-      <td>datasource usded to build out structure of orgchart. It could be a json object or a jquery object(ul element)</td>
+      <td>datasource used to build out structure of orgchart. It can be a json object or an HTML ul element.</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -397,7 +408,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>function</td>
       <td>no</td>
       <td></td>
-      <td>It's a callback function used to customize every orgchart node. It receives two parameters: "$node" stands for jquery object of single node div; "data" stands for datasource of single node.</td>
+      <td>It's a callback function used to customize every orgchart node. It receives two parameters: "node" stands for the single node element; "data" stands for datasource of single node.</td>
     </tr>
     <tr>
       <td>exportButton</td>
@@ -453,7 +464,7 @@ var oc = $('#chartContainerId').orgchart(options);
       <td>function</td>
       <td>no</td>
       <td></td>
-      <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered. It receives one parament: "$chart" stands for jquery object of initialised chart.</td>
+      <td>It can often be useful to know when your table has fully been initialised, data loaded and rendered. It receives one parameter: "chart" stands for the initialized chart element.</td>
     </tr>
     <tr>
       <td>icons</td>
@@ -526,7 +537,7 @@ Adds the ancestors for current orgchart.
   </tbody>
 </table>
 
-#### addDescendants(data, $parent)
+#### addDescendants(data, parent)
 Adds the descendants for specified parent node.
 <table>
   <thead>
@@ -547,16 +558,16 @@ Adds the descendants for specified parent node.
       <td>datasource for building descendants</td>
     </tr>
     <tr>
-      <td>$parent</td>
-      <td>jquery object</td>
+      <td>parent</td>
+      <td>HTMLElement</td>
       <td>yes</td>
       <td></td>
-      <td>append descendants to the $parent node</td>
+      <td>append descendants to the parent node</td>
     </tr>
   </tbody>
 </table>
 
-#### addParent(data)
+#### addParent(currentRoot, data)
 Adds parent node(actullay it's always root node) for current orgchart.
 <table>
   <thead>
@@ -570,6 +581,13 @@ Adds parent node(actullay it's always root node) for current orgchart.
   </thead>
   <tbody>
     <tr>
+      <td>currentRoot</td>
+      <td>HTMLElement</td>
+      <td>yes</td>
+      <td></td>
+      <td>current root node that the new parent node will wrap</td>
+    </tr>
+    <tr>
       <td>data</td>
       <td>json object</td>
       <td>yes</td>
@@ -579,7 +597,7 @@ Adds parent node(actullay it's always root node) for current orgchart.
   </tbody>
 </table>
 
-#### addSiblings($node, data)
+#### addSiblings(node, data)
 Adds sibling nodes for designated node.
 <table>
   <thead>
@@ -593,8 +611,8 @@ Adds sibling nodes for designated node.
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>yes</td>
       <td></td>
       <td>we'll add sibling nodes based on this node</td>
@@ -609,7 +627,7 @@ Adds sibling nodes for designated node.
   </tbody>
 </table>
 
-#### addChildren($node, data)
+#### addChildren(node, data)
 Adds child nodes for designed node.
 <table>
   <thead>
@@ -623,8 +641,8 @@ Adds child nodes for designed node.
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>yes</td>
       <td></td>
       <td>we'll add child nodes based on this node</td>
@@ -639,7 +657,7 @@ Adds child nodes for designed node.
   </tbody>
 </table>
 
-#### removeNodes($node）
+#### removeNodes(nodeï¼‰
 Removes the designated node and its descedant nodes.
 <table>
   <thead>
@@ -653,8 +671,8 @@ Removes the designated node and its descedant nodes.
   </thead>
   <tbody>
     <tr>
-      <td>$node</td>
-      <td>jquery object</td>
+      <td>node</td>
+      <td>HTMLElement</td>
       <td>yes</td>
       <td></td>
       <td>node to be removed</td>
@@ -681,7 +699,7 @@ This method is designed to get the hierarchy relationships of orgchart for furth
   </tr>
 </table>
 
-#### hideParent($node)
+#### hideParent(node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -692,15 +710,15 @@ This method allows you to hide programatically the parent node of any specific n
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to hide its parent node. Of course, its sibling nodes will be hidden at the same time</td>
+    <td>It is the node element whose parent node should be hidden. Its sibling nodes will be hidden at the same time.</td>
   </tr>
 </table>
 
-#### showParent($node)
+#### showParent(node)
 This method allows you to show programatically the parent node of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -711,15 +729,15 @@ This method allows you to show programatically the parent node of any specific n
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to show its parent node</td>
+    <td>It is the node element whose parent node should be shown</td>
   </tr>
 </table>
 
-#### hideChildren($node)
+#### hideChildren(node)
 This method allows you to hide programatically the children of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -730,15 +748,15 @@ This method allows you to hide programatically the children of any specific node
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to hide its children nodes</td>
+    <td>It is the node element whose child nodes should be hidden</td>
   </tr>
 </table>
 
-#### showChildren($node)
+#### showChildren(node)
 This method allows you to show programatically the children of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -749,15 +767,15 @@ This method allows you to show programatically the children of any specific node
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to show its children nodes</td>
+    <td>It is the node element whose child nodes should be shown</td>
   </tr>
 </table>
 
-#### hideSiblings($node, direction)
+#### hideSiblings(node, direction)
 This method allows you to hide programatically the siblings of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -768,11 +786,11 @@ This method allows you to hide programatically the siblings of any specific node
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to hide its siblings nodes</td>
+    <td>It is the node element whose sibling nodes should be hidden</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -783,7 +801,7 @@ This method allows you to hide programatically the siblings of any specific node
   </tr>
 </table>
 
-#### showSiblings($node, direction)
+#### showSiblings(node, direction)
 This method allows you to show programatically the siblings of any specific node(.node element), if it has.
 <table>
   <tr>
@@ -794,11 +812,11 @@ This method allows you to show programatically the siblings of any specific node
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to show its siblings nodes</td>
+    <td>It is the node element whose sibling nodes should be shown</td>
   </tr>
   <tr>
     <td>direction</td>
@@ -809,7 +827,7 @@ This method allows you to show programatically the siblings of any specific node
   </tr>
 </table>
 
-#### getNodeState($node, relation)
+#### getNodeState(node, relation)
 This method returns you the display state of related node of the specified node.
 <table>
   <tr>
@@ -820,11 +838,11 @@ This method returns you the display state of related node of the specified node.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to know its related nodes' display state.</td>
+    <td>It is the node element whose related nodes' display state you want to inspect.</td>
   </tr>
   <tr>
     <td>relation</td>
@@ -843,7 +861,7 @@ The returning object will have the following structure:
 }
 ```
 
-#### getRelatedNodes($node, relation)
+#### getRelatedNodes(node, relation)
 This method returns you the nodes related to the specified node.
 <table>
   <tr>
@@ -854,11 +872,11 @@ This method returns you the nodes related to the specified node.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to know its related nodes</td>
+    <td>It is the node element whose related nodes you want to inspect</td>
   </tr>
   <tr>
     <td>relation</td>
@@ -869,7 +887,7 @@ This method returns you the nodes related to the specified node.
   </tr>
 </table>
 
-#### getParent($node)
+#### getParent(node)
 This method returns you the parent node of the specified node.
 <table>
   <tr>
@@ -880,15 +898,15 @@ This method returns you the parent node of the specified node.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to know its parent node</td>
+    <td>It is the node element whose parent node you want to inspect</td>
   </tr>
 </table>
 
-#### getSiblings($node)
+#### getSiblings(node)
 This method returns you the sibling nodes of the specified node.
 <table>
   <tr>
@@ -899,15 +917,15 @@ This method returns you the sibling nodes of the specified node.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to know its sibling nodes</td>
+    <td>It is the node element whose sibling nodes you want to inspect</td>
   </tr>
 </table>
 
-#### getChildren($node)
+#### getChildren(node)
 This method returns you the child nodes of the specified node.
 <table>
   <tr>
@@ -918,15 +936,15 @@ This method returns you the child nodes of the specified node.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$node</td>
-    <td>JQuery Object</td>
+    <td>node</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's the desired JQuery Object to know its child nodes</td>
+    <td>It is the node element whose child nodes you want to inspect</td>
   </tr>
 </table>
 
-#### setChartScale($chart, newScale)
+#### setChartScale(chart, newScale)
 This method helps you set the specified chart with new scale.
 <table>
   <tr>
@@ -937,11 +955,11 @@ This method helps you set the specified chart with new scale.
     <th>Description</th>
   </tr>
   <tr>
-    <td>$chart</td>
-    <td>JQuery Object</td>
+    <td>chart</td>
+    <td>HTMLElement</td>
     <td>Yes</td>
     <td></td>
-    <td>It's a chart in your chart-container</td>
+    <td>It is the chart element in your chart-container</td>
   </tr>
   <tr>
     <td>newScale</td>

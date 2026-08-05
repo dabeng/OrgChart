@@ -100,7 +100,7 @@ test('horizontalEdge of heihei node works well', async t => {
   await t
     .hover(heihei)
     .click(heihei.find('.topEdge'))
-    /* take into account the transition settings in jquery.orgchart.css
+    /* take into account the transition settings in orgchart.css
      *  .orgchart .node {
      *    transition: transform 0.3s, opacity 0.3s;
      *  }

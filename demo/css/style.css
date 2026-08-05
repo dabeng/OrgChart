@@ -11,6 +11,34 @@ body {
   color: #333333;
 }
 
+.demo-notes {
+  margin: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d5dbe3;
+  background: #f7fafc;
+  line-height: 1.5;
+  color: #1f2933;
+  box-sizing: border-box;
+}
+
+.demo-notes h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.demo-notes p {
+  margin: 0.35rem 0 0;
+}
+
+.demo-notes--overlay {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  max-width: 420px;
+  background: rgba(247, 250, 252, 0.96);
+}
+
 #chart-container {
   position: relative;
   height: 420px;

@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Custom Template Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Custom Template Demo</h1>
+    <p>This demo uses the nodeTemplate option to fully customize the internal markup rendered for each node.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'office': '白城',
@@ -36,7 +38,7 @@
       ]
     };
 
-    var nodeTemplate = function(data) {
+    const nodeTemplate = function(data) {
       return `
         <span class="office">${data.office}</span>
         <div class="title">${data.name}</div>
@@ -44,7 +46,8 @@
       `;
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeTemplate': nodeTemplate
     });

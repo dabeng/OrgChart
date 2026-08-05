@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Family Tree Custom Properties Demo</title>
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/fontawesome.min.css">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     .orgchart {
@@ -30,14 +30,16 @@
 </head>
 
 <body>
+  <section class="demo-notes">
+    <h1>Family Tree Custom Properties Demo</h1>
+    <p>This demo extends the family-tree layout with custom relationship properties such as gender, ex, and adopted markers.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function () {
+    document.addEventListener('DOMContentLoaded', () => {
 
-      var datascource = [
+      const datasource = [
         [
           { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
           {
@@ -80,19 +82,20 @@
         ]
       ];
 
-      var oc = $('#chart-container').orgchart({
-        'data': datascource,
+      const oc = new OrgChart({
+      chartContainer: '#chart-container',
+        'data': datasource,
         'nodeContent': 'title',
         'nodeID': 'id',
-        'createNode': function ($node, data) {
+        'createNode': function (node, data) {
           if (data.gender === 'female') {
-            $node.addClass('female');
+            node.classList.add('female');
           }
           if (data.adpoted) {
-            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-person-breastfeeding"></i>`);
+            node.querySelector('.content')?.insertAdjacentHTML('afterbegin', '<i class="property-tag fa-solid fa-person-breastfeeding"></i>');
           }
           if (data.ex) {
-            $node.children('.content').prepend(`<i class="property-tag fa-solid fa-heart-crack"></i>`);
+            node.querySelector('.content')?.insertAdjacentHTML('afterbegin', '<i class="property-tag fa-solid fa-heart-crack"></i>');
           }
         }
       });

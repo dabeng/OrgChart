@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Export with Pictures Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container {
@@ -38,15 +38,17 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Export with Pictures Demo</h1>
+    <p>This demo exports a chart whose nodes include avatars and richer custom content.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript" src="js/html2canvas.min.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
@@ -72,15 +74,20 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'exportButton': true,
       'exportFilename': 'MyOrgChart',
-      'data' : datascource,
+      'data' : datasource,
       'nodeContent': 'title',
       'nodeID': 'id',
-      'createNode': function($node, data) {
-        $node.find('.title').append(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
-        $node.find('.content').prepend($node.find('.symbol'));
+      'createNode': function(node, data) {
+        node.querySelector('.title')?.insertAdjacentHTML('beforeend', `<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+        const content = node.querySelector('.content');
+        const symbol = node.querySelector('.symbol');
+        if (content && symbol) {
+          content.prepend(symbol);
+        }
       }
     });
 

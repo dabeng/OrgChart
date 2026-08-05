@@ -2,23 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Expand to Given Depth Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     .orgchart { background: white; }
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Expand to Given Depth Demo</h1>
+    <p>This demo expands descendants from a selected node down to a specified depth instead of fully opening the branch.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -48,29 +50,35 @@
       ]
     };
 
-    var showDescendents = function(node, visibleLevel) {
-      if (visibleLevel === 1) {
+    const showDescendents = function(node, visibleLevel) {
+      if (visibleLevel <= 1) {
         return false;
       }
-      $(node).closest('tr').siblings(':last').children().find('.node:first').each(function(index, node) {
-        var $temp = $(node).closest('tr').siblings().removeClass('hidden');
-        var $children = $temp.last().children().find('.node:first');
-        if ($children.length) {
-          $children[0].style.offsetWidth = $children[0].offsetWidth;
+      const hierarchy = node.closest('.hierarchy');
+      const childrenLayer = hierarchy ? hierarchy.querySelector(':scope > .nodes') : null;
+      if (!childrenLayer) {
+        return false;
+      }
+      childrenLayer.classList.remove('hidden');
+      hierarchy.classList.remove('isChildrenCollapsed');
+      Array.from(childrenLayer.children).forEach((childHierarchy) => {
+        const childNode = childHierarchy.querySelector(':scope > .node');
+        if (childNode) {
+          childNode.classList.remove('slide-up');
+          showDescendents(childNode, visibleLevel - 1);
         }
-        $children.removeClass('slide-up');
-        showDescendents(node, visibleLevel--);
       });
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'visibleLevel': 2,
-      'data' : datascource,
+      'data' : datasource,
       'nodeContent': 'title',
-      'createNode': function($node, data) {
-        $node.on('click', '.edge', function (event) {
-          if ($(event.target).is('.fa-chevron-down')) {
-            showDescendents(this, 3);
+      'createNode': function(node) {
+        node.addEventListener('click', (event) => {
+          if (event.target.matches('.bottomEdge.oci-chevron-down, .toggleBtn.oci-plus-square, .toggleBtn.oci-chevron-down')) {
+            showDescendents(node, 3);
           }
         });
       }

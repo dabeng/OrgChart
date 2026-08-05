@@ -1,17 +1,32 @@
-var gulp = require('gulp');
-var browserSync = require('browser-sync').create();
-var mocha = require('gulp-mocha');
-var uglify = require('gulp-uglify');
-var rename = require("gulp-rename");
-var del = require('del');
-var eslint = require('gulp-eslint');
-var merge = require('ordered-read-streams');
-var csslint = require('gulp-csslint');
-var cleanCSS = require('gulp-clean-css');
-var sourcemaps = require('gulp-sourcemaps');
-var cypress = require('cypress');
-var jest = require('gulp-jest').default;
-var paths = {
+const gulp = require('gulp');
+const { spawn } = require('node:child_process');
+const browserSync = require('browser-sync').create();
+const uglify = require('gulp-uglify');
+const rename = require("gulp-rename");
+const eslint = require('gulp-eslint');
+const merge = require('ordered-read-streams');
+const csslint = require('gulp-csslint');
+const cleanCSS = require('gulp-clean-css');
+const sourcemaps = require('gulp-sourcemaps');
+const cypress = require('cypress');
+const jest = require('gulp-jest').default;
+const deletePaths = (patterns) => import('del').then(({ deleteAsync }) => deleteAsync(patterns));
+const runMocha = (files) => new Promise(function (resolve, reject) {
+  const mochaProcess = spawn(process.execPath, [
+    require.resolve('mocha/bin/mocha.js'),
+    '--reporter', 'spec'
+  ].concat(files), { stdio: 'inherit' });
+
+  mochaProcess.once('error', reject);
+  mochaProcess.once('exit', function (exitCode) {
+    if (exitCode === 0) {
+      resolve();
+    } else {
+      reject(new Error('Tests failed with exit code ' + exitCode));
+    }
+  });
+});
+const paths = {
   src: 'src',
   srcFiles: 'src/**/*',
   srcHTML: 'src/**/*.html',
@@ -33,27 +48,23 @@ var paths = {
 };
 
 gulp.task('unit-tests', function () {
-  return gulp.src(['test/unit/*.js'], {read: false})
-    .pipe(mocha({reporter: 'spec'}));
+  return runMocha(['test/unit/*.js']);
 });
 
 gulp.task('integration-tests', gulp.series('unit-tests', function () {
-  return gulp.src(['test/integration/*.js'], {read: false})
-    .pipe(mocha({reporter: 'spec'}));
+  return runMocha(['test/integration/*.js']);
 }));
 
 gulp.task('addAssets', gulp.series('integration-tests', function () {
-  var jsFiles = gulp.src([
+  const jsFiles = gulp.src([
       paths.srcJS,
-      'node_modules/jquery/dist/jquery.min.js',
-      'node_modules/jquery-mockjax/dist/jquery.mockjax.min.js',
       'node_modules/html2canvas/dist/html2canvas.min.js',
       'node_modules/jspdf/dist/jspdf.umd.min.js',
       'node_modules/json-digger/dist/json-digger.js'
     ])
     .pipe(gulp.dest(paths.demoJSFolder));
 
-  var cssFiles = gulp.src(paths.srcCSS)
+  const cssFiles = gulp.src(paths.srcCSS)
     .pipe(gulp.dest(paths.demoCSSFolder));
 
   return merge(jsFiles, cssFiles);
@@ -74,7 +85,7 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
 gulp.task('test', gulp.series('e2e-tests'));
 
 gulp.task('cleanupJS', function() {
-  return del([paths.distJSFolder + '/**']);
+  return deletePaths([paths.distJSFolder + '/**']);
 });
 
 gulp.task('eslint', function () {
@@ -88,13 +99,13 @@ gulp.task('js', gulp.series('cleanupJS', 'eslint', 'test', function () {
     .pipe(gulp.dest(paths.distJSFolder))
     .pipe(sourcemaps.init())
     .pipe(uglify())
-    .pipe(rename('jquery.orgchart.min.js'))
+    .pipe(rename('orgchart.min.js'))
     .pipe(sourcemaps.write('./'))
     .pipe(gulp.dest(paths.distJSFolder));
 }));
 
 gulp.task('cleanupCSS', function() {
-  return del([paths.distCSSFolder + '/**']);
+  return deletePaths([paths.distCSSFolder + '/**']);
 });
 
 gulp.task('csslint', function() {
@@ -113,7 +124,7 @@ gulp.task('css', gulp.series('cleanupCSS', 'csslint', function () {
   return gulp.src(paths.srcCSS)
     .pipe(gulp.dest(paths.distCSSFolder))
     .pipe(cleanCSS())
-    .pipe(rename('jquery.orgchart.min.css'))
+    .pipe(rename('orgchart.min.css'))
     .pipe(gulp.dest(paths.distCSSFolder));
 }));
 

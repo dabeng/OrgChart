@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Level Offset Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Level Offset Demo</h1>
+    <p>This demo offsets selected nodes to specific levels so branches can intentionally break the default depth alignment.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -35,18 +37,17 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title',
       'createNode': function(node, data) {
         if (data.levelOffset) {
-          node.css({
-            'margin-top': (data.levelOffset * 70) + 'px',
-            '--top': (-11 - data.levelOffset * 70) + 'px',
-            '--height': (9 + data.levelOffset * 70) + 'px',
-            '--top-cross-point': (-13 - data.levelOffset * 70) + 'px',
-            '--height-cross-point': (11 + data.levelOffset * 70) + 'px'
-          });
+          node.style.marginTop = (data.levelOffset * 70) + 'px';
+          node.style.setProperty('--top', (-11 - data.levelOffset * 70) + 'px');
+          node.style.setProperty('--height', (9 + data.levelOffset * 70) + 'px');
+          node.style.setProperty('--top-cross-point', (-13 - data.levelOffset * 70) + 'px');
+          node.style.setProperty('--height-cross-point', (11 + data.levelOffset * 70) + 'px');
         }
       }
     });

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart getHierarchy Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container {
@@ -39,6 +39,10 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>getHierarchy Demo</h1>
+    <p>This demo builds a chart from nested list markup and exports the current chart back to hierarchy JSON with getHierarchy().</p>
+  </section>
   <ul id="ul-data" style="display: none;">
     <li data-id="n1">Lao Lao
       <ul>
@@ -59,20 +63,21 @@
   </ul>
   <div id="chart-container"></div>
   <button id="btn-export-hier">Export Hierarchy</button>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var oc = $('#chart-container').orgchart({
-      'data' : $('#ul-data')
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : document.getElementById('ul-data')
     });
 
-    $('#btn-export-hier').on('click', function() {
-      if (!$('pre').length) {
-        var hierarchy = oc.getHierarchy();
-        $('#btn-export-hier').after('<pre>').next().append(JSON.stringify(hierarchy, null, 2));
+    document.getElementById('btn-export-hier').addEventListener('click', () => {
+      if (!document.querySelector('pre')) {
+        const hierarchy = oc.getHierarchy();
+        const pre = document.createElement('pre');
+        pre.textContent = JSON.stringify(hierarchy, null, 2);
+        document.getElementById('btn-export-hier').after(pre);
       }
     });
 
