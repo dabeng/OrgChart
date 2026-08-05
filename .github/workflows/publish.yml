@@ -1,0 +1,31 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*' # 当推送以 v 开头的标签（如 v2.0.0）时触发发布
+
+# 1. 添加 OIDC 令牌所需的权限
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          
+      # 2. 确保 npm 版本足够新（可信发布需要 v11.5.1 以上）
+      - name: Update npm
+        run: npm install -g npm@latest
+        
+      - run: npm ci
+      
+      # 3. 直接运行 npm publish，无需任何令牌
+      - run: npm publish --access public --provenance 
