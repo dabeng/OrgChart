@@ -18,7 +18,7 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
           
       # 2. 确保 npm 版本足够新（可信发布需要 v11.5.1 以上）
