@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OrgChart 10,000 Nodes Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f5f7;
+      color: #1f2933;
+    }
+
+    .page-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid #d9e2ec;
+      backdrop-filter: blur(8px);
+    }
+
+    .page-header h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .page-header p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #52606d;
+    }
+
+    #status {
+      margin-top: 12px;
+      font-weight: 700;
+      color: #0b6e4f;
+    }
+
+    #chart-container {
+      min-height: calc(100vh - 150px);
+      padding: 24px;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>10,000 Nodes</h1>
+    <p>This demo generates exactly 10,000 nodes and starts rendering immediately after the page loads. The render duration is written to the browser console after initialization completes.</p>
+    <p>Use this page to gauge large-chart initialization cost on your machine and compare console timings after performance-related changes.</p>
+    <div id="status">Preparing demo...</div>
+  </div>
+  <div id="chart-container"></div>
+
+  <script src="js/orgchart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const statusEl = document.getElementById('status');
+      const totalNodes = 10000;
+      const branchCount = 99;
+      const leafCountPerBranch = 100;
+
+      function createDatasource() {
+        const root = {
+          id: 'n1',
+          name: 'n1',
+          children: new Array(branchCount)
+        };
+        let nextId = 2;
+
+        for (let branchIndex = 0; branchIndex < branchCount; branchIndex++) {
+          const branchLabel = 'n' + nextId;
+          const leaves = new Array(leafCountPerBranch);
+          nextId += 1;
+
+          for (let leafIndex = 0; leafIndex < leafCountPerBranch; leafIndex++) {
+            const leafLabel = 'n' + nextId;
+            leaves[leafIndex] = {
+              id: leafLabel,
+              name: leafLabel
+            };
+            nextId += 1;
+          }
+
+          root.children[branchIndex] = {
+            id: branchLabel,
+            name: branchLabel,
+            children: leaves
+          };
+        }
+
+        if (nextId - 1 !== totalNodes) {
+          throw new Error('Unexpected node count: ' + (nextId - 1));
+        }
+
+        return root;
+      }
+
+      function runDemo() {
+        statusEl.textContent = 'Generating 10,000-node datasource...';
+
+        const dataBuildStart = performance.now();
+        const datasource = createDatasource();
+        const dataBuildEnd = performance.now();
+
+        statusEl.textContent = 'Datasource ready. Initializing chart...';
+
+        const renderStart = performance.now();
+        window.largeOrgChart = new OrgChart({
+          chartContainer: '#chart-container',
+          data: datasource,
+          'verticalLevel': 3,
+          initCompleted: function () {
+            requestAnimationFrame(function () {
+              const renderEnd = performance.now();
+              const dataBuildDuration = dataBuildEnd - dataBuildStart;
+              const renderDuration = renderEnd - renderStart;
+
+              statusEl.textContent = 'Initialization completed. Check the browser console for timing details.';
+              console.log('[10000-nodes] datasource size:', totalNodes);
+              console.log('[10000-nodes] datasource generation time: ' + dataBuildDuration.toFixed(2) + 'ms');
+              console.log('[10000-nodes] orgchart render time: ' + renderDuration.toFixed(2) + 'ms');
+            });
+          }
+        });
+      }
+
+      runDemo();
+    });
+  </script>
+</body>
+</html>

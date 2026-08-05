@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Hybrid Drag and Drop Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container { height: 600px; }
@@ -12,16 +12,17 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Hybrid Drag and Drop Demo</h1>
+    <p>This demo applies drag and drop to a hybrid chart that mixes horizontal and vertical descendant branches.</p>
+  </section>
   <div id="chart-container"></div>
-  <p style="color: #666;font-size: 1.5rem; padding-left: 1rem;">Note: you have to provide "id" property in the datasoure
-  in order to make demo work as expected.</p>
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript" src="js/json-digger.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-      var datascource = {
+      const datasource = {
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
@@ -62,18 +63,19 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'nodeContent': 'title',
       'draggable': true,
       'verticalLevel': 3
     });
 
-    oc.$chart.on('nodedrop.orgchart', function(event, extraParams) {
-      console.log('draggedNode:' + extraParams.draggedNode.children('.title').text()
-        + ', dragZone:' + extraParams.dragZone.children('.title').text()
-        + ', dropZone:' + extraParams.dropZone.children('.title').text()
-      );
+    oc.chart.addEventListener('nodedrop.orgchart', (event) => {
+      const extraParams = event.detail;
+      console.log('draggedNode:' + extraParams.draggedNode.querySelector('.title').textContent
+        + ', dragZone:' + extraParams.dragZone.querySelector('.title').textContent
+        + ', dropZone:' + extraParams.dropZone.querySelector('.title').textContent);
     });
 
   });

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Report Path Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #edit-panel {
@@ -18,19 +18,26 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Report Path Demo</h1>
+    <p>This demo lets you select a node and then draw the reporting path back through its management chain.</p>
+  </section>
   <div id="chart-container"></div>
   <div id="edit-panel" class="view-state">
     <input type="text" id="selected-node" placeholder="please select node" readonly="true">
     <button type="button" id="btn-report-path">draw report path</button>
     <button type="button" id="btn-reset">reset</button>
   </div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const chartContainer = document.getElementById('chart-container');
+    const selectedNodeInput = document.getElementById('selected-node');
+    const reportButton = document.getElementById('btn-report-path');
+    const resetButton = document.getElementById('btn-reset');
+
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -61,40 +68,63 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'nodeContent': 'title'
     });
 
-    oc.$chart.find('.node').on('click', function() {
-      $('#selected-node').val($(this).children('.title').text());
+    chartContainer.addEventListener('click', (event) => {
+      const clickedNode = event.target.closest('.node');
+      if (!clickedNode || !chartContainer.contains(clickedNode)) {
+        return;
+      }
+      const titleElement = clickedNode.querySelector('.title');
+      selectedNodeInput.value = titleElement ? titleElement.textContent.trim() : '';
     });
 
-    $('#btn-report-path').on('click', function() {
-      var $selected = $('#chart-container').find('.node.focused');
-      if ($selected.length) {
-        $selected.parents('.nodes').children(':has(.focused)').find('.node:first').each(function(index, superior) {
-          if (!$(superior).find('.horizontalEdge:first').closest('.node').parent().siblings().is('.hidden')) {
-            $(superior).find('.horizontalEdge:first').trigger('click');
+    reportButton.addEventListener('click', () => {
+      const selected = chartContainer.querySelector('.node.focused');
+      const selectedNodeName = selectedNodeInput.value;
+      if (selected) {
+        let hierarchy = selected.closest('.hierarchy');
+        while (hierarchy) {
+          const parentNodes = hierarchy.parentElement;
+          const parentHierarchy = parentNodes ? parentNodes.closest('.hierarchy') : null;
+          if (!parentHierarchy) {
+            break;
           }
+          const superior = parentHierarchy.querySelector(':scope > .node');
+          const horizontalEdge = superior ? superior.querySelector('.horizontalEdge') : null;
+          const hasHiddenSibling = Array.from(parentHierarchy.parentElement.children)
+            .some((sibling) => sibling !== parentHierarchy && sibling.classList.contains('hidden'));
+          if (horizontalEdge && !hasHiddenSibling) {
+            horizontalEdge.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+          }
+          hierarchy = parentHierarchy;
+        }
+        chartContainer.querySelectorAll('.node.focused').forEach((node) => {
+          node.classList.remove('focused');
         });
-        $(this).prop('disabled', true);
+        selected.classList.add('focused');
+        selectedNodeInput.value = selectedNodeName;
+        reportButton.disabled = true;
       } else {
         alert('please select the node firstly');
       }
     });
 
-    $('#btn-reset').on('click', function() {
-      $('#chart-container')
-        .find('.hidden').removeClass('hidden')
-        .end().find('.slide-up, .slide-right, .slide-left, .focused')
-        .removeClass('slide-up slide-right slide-left focused');
-      $('#chart-container')
-        .find('.isCollapsedSibling, .isChildrenCollapsed, .isSiblingsCollapsed')
-        .removeClass('isCollapsedSibling isChildrenCollapsed isSiblingsCollapsed');
-        
-      $('#btn-report-path').prop('disabled', false);
-      $('#selected-node').val('');
+    resetButton.addEventListener('click', () => {
+      chartContainer.querySelectorAll('.hidden').forEach((element) => element.classList.remove('hidden'));
+      chartContainer.querySelectorAll('.slide-up, .slide-right, .slide-left, .focused').forEach((element) => {
+        element.classList.remove('slide-up', 'slide-right', 'slide-left', 'focused');
+      });
+      chartContainer.querySelectorAll('.isCollapsedSibling, .isChildrenCollapsed, .isSiblingsCollapsed').forEach((element) => {
+        element.classList.remove('isCollapsedSibling', 'isChildrenCollapsed', 'isSiblingsCollapsed');
+      });
+
+      reportButton.disabled = false;
+      selectedNodeInput.value = '';
     });
 
   });

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Compact Layout Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container {
@@ -16,15 +16,17 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Compact Layout Demo</h1>
+    <p>This demo marks selected branches as compact so dense child groups consume less horizontal space.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript" src="js/json-digger.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -68,7 +70,8 @@
       ]
     };
 
-    $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title',
       'compact': function(data) {

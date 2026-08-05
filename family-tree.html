@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Family Tree Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     .orgchart { background: #fff; }
@@ -40,14 +40,16 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Family Tree Demo</h1>
+    <p>This demo uses the family-tree datasource format to render spouses, descendants, and pedigree relationships.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-      var datascource = [
+      const datasource = [
         [
           { 'id': '8', 'name': 'Lao Ye', 'title': 'Grandfather', 'gender': 'male' },
           { 
@@ -81,12 +83,13 @@
         ]
       ];
 
-    var oc = $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'nodeContent': 'title',
       'nodeID': 'id',
-      'createNode': function($node, data) {
-        $node.prepend(`<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+      'createNode': function(node, data) {
+        node.insertAdjacentHTML('afterbegin', `<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
       }
     });
 

@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart createNode Callback Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     .orgchart .second-menu-icon {
       transition: opacity .5s;
       opacity: 0;
-      right: -5px;
-      top: -5px;
+      right: -8px;
+      top: -8px;
       z-index: 2;
       position: absolute;
     }
@@ -21,12 +21,12 @@
     .orgchart .node .second-menu {
       display: none;
       position: absolute;
-      top: 0;
-      right: -70px;
+      bottom: -35px;
+      right: 0;
       border-radius: 35px;
       box-shadow: 0 0 10px 1px #999;
       background-color: #fff;
-      z-index: 1;
+      z-index: 3;
     }
     .orgchart .node .second-menu .avatar {
       width: 60px;
@@ -38,14 +38,16 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>createNode Callback Demo</h1>
+    <p>This demo uses the createNode callback to append custom secondary UI after each node is created.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'id': '1',
       'name': 'Lao Lao',
       'title': 'general manager',
@@ -71,20 +73,29 @@
       ]
     };
 
-    $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'visibleLevel': 2,
       'nodeContent': 'title',
       'nodeID': 'id',
-      'createNode': function($node, data) {
-        var secondMenuIcon = $('<i>', {
-          'class': 'oci oci-info-circle second-menu-icon',
-          click: function() {
-            $(this).siblings('.second-menu').toggle();
-          }
+      'createNode': function(node, data) {
+        const secondMenuIcon = document.createElement('i');
+        const secondMenu = document.createElement('div');
+        const avatar = document.createElement('img');
+
+        secondMenuIcon.className = 'oci oci-info-circle second-menu-icon';
+        secondMenuIcon.addEventListener('click', () => {
+          secondMenu.style.display = secondMenu.style.display === 'block' ? 'none' : 'block';
         });
-        var secondMenu = '<div class="second-menu"><img class="avatar" src="img/avatar/' + data.id + '.jpg"></div>';
-        $node.append(secondMenuIcon).append(secondMenu);
+
+        secondMenu.className = 'second-menu';
+        avatar.className = 'avatar';
+        avatar.src = 'img/avatar/' + data.id + '.jpg';
+
+        secondMenu.appendChild(avatar);
+        node.appendChild(secondMenuIcon);
+        node.appendChild(secondMenu);
       }
     });
 

@@ -1,5 +1,5 @@
 /*
- * jQuery OrgChart Plugin
+ * JavaScript OrgChart Component
  * https://github.com/dabeng/OrgChart
  *
  * Copyright 2016, dabeng
@@ -51,7 +51,9 @@
 }
 
 .orgchart ~ .mask {
-  position: absolute;
+  position: sticky;
+  width: 100%;
+  height: 100%;
   top: 0;
   right: 0;
   bottom: 0;
@@ -86,19 +88,89 @@
   justify-content: center;
 }
 
+.orgchart-minimap {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 25;
+  width: 180px;
+  height: 120px;
+  padding: 8px;
+  border: 1px solid rgba(68, 68, 68, 0.18);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+}
+
+.orgchart-minimap-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 5px;
+  background-image: linear-gradient(rgba(68, 68, 68, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(68, 68, 68, 0.05) 1px, transparent 1px);
+  background-size: 10px 10px;
+  background-color: #f9fbfc;
+}
+
+.orgchart-minimap-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.orgchart-minimap-node {
+  position: absolute;
+  min-width: 6px;
+  height: 18px;
+  border-radius: 0;
+  opacity: 1;
+  box-shadow: none;
+}
+
+.orgchart-minimap .orgchart,
+.orgchart-minimap .orgchart ul,
+.orgchart-minimap .orgchart li,
+.orgchart-minimap .orgchart .node,
+.orgchart-minimap .orgchart .edge,
+.orgchart-minimap .orgchart .verticalNodes,
+.orgchart-minimap .orgchart .verticalNode,
+.orgchart-minimap .orgchart .nodes,
+.orgchart-minimap-node {
+  pointer-events: none;
+}
+
+.orgchart-minimap-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 12px;
+  min-height: 12px;
+  border: 2px solid rgba(28, 111, 197, 0.9);
+  border-radius: 4px;
+  background-color: rgba(28, 111, 197, 0.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9), 0 0 0 999px rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
+  cursor: move;
+}
+
 .orgchart .hierarchy {
   position: relative;
 }
 
 /* styles of link lines */
 .orgchart .hierarchy::before {
+  box-sizing: border-box;
   content: "";
   position: absolute;
   top: -11px; /* -(background square size + half width of line) */
   left: 0;
   width: 100%;
-  border-top: 2px solid rgba(217, 83, 79, 0.8);
-  box-sizing: border-box;
+  border-color: rgba(217, 83, 79, 0.8);
+  border-style: solid;
+  border-width: 2px 0 0 0;
 }
 
 /* 本姓人与上一层父母的连线，借助伪元素::before实现 */
@@ -111,7 +183,7 @@
 /* 处理同一层中特殊的末节点 */
 .orgchart .couple:last-child:not(:only-child)::before {
   width: calc(50% + 71px);
-  left: 0px;
+  left: 0;
 }
 
 .orgchart .hierarchy.couple:only-child::before {
@@ -212,24 +284,24 @@
   background-color: rgba(238, 217, 54, 0.5);
 }
 /* excluding root node */
-.orgchart > ul > li > ul li > .node:not(.outsider)::before {
+.orgchart > ul > li > ul li > .node::before {
   content: "";
   position: absolute;
-  top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
   left: calc(50% - 1px);
   width: 2px;
-  height: var(--height, 10px); /* fallback value = background square size */
   background-color: rgba(217, 83, 79, 0.8);
+  top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */
+  height: var(--height, 10px); /* fallback value = background square size */
 }
 
 .orgchart > ul > li > ul li > .node.outsider::before {
-  content: "";
-  position: absolute;
-  top: var(--top, -12px);
-  left: calc(50% - 1px);
-  width: 0;
-  height: var(--height, 10px);
-  border-right: 2px dotted rgba(217, 83, 79, 0.8);
+  background-color: unset;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(217, 83, 79, 0.8) 0 2px,
+    transparent 2px 4px
+  );
+  background-repeat: repeat-y;
 }
 
 .orgchart > ul > li > ul .isSiblingsCollapsed > .node::before {
@@ -471,17 +543,54 @@
   bottom: -2px;
   width: 16px;
   height: 16px;
+	visibility: hidden;
+	background-color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node:hover .toggleBtn {
+	visibility: visible;
 }
 
 .orgchart .node .toggleBtn::before {
-  background-color: rgba(68, 157, 68, 0.6);
+	content: "";
   position: absolute;
-  left: 0;
-  bottom: 0;
+  left: 3px;
+  top: 7px;
+  box-sizing: border-box;
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background-color: #fff;
+  display: none;
 }
 
-.orgchart .node .toggleBtn:hover::before {
+.orgchart .node .toggleBtn:hover {
   background-color: #449d44;
+}
+
+.orgchart .node .toggleBtn::after {
+	content: "";
+	position: absolute;
+	left: 7px;
+	top: 3px;
+	width: 2px;
+	height: 10px;
+	border-radius: 1px;
+	background-color: #fff;
+  display: none;
+}
+
+.orgchart .node .toggleBtn.oci-plus-square::before,
+.orgchart .node .toggleBtn.oci-plus-square::after {
+  display: block;
+}
+
+.orgchart .node .toggleBtn.oci-minus-square::before {
+  display: block;
+}
+
+.orgchart .node .toggleBtn.oci-minus-square::after {
+  display: none;
 }
 
 .oc-export-btn {
@@ -560,24 +669,21 @@
   content: '';
   position: absolute;
   left: -6px; /* -(background square size + half width of line */
+  width: 11px; /* background square size + half width of line */
   border-color: rgba(217, 83, 79, 0.8);
   border-style: solid;
-  border-width: 0 0 2px 2px;
-}
-
-.orgchart .nodes.vertical .hierarchy:only-child::before {
-  width: 11px;
 }
 
 .orgchart .nodes.vertical .hierarchy::before {
-  top: 0px;
-  height: 26px; /* node top half's height(25px) + half width of line */
-  width: 11px; /* background square size + half width of line */
+  height: 26px;
+  top: 0;
+  border-width: 0 0 2px 2px;
 }
 
 .orgchart .nodes.vertical .hierarchy::after {
+  height: calc(100% - 24px); /* node top half's height(25px) + half width of line */
   bottom: 0;
-  height: calc(100% - 24px); /* height of hierarchy - (node top half's height(25px) - half width of line) */
+  border-width: 0 0 0 2px;
 }
 
 .orgchart .nodes.vertical .hierarchy:last-child::after {
@@ -585,7 +691,6 @@
 }
 
 .orgchart .nodes.vertical > .hierarchy:first-child::before {
-  box-sizing: border-box;
   top: -11px; /* -(background square size + half width of line) */
   height: 35px; /* node top half's height + node padding + node border width + background square size */
   width: calc(50% + 2px);
@@ -593,19 +698,16 @@
 }
 
 .orgchart .nodes.vertical > .hierarchy:first-child::after {
-  box-sizing: border-box;
   top: 24px; /* node bottom half's height(25px) - half border width of line */
-  width: 11px; /* backgroud square size + half border width of line */
   border-width: 2px 0 0 2px;
 }
 
-.orgchart .nodes.vertical > .hierarchy:first-child:last-child::after {
+.orgchart .nodes.vertical > .hierarchy:only-child::after {
   border-width: 2px 0 0 0;
 }
 
 /* styles for compact nodes */
 .orgchart .node.compact {
-  position: static;
   display: grid;
   width: 140px;
   height: 50px;
@@ -613,7 +715,6 @@
 }
 
 .orgchart .node.compact.looseMode {
-  display: grid;
   width: unset;
   height: unset;
 }
@@ -656,14 +757,14 @@
   background-color: #eee;
 }
 
-.orgchart .node.compact::before {
+/* .orgchart .node.compact::before {
   top: var(--top-cross-point, -10px);
-}
+} */
 
 .orgchart .node.compact > .content {
   position: absolute;
-  top: 25px;
-  left: 5px;
+  top: 23px;
+  left: 3px;
 }
 
 .orgchart .node.compact.looseMode > .title {
@@ -672,8 +773,8 @@
 }
 
 .orgchart .node.compact.looseMode > .content {
-  top: 30px;
-  left: 10px;
+  top: 28px;
+  left: 8px;
 }
 
 .orgchart .node.compact > .node.compact.looseMode > .title {
@@ -706,33 +807,11 @@
 
 .orgchart .node.compact > .backToCompactSymbol {
   position: absolute;
-  top: 5px;
-  left: 5px;
-}
-
-.orgchart .node.compact.looseMode > .backToCompactSymbol {
-  top: 10px;
-  left: 10px;
-}
-
-.orgchart .node.compact > .node.compact.looseMode > .backToCompactSymbol {
   top: 8px;
   left: 8px;
 }
 
-.orgchart .node.compact > .node.compact > .backToCompactSymbol {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-}
-
 .orgchart .node.compact > .backToLooseSymbol {
-  position: absolute;
-  top: 25px;
-  right: 5px;
-}
-
-.orgchart .node.compact > .node.compact > .backToLooseSymbol {
   position: absolute;
   top: 23px;
   right: 3px;
@@ -859,27 +938,11 @@
 }
 
 .oci-plus-square::before {
-  content: "﹢";
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  line-height: 16px;
-  background-color: #000;
-  color: #fff;
-  font-weight: bold;
+  content: "";
 }
 
 .oci-minus-square::before {
-  content: "﹣";
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  line-height: 16px;
-  background-color: #000;
-  color: #fff;
-  font-weight: bold;
+  content: "";
 }
 
 .oci-arrow-square-up::before {

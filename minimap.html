@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OrgChart Minimap Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    body {
+      padding: 0.5rem;
+    }
+    #chart-container {
+      height: 520px;
+    }
+    .orgchart {
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>Minimap Demo</h1>
+    <p>This demo enables the new <code>minimap</code> option and renders a live overview in the bottom-right corner of the chart container.</p>
+    <p>Drag the main chart to pan, use the mouse wheel or touch pinch to zoom, then check that the minimap viewport follows the visible area.</p>
+    <p>Drag the blue viewport rectangle inside the minimap to move the main chart. You can also zoom from inside the minimap with the mouse wheel.</p>
+  </section>
+  <div id="chart-container"></div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+
+    const datasource = {
+      'name': 'Lao Lao',
+      'title': 'general manager',
+      'children': [
+        {
+          'name': 'Bo Miao',
+          'title': 'department manager',
+          'children': [
+            { 'name': 'Ling', 'title': 'senior engineer' },
+            { 'name': 'Qing', 'title': 'product designer' },
+            { 'name': 'Yao', 'title': 'quality engineer' }
+          ]
+        },
+        {
+          'name': 'Su Miao',
+          'title': 'department manager',
+          'children': [
+            {
+              'name': 'Tie Hua',
+              'title': 'senior engineer',
+              'children': [
+                {
+                  'name': 'Pang Pang',
+                  'title': 'engineer',
+                  'children': [
+                    {
+                      'name': 'Ke Xin',
+                      'title': 'staff engineer',
+                      'children': [
+                        {
+                          'name': 'Iris Sun',
+                          'title': 'technical lead',
+                          'children': [
+                            {
+                              'name': 'Nina Wu',
+                              'title': 'platform engineer',
+                              'children': [
+                                {
+                                  'name': 'Ethan Lin',
+                                  'title': 'principal engineer',
+                                  'children': [
+                                    {
+                                      'name': 'Mila Tan',
+                                      'title': 'engineering manager',
+                                      'children': [
+                                        {
+                                          'name': 'Sophie He',
+                                          'title': 'senior platform engineer',
+                                          'children': [
+                                            {
+                                              'name': 'Leo Fang',
+                                              'title': 'platform architect',
+                                              'children': [
+                                                {
+                                                  'name': 'Grace Qian',
+                                                  'title': 'director of engineering',
+                                                  'children': [
+                                                    {
+                                                      'name': 'Victor Shen',
+                                                      'title': 'vp of infrastructure',
+                                                      'children': [
+                                                        {
+                                                          'name': 'Hazel Zhou',
+                                                          'title': 'cto advisor',
+                                                          'children': [
+                                                            {
+                                                              'name': 'Ryan Luo',
+                                                              'title': 'chief architect',
+                                                              'children': [
+                                                                {
+                                                                  'name': 'Ava Meng',
+                                                                  'title': 'distinguished engineer',
+                                                                  'children': [
+                                                                    {
+                                                                      'name': 'Noah Yao',
+                                                                      'title': 'innovation fellow',
+                                                                      'children': [
+                                                                        {
+                                                                          'name': 'Ella Jin',
+                                                                          'title': 'research director',
+                                                                          'children': [
+                                                                            {
+                                                                              'name': 'Caleb Xu',
+                                                                              'title': 'systems strategist',
+                                                                              'children': [
+                                                                                {
+                                                                                  'name': 'Ruby Dai',
+                                                                                  'title': 'transformation lead',
+                                                                                  'children': [
+                                                                                    {
+                                                                                      'name': 'Simon Pei',
+                                                                                      'title': 'program executive',
+                                                                                      'children': [
+                                                                                        { 'name': 'Tina Mo', 'title': 'senior advisor' }
+                                                                                      ]
+                                                                                    }
+                                                                                  ]
+                                                                                }
+                                                                              ]
+                                                                            }
+                                                                          ]
+                                                                        }
+                                                                      ]
+                                                                    }
+                                                                  ]
+                                                                }
+                                                              ]
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            { 'name': 'Owen Gu', 'title': 'site reliability engineer' }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                { 'name': 'Xiang Xiang', 'title': 'UE engineer' },
+                { 'name': 'Dan Dan', 'title': 'QA engineer' }
+              ]
+            },
+            {
+              'name': 'Hei Hei',
+              'title': 'senior engineer',
+              'children': [
+                { 'name': 'Jia Jia', 'title': 'engineer' },
+                { 'name': 'Ming Ming', 'title': 'DevOps engineer' }
+              ]
+            }
+          ]
+        },
+        {
+          'name': 'Hong Miao',
+          'title': 'department manager',
+          'children': [
+            { 'name': 'Fei Fei', 'title': 'product manager' },
+            { 'name': 'A Hui', 'title': 'data analyst' },
+            { 'name': 'Xiao Yu', 'title': 'support lead' }
+          ]
+        },
+        {
+          'name': 'Yu Wei',
+          'title': 'department manager',
+          'children': [
+            { 'name': 'Lin Lin', 'title': 'solution architect' },
+            { 'name': 'Qiao Qiao', 'title': 'technical writer' },
+            { 'name': 'Ran Ran', 'title': 'operations specialist' }
+          ]
+        },
+        {
+          'name': 'Chun Miao',
+          'title': 'department manager',
+          'children': [
+            { 'name': 'An An', 'title': 'research engineer' },
+            { 'name': 'Le Le', 'title': 'frontend engineer' },
+            { 'name': 'Tao Tao', 'title': 'backend engineer' }
+          ]
+        }
+      ]
+    };
+
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data': datasource,
+      'nodeContent': 'title',
+      'pan': true,
+      'zoom': true,
+      'minimap': true
+    });
+
+    oc.chartContainer.addEventListener('touchmove', function(event) {
+      event.preventDefault();
+    }, { passive: false });
+
+  });
+  </script>
+</body>
+</html>

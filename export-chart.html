@@ -2,24 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Export Image Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Export Image Demo</h1>
+    <p>This demo enables the built-in export button so the current chart can be saved as an image file.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script src="js/jquery.min.js"></script>
   <!-- the following reference is specific for IE -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.auto.min.js"></script>
   <script type="text/javascript" src="js/html2canvas.min.js"></script>
   <script type="text/javascript" src="js/jspdf.umd.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -44,8 +46,9 @@
       ]
     };
 
-    $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'visibleLevel': 2,
       'nodeContent': 'title',
       'exportButton': true,

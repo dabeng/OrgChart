@@ -2,20 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Bottom to Top Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Bottom to Top Demo</h1>
+    <p>This demo renders the chart in bottom-to-top mode instead of the default top-to-bottom direction.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -31,8 +33,9 @@
       ]
     };
 
-    $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'nodeContent': 'title',
       'direction': 'b2t'
     });

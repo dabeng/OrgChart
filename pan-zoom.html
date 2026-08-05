@@ -2,20 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Pan and Zoom Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    body {
+      padding: 0.5rem;
+    }
+    .orgchart { background: white; }
+  </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Pan and Zoom Demo</h1>
+    <p>Mouse wheel zoom is anchored to the current mouse position inside the chart container, so the content under the pointer should stay under the pointer while zooming.</p>
+    <p>Wheel input is ignored when the pointer is outside the chart container bounds. On touch devices, pinch zoom is anchored to the midpoint between the two fingers.</p>
+    <p>Drag the chart to pan. Use mouse wheel or touch pinch to verify the zoom anchor behavior.</p>
+    <p>If you want an overview navigator for the same interaction model, open <a href="minimap.html" target="_blank">the minimap demo</a> to move the main chart through the viewport rectangle in the lower-right corner.</p>
+  </section>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datascource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -40,16 +51,17 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
-      'data' : datascource,
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
+      'data' : datasource,
       'nodeContent': 'title',
       'pan': true,
       'zoom': true
     });
 
-    oc.$chartContainer.on('touchmove', function(event) {
+    oc.chartContainer.addEventListener('touchmove', function(event) {
       event.preventDefault();
-    });
+    }, { passive: false });
 
   });
   </script>

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Organization Chart Plugin</title>
+  <title>OrgChart Related Nodes Demo</title>
   <link rel="icon" href="img/logo.png">
-  <link rel="stylesheet" href="css/jquery.orgchart.css">
+  <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
   <style type="text/css">
     #chart-container { height:  620px; }
@@ -58,6 +58,10 @@
   </style>
 </head>
 <body>
+  <section class="demo-notes">
+    <h1>Related Nodes Demo</h1>
+    <p>This demo highlights the selected node's parents, siblings, and children and explains the meaning of each color in the legend.</p>
+  </section>
   <div id="chart-legend">
     <div id="chart-legend__title">Legend</div>
     <div class="chart-legend__item">
@@ -74,13 +78,11 @@
     </div>
   </div>
   <div id="chart-container"></div>
-
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery.orgchart.js"></script>
+  <script type="text/javascript" src="js/orgchart.js"></script>
   <script type="text/javascript">
-    $(function() {
+    document.addEventListener('DOMContentLoaded', () => {
 
-    var datasource = {
+    const datasource = {
       'name': 'Lao Lao',
       'title': 'general manager',
       'children': [
@@ -125,23 +127,31 @@
       ]
     };
 
-    var oc = $('#chart-container').orgchart({
+    const oc = new OrgChart({
+      chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title',
       'verticalLevel': 4,
       'visibleLevel': 6
     });
 
-    oc.$chart.find('.node')
-      .on('mouseenter', function() {
-        oc.getParent($(this)).addClass('highlight-parent');
-        oc.getSiblings($(this)).addClass('highlight-siblings');
-        oc.getChildren($(this)).addClass('highlight-children');
-      })
-      .on('mouseleave', function () {
-        oc.$chart.find('.highlight-parent, .highlight-siblings, .highlight-children')
-          .removeClass('highlight-parent highlight-siblings highlight-children');
+    const forEachNode = (nodes, callback) => {
+      const nodeList = Array.isArray(nodes) ? nodes : [nodes].filter(Boolean);
+      nodeList.forEach(callback);
+    };
+
+    Array.from(oc.chart.querySelectorAll('.node')).forEach((node) => {
+      node.addEventListener('mouseenter', () => {
+        forEachNode(oc.getParent(node), (el) => el.classList.add('highlight-parent'));
+        forEachNode(oc.getSiblings(node), (el) => el.classList.add('highlight-siblings'));
+        forEachNode(oc.getChildren(node), (el) => el.classList.add('highlight-children'));
       });
+      node.addEventListener('mouseleave', () => {
+        Array.from(oc.chart.querySelectorAll('.highlight-parent, .highlight-siblings, .highlight-children')).forEach((el) => {
+          el.classList.remove('highlight-parent', 'highlight-siblings', 'highlight-children');
+        });
+      });
+    });
 
   });
   </script>
