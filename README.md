@@ -55,6 +55,10 @@ FYI, [How to use jQuery Orchart in React](https://stackblitz.com/edit/vitejs-vit
 ## [Demos based on nested table](https://codepen.io/collection/AWxGVb/) (obsolete)
 
 ### online demos
+- [I want to render 10,000 nodes within 500 milliseconds](https://dabeng.github.io/OrgChart/10000-nodes.html)
+
+![10000-nodes](http://dabeng.github.io/OrgChart/img/10000-nodes.png)
+
 - [using ul datasource](https://dabeng.github.io/OrgChart/ul-datasource.html)(this feature comes from [Tobyee's good idea :blush:](https://github.com/dabeng/OrgChart/issues/1))
 
 - [using local datasource](https://dabeng.github.io/OrgChart/local-datasource.html)

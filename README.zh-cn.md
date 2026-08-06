@@ -52,6 +52,10 @@ $ npm install orgchart
 ## [基于嵌套table的实例集合](https://codepen.io/collection/AWxGVb/) (过时)
 
 ### 天马行空的需求
+- [我想在500毫秒内渲染10,000个节点](https://dabeng.github.io/OrgChart/10000-nodes.html)
+
+![10000-nodes](http://dabeng.github.io/OrgChart/img/10000-nodes.png)
+
 - [ul数据源](https://dabeng.github.io/OrgChart/ul-datasource.html)(感谢 [Tobyee的好点子 :blush:](https://github.com/dabeng/OrgChart/issues/1))
 
 - [本地数据源](https://dabeng.github.io/OrgChart/local-datasource.html)
