@@ -1,9 +1,3 @@
-# 使用 NPM_TOKEN 登录
-name: Authenticate with npm
-  run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
-  env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
 name: Publish Package
 
 on:
@@ -26,8 +20,11 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
-          
-# npm 10.x (随 Node.js 22 自带) 已经足够新，无需升级
+
+      - name: Authenticate with npm
+        run: npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         
       - run: npm ci
       
