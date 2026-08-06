@@ -1,3 +1,9 @@
+# 使用 NPM_TOKEN 登录
+name: Authenticate with npm
+  run: npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+  env:
+    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
 name: Publish Package
 
 on:
