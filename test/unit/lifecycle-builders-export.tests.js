@@ -847,7 +847,7 @@ describe('orgchart -- init and builder unit tests', function () {
       data.level.should.equal(7);
     });
 
-    it('propagates a derived level into grouped family-tree arrays', function () {
+    it('propagates a one-based level into grouped family-tree arrays', function () {
       const hierarchyEl = document.createElement('li');
       const familyData = [[
         { id: 'n11', name: 'Spouse A', relationship: '001' },
@@ -857,8 +857,8 @@ describe('orgchart -- init and builder unit tests', function () {
       hierarchyEl.className = 'hierarchy';
       oc.buildHierarchy(hierarchyEl, familyData);
 
-      familyData[0][0].level.should.equal(0);
-      familyData[0][1].level.should.equal(0);
+      familyData[0][0].level.should.equal(1);
+      familyData[0][1].level.should.equal(1);
     });
 
     it('creates spouse, couple, and insider wrappers for family trees', function () {

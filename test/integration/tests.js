@@ -130,7 +130,7 @@ describe('orgchart -- integration tests', function () {
     $container = document.getElementById('chart-container');
     oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data': ds
+      'data': cloneValue(ds)
     }),
     $laolao = document.getElementById('n1'),
     $bomiao = document.getElementById('n2'),

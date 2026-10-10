@@ -133,7 +133,7 @@ This feature is inspired by the issues([Aligning Children Vertical](https://gith
 
 From now on, users never have to worry about how to align a huge of nodes in one screen of browser. The option "verticalLevel" allows users to align child nodes vertically from the given level.
 
-**Note**: currently, this option is incompatible with many other options or methods, like direction, drag&drop, addChildren(), removeNodes(), getHierarchy() and so on. These conflicts will be solved one by one in the later versions.
+When combined with `compact`, `verticalLevel` determines the layout from its configured level onward. Direction, depth limits and drag/drop continue to use the actual node hierarchy.
 
 - [I want to collapse some nodes by default](https://dabeng.github.io/OrgChart/default-collapsed.html)
 
@@ -172,6 +172,10 @@ You need the solution based on new datasource structure with **levelOffset data 
 ![data-prop-compact](http://dabeng.github.io/OrgChart/img/data-prop-compact.png)
 
 **compact data property** is designed for your use case. Once node data includes a "compact" prop with truthy value, itself and its descendant nodes will be arranged with compact mode.
+
+Compact layouts support `draggable`, `visibleLevel`, direction, pan, zoom and minimap together. Use `compact: true` to compact every branch, or a callback to select dense branches. `drag` is an alias for `draggable`; when both are supplied, `draggable` takes precedence. Compact drag/drop and node editing may rebuild the chart, so reacquire rendered node elements afterward.
+
+Grouped family sources use the configured `nodeId` for every member and the same one-based depth as JSON and UL sources. Compact family children are arranged as household grids. Drag/drop and editing modify the selected member and its descendants, not its surrounding household; family mutations may rebuild rendered nodes. `getHierarchy()` preserves grouped family arrays, and related-node queries include all members with the same chart parent.
 
 - [ I want to visualize genealogy/pedigree/family tree information](https://dabeng.github.io/OrgChart/family-tree.html)
 
@@ -311,10 +315,10 @@ var oc = new OrgChart({
   <tbody>
     <tr>
       <td>data</td>
-      <td>json or HTMLUListElement</td>
+      <td>object / array / HTMLUListElement</td>
       <td>yes</td>
       <td></td>
-      <td>datasource used to build out structure of orgchart. It can be a json object or an HTML ul element.</td>
+      <td>Datasource: a JSON tree object, grouped family-tree arrays, or an HTML ul element. UL data is normalized internally so later option changes retain edits.</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -331,18 +335,25 @@ var oc = new OrgChart({
       <td>Users could zoomin/zoomout the orgchart by mouse wheel if they enable this option.</td>
     </tr>
     <tr>
+      <td>minimap</td>
+      <td>boolean</td>
+      <td>no</td>
+      <td>false</td>
+      <td>Displays an overview navigator. Drag its viewport to move the chart, or use the wheel over the minimap to zoom. Minimap wheel zoom remains available when zoom is false.</td>
+    </tr>
+    <tr>
       <td>zoominLimit</td>
       <td>number</td>
       <td>no</td>
       <td>7</td>
-      <td>Users are allowed to set a zoom-in limit.</td>
+      <td>Inclusive maximum scale. Zoom steps are clamped to this bound. Limits must be finite, positive, and ordered.</td>
     </tr>
     <tr>
       <td>zoomoutLimit</td>
       <td>number</td>
       <td>no</td>
       <td>0.5</td>
-      <td>Users are allowed to set a zoom-out limit.</td>
+      <td>Inclusive minimum scale. It must not exceed zoominLimit. Invalid limits throw a RangeError before the chart is replaced.</td>
     </tr>
     <tr>
       <td>direction</td>
@@ -367,10 +378,10 @@ var oc = new OrgChart({
     </tr>
     <tr>
       <td>visibleLevel</td>
-      <td>positive integer</td>
+      <td>nonnegative integer or boolean</td>
       <td>no</td>
       <td>999</td>
-      <td>It indicates the level that at the very beginning orgchart is expanded to.</td>
+      <td>It indicates the initially expanded depth. true uses the default depth (999); false shows the first level; 0 hides all initial nodes. Deeper branches can be expanded later.</td>
     </tr>
     <tr>
       <td>nodeTitle</td>
@@ -378,13 +389,6 @@ var oc = new OrgChart({
       <td>no</td>
       <td>"name"</td>
       <td>It sets one property of datasource as text content of title section of orgchart node. In fact, users can create a simple orghcart with only nodeTitle option.</td>
-    </tr>
-    <tr>
-      <td>parentNodeSymbol</td>
-      <td>string</td>
-      <td>no</td>
-      <td>"oci-menu"</td>
-      <td>Using your own icon to imply that the node has child nodes.</td>
     </tr>
     <tr>
       <td>nodeContent</td>
@@ -432,7 +436,7 @@ var oc = new OrgChart({
       <td>exportFilename</td>
       <td>string</td>
       <td>no</td>
-      <td>"Orgchart"</td>
+      <td>"OrgChart"</td>
       <td>It's filename when you export current orgchart as a picture.</td>
     </tr>
     <tr>
@@ -441,6 +445,13 @@ var oc = new OrgChart({
       <td>no</td>
       <td>"png"</td>
       <td>Available values are png and pdf.</td>
+    </tr>
+    <tr>
+      <td>exportScale</td>
+      <td>number</td>
+      <td>no</td>
+      <td>2</td>
+      <td>Canvas resolution multiplier for PNG and PDF exports; PDF pages retain the chart's logical dimensions. Nonpositive values fall back to 1.</td>
     </tr>
     <tr>
       <td>chartClass</td>
@@ -475,7 +486,7 @@ var oc = new OrgChart({
       <td>json</td>
       <td>no</td>
       <td></td>
-      <td>Users can use this option to plug Font Awesome icons back in.
+      <td>Users can use this option to plug Font Awesome icons back in. Partial icon objects are merged with the defaults by field. Set icons.parentNode to customize the parent-node symbol.
         <pre>
           <code>
 'icons': {
@@ -494,10 +505,10 @@ var oc = new OrgChart({
     </tr>
     <tr>
       <td>compact</td>
-      <td>function</td>
+      <td>boolean or function</td>
       <td>no</td>
       <td></td>
-      <td>This callback is used to determine current node is wether rendered with compact mode. The node's data is passed in as a parameter. <b>Note:</b>The option "compact" has a higher priority than data prop "compact".</td>
+      <td>true compacts every branch; a callback receiving node data selects additional compact branches. Explicit compact data properties are preserved. Vertical/hybrid layout takes precedence at nodes where it applies.</td>
     </tr>
   </tbody>
 </table>
@@ -515,14 +526,14 @@ The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `upda
 | Call | Parameters | Return value and behavior |
 | --- | --- | --- |
 | `oc.init(options)` | Partial options object; use `data` to replace the data source. | Rebuilds the chart and returns `oc`. |
-| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | Object containing `data`, `pan`, `zoom`, or `minimap`; or one of the supported names with a boolean value. | Rebuilds for `data`; toggles pan, zoom, or minimap otherwise; returns `oc`. |
+| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | Partial options object, or an option name and value. | Applies navigation/export settings in place; rebuilds for data, layout or node-rendering settings; returns `oc`. |
 | `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` is optional; `true` redraws preview nodes. | Creates, removes, or refreshes the minimap. Prefer `setOptions('minimap', value)` for normal enablement. |
 | `oc.addAncestors(data, parentId)` | Ancestor data and the id of the ancestor node that receives the existing root. | Inserts ancestor hierarchy; no return value. |
 | `oc.addDescendants(data, parent)` | Array of descendant data and a rendered parent `.node`. | Appends descendant hierarchy; no return value. |
 | `oc.addParent(currentRoot, data)` | Rendered root `.node` and its new parent data. | Wraps the current root with a parent; no return value. |
 | `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | Rendered `.node` and an array of sibling or child data. | Adds rendered nodes; no return value. |
 | `oc.removeNodes(node)` | Rendered `.node` to remove. | Removes the node and its descendants; no return value. |
-| `oc.getHierarchy(includeNodeData)` | Optional boolean, default `false`. | Returns the hierarchy object; returns an error string when the chart or required node ids are unavailable. |
+| `oc.getHierarchy(includeNodeData)` | Optional boolean, default `false`. | Returns a hierarchy object for tree sources or grouped arrays for family sources; returns an error string when the chart or required node ids are unavailable. |
 | `oc.getNodeState(node, relation)` | Rendered `.node`; `relation` is `parent`, `children`, or `siblings`. | Returns `{ exist, visible }`. |
 | `oc.getParent(node)` | Rendered `.node`. | Returns its parent `.node`, or `null`. |
 | `oc.getChildren(node)`<br>`oc.getSiblings(node)` | Rendered `.node`. | Returns an array of direct child or sibling `.node` elements. |
@@ -537,7 +548,7 @@ The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `upda
 It's the useful way when users want to re-initialize or refresh orgchart based on new options or reload new data.
 
 #### setOptions(options) / setOptions(name, value)
-Updates `pan`, `zoom`, or `minimap` without rebuilding the chart. Pass an options object, or a supported option name and boolean value. Passing an object containing `data` rebuilds the chart.
+Updates `pan`, `zoom`, `minimap`, zoom limits and export scale/filename/extension without rebuilding the chart. Other options rebuild the chart. Pass a partial options object, or an option name and value. Changes are retained by later `init()` calls; icon defaults are merged field by field. Reacquire node elements after a rebuild.
 
 #### attachMinimap() / detachMinimap()
 Creates or removes the minimap overlay for the current chart. Usually use `setOptions('minimap', true|false)` so the option state and overlay stay synchronized.

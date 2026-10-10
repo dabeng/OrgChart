@@ -55,6 +55,10 @@ gulp.task('integration-tests', gulp.series('unit-tests', function () {
   return runMocha(['test/integration/*.js']);
 }));
 
+gulp.task('compatibility-tests', function () {
+  return runMocha(['test/compatibility/*.tests.js']);
+});
+
 gulp.task('addAssets', gulp.series('integration-tests', function () {
   const jsFiles = gulp.src([
       paths.srcJS,
@@ -82,7 +86,7 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
   });
 }));
 
-gulp.task('test', gulp.series('e2e-tests'));
+gulp.task('test', gulp.series('compatibility-tests', 'e2e-tests'));
 
 gulp.task('cleanupJS', function() {
   return deletePaths([paths.distJSFolder + '/**']);

@@ -18,6 +18,7 @@
   }
 }(function (window, document, undefined) {
   const elementDataStore = new WeakMap();
+  const nodeLayoutStore = new WeakMap();
   const getWindow = () => (typeof globalThis !== 'undefined' && globalThis.window ? globalThis.window : window);
   const getDocument = () => {
     const currentWindow = getWindow();
@@ -41,8 +42,130 @@
     return normalizeInput(input, context || getDocument());
   }
 
+  function getChildNodesContainer(nodeElement) {
+    const nodeData = getState(nodeElement, 'sourceData');
+    const containers = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).filter(function (element) {
+      return element.classList.contains('nodes');
+    });
+    const ownedContainer = containers.find(function (container) {
+      return nodeData && getState(container, 'parentData') === nodeData;
+    });
+    if (ownedContainer) {
+      return ownedContainer;
+    }
+    if (containers.some(function (container) { return !!getState(container, 'parentData'); })) {
+      return null;
+    }
+    const nextElement = nodeElement.nextElementSibling;
+    if (nextElement && nextElement.classList.contains('nodes')) {
+      return nextElement;
+    }
+    if (nodeElement.parentElement && nodeElement.parentElement.classList.contains('hierarchy')) {
+      return Array.from(nodeElement.parentElement.children).find(function (element) {
+        return element.classList.contains('nodes');
+      }) || null;
+    }
+    return null;
+  }
+
   function mergeObjects() {
     return Object.assign.apply(Object, [{}].concat(Array.from(arguments)));
+  }
+
+  function mergeChartOptions(defaults) {
+    const options = mergeObjects({}, defaults);
+    options.icons = mergeObjects({}, defaults.icons);
+    Array.from(arguments).slice(1).forEach(function (overrides) {
+      if (!overrides) {
+        return;
+      }
+      Object.assign(options, overrides, { icons: mergeObjects({}, options.icons, overrides.icons) });
+      if (Object.prototype.hasOwnProperty.call(overrides, 'drag')
+        && !Object.prototype.hasOwnProperty.call(overrides, 'draggable')) {
+        options.draggable = overrides.drag;
+      }
+    });
+    options.visibleLevel = options.visibleLevel === true ? defaults.visibleLevel
+      : options.visibleLevel === false ? 1 : Number(options.visibleLevel);
+    if (!Number.isInteger(options.visibleLevel) || options.visibleLevel < 0) {
+      throw new RangeError('visibleLevel must be a nonnegative integer or boolean');
+    }
+    options.zoomoutLimit = Number(options.zoomoutLimit);
+    options.zoominLimit = Number(options.zoominLimit);
+    if (!Number.isFinite(options.zoomoutLimit) || !Number.isFinite(options.zoominLimit)
+      || options.zoomoutLimit <= 0 || options.zoominLimit < options.zoomoutLimit) {
+      throw new RangeError('zoom limits must be positive and zoomoutLimit must not exceed zoominLimit');
+    }
+    if (!['t2b', 'b2t', 'l2r', 'r2l'].includes(options.direction)) {
+      throw new RangeError('direction must be t2b, b2t, l2r, or r2l');
+    }
+    return options;
+  }
+
+  function prepareNodeData(data, resetRelationships) {
+    if (Array.isArray(data)) {
+      let hasCompact = false;
+      data.forEach(function (item) {
+        hasCompact = prepareNodeData(item, resetRelationships) || hasCompact;
+      });
+      return hasCompact;
+    }
+    if (!isPlainObject(data)) {
+      return false;
+    }
+    const layoutKeys = ['compact', 'associatedCompact', 'vertical', 'relationship', 'level', 'parentId'];
+    let layout = nodeLayoutStore.get(data);
+    if (!layout) {
+      layout = {};
+      layoutKeys.forEach(function (key) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          layout[key] = data[key];
+        }
+      });
+      nodeLayoutStore.set(data, layout);
+    }
+    if (resetRelationships) {
+      delete layout.relationship;
+      delete layout.level;
+      delete layout.parentId;
+    }
+    layoutKeys.forEach(function (key) {
+      if (Object.prototype.hasOwnProperty.call(layout, key)) {
+        data[key] = layout[key];
+      } else {
+        delete data[key];
+      }
+    });
+    let hasCompact = !!data.compact;
+    (data.children || []).forEach(function (child) {
+      hasCompact = prepareNodeData(child, resetRelationships) || hasCompact;
+    });
+    return hasCompact;
+  }
+
+  function usesCompactLayout(data, options, level) {
+    return !!data.compact && !data.hybrid && !data.vertical
+      && !(options.verticalLevel && level + 1 >= options.verticalLevel);
+  }
+
+  function findDataLocation(datasource, target) {
+    let location = null;
+    const visit = function (data, parent, list, index, outerList, outerIndex) {
+      if (location) {
+        return;
+      }
+      if (Array.isArray(data)) {
+        data.forEach(function (item, itemIndex) {
+          visit(item, parent, data, itemIndex, list, index);
+        });
+      } else if (data === target) {
+        location = { parent: parent, list: list, index: index, outerList: outerList, outerIndex: outerIndex };
+      } else if (data && data.children) {
+        visit(data.children, data, null, null, null, null);
+      }
+    };
+    visit(datasource, null, null, null, null, null);
+    return location;
   }
 
   function forEachValue(collection, callback) {
@@ -116,8 +239,16 @@
     if (!element || element.nodeType !== 1) {
       return false;
     }
-    const style = getWindow().getComputedStyle(element);
-    return style.display !== 'none' && style.visibility !== 'hidden';
+    let currentElement = element;
+    while (currentElement && currentElement.nodeType === 1) {
+      const style = getWindow().getComputedStyle(currentElement);
+      if (currentElement.classList.contains('hidden') || style.display === 'none'
+        || style.visibility === 'hidden' || style.visibility === 'collapse' || style.opacity === '0') {
+        return false;
+      }
+      currentElement = currentElement.parentElement;
+    }
+    return true;
   }
 
   function matchesSelector(element, selector) {
@@ -344,7 +475,7 @@
 
   function getChartTransform(chartElement) {
     let currentTransform;
-    let matrixValues;
+    let matrixValues = [1, 0, 0, 1, 0, 0];
     let currentScale = 1;
     let currentTranslateX = 0;
     let currentTranslateY = 0;
@@ -353,7 +484,8 @@
       return {
         scale: currentScale,
         translateX: currentTranslateX,
-        translateY: currentTranslateY
+        translateY: currentTranslateY,
+        matrix: matrixValues
       };
     }
 
@@ -363,14 +495,14 @@
         matrixValues = currentTransform.slice(9, -1).split(',').map(function (value) {
           return getWindow().parseFloat(value.trim());
         });
-        currentScale = Math.abs(matrixValues[0]) || 1;
+        currentScale = Math.hypot(matrixValues[0], matrixValues[1], matrixValues[2]) || 1;
         currentTranslateX = matrixValues[12] || 0;
         currentTranslateY = matrixValues[13] || 0;
       } else if (currentTransform.indexOf('matrix(') === 0) {
         matrixValues = currentTransform.slice(7, -1).split(',').map(function (value) {
           return getWindow().parseFloat(value.trim());
         });
-        currentScale = Math.abs(matrixValues[0]) || 1;
+        currentScale = Math.hypot(matrixValues[0], matrixValues[1]) || 1;
         currentTranslateX = matrixValues[4] || 0;
         currentTranslateY = matrixValues[5] || 0;
       } else if (currentTransform.indexOf('scale3d(') === 0) {
@@ -378,19 +510,80 @@
           return getWindow().parseFloat(value.trim());
         });
         currentScale = Math.abs(matrixValues[0]) || 1;
+        matrixValues = [matrixValues[0], 0, 0, 0, 0, matrixValues[1], 0, 0, 0, 0, matrixValues[2], 0, 0, 0, 0, 1];
       } else if (currentTransform.indexOf('scale(') === 0) {
         matrixValues = currentTransform.slice(6, -1).split(',').map(function (value) {
           return getWindow().parseFloat(value.trim());
         });
         currentScale = Math.abs(matrixValues[0]) || 1;
+        matrixValues = [matrixValues[0], 0, 0, matrixValues[1] === undefined ? matrixValues[0] : matrixValues[1], 0, 0];
       }
     }
 
     return {
       scale: currentScale,
       translateX: currentTranslateX,
-      translateY: currentTranslateY
+      translateY: currentTranslateY,
+      matrix: matrixValues
     };
+  }
+
+  function applyChartTransform(chartElement, chartTransform, scale, translateX, translateY) {
+    const matrixValues = chartTransform.matrix.slice();
+    const scaleRatio = scale / chartTransform.scale;
+    const is3d = matrixValues.length === 16;
+    const linearIndexes = is3d ? [0, 1, 2, 4, 5, 6, 8, 9, 10] : [0, 1, 2, 3];
+
+    linearIndexes.forEach(function (index) {
+      matrixValues[index] *= scaleRatio;
+    });
+    matrixValues[is3d ? 12 : 4] = translateX;
+    matrixValues[is3d ? 13 : 5] = translateY;
+    chartElement.style.transformOrigin = '0 0';
+    chartElement.style.transform = (is3d ? 'matrix3d(' : 'matrix(') + matrixValues.join(', ') + ')';
+  }
+
+  function rebuildFromData(orgChart, expandedData, updatedDatasource) {
+    const chartElement = orgChart.chart;
+    const datasource = updatedDatasource || getState(chartElement, 'datasource') || orgChart.options.data;
+    const expansionStates = new Map();
+    const transform = chartElement.style.transform;
+    const transformOrigin = chartElement.style.transformOrigin;
+    Array.from(chartElement.querySelectorAll('.node')).forEach(function (nodeElement) {
+      expansionStates.set(getState(nodeElement, 'sourceData'), {
+        visible: isVisibleElement(nodeElement),
+        expanded: nodeElement.classList.contains('compact')
+          ? nodeElement.classList.contains('looseMode')
+          : orgChart.getNodeState(nodeElement, 'children').visible
+      });
+    });
+    prepareNodeData(datasource, true);
+    orgChart.init({ data: datasource });
+    orgChart.chart.style.transform = transform;
+    orgChart.chart.style.transformOrigin = transformOrigin;
+    Array.from(orgChart.chart.querySelectorAll('.node')).forEach(function (nodeElement) {
+      const nodeData = getState(nodeElement, 'sourceData');
+      const state = expansionStates.get(nodeData);
+      const expanded = nodeData === expandedData || (state && state.expanded);
+      if (state && state.visible) {
+        nodeElement.classList.remove('slide-up');
+      }
+      if (nodeElement.classList.contains('compact')) {
+        if (expanded && orgChart.getChildren(nodeElement).length) {
+          orgChart.backToLooseHandler({ compactNode: nodeElement });
+        }
+      } else {
+        const childContainer = getChildNodesContainer(nodeElement);
+        if (childContainer && (state || nodeData === expandedData)) {
+          childContainer.classList.toggle('hidden', !expanded);
+          nodeElement.closest('.hierarchy').classList.toggle('isChildrenCollapsed', !expanded);
+          if (expanded) {
+            orgChart.getChildren(nodeElement).forEach(function (child) { child.classList.remove('slide-up'); });
+          }
+        }
+      }
+    });
+    orgChart.updateMinimap(true);
   }
 
   const OrgChart = function (elem, opts) {
@@ -405,6 +598,7 @@
       this.opts = opts || {};
     }
     this.chart = null;
+    this.exportButtonElement = null;
     this.defaultOptions = {
       'icons': {
         'theme': 'oci',
@@ -454,7 +648,9 @@
   OrgChart.prototype = {
     //
     init: function (opts) {
-      this.options = mergeObjects({}, this.defaultOptions, this.opts, opts);
+      const options = mergeChartOptions(this.defaultOptions, this.opts, opts);
+      this.opts = options;
+      this.options = options;
       // build the org-chart
       const chartContainerElement = this.chartContainer;
       let chartElement;
@@ -464,6 +660,13 @@
 
       this.detachMinimap();
       if (this.chart) {
+        const initObserver = getState(this.chart, 'initMutationObserver');
+        if (initObserver) {
+          initObserver.disconnect();
+        }
+        this.panEndHandler({ chart: this.chart });
+        this.unbindPan();
+        this.unbindZoom();
         this.chart.remove();
       }
       const data = this.options.data;
@@ -485,6 +688,11 @@
         this.triggerInitEvent();
       }
       const isListElementData = isElement(data) && data.tagName === 'UL';
+      const datasource = isListElementData ? this.buildJsonDS(data.firstElementChild) : data;
+      const hasCompactData = prepareNodeData(datasource);
+      setState(chartElement, 'datasource', datasource);
+      this.options.data = datasource;
+      this.opts.data = datasource;
       rootNodesContainerElement = getDocument().createElement('ul');
       rootNodesContainerElement.className = 'nodes';
       chartElement.appendChild(rootNodesContainerElement);
@@ -498,23 +706,26 @@
         rootElement = rootHierarchyElement;
       }
 
-        if (isListElementData) { // ul datasource
-          this.buildHierarchy(rootElement, this.buildJsonDS(data.firstElementChild));
-        } else { // local json datasource
-          if (data.relationship) {
-            this.buildHierarchy(rootElement, data);
-          } else {
-            this.buildHierarchy(rootElement, Array.isArray(data) ? data : this.attachRel(data, '00'));
-          }
-        }
+      if (datasource.relationship && !hasCompactData && !this.options.compact) {
+        this.buildHierarchy(rootElement, datasource);
+      } else {
+        this.buildHierarchy(rootElement, this.attachRel(datasource, '00'));
+      }
 
       if (chartContainerElement) {
         chartContainerElement.appendChild(chartElement);
       }
 
       // append the export button
-      if (this.options.exportButton && !getDocument().querySelector('.oc-export-btn')) {
-        this.attachExportButton();
+      if (this.options.exportButton) {
+        if (!this.exportButtonElement || !this.exportButtonElement.parentElement) {
+          this.attachExportButton();
+        } else {
+          this.exportButtonElement.textContent = this.options.exportButtonName;
+        }
+      } else if (this.exportButtonElement) {
+        this.exportButtonElement.remove();
+        this.exportButtonElement = null;
       }
 
       if (this.options.pan) {
@@ -556,26 +767,30 @@
     //
     triggerInitEvent: function () {
       const orgChart = this;
+      const chartElement = this.chart;
+      const options = this.options;
       const MutationObserverCtor = getWindow().MutationObserver;
       const mo = new MutationObserverCtor(function (mutations) {
         mo.disconnect();
+        setState(chartElement, 'initMutationObserver', null);
         initTime:
         for (let i = 0; i < mutations.length; i++) {
           for (let j = 0; j < mutations[i].addedNodes.length; j++) {
-            if (mutations[i].addedNodes[j].classList && mutations[i].addedNodes[j].classList.contains('orgchart')) {
+            if (mutations[i].addedNodes[j] === chartElement) {
               orgChart.handleCompactNodes();
-              if (!orgChart.chart) {
+              if (!chartElement.isConnected) {
                 break initTime;
               }
-              if (orgChart.options.initCompleted && typeof orgChart.options.initCompleted === 'function') {
-                orgChart.options.initCompleted(orgChart.chart);
+              if (options.initCompleted && typeof options.initCompleted === 'function') {
+                options.initCompleted(chartElement);
               }
-              mutations[i].addedNodes[j].dispatchEvent(createTriggeredEvent('init.orgchart'));
+              chartElement.dispatchEvent(createTriggeredEvent('init.orgchart'));
               break initTime;
             }
           }
         }
       });
+      setState(chartElement, 'initMutationObserver', mo);
       mo.observe(this.chartContainer, { childList: true });
     },
     triggerShowEvent: function (targetEl, rel) {
@@ -601,72 +816,53 @@
       exportButtonElement = getDocument().createElement('button');
       exportButtonElement.className = 'oc-export-btn';
       exportButtonElement.textContent = this.options.exportButtonName;
+      setState(exportButtonElement, 'orgChart', this);
       exportButtonElement.addEventListener('click', function (event) {
         event.preventDefault();
         orgChart.export();
       });
+      this.exportButtonElement = exportButtonElement;
       chartContainerElement.insertAdjacentElement('afterend', exportButtonElement);
     },
     setOptions: function (opts, val) {
-      if (typeof opts === 'string') {
-        if (opts === 'pan') {
-          if (val) {
-            this.bindPan();
-          } else {
-            this.unbindPan();
-          }
-        }
-        if (opts === 'zoom') {
-          if (val) {
-            this.bindZoom();
-          } else {
-            this.unbindZoom();
-          }
-        }
-        if (opts === 'minimap') {
-          this.options = mergeObjects({}, this.options || {}, { minimap: val });
-          if (this.chart) {
-            setState(this.chart, 'options', this.options);
-          }
-          if (val) {
-            this.attachMinimap();
-          } else {
-            this.detachMinimap();
-          }
-        }
+      const overrides = typeof opts === 'string' ? { [opts]: val } : opts;
+      if (!overrides || typeof overrides !== 'object') {
+        return this;
       }
-      if (typeof opts === 'object') {
-        if (opts.data) {
-          this.init(opts);
+      const options = mergeChartOptions(this.defaultOptions, this.opts, this.options, overrides);
+      const needsRebuild = Object.keys(overrides).some(function (key) {
+        return !['pan', 'zoom', 'minimap', 'zoominLimit', 'zoomoutLimit', 'exportScale', 'exportFilename', 'exportFileextension'].includes(key);
+      });
+      if (needsRebuild) {
+        return this.init(options);
+      }
+      this.opts = options;
+      this.options = options;
+      if (this.chart) {
+        setState(this.chart, 'options', options);
+      }
+      if (Object.prototype.hasOwnProperty.call(overrides, 'pan')) {
+        if (options.pan) {
+          this.bindPan();
         } else {
-          if (typeof opts.pan !== 'undefined') {
-            if (opts.pan) {
-              this.bindPan();
-            } else {
-              this.unbindPan();
-            }
-          }
-          if (typeof opts.zoom !== 'undefined') {
-            if (opts.zoom) {
-              this.bindZoom();
-            } else {
-              this.unbindZoom();
-            }
-          }
-          if (typeof opts.minimap !== 'undefined') {
-            this.options = mergeObjects({}, this.options || {}, { minimap: opts.minimap });
-            if (this.chart) {
-              setState(this.chart, 'options', this.options);
-            }
-            if (opts.minimap) {
-              this.attachMinimap();
-            } else {
-              this.detachMinimap();
-            }
-          }
+          this.panEndHandler({ chart: this.chart });
+          this.unbindPan();
         }
       }
-
+      if (Object.prototype.hasOwnProperty.call(overrides, 'zoom')) {
+        if (options.zoom) {
+          this.bindZoom();
+        } else {
+          this.unbindZoom();
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(overrides, 'minimap')) {
+        if (options.minimap) {
+          this.attachMinimap();
+        } else {
+          this.detachMinimap();
+        }
+      }
       return this;
     },
     attachMinimap: function () {
@@ -679,7 +875,9 @@
       let minimapViewportElement;
       let minimapWheelBoundHandler;
       let minimapPointerDownBoundHandler;
+      let minimapViewportChangeBoundHandler;
       let minimapMutationObserver;
+      let minimapResizeObserver;
 
       if (!chartContainerElement || !chartElement) {
         return;
@@ -712,9 +910,14 @@
       minimapPointerDownBoundHandler = function (event) {
         orgChart.minimapStartHandler(event);
       };
+      minimapViewportChangeBoundHandler = function () {
+        orgChart.updateMinimap();
+      };
 
-      minimapElement.addEventListener('wheel', minimapWheelBoundHandler);
+      minimapElement.addEventListener('wheel', minimapWheelBoundHandler, { passive: false });
       minimapViewportElement.addEventListener('mousedown', minimapPointerDownBoundHandler);
+      chartContainerElement.addEventListener('scroll', minimapViewportChangeBoundHandler);
+      getWindow().addEventListener('resize', minimapViewportChangeBoundHandler);
 
       if (typeof getWindow().MutationObserver !== 'undefined') {
         minimapMutationObserver = new (getWindow().MutationObserver)(function () {
@@ -727,6 +930,13 @@
           attributeFilter: ['class']
         });
       }
+      if (typeof getWindow().ResizeObserver !== 'undefined') {
+        minimapResizeObserver = new (getWindow().ResizeObserver)(function () {
+          orgChart.updateMinimap(true);
+        });
+        minimapResizeObserver.observe(chartContainerElement);
+        minimapResizeObserver.observe(chartElement);
+      }
 
       setState(chartElement, 'minimapElement', minimapElement);
       setState(chartElement, 'minimapStageElement', minimapStageElement);
@@ -734,7 +944,9 @@
       setState(chartElement, 'minimapViewportElement', minimapViewportElement);
       setState(chartElement, 'minimapWheelBoundHandler', minimapWheelBoundHandler);
       setState(chartElement, 'minimapPointerDownBoundHandler', minimapPointerDownBoundHandler);
+      setState(chartElement, 'minimapViewportChangeBoundHandler', minimapViewportChangeBoundHandler);
       setState(chartElement, 'minimapMutationObserver', minimapMutationObserver || null);
+      setState(chartElement, 'minimapResizeObserver', minimapResizeObserver || null);
 
       this.updateMinimap(true);
     },
@@ -748,6 +960,8 @@
       let minimapMoveBoundHandler;
       let minimapEndBoundHandler;
       let minimapMutationObserver;
+      let minimapViewportChangeBoundHandler;
+      let minimapResizeObserver;
 
       if (chartElement) {
         minimapElement = getState(chartElement, 'minimapElement');
@@ -757,6 +971,8 @@
         minimapMoveBoundHandler = getState(chartElement, 'minimapMoveBoundHandler');
         minimapEndBoundHandler = getState(chartElement, 'minimapEndBoundHandler');
         minimapMutationObserver = getState(chartElement, 'minimapMutationObserver');
+        minimapViewportChangeBoundHandler = getState(chartElement, 'minimapViewportChangeBoundHandler');
+        minimapResizeObserver = getState(chartElement, 'minimapResizeObserver');
 
         if (minimapElement && minimapWheelBoundHandler) {
           minimapElement.removeEventListener('wheel', minimapWheelBoundHandler);
@@ -773,6 +989,13 @@
         if (minimapMutationObserver) {
           minimapMutationObserver.disconnect();
         }
+        if (minimapViewportChangeBoundHandler) {
+          chartContainerElement.removeEventListener('scroll', minimapViewportChangeBoundHandler);
+          getWindow().removeEventListener('resize', minimapViewportChangeBoundHandler);
+        }
+        if (minimapResizeObserver) {
+          minimapResizeObserver.disconnect();
+        }
         if (minimapElement && minimapElement.parentElement) {
           minimapElement.remove();
         }
@@ -787,6 +1010,8 @@
           'minimapMoveBoundHandler',
           'minimapEndBoundHandler',
           'minimapMutationObserver',
+          'minimapViewportChangeBoundHandler',
+          'minimapResizeObserver',
           'minimapDragState',
           'minimapScale',
           'minimapOffsetX',
@@ -812,6 +1037,9 @@
       }
       if (typeof event.preventDefault === 'function') {
         event.preventDefault();
+      }
+      if (typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
       }
 
       this.setChartScale(this.chart, 1 + (event.deltaY > 0 ? -0.2 : 0.2), {
@@ -897,8 +1125,7 @@
       let localViewportHeight;
       let localLeft;
       let localTop;
-      let baseLeft;
-      let baseTop;
+      let transformedRect;
 
       if (!chartElement || !chartContainerElement || !minimapStageElement || !minimapScale || !chartRect || !containerRect) {
         return;
@@ -908,13 +1135,11 @@
       localViewportHeight = viewportHeight / minimapScale;
       localLeft = clampValue((stageLeft - minimapOffsetX) / minimapScale, 0, Math.max(minimapContentWidth - localViewportWidth, 0));
       localTop = clampValue((stageTop - minimapOffsetY) / minimapScale, 0, Math.max(minimapContentHeight - localViewportHeight, 0));
-      baseLeft = chartRect.left - chartTransform.translateX;
-      baseTop = chartRect.top - chartTransform.translateY;
-
-      chartElement.style.transformOrigin = '0 0';
-      chartElement.style.transform = 'matrix(' + chartTransform.scale + ', 0, 0, ' + chartTransform.scale + ', '
-        + (containerRect.left - baseLeft - (localLeft * chartTransform.scale)) + ', '
-        + (containerRect.top - baseTop - (localTop * chartTransform.scale)) + ')';
+      applyChartTransform(chartElement, chartTransform, chartTransform.scale, chartTransform.translateX, chartTransform.translateY);
+      transformedRect = chartElement.getBoundingClientRect();
+      applyChartTransform(chartElement, chartTransform, chartTransform.scale,
+        chartTransform.translateX + containerRect.left - (localLeft * chartTransform.scale) - transformedRect.left,
+        chartTransform.translateY + containerRect.top - (localTop * chartTransform.scale) - transformedRect.top);
       this.updateMinimap();
     },
     updateMinimap: function (forceRefresh) {
@@ -953,6 +1178,8 @@
       minimapScale = Math.min(stageWidth / Math.max(contentWidth, 1), stageHeight / Math.max(contentHeight, 1));
       minimapOffsetX = (stageWidth - (contentWidth * minimapScale)) / 2;
       minimapOffsetY = (stageHeight - (contentHeight * minimapScale)) / 2;
+      const minimapElement = getState(chartElement, 'minimapElement');
+      minimapElement.style.transform = 'translate(' + chartContainerElement.scrollLeft + 'px, ' + chartContainerElement.scrollTop + 'px)';
 
       minimapContentElement.style.width = contentWidth + 'px';
       minimapContentElement.style.height = contentHeight + 'px';
@@ -1005,11 +1232,11 @@
       if (lastTf !== 'none') {
         const temp = lastTf.split(',');
         if (lastTf.indexOf('3d') === -1) {
-          lastX = parseInt(temp[4]);
-          lastY = parseInt(temp[5]);
+          lastX = parseFloat(temp[4]) || 0;
+          lastY = parseFloat(temp[5]) || 0;
         } else {
-          lastX = parseInt(temp[12]);
-          lastY = parseInt(temp[13]);
+          lastX = parseFloat(temp[12]) || 0;
+          lastY = parseFloat(temp[13]) || 0;
         }
       }
       let startX = 0;
@@ -1065,8 +1292,8 @@
             matrix[13] = ' ' + newY;
           }
           chartElement.style.transform = matrix.join(',');
-          orgChart.updateMinimap();
         }
+        orgChart.updateMinimap();
       };
 
       setState(chartElement, 'panMoveHandler', panMoveHandler);
@@ -1203,6 +1430,7 @@
         dist = orgChart.getPinchDist(nativeEvent);
         pinchCenter = orgChart.getPinchCenter(nativeEvent);
         setState(chartElement, 'pinchDistStart', dist);
+        setState(chartElement, 'pinchDistEnd', dist);
         setState(chartElement, 'pinchCenterStart', pinchCenter);
         setState(chartElement, 'pinchCenterEnd', pinchCenter);
       }
@@ -1214,7 +1442,7 @@
       let dist;
       let pinchCenter;
 
-      if(chartElement && getState(chartElement, 'pinching')) {
+      if(chartElement && getState(chartElement, 'pinching') && nativeEvent.touches && nativeEvent.touches.length === 2) {
         dist = orgChart.getPinchDist(nativeEvent);
         pinchCenter = orgChart.getPinchCenter(nativeEvent);
         setState(chartElement, 'pinchDistEnd', dist);
@@ -1340,16 +1568,9 @@
       const chartContainerElement = this.chartContainer;
       let opts;
       let chartRect;
-      let currentScale = 1;
-      let currentTranslateX = 0;
-      let currentTranslateY = 0;
+      let chartTransform;
+      let transformedRect;
       let targetScale = 1;
-      let anchorX;
-      let anchorY;
-      let localAnchorX;
-      let localAnchorY;
-      let baseLeft;
-      let baseTop;
       let containerRect;
       let targetTranslateX;
       let targetTranslateY;
@@ -1359,17 +1580,18 @@
       }
 
       opts = getState(chartElement, 'options');
-      currentScale = getChartTransform(chartElement).scale;
-      currentTranslateX = getChartTransform(chartElement).translateX;
-      currentTranslateY = getChartTransform(chartElement).translateY;
+      chartTransform = getChartTransform(chartElement);
 
-      targetScale = currentScale * newScale;
-      if (!(targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit)) {
+      if (!Number.isFinite(newScale) || newScale <= 0) {
+        return;
+      }
+      targetScale = clampValue(chartTransform.scale * newScale, opts.zoomoutLimit, opts.zoominLimit);
+      if (targetScale === chartTransform.scale) {
         return;
       }
 
-      targetTranslateX = currentTranslateX;
-      targetTranslateY = currentTranslateY;
+      targetTranslateX = chartTransform.translateX;
+      targetTranslateY = chartTransform.translateY;
       chartRect = typeof chartElement.getBoundingClientRect === 'function'
         ? chartElement.getBoundingClientRect()
         : null;
@@ -1380,19 +1602,15 @@
           y: containerRect.top + (containerRect.height / 2)
         };
       }
-      if (zoomAnchor && chartRect && typeof zoomAnchor.x === 'number' && typeof zoomAnchor.y === 'number' && currentScale !== 0) {
-        anchorX = zoomAnchor.x;
-        anchorY = zoomAnchor.y;
-        localAnchorX = (anchorX - chartRect.left) / currentScale;
-        localAnchorY = (anchorY - chartRect.top) / currentScale;
-        baseLeft = chartRect.left - currentTranslateX;
-        baseTop = chartRect.top - currentTranslateY;
-        targetTranslateX = anchorX - baseLeft - (localAnchorX * targetScale);
-        targetTranslateY = anchorY - baseTop - (localAnchorY * targetScale);
+      applyChartTransform(chartElement, chartTransform, targetScale, targetTranslateX, targetTranslateY);
+      if (zoomAnchor && chartRect && typeof zoomAnchor.x === 'number' && typeof zoomAnchor.y === 'number' && chartTransform.scale !== 0) {
+        const scaleRatio = targetScale / chartTransform.scale;
+        transformedRect = chartElement.getBoundingClientRect();
+        targetTranslateX += zoomAnchor.x + ((chartRect.left - zoomAnchor.x) * scaleRatio) - transformedRect.left;
+        targetTranslateY += zoomAnchor.y + ((chartRect.top - zoomAnchor.y) * scaleRatio) - transformedRect.top;
       }
 
-      chartElement.style.transformOrigin = '0 0';
-      chartElement.style.transform = 'matrix(' + targetScale + ', 0, 0, ' + targetScale + ', ' + targetTranslateX + ', ' + targetTranslateY + ')';
+      applyChartTransform(chartElement, chartTransform, targetScale, targetTranslateX, targetTranslateY);
       this.updateMinimap();
     },
     //
@@ -1438,12 +1656,24 @@
     // process datasource and add necessary information
     attachRel: function (data, flags) {
       const orgChart = this;
+      if (Array.isArray(data)) {
+        data.forEach(function (group) {
+          if (Array.isArray(group)) {
+            group.forEach(function (member) { orgChart.attachRel(member, flags); });
+          } else {
+            orgChart.attachRel(group, flags);
+          }
+        });
+        return data;
+      }
       data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
-      if (this.options?.compact?.constructor === Function && this.options.compact(data)) {
+      if ((this.options.compact === true && data.children && data.children.length)
+        || (typeof this.options.compact === 'function' && this.options.compact(data))) {
         data.compact = true;
       }
       if (data.children) {
-        data.children.forEach(function(item) {
+        const childMembers = data.children.flat();
+        childMembers.forEach(function(item) {
           if (data.hybrid || data.vertical) { // identify all the descendant nodes except the root node of hybrid structure
             item.vertical = true;
           } else if (data.compact && item.children) { // identify all the compact ancestor nodes
@@ -1451,8 +1681,12 @@
           } else if (data.compact && !item.children) { // identify all the compact descendant nodes
             item.associatedCompact = true;
           }
-          orgChart.attachRel(item, '1' + (data.children.length > 1 ? 1 : 0));
         });
+        if (Array.isArray(data.children[0])) {
+          orgChart.attachRel(data.children, '1' + (data.children.length > 1 ? 1 : 0));
+        } else {
+          data.children.forEach(function (item) { orgChart.attachRel(item, '1' + (data.children.length > 1 ? 1 : 0)); });
+        }
       }
       return data;
     },
@@ -1461,7 +1695,6 @@
       const orgChart = this;
       const chartElement = getElement(chartEl);
       let nodeElement;
-      let childNodesContainerElement;
       let hierarchyNodeData;
 
       includeNodeData = (includeNodeData !== null && includeNodeData !== undefined) ? includeNodeData : false;
@@ -1470,11 +1703,13 @@
         return {};
       }
 
-      nodeElement = chartElement.classList && chartElement.classList.contains('hierarchy')
-        ? Array.from(chartElement.children || []).find(function (childEl) {
+      nodeElement = chartElement.classList && chartElement.classList.contains('node')
+        ? chartElement
+        : chartElement.classList && chartElement.classList.contains('hierarchy')
+          ? Array.from(chartElement.children || []).find(function (childEl) {
             return childEl.classList && childEl.classList.contains('node');
           })
-        : chartElement.querySelector('.node');
+          : chartElement.querySelector('.node');
       if (!nodeElement) {
         return {};
       }
@@ -1485,18 +1720,10 @@
           hierarchyNodeData[key] = value;
         });
       }
-      childNodesContainerElement = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-        return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
-      }) || null;
-      if (childNodesContainerElement) {
-        Array.from(childNodesContainerElement.children).forEach(function (childEl) {
-          if (!childEl.classList || !childEl.classList.contains('hierarchy')) {
-            return;
-          }
-          if (!hierarchyNodeData.children) {
-            hierarchyNodeData.children = [];
-          }
-          hierarchyNodeData.children.push(orgChart.loopChart(childEl, includeNodeData));
+      const childNodeElements = this.getChildren(nodeElement);
+      if (childNodeElements.length) {
+        hierarchyNodeData.children = childNodeElements.map(function (childNodeElement) {
+          return orgChart.loopChart(childNodeElement, includeNodeData);
         });
       }
 
@@ -1520,95 +1747,61 @@
           }
         }
       }
+      const datasource = getState(chartElement, 'datasource');
+      if (Array.isArray(datasource)) {
+        const exportFamily = function (groups) {
+          return groups.map(function (group) {
+            return group.map(function (data) {
+              const node = nodeElements.find(function (element) { return getState(element, 'sourceData') === data; });
+              const result = includeNodeData ? mergeObjects({}, getState(node, 'nodeData')) : {};
+              result.id = node.id;
+              if (data.children && data.children.length) {
+                result.children = Array.isArray(data.children[0]) ? exportFamily(data.children)
+                  : data.children.map(function (childData) {
+                    const childNode = nodeElements.find(function (element) { return getState(element, 'sourceData') === childData; });
+                    return this.loopChart(childNode, includeNodeData);
+                  }, this);
+              }
+              return result;
+            }, this);
+          }, this);
+        }.bind(this);
+        return exportFamily(datasource);
+      }
       return this.loopChart(chartElement, includeNodeData);
     },
     // detect the exist/display state of related node
     getNodeState: function (nodeEl, relation) {
       const nodeElement = getElement(nodeEl);
-      let relatedElement;
-      let isVerticalNode;
-      let siblingElements;
 
       if (!nodeElement || !nodeElement.classList || !nodeElement.classList.contains('node')) {
         return { 'exist': false, 'visible': false };
       }
 
       relation = relation || 'self';
-      isVerticalNode = !!nodeElement.closest('vertical');
-
       if (relation === 'parent') {
-        if (isVerticalNode) {
-          relatedElement = nodeElement.closest('ul');
-          relatedElement = relatedElement ? relatedElement.parentElement && relatedElement.parentElement.closest('ul') : null;
-          if (!relatedElement) {
-            relatedElement = nodeElement.closest('.nodes');
-            if (!relatedElement) {
-              relatedElement = nodeElement.closest('.vertical');
-              relatedElement = relatedElement && relatedElement.parentElement ? relatedElement.parentElement.firstElementChild : null;
-            }
-          }
-        } else {
-          relatedElement = nodeElement.closest('.nodes');
-          relatedElement = relatedElement ? relatedElement.previousElementSibling : null;
-        }
-
-        if (relatedElement) {
-          if (relatedElement.classList.contains('hidden')
-            || (relatedElement.closest('.nodes') && relatedElement.closest('.nodes').classList.contains('hidden'))
-            || (relatedElement.closest('.vertical') && relatedElement.closest('.vertical').classList.contains('hidden'))) {
-            return { 'exist': true, 'visible': false };
-          }
-          return { 'exist': true, 'visible': true };
-        }
+        const parentElement = this.getParent(nodeElement);
+        return { exist: !!parentElement, visible: !!parentElement && this.getNodeState(parentElement).visible };
       } else if (relation === 'children') {
-        relatedElement = isVerticalNode
-          ? Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-              return childEl.tagName === 'UL';
-            }) || null
-          : Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-              return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
-            }) || null;
-
-        if (relatedElement) {
-          if (!relatedElement.classList.contains('hidden')) {
-            return { 'exist': true, 'visible': true };
-          }
-          return { 'exist': true, 'visible': false };
-        }
+        const childElements = this.getChildren(nodeElement);
+        const childContainer = getChildNodesContainer(nodeElement);
+        return {
+          exist: childElements.length > 0 || !!childContainer,
+          visible: childElements.length > 0
+            ? childElements.some(function (childElement) { return this.getNodeState(childElement).visible; }, this)
+            : !!childContainer && !childContainer.closest('.hidden') && this.getNodeState(nodeElement).visible
+        };
       } else if (relation === 'siblings') {
-        if (isVerticalNode) {
-          relatedElement = nodeElement.closest('ul');
-          siblingElements = relatedElement ? Array.from(relatedElement.children || []).filter(function (childEl) {
-            return childEl.tagName === 'LI';
-          }) : [];
-        } else {
-          siblingElements = nodeElement.parentElement && nodeElement.parentElement.parentElement
-            ? Array.from(nodeElement.parentElement.parentElement.children).filter(function (childEl) {
-                return childEl !== nodeElement.parentElement;
-              })
-            : [];
-          relatedElement = siblingElements[0] || null;
-        }
-
-        if (relatedElement && (!isVerticalNode || siblingElements.length > 1)) {
-          if (!siblingElements.some(function (siblingEl) { return siblingEl.classList.contains('hidden'); })
-            && !siblingElements.some(function (siblingEl) { return siblingEl.parentElement && siblingEl.parentElement.classList.contains('hidden'); })
-            && (!isVerticalNode || !relatedElement.closest('.vertical') || !relatedElement.closest('.vertical').classList.contains('hidden'))) {
-            return { 'exist': true, 'visible': true };
-          }
-          return { 'exist': true, 'visible': false };
-        }
-      } else {
-        if (!((nodeElement.closest('.nodes') && nodeElement.closest('.nodes').classList.contains('hidden')) ||
-          (nodeElement.closest('.hierarchy') && nodeElement.closest('.hierarchy').classList.contains('hidden')) ||
-          (nodeElement.closest('.vertical') && ((nodeElement.closest('.nodes') && nodeElement.closest('.nodes').classList.contains('hidden')) || nodeElement.closest('.vertical').classList.contains('hidden')))
-        )) {
-          return { 'exist': true, 'visible': true };
-        }
-        return { 'exist': true, 'visible': false };
+        const siblingElements = this.getSiblings(nodeElement);
+        return {
+          exist: siblingElements.length > 0,
+          visible: siblingElements.length > 0
+            && siblingElements.every(function (siblingElement) { return this.getNodeState(siblingElement).visible; }, this)
+        };
       }
-
-      return { 'exist': false, 'visible': false };
+      const collapsedCompactAncestor = nodeElement.parentElement
+        ? nodeElement.parentElement.closest('.node.compact:not(.looseMode)') : null;
+      return { exist: true, visible: !nodeElement.closest('.hidden') && !collapsedCompactAncestor };
     },
     getParent: function (nodeEl) {
       return this.getRelatedNodes(nodeEl, 'parent');
@@ -1631,12 +1824,25 @@
       }
 
       if (relation === 'parent') {
+        if (nodeElement.parentElement && nodeElement.parentElement.classList.contains('node')) {
+          return nodeElement.parentElement;
+        }
         nodesContainerEl = nodeElement.closest('.nodes');
+        const parentData = nodesContainerEl ? getState(nodesContainerEl, 'parentData') : null;
+        if (parentData) {
+          return Array.from(nodeElement.closest('.orgchart').querySelectorAll('.node')).find(function (element) {
+            return getState(element, 'sourceData') === parentData;
+          }) || null;
+        }
         return nodesContainerEl ? nodesContainerEl.previousElementSibling : null;
       } else if (relation === 'children') {
-        childNodesContainerElement = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-          return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
+        const nestedNodeElements = Array.from(nodeElement.children).filter(function (childElement) {
+          return childElement.classList.contains('node');
         });
+        if (nestedNodeElements.length) {
+          return nestedNodeElements;
+        }
+        childNodesContainerElement = getChildNodesContainer(nodeElement);
 
         if (!childNodesContainerElement) {
           return [];
@@ -1644,20 +1850,27 @@
 
         return Array.from(childNodesContainerElement.children).filter(function (childEl) {
           return childEl.classList && childEl.classList.contains('hierarchy');
-        }).map(function (childHierarchyEl) {
-          return childHierarchyEl.querySelector('.node');
-        }).filter(Boolean);
+        }).flatMap(function (childHierarchyEl) {
+          return Array.from(childHierarchyEl.children).filter(function (element) { return element.classList.contains('node'); });
+        });
       } else if (relation === 'siblings') {
+        if (nodeElement.parentElement && nodeElement.parentElement.classList.contains('node')) {
+          return Array.from(nodeElement.parentElement.children).filter(function (siblingElement) {
+            return siblingElement !== nodeElement && siblingElement.classList.contains('node');
+          });
+        }
         hierarchyEl = nodeElement.closest('.hierarchy');
         if (!hierarchyEl || !hierarchyEl.parentElement) {
           return [];
         }
 
         return Array.from(hierarchyEl.parentElement.children).filter(function (siblingEl) {
-          return siblingEl !== hierarchyEl;
-        }).map(function (siblingHierarchyEl) {
-          return siblingHierarchyEl.querySelector('.node');
-        }).filter(Boolean);
+          return siblingEl.classList.contains('hierarchy');
+        }).flatMap(function (siblingHierarchyEl) {
+          return Array.from(siblingHierarchyEl.children).filter(function (element) {
+            return element !== nodeElement && element.classList.contains('node');
+          });
+        });
       }
 
       return [];
@@ -1820,9 +2033,7 @@
       }
 
       hierarchyElement = nodeElement.closest('.hierarchy');
-      lowerLevelElement = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-        return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
-      }) || null;
+      lowerLevelElement = getChildNodesContainer(nodeElement);
 
       if (!lowerLevelElement) {
         return;
@@ -1898,9 +2109,7 @@
       }
 
       hierarchyElement = nodeElement.closest('.hierarchy');
-      levelsElement = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-        return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
-      }) || null;
+      levelsElement = getChildNodesContainer(nodeElement);
 
       if (!levelsElement) {
         return;
@@ -1915,11 +2124,7 @@
         ? Array.from(levelsElement.querySelectorAll('.node')).filter(function (visibleNodeEl, index) {
             return this.isVisibleNode(index, visibleNodeEl);
           }, this)
-        : Array.from(levelsElement.children).filter(function (childEl) {
-            return childEl.classList && childEl.classList.contains('hierarchy');
-          }).map(function (childHierarchyEl) {
-            return childHierarchyEl.querySelector('.node');
-          }).filter(function (visibleNodeEl, index) {
+        : this.getChildren(nodeElement).filter(function (visibleNodeEl, index) {
             return this.isVisibleNode(index, visibleNodeEl);
           }, this);
       if (!isVerticalDesc) {
@@ -2272,12 +2477,15 @@
         }) || null;
         Array.from(nodeElement.children || []).forEach(function (childEl) {
           if (childEl !== spinnerElement) {
+            setState(childEl, 'loadingOriginalOpacity', childEl.style.opacity);
             childEl.style.opacity = 0.2;
           }
         });
       }
       setState(chartElement, 'inAjax', true);
-      Array.from(getDocument().querySelectorAll('.oc-export-btn')).forEach(function (exportButtonEl) {
+      Array.from(getDocument().querySelectorAll('.oc-export-btn')).filter(function (exportButtonEl) {
+        return !getState(exportButtonEl, 'orgChart') || getState(exportButtonEl, 'orgChart') === this;
+      }, this).forEach(function (exportButtonEl) {
         exportButtonEl.disabled = true;
       });
       return true;
@@ -2299,11 +2507,16 @@
           spinnerEl.remove();
         });
         Array.from(nodeElement.children || []).forEach(function (childEl) {
-          childEl.removeAttribute('style');
+          childEl.style.opacity = getState(childEl, 'loadingOriginalOpacity') || '';
+          if (!childEl.style.cssText) {
+            childEl.removeAttribute('style');
+          }
         });
       }
       setState(chartElement, 'inAjax', false);
-      Array.from(getDocument().querySelectorAll('.oc-export-btn')).forEach(function (exportButtonEl) {
+      Array.from(getDocument().querySelectorAll('.oc-export-btn')).filter(function (exportButtonEl) {
+        return !getState(exportButtonEl, 'orgChart') || getState(exportButtonEl, 'orgChart') === this;
+      }, this).forEach(function (exportButtonEl) {
         exportButtonEl.disabled = false;
       });
     },
@@ -2468,6 +2681,9 @@
       if (!chartElement || !nodeElement || !nodeElement.classList) {
         return;
       }
+      if (nativeEvent.target && nativeEvent.target.closest && nativeEvent.target.closest('.node') !== nodeElement) {
+        return;
+      }
 
       Array.from(chartElement.querySelectorAll('.focused')).forEach(function (focusedEl) {
         focusedEl.classList.remove('focused');
@@ -2509,6 +2725,10 @@
       let descendantsElement;
 
       if (!parentElement || !parentElement.parentElement) {
+        return;
+      }
+      if (getState(parentElement, 'sourceData')) {
+        this.addChildren(parentElement, data);
         return;
       }
 
@@ -2572,16 +2792,8 @@
       let childNodesContainerElement;
       let childNodeElements;
       if (childrenState.exist) {
-        childNodesContainerElement = Array.from(nodeElement.parentElement ? nodeElement.parentElement.children : []).find(function (childEl) {
-          return childEl !== nodeElement && childEl.classList && childEl.classList.contains('nodes');
-        }) || null;
-        childNodeElements = childNodesContainerElement
-          ? Array.from(childNodesContainerElement.children).filter(function (childEl) {
-              return childEl.classList && childEl.classList.contains('hierarchy');
-            }).map(function (childHierarchyEl) {
-              return childHierarchyEl.querySelector('.node');
-            }).filter(Boolean)
-          : [];
+        childNodesContainerElement = getChildNodesContainer(nodeElement);
+        childNodeElements = childNodesContainerElement ? this.getChildren(nodeElement) : [];
         if (childNodeElements.some(function (childNodeEl) { return childNodeEl.classList.contains('sliding'); })) { return; }
         // hide the descendant nodes of the specified node
         if (childrenState.visible) {
@@ -2658,7 +2870,13 @@
       }
 
       compactNodeEl.classList.remove('looseMode');
-      nestedLooseModeElements = Array.from(compactNodeEl.querySelectorAll('.looseMode'));
+      const familyContainer = getChildNodesContainer(compactNodeEl);
+      if (familyContainer && familyContainer.classList.contains('compact-family')) {
+        familyContainer.classList.add('hidden');
+      }
+      nestedLooseModeElements = Array.from(compactNodeEl.querySelectorAll('.looseMode')).concat(
+        familyContainer ? Array.from(familyContainer.querySelectorAll('.looseMode')) : []
+      );
       nestedLooseModeElements.forEach(function (nestedLooseModeEl) {
         const nestedBackToCompactSymbolElement = Array.from(nestedLooseModeEl.children || []).find(function (childEl) {
           return childEl.classList && childEl.classList.contains('backToCompactSymbol');
@@ -2668,6 +2886,10 @@
         }) || null;
 
         nestedLooseModeEl.classList.remove('looseMode');
+        const nestedContainer = getChildNodesContainer(nestedLooseModeEl);
+        if (nestedContainer && nestedContainer.classList.contains('compact-family')) {
+          nestedContainer.classList.add('hidden');
+        }
         if (nestedBackToCompactSymbolElement) {
           nestedBackToCompactSymbolElement.classList.add('hidden');
         }
@@ -2701,6 +2923,13 @@
       }
 
       compactNodeEl.classList.add('looseMode');
+      const familyContainer = getChildNodesContainer(compactNodeEl);
+      if (familyContainer && familyContainer.classList.contains('compact-family')) {
+        familyContainer.classList.remove('hidden');
+      }
+      this.getChildren(compactNodeEl).forEach(function (childElement) {
+        childElement.classList.remove('slide-up');
+      });
       backToLooseSymbolElement = Array.from(compactNodeEl.children || []).find(function (childEl) {
         return childEl.classList && childEl.classList.contains('backToLooseSymbol');
       }) || null;
@@ -2804,8 +3033,6 @@
       const origEvent = nativeEvent;
       const isFirefox = /firefox/.test(getWindow().navigator.userAgent.toLowerCase());
       let sourceRect;
-      let transformValue;
-      let transformValues;
       let isVerticalChartDirection;
       let scaleFactor;
       let ghostNodeEl, nodeCoverEl;
@@ -2831,10 +3058,8 @@
       }
 
       sourceRect = sourceNodeEl.getBoundingClientRect();
-      transformValue = chartElement.style.transform || getWindow().getComputedStyle(chartElement).transform || 'none';
-      transformValues = transformValue.split(',');
       isVerticalChartDirection = opts.direction === 't2b' || opts.direction === 'b2t';
-      scaleFactor = Math.abs(getWindow().parseFloat(isVerticalChartDirection ? transformValues[0].slice(transformValues[0].indexOf('(') + 1) : transformValues[1]));
+      scaleFactor = getChartTransform(chartElement).scale;
       ghostNodeEl.setAttribute('width', isVerticalChartDirection ? sourceRect.width : sourceRect.height);
       ghostNodeEl.setAttribute('height', isVerticalChartDirection ? sourceRect.height : sourceRect.width);
       nodeCoverEl.setAttribute('x',5 * scaleFactor);
@@ -2878,12 +3103,10 @@
         return 0;
       }
 
-      currentElement = nodeElement.parentElement;
+      currentElement = nodeElement;
       while (currentElement) {
-        if (currentElement.classList && currentElement.classList.contains('hierarchy')) {
-          levelCount += 1;
-        }
-        currentElement = currentElement.parentElement;
+        levelCount += 1;
+        currentElement = this.getParent(currentElement);
       }
 
       return levelCount;
@@ -2955,15 +3178,18 @@
         ? draggedNodeEl.closest('[draggable]')
         : null;
       draggingNode = !!(draggableHostEl && draggableHostEl.classList && draggableHostEl.classList.contains('node'));
-      draggedParentNodeEl = draggedNodeEl && draggedNodeEl.closest('.nodes')
-        ? draggedNodeEl.closest('.nodes').previousElementSibling
-        : null;
-      draggedSubtreeNodeEls = draggedNodeEl && draggedNodeEl.closest('.hierarchy')
-        ? Array.from(draggedNodeEl.closest('.hierarchy').querySelectorAll('.node'))
-        : [];
+      draggedParentNodeEl = this.getParent(draggedNodeEl);
+      draggedSubtreeNodeEls = [];
+      const pendingNodes = draggingNode ? [draggedNodeEl.closest('.node')] : [];
+      while (pendingNodes.length) {
+        const currentNode = pendingNodes.pop();
+        draggedSubtreeNodeEls.push(currentNode);
+        Array.prototype.push.apply(pendingNodes, this.getChildren(currentNode));
+      }
       excludedNodeEls = new Set(draggedSubtreeNodeEls);
       setState(chartElement, 'dragged', draggedNodeEl);
       Array.from(chartElement.querySelectorAll('.node')).forEach(function (node) {
+        node.classList.remove('allowedDrop');
         if (!draggingNode || !excludedNodeEls.has(node)) {
           if (opts.dropCriteria) {
             if (opts.dropCriteria(draggedNodeEl, draggedParentNodeEl, node)) {
@@ -3052,7 +3278,7 @@
           return;
       }
 
-      draggedParentNodeEl = draggedEl.closest('.nodes') ? draggedEl.closest('.nodes').previousElementSibling : null;
+      draggedParentNodeEl = this.getParent(draggedEl);
       const dropEvent = createEventLike('nodedrop.orgchart');
       if (chartElement) {
         const triggeredDropEvent = createTriggeredEvent(dropEvent, {
@@ -3068,15 +3294,45 @@
       if (dropEvent.isDefaultPrevented()) {
         return;
       }
+      const sourceData = getState(draggedEl, 'sourceData');
+      const parentData = draggedParentNodeEl ? getState(draggedParentNodeEl, 'sourceData') : null;
+      const targetData = getState(dropZoneEl, 'sourceData');
+      const datasource = getState(chartElement, 'datasource') || chartOptions.data;
+      const sourceLocation = sourceData ? findDataLocation(datasource, sourceData) : null;
+      if (sourceData && targetData && findDataLocation(sourceData, targetData)) {
+        return;
+      }
+      const needsRebuild = Array.isArray(datasource) || this.options.compact || chartOptions.verticalLevel
+        || chartElement.querySelector('.node.compact, .nodes.vertical');
+      if (needsRebuild && sourceLocation && sourceLocation.list && targetData) {
+        sourceLocation.list.splice(sourceLocation.index, 1);
+        if (!sourceLocation.list.length && sourceLocation.outerList) {
+          sourceLocation.outerList.splice(sourceLocation.outerIndex, 1);
+        }
+        if (sourceLocation.parent && sourceLocation.parent.children && !sourceLocation.parent.children.length) {
+          delete sourceLocation.parent.children;
+        }
+        const isGrouped = Array.isArray(datasource) || (targetData.children && Array.isArray(targetData.children[0]));
+        if (!targetData.children) {
+          targetData.children = [];
+        }
+        targetData.children.push(isGrouped ? [sourceData] : sourceData);
+        rebuildFromData(this, targetData);
+        return;
+      }
       // special process for hybrid chart
-      const datasource = chartOptions.data;
       const dataDigger = new JSONDigger(datasource, chartOptions.nodeId, 'children');
       const hybridNodeData = dataDigger.findOneNode({ 'hybrid': true });
       if (chartOptions.verticalLevel > 1 || hybridNodeData) {
-        const draggedNodeData = dataDigger.findNodeById(getState(draggedEl, 'nodeData').id);
+        const draggedNodeId = getState(draggedEl, 'nodeData')[chartOptions.nodeId];
+        const dropNodeId = getState(dropZoneEl, 'nodeData')[chartOptions.nodeId];
+        const draggedNodeData = dataDigger.findNodeById(draggedNodeId);
+        const dropNodeData = dataDigger.findNodeById(dropNodeId);
+        if (!draggedNodeData || !dropNodeData) {
+          return;
+        }
         const draggedNodeCopy = Object.assign({}, draggedNodeData);
-        dataDigger.removeNode(draggedNodeData.id);
-        const dropNodeData = dataDigger.findNodeById(getState(dropZoneEl, 'nodeData').id);
+        dataDigger.removeNode(draggedNodeId);
         if (dropNodeData.children) {
           dropNodeData.children.push(draggedNodeCopy);
         } else {
@@ -3085,6 +3341,20 @@
 		orgChart.attachRel(datasource, '00');
         orgChart.init({ 'data': datasource });
       } else {
+        if (sourceData && parentData && targetData && parentData.children
+          && parentData.children.indexOf(sourceData) !== -1) {
+          parentData.children.splice(parentData.children.indexOf(sourceData), 1);
+          if (!parentData.children.length) {
+            delete parentData.children;
+          }
+          if (!targetData.children) {
+            targetData.children = [];
+          }
+          targetData.children.push(sourceData);
+          sourceData.parentId = targetData[chartOptions.nodeId];
+          getState(draggedEl, 'nodeData').parentId = sourceData.parentId;
+          draggedEl.setAttribute('data-parent', sourceData.parentId);
+        }
         // The folowing code snippets are used to process horizontal chart
         draggedHierarchyEl = draggedEl.closest('.hierarchy');
         dropChildrenContainerEl = Array.from(dropZoneEl.parentElement ? dropZoneEl.parentElement.children : []).find(function (childEl) {
@@ -3144,6 +3414,13 @@
             draggedParentChildrenContainerEl.remove();
           }
         }
+        dropChildrenContainerEl.classList.remove('hidden');
+        dropZoneEl.closest('.hierarchy').classList.remove('isChildrenCollapsed');
+        this.getChildren(dropZoneEl).forEach(function (childNode) {
+          childNode.classList.remove('slide-up', 'sliding');
+          childNode.closest('.hierarchy').classList.remove('isCollapsedDescendant');
+        });
+        this.updateMinimap(true);
       }
     },
     //
@@ -3334,19 +3611,30 @@
         return;
       }
 
-      nodeElement.addEventListener('dragstart', this.dragstartHandler.bind(this));
-      nodeElement.addEventListener('dragover', this.dragoverHandler.bind(this));
-      nodeElement.addEventListener('dragend', this.dragendHandler.bind(this));
-      nodeElement.addEventListener('drop', this.dropHandler.bind(this));
-      nodeElement.addEventListener('touchstart', this.touchstartHandler.bind(this));
-      nodeElement.addEventListener('touchmove', this.touchmoveHandler.bind(this));
-      nodeElement.addEventListener('touchend', this.touchendHandler.bind(this));
+      const orgChart = this;
+      const handlers = {
+        dragstart: this.dragstartHandler,
+        dragover: this.dragoverHandler,
+        dragend: this.dragendHandler,
+        drop: this.dropHandler,
+        touchstart: this.touchstartHandler,
+        touchmove: this.touchmoveHandler,
+        touchend: this.touchendHandler
+      };
+      Object.keys(handlers).forEach(function (eventType) {
+        nodeElement.addEventListener(eventType, function (event) {
+          if (!event.target.closest || event.target.closest('.node') === nodeElement) {
+            handlers[eventType].call(orgChart, event);
+          }
+        }, { passive: false });
+      });
     },
     // create node
     createNode: function (data) {
       const opts = this.options;
       const level = data.level;
       const flags = data.relationship || '';
+      const isCompactLayout = usesCompactLayout(data, opts, level);
       const nodeClassName = [
         'node',
         data.className || '',
@@ -3387,7 +3675,7 @@
         if (shouldAddParentSymbol) {
           nodeMarkupParts.push(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`);
         }
-      } else if (data.compact) {
+      } else if (isCompactLayout) {
         if (shouldAddParentSymbol) {
           nodeMarkupParts.push(`<i class="${opts.icons.theme} ${opts.icons.backToCompact} backToCompactSymbol hidden"></i>`);
           nodeMarkupParts.push(`<i class="${opts.icons.theme} ${opts.icons.backToLoose} backToLooseSymbol"></i>`);
@@ -3436,9 +3724,10 @@
       const storedNodeData = mergeObjects({}, data);
       delete storedNodeData.children;
       setState(nodeElement, 'nodeData', storedNodeData);
+      setState(nodeElement, 'sourceData', data);
       nodeElement.__ocNodeData = storedNodeData;
-      if (data.compact && nodeElement && nodeElement.style) {
-        nodeElement.style.gridTemplateColumns = `repeat(${Math.floor(Math.sqrt(data.children.length + 1))}, auto)`;
+      if (isCompactLayout && nodeElement && nodeElement.style) {
+        nodeElement.style.gridTemplateColumns = `repeat(${Math.floor(Math.sqrt((data.children || []).length + 1))}, auto)`;
       }
 
       nodeElement.addEventListener('mouseenter', this.nodeEnterLeaveHandler.bind(this));
@@ -3471,16 +3760,17 @@
       const hierarchyElement = getElement(hierarchyEl);
       const nodeElement = getElement(nodeEl);
       const isHidden = level + 1 > opts.visibleLevel || (data.collapsed !== undefined && data.collapsed);
+      const isCompactLayout = usesCompactLayout(data, opts, level);
       let nodesLayerElement;
 
       if (!hierarchyElement) {
         return;
       }
 
-      if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid) {
+      if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid || data.vertical) {
         nodesLayerElement = getDocument().createElement('ul');
         nodesLayerElement.className = 'nodes';
-        if (isHidden && (opts.verticalLevel && (level + 1) >= opts.verticalLevel)) {
+        if (isHidden) {
           nodesLayerElement.classList.add('hidden');
         }
         if (((opts.verticalLevel && level + 1 === opts.verticalLevel) || data.hybrid)
@@ -3488,9 +3778,15 @@
             nodesLayerElement.classList.add('vertical');
         }
         hierarchyElement.appendChild(nodesLayerElement);
-      } else if (data.compact) {
+      } else if (isCompactLayout) {
         if (nodeElement && nodeElement.classList) {
           nodeElement.classList.add('compact');
+        }
+        if (Array.isArray(data.children[0])) {
+          nodesLayerElement = getDocument().createElement('ul');
+          nodesLayerElement.className = 'nodes compact-family hidden';
+          nodesLayerElement.style.setProperty('--compact-columns', Math.ceil(Math.sqrt(data.children.length)));
+          hierarchyElement.appendChild(nodesLayerElement);
         }
       } else {
         nodesLayerElement = getDocument().createElement('ul');
@@ -3500,16 +3796,20 @@
         }
         hierarchyElement.appendChild(nodesLayerElement);
       }
+      if (nodesLayerElement) {
+        const parentNode = nodeElement || hierarchyElement.querySelector(':scope > .node');
+        setState(nodesLayerElement, 'parentData', parentNode ? getState(parentNode, 'sourceData') || data : data);
+      }
       // recurse through children nodes
       if (Array.isArray(data.children[0])) {
         forEachValue(data.children, function() {
-          this.level = level + 1;
+          forEachValue(this, function () { this.level = level + 1; });
         });
         this.buildHierarchy(nodesLayerElement, data.children); // 构造子一层的夫妻组合（每个组合可能有多妻多夫情况）
       } else {
         forEachValue(data.children, function () {
           this.level = level + 1;
-          if (data.compact) {
+          if (isCompactLayout) {
             orgChart.buildHierarchy(nodeElement, this);
           } else {
             const nodeCellElement = getDocument().createElement('li');
@@ -3533,8 +3833,8 @@
         return;
       }
 
-      if (data.level || data[0]?.level) {
-        level = data.level;
+      if (data.level || data[0]?.level || data[0]?.[0]?.level) {
+        level = data.level || data[0]?.level || data[0]?.[0]?.level;
       } else {
         let currentAncestorElement = hierarchyElement.parentElement;
 
@@ -3545,6 +3845,7 @@
           currentAncestorElement = currentAncestorElement.parentElement;
         }
         if (Array.isArray(data) && Array.isArray(data[0])) {
+          level = Math.max(level, 1);
           forEachValue(data, function () {
             forEachValue(this, function () {
               this.level = level;
@@ -3566,7 +3867,7 @@
             // if there are only two persons in a marriage, two single nodes will appear in a hierarchy
             if (familyNodes.length === 2 && i === 1) {
               spouseNodeElement = Array.from(hierarchyElement.querySelectorAll('.node')).find(function (candidateNodeEl) {
-                return candidateNodeEl.id === familyNodes[0].id;
+                return getState(candidateNodeEl, 'sourceData') === familyNodes[0];
               }) || null;
               if (spouseNodeElement && spouseNodeElement.parentElement) {
                 spouseNodeElement.after(nodeElement);
@@ -3645,6 +3946,19 @@
       if (!nodeElement) {
         return;
       }
+      const nodeData = getState(nodeElement, 'sourceData');
+      if (nodeData) {
+        const datasource = getState(this.chart, 'datasource');
+        const isGrouped = Array.isArray(datasource) || (nodeData.children && Array.isArray(nodeData.children[0]));
+        if (!nodeData.children) {
+          nodeData.children = [];
+        }
+        Array.prototype.push.apply(nodeData.children, isGrouped ? data.map(function (item) { return Array.isArray(item) ? item : [item]; }) : data);
+        if (isGrouped || this.chart.querySelector('.node.compact') || this.options.compact) {
+          rebuildFromData(this, nodeData);
+          return;
+        }
+      }
 
       this.buildChildNode(nodeElement.closest('.hierarchy'), data);
       if (!nodeElement.querySelector('.parentNodeSymbol')) {
@@ -3720,8 +4034,46 @@
       if (!currentRootElement) {
         return;
       }
+      const currentData = getState(currentRootElement, 'sourceData');
+      const datasource = getState(this.chart, 'datasource');
+      if (currentData && (Array.isArray(datasource) || this.chart.querySelector('.node.compact') || this.options.compact)) {
+        const parentElement = this.getParent(currentRootElement);
+        const parentData = parentElement ? getState(parentElement, 'sourceData') : null;
+        const newParentData = mergeObjects({}, data, { children: Array.isArray(datasource) ? [[currentData]] : [currentData] });
+        const location = findDataLocation(datasource, currentData);
+        if (Array.isArray(datasource) && location && location.list) {
+          location.list.splice(location.index, 1, newParentData);
+          rebuildFromData(this, newParentData);
+          return;
+        }
+        if (parentData && parentData.children) {
+          const index = parentData.children.indexOf(currentData);
+          if (index === -1) {
+            return;
+          }
+          parentData.children.splice(index, 1, newParentData);
+          rebuildFromData(this, newParentData);
+        } else {
+          rebuildFromData(this, newParentData, newParentData);
+        }
+        return;
+      }
 
+      const currentLocation = currentData ? findDataLocation(datasource, currentData) : null;
       this.buildParentNode(currentRootElement, data);
+      if (currentData) {
+        data.children = [currentData];
+        if (currentLocation && currentLocation.list) {
+          currentLocation.list.splice(currentLocation.index, 1, data);
+        } else {
+          setState(this.chart, 'datasource', data);
+          this.options.data = data;
+          this.opts.data = data;
+        }
+        currentData.parentId = data[this.options.nodeId];
+        getState(currentRootElement, 'nodeData').parentId = currentData.parentId;
+        currentRootElement.setAttribute('data-parent', currentData.parentId);
+      }
       if (!currentRootElement.querySelector(':scope > .topEdge')) {
         titleElement = Array.from(currentRootElement.children || []).find(function (childEl) {
           return childEl.classList && childEl.classList.contains('title');
@@ -3841,8 +4193,41 @@
       if (!nodeElement) {
         return;
       }
+      const nodeData = getState(nodeElement, 'sourceData');
+      const datasource = getState(this.chart, 'datasource');
+      if (nodeData && (Array.isArray(datasource) || this.chart.querySelector('.node.compact') || this.options.compact)) {
+        const parentElement = this.getParent(nodeElement);
+        const parentData = parentElement ? getState(parentElement, 'sourceData') : null;
+        const newSiblings = Array.isArray(data) ? data : data.children;
+        if (parentData && parentData.children) {
+          const siblings = Array.isArray(datasource) ? (newSiblings || []).map(function (item) { return Array.isArray(item) ? item : [item]; }) : newSiblings || [];
+          Array.prototype.push.apply(parentData.children, siblings);
+          rebuildFromData(this, parentData);
+        } else if (Array.isArray(datasource) && Array.isArray(data)) {
+          Array.prototype.push.apply(datasource, data.map(function (item) { return Array.isArray(item) ? item : [item]; }));
+          rebuildFromData(this);
+        } else if (!Array.isArray(data)) {
+          const children = (newSiblings || []).slice();
+          const insertPosition = Math.floor((children.length + 1) / 2 - 1) + 1;
+          children.splice(Math.max(insertPosition, 0), 0, nodeData);
+          const newParentData = mergeObjects({}, data, { children: children });
+          rebuildFromData(this, newParentData, newParentData);
+        }
+        return;
+      }
 
+      const oldParent = this.getParent(nodeElement);
+      const oldParentData = oldParent ? getState(oldParent, 'sourceData') : null;
       this.buildSiblingNode(nodeElement.closest('.hierarchy'), data);
+      if (nodeData && oldParentData && oldParentData.children && Array.isArray(data)) {
+        Array.prototype.push.apply(oldParentData.children, data);
+      } else if (nodeData && !oldParentData && !Array.isArray(data) && data.children) {
+        const insertPosition = Math.floor((data.children.length + 1) / 2 - 1) + 1;
+        data.children.splice(Math.max(insertPosition, 0), 0, nodeData);
+        setState(this.chart, 'datasource', data);
+        this.options.data = data;
+        this.opts.data = data;
+      }
       nodesContainerElement = nodeElement.closest('.nodes');
       if (nodesContainerElement) {
         setState(nodesContainerElement, 'siblingsLoaded', true);
@@ -3878,6 +4263,34 @@
 
       if (!nodeElement) {
         return;
+      }
+      const parentElement = this.getParent(nodeElement);
+      const parentData = parentElement ? getState(parentElement, 'sourceData') : null;
+      const nodeData = getState(nodeElement, 'sourceData');
+      const datasource = getState(this.chart, 'datasource');
+      if (Array.isArray(datasource) && nodeData) {
+        const location = findDataLocation(datasource, nodeData);
+        if (location && location.list) {
+          location.list.splice(location.index, 1);
+          if (!location.list.length && location.outerList) {
+            location.outerList.splice(location.outerIndex, 1);
+          }
+          if (location.parent && location.parent.children && !location.parent.children.length) {
+            delete location.parent.children;
+          }
+          rebuildFromData(this);
+          return;
+        }
+      }
+      if (parentData && parentData.children && parentData.children.indexOf(nodeData) !== -1) {
+        parentData.children.splice(parentData.children.indexOf(nodeData), 1);
+        if (!parentData.children.length) {
+          delete parentData.children;
+        }
+        if (this.chart.querySelector('.node.compact') || this.options.compact) {
+          rebuildFromData(this);
+          return;
+        }
       }
 
       hierarchyElement = nodeElement.closest('.hierarchy');
@@ -3998,7 +4411,6 @@
       const isEdge = navigatorObject.appName === 'Microsoft Internet Explorer' || (navigatorObject.appName === 'Netscape' && navigatorObject.appVersion.indexOf('Edge') > -1);
       const chartContainerElement = this.chartContainer;
       let downloadButtonClassName;
-      let downloadSelector;
       let downloadAnchorElement;
 
       if (!chartContainerElement) {
@@ -4009,8 +4421,12 @@
         getWindow().navigator.msSaveBlob(canvas.msToBlob(), exportFilename + '.png');
       } else {
         downloadButtonClassName = 'download-btn' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '');
-        downloadSelector = '.download-btn' + (this.options.chartClass !== '' ? '.' + this.options.chartClass : '');
-        downloadAnchorElement = chartContainerElement.querySelector(downloadSelector);
+        const chartClassNames = this.options.chartClass.split(/\s+/).filter(Boolean);
+        downloadAnchorElement = Array.from(chartContainerElement.querySelectorAll('a.download-btn')).find(function (anchorElement) {
+          return chartClassNames.every(function (className) {
+            return anchorElement.classList.contains(className);
+          });
+        });
 
         if (!downloadAnchorElement) {
           downloadAnchorElement = getDocument().createElement('a');

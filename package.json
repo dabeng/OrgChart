@@ -10,6 +10,7 @@
     "test": "gulp test",
     "unit-tests": "gulp unit-tests",
     "integration-tests": "gulp integration-tests",
+    "compatibility-tests": "mocha test/compatibility/*.tests.js",
     "e2e-tests": "gulp e2e-tests",
     "addAssets": "gulp addAssets",
     "build": "gulp build",

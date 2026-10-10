@@ -723,6 +723,16 @@
   display: none;
 }
 
+.orgchart .nodes.compact-family {
+  display: grid;
+  grid-template-columns: repeat(var(--compact-columns, 2), max-content);
+  gap: 10px;
+}
+
+.orgchart .node.compact:not(.looseMode) > .nodes {
+  display: none;
+}
+
 .orgchart .node.compact.looseMode > .node {
   display: inline-block;
 }

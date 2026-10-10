@@ -237,7 +237,7 @@ describe('orgchart -- unit tests', function () {
     $container = document.getElementById('chart-container');
     oc = new OrgChart({
       chartContainer: '#chart-container',
-      'data': ds,
+      'data': JSON.parse(JSON.stringify(ds)),
       'nodeContent': 'title'
     }),
     $laolao = document.getElementById('n1'),
@@ -2135,7 +2135,7 @@ describe('orgchart -- unit tests', function () {
     const pinchCenterStub = sinon.stub(oc, 'getPinchCenter').returns({ x: 24, y: 36 });
 
     setState(oc.chart, 'pinching', true);
-    oc.zoomingHandler({ orgChart: oc });
+    oc.zoomingHandler({ orgChart: oc, touches: [{ clientX: 0, clientY: 0 }, { clientX: 3, clientY: 4 }] });
 
     getState(oc.chart, 'pinchDistEnd').should.equal(18);
     getState(oc.chart, 'pinchCenterEnd').should.deep.equal({ x: 24, y: 36 });

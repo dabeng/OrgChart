@@ -118,6 +118,8 @@ $ npm install orgchart
 
 这个特性的灵感来源于这两个话题的讨论--[Aligning Children Vertical](https://github.com/dabeng/OrgChart/issues/46), [Hybrid(horizontal + vertical) OrgChart](https://github.com/dabeng/OrgChart/issues/61)。感谢[mfahadi](https://github.com/mfahadi)和[Destructrix](https://github.com/Destructrix)建设性的讨论:blush:尤其感谢[tedliang](https://github.com/tedliang)提供了非常棒的混合布局的解决方案。
 
+与 `compact` 同时配置时，`verticalLevel` 从指定层级开始决定布局方式。方向、层级限制和拖放仍按照真实的父子关系处理。
+
 - [我想在组织结构图初始化时，就默认折叠掉若干节点（不限时这些节点的子节点）](https://dabeng.github.io/OrgChart/default-collapsed.html)
 
 这个好办。在数据源中，给父节点追加`'collapsed': true`，给子节点追加`'className': 'slide-up'`。
@@ -155,6 +157,10 @@ $ npm install orgchart
 ![data-prop-compact](http://dabeng.github.io/OrgChart/img/data-prop-compact.png)
 
 **compact data property** 就派上用场了. 在数据源的某个节点里提供了"compact"属性，并赋为真值，那么它和它的子节点就会展示为压缩模式。
+
+紧凑布局可以与 `draggable`、`visibleLevel`、方向、平移、缩放和小地图同时使用。`compact: true` 会将所有分支设为紧凑布局，也可以通过回调选择子节点较多的分支。`drag` 是 `draggable` 的别名，同时提供两者时以 `draggable` 为准。紧凑布局中的拖放和节点编辑可能重建图表，操作后应重新查询已渲染的节点元素。
+
+家谱分组数据中的每个成员都使用配置的 `nodeId`，层级与 JSON、UL 数据一样从第 1 层起算。紧凑家谱的子节点按家庭分组排列成网格。拖放和编辑只修改选中成员及其后代，不会误移动整个家庭；家谱修改可能重建节点元素。`getHierarchy()` 会保留家谱分组数组，关联节点查询包含同一图表父级下的全部成员。
 
 - [我想构造族谱，家谱，宗谱的关系图](https://dabeng.github.io/OrgChart/family-tree.html)
 
@@ -273,10 +279,10 @@ var oc = new OrgChart({
   <tbody>
     <tr>
       <td>data</td>
-      <td>json / HTMLUListElement</td>
+      <td>object / array / HTMLUListElement</td>
       <td>是</td>
       <td></td>
-      <td>用于构造组织结构图的数据源。它的值可以是JSON或能提供数据的ul元素。</td>
+      <td>数据源可以是 JSON 树对象、家谱分组数组或 HTML ul 元素。UL 数据会在内部规范化，后续修改选项时仍会保留编辑结果。</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -293,18 +299,25 @@ var oc = new OrgChart({
       <td>启动本选项，用户可以通过鼠标滚轮或触摸板对组织结构图进行缩放。</td>
     </tr>
     <tr>
+      <td>minimap</td>
+      <td>boolean</td>
+      <td>否</td>
+      <td>false</td>
+      <td>显示小地图导航。拖动视口框可移动图表，在小地图上使用滚轮可缩放；即使 zoom 为 false，小地图自身的滚轮缩放仍然可用。</td>
+    </tr>
+    <tr>
       <td>zoominLimit</td>
       <td>number</td>
       <td>否</td>
       <td>7</td>
-      <td>放大的上限值</td>
+      <td>包含边界的最大缩放比例。缩放步长会限制到此边界。上下限必须为有限正数，且下限不能大于上限。</td>
     </tr>
     <tr>
       <td>zoomoutLimit</td>
       <td>number</td>
       <td>否</td>
       <td>0.5</td>
-      <td>缩小的下限值</td>
+      <td>包含边界的最小缩放比例，不能大于 zoominLimit。无效的上下限会在替换图表前抛出 RangeError。</td>
     </tr>
     <tr>
       <td>direction</td>
@@ -329,10 +342,10 @@ var oc = new OrgChart({
     </tr>
     <tr>
       <td>visibleLevel</td>
-      <td>positive integer</td>
+      <td>非负整数或布尔值</td>
       <td>否</td>
       <td>999</td>
-      <td>该选项为用户指定初始化组织结构图时，可见的展开的层级是多少</td>
+      <td>指定初始展开深度。true 使用默认深度（999）；false 只显示第一层；0 隐藏所有初始节点。更深的分支可以随后展开。</td>
     </tr>
     <tr>
       <td>nodeTitle</td>
@@ -340,13 +353,6 @@ var oc = new OrgChart({
       <td>否</td>
       <td>"name"</td>
       <td>将默认节点结构中的标题部分关联到数据源中的一个属性</td>
-    </tr>
-    <tr>
-      <td>parentNodeSymbol</td>
-      <td>string</td>
-      <td>否</td>
-      <td>"oci-leader"</td>
-      <td>为所有父节点的icon标识指定CSS类名</td>
     </tr>
     <tr>
       <td>nodeContent</td>
@@ -394,7 +400,7 @@ var oc = new OrgChart({
       <td>exportFilename</td>
       <td>string</td>
       <td>否</td>
-      <td>"Orgchart"</td>
+      <td>"OrgChart"</td>
       <td>导出文件的文件名。</td>
     </tr>
     <tr>
@@ -403,6 +409,13 @@ var oc = new OrgChart({
       <td>否</td>
       <td>"png"</td>
       <td>导出文件的扩展名。</td>
+    </tr>
+    <tr>
+      <td>exportScale</td>
+      <td>number</td>
+      <td>否</td>
+      <td>2</td>
+      <td>导出画布的分辨率倍数，PNG 和 PDF 均适用；PDF 页面保留图表的逻辑尺寸。非正数会回退为 1。</td>
     </tr>
     <tr>
       <td>chartClass</td>
@@ -432,6 +445,35 @@ var oc = new OrgChart({
       <td></td>
       <td>组织结构图初始化完成后，该选项指定的回调函数被触发。该函数接受一个参数--"chart", 即初始化后的组织结构图元素。</td>
     </tr>
+    <tr>
+      <td>icons</td>
+      <td>json</td>
+      <td>否</td>
+      <td></td>
+      <td>自定义图标的 CSS 类名。部分图标对象会逐字段与默认值合并，父节点图标使用 icons.parentNode 设置。
+        <pre>
+          <code>
+'icons': {
+  'theme': 'fa-solid fa-sm',
+  'parentNode': 'fa-user-tie',
+  'expandToUp': 'fa-angles-up',
+  'collapseToDown': 'fa-angles-down',
+  'collapseToLeft': 'fa-angles-left',
+  'expandToRight': 'fa-angles-right',
+  'collapsed': 'fa-circle-plus',
+  'expanded': 'fa-circle-minus'
+}
+          </code>
+        </pre>
+      </td>
+    </tr>
+    <tr>
+      <td>compact</td>
+      <td>布尔值或函数</td>
+      <td>否</td>
+      <td></td>
+      <td>true 会将所有分支设为紧凑布局；接收节点数据的回调可选择额外的紧凑分支。节点数据中显式设置的 compact 属性会保留。在适用的节点上，垂直或混合布局优先。</td>
+    </tr>
   </tbody>
 </table>
 
@@ -448,14 +490,14 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
 | 调用 | 参数 | 返回值与调用行为 |
 | --- | --- | --- |
 | `oc.init(options)` | 部分选项对象；传入 `data` 可替换数据源。 | 重新构建图表并返回 `oc`。 |
-| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | 包含 `data`、`pan`、`zoom` 或 `minimap` 的对象；或受支持的选项名称及布尔值。 | `data` 会重建图表，其他选项切换相应功能；返回 `oc`。 |
+| `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | 部分选项对象，或选项名称及对应值。 | 原地更新导航与导出设置；数据、布局或节点渲染设置会重建图表；返回 `oc`。 |
 | `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` 可选；传入 `true` 会重绘节点预览。 | 创建、移除或刷新小地图。常规启用应使用 `setOptions('minimap', value)`。 |
 | `oc.addAncestors(data, parentId)` | 祖先数据，以及接收原根节点的祖先节点 id。 | 插入祖先层级；无返回值。 |
 | `oc.addDescendants(data, parent)` | 后代数据数组和已渲染的父 `.node`。 | 追加后代层级；无返回值。 |
 | `oc.addParent(currentRoot, data)` | 已渲染的根 `.node` 和新父节点数据。 | 用新父节点包裹当前根；无返回值。 |
 | `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | 已渲染的 `.node` 和兄弟节点或子节点数据数组。 | 增加渲染节点；无返回值。 |
 | `oc.removeNodes(node)` | 要删除的已渲染 `.node`。 | 删除该节点及其后代；无返回值。 |
-| `oc.getHierarchy(includeNodeData)` | 可选布尔值，默认 `false`。 | 返回层级对象；图表或必要节点 id 不可用时返回错误字符串。 |
+| `oc.getHierarchy(includeNodeData)` | 可选布尔值，默认 `false`。 | 树数据返回层级对象，家谱数据返回分组数组；图表或必要节点 id 不可用时返回错误字符串。 |
 | `oc.getNodeState(node, relation)` | 已渲染 `.node`；`relation` 为 `parent`、`children` 或 `siblings`。 | 返回 `{ exist, visible }`。 |
 | `oc.getParent(node)` | 已渲染 `.node`。 | 返回父 `.node`，不存在时返回 `null`。 |
 | `oc.getChildren(node)`<br>`oc.getSiblings(node)` | 已渲染 `.node`。 | 返回直接子节点或兄弟节点 `.node` 元素数组。 |
@@ -470,7 +512,7 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
 当你想基于新的options或数据源刷新组织结构图时，这个方法就派上用场了。
 
 #### setOptions(options) / setOptions(name, value)
-无需重新构建图表即可更新 `pan`、`zoom` 或 `minimap`。可传入选项对象，或传入支持的选项名称和布尔值；传入包含 `data` 的对象时会重新构建图表。
+无需重新构建图表即可更新 `pan`、`zoom`、`minimap`、缩放上下限，以及导出的分辨率倍数、文件名和扩展名。其他选项会重建图表。可传入部分选项对象，或选项名称及对应值。后续 `init()` 调用会保留这些变更，图标默认值逐字段合并。重建后应重新查询节点元素。
 
 #### attachMinimap() / detachMinimap()
 创建或移除当前图表的小地图覆盖层。通常应使用 `setOptions('minimap', true|false)`，以保证选项状态和覆盖层保持同步。
