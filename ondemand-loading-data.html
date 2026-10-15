@@ -6,6 +6,17 @@
   <link rel="icon" href="img/logo.png">
   <link rel="stylesheet" href="css/orgchart.css">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .request-control { position: absolute; width: 16px; height: 16px; padding: 0; border: 0; background: #fff; color: #1677ff; cursor: pointer; }
+    .request-control:disabled { cursor: wait; opacity: 0.5; }
+    .request-parent { top: -2px; left: calc(50% - 8px); background: transparent; }
+    .request-siblings { top: calc(50% - 8px); background: transparent; }
+    .request-siblings-left { left: -2px; }
+    .request-siblings-right { right: -2px; }
+    .request-children { bottom: -2px; left: calc(50% - 8px); background: transparent; }
+    .request-control > .oci { pointer-events: none; }
+    .request-control > .oci::before { border-color: currentColor; }
+  </style>
 </head>
 <body>
   <section class="demo-notes">
@@ -21,42 +32,94 @@
       '/orgchart/ancestors/n1': { 
         'id': 'n0',
         'name': 'Lao Lao',
-        'title': 'general manager', 'relationship': '001',
+        'title': 'general manager',
         'children': [
-        { 'id': 'n10','name': 'Bo Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n11', 'name': 'Yu Jie', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n12', 'name': 'Yu Li', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n13', 'name': 'Hong Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n14', 'name': 'Yu Wei', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n15', 'name': 'Chun Miao', 'title': 'department engineer', 'relationship': '110' },
-        { 'id': 'n16', 'name': 'Yu Tie', 'title': 'department engineer', 'relationship': '110' }
+        { 'id': 'n10','name': 'Bo Miao', 'title': 'department engineer' },
+        { 'id': 'n11', 'name': 'Yu Jie', 'title': 'department engineer' },
+        { 'id': 'n12', 'name': 'Yu Li', 'title': 'department engineer' },
+        { 'id': 'n13', 'name': 'Hong Miao', 'title': 'department engineer' },
+        { 'id': 'n14', 'name': 'Yu Wei', 'title': 'department engineer' },
+        { 'id': 'n15', 'name': 'Chun Miao', 'title': 'department engineer' },
+        { 'id': 'n16', 'name': 'Yu Tie', 'title': 'department engineer' }
         ]
       },
       '/orgchart/descendants/n2': [
-        { 'id': 'n4', 'name': 'Xiang Xiang', 'title': 'engineer', 'relationship': '110' }
+        { 'id': 'n4', 'name': 'Xiang Xiang', 'title': 'engineer' }
       ],
       '/orgchart/descendants/n3': [
-        { 'id': 'n5', 'name': 'Pang Pang', 'title': 'engineer', 'relationship': '111',
+        { 'id': 'n5', 'name': 'Pang Pang', 'title': 'engineer',
           'children': [
-            { 'id': 'n6', 'name': 'Er Dan', 'title': 'UE engineer', 'relationship': '110'}
+            { 'id': 'n6', 'name': 'Er Dan', 'title': 'UE engineer' }
           ]
         },
-        { 'id': 'n7', 'name': 'Dan Dan', 'title': 'engineer', 'relationship': '110' }
+        { 'id': 'n7', 'name': 'Dan Dan', 'title': 'engineer' }
       ]
     };
 
     const requestJson = (url) => new Promise((resolve) => {
-      window.setTimeout(() => resolve(responseMap[url]), 1000);
+      window.setTimeout(() => resolve(JSON.parse(JSON.stringify(responseMap[url]))), 1000);
     });
+    const completedRequests = new Set();
+    const pendingRequests = new Set();
+    const removingRequestButtons = new WeakSet();
+    const requestUrl = (node, relation) => '/orgchart/'
+      + (relation === 'children' ? 'descendants/' : 'ancestors/') + node.id;
+    const removeRequestButtons = (node) => {
+      if (removingRequestButtons.has(node)) {
+        return;
+      }
+      removingRequestButtons.add(node);
+      try {
+        node.querySelectorAll(':scope > .request-control').forEach((button) => button.remove());
+      } finally {
+        removingRequestButtons.delete(node);
+      }
+    };
+    const renderRequestButtons = (node) => {
+      [
+        { relation: 'parent', icon: 'oci-chevron-up', label: 'Load ancestors' },
+        { relation: 'siblings', side: 'left', icon: 'oci-chevron-left', label: 'Load siblings' },
+        { relation: 'siblings', side: 'right', icon: 'oci-chevron-right', label: 'Load siblings' },
+        { relation: 'children', icon: 'oci-chevron-down', label: 'Load children' }
+      ].forEach(({ relation, side, icon, label }) => {
+        const url = requestUrl(node, relation);
+        const controlClass = 'request-' + relation + (side ? '-' + side : '');
+        const existingButton = node.querySelector(':scope > .' + controlClass);
+        if (!Object.prototype.hasOwnProperty.call(responseMap, url)
+          || completedRequests.has(url) || oc.getNodeState(node, relation).exist) {
+          if (existingButton) {
+            removeRequestButtons(node);
+          }
+          return;
+        }
+        if (existingButton) {
+          removingRequestButtons.add(node);
+          try {
+            existingButton.disabled = pendingRequests.has(url);
+          } finally {
+            removingRequestButtons.delete(node);
+          }
+          return;
+        }
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'request-control request-' + relation + (side ? ' ' + controlClass : '');
+        button.dataset.relation = relation;
+        button.title = label;
+        button.setAttribute('aria-label', label);
+        button.disabled = pendingRequests.has(url);
+        button.innerHTML = '<i class="oci ' + icon + '"></i>';
+        node.appendChild(button);
+      });
+    };
 
     const datasource = {
       'id': 'n1',
       'name': 'Su Miao',
       'title': 'department manager',
-      'relationship': '111',
       'children': [
-        { 'id': 'n2','name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '111' },
-        { 'id': 'n3','name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '111' }
+        { 'id': 'n2','name': 'Tie Hua', 'title': 'senior engineer' },
+        { 'id': 'n3','name': 'Hei Hei', 'title': 'senior engineer' }
       ]
     };
 
@@ -64,80 +127,74 @@
       chartContainer: '#chart-container',
       'data' : datasource,
       'nodeContent': 'title',
-      'nodeId': 'id'
+      'nodeId': 'id',
+      createNode: (node) => {
+        node.addEventListener('mouseenter', () => renderRequestButtons(node));
+        node.addEventListener('mouseleave', () => {
+          if (!node.contains(document.activeElement)) {
+            removeRequestButtons(node);
+          }
+        });
+        node.addEventListener('focusin', (event) => {
+          if (event.target === node) {
+            renderRequestButtons(node);
+          }
+        });
+        node.addEventListener('focusout', (event) => {
+          if (!node.contains(event.relatedTarget) && !node.matches(':hover')) {
+            removeRequestButtons(node);
+          }
+        });
+      }
     });
 
     const chartElement = document.getElementById('chart-container');
-    const getAjaxFlag = () => oc.chart.dataset.inAjax === 'true';
-    const setAjaxFlag = (value) => {
-      oc.chart.dataset.inAjax = value ? 'true' : 'false';
-    };
-    const toggleLoading = (edgeElement, isLoading) => {
-      const nodeElement = edgeElement.parentElement;
-      const spinner = nodeElement.querySelector('.spinner');
-      edgeElement.classList.toggle('hidden', isLoading);
-      if (isLoading && !spinner) {
-        nodeElement.insertAdjacentHTML('beforeend', '<i class="oci oci-spinner spinner"></i>');
-        Array.from(nodeElement.children)
-          .filter((child) => !child.classList.contains('spinner'))
-          .forEach((child) => {
-            child.style.opacity = '0.2';
-          });
-        setAjaxFlag(true);
-        return;
-      }
-      if (!isLoading) {
-        const currentSpinner = nodeElement.querySelector('.spinner');
-        if (currentSpinner) {
-          currentSpinner.remove();
-        }
-        Array.from(nodeElement.children).forEach((child) => {
-          child.removeAttribute('style');
-        });
-        setAjaxFlag(false);
-      }
-    };
-
     chartElement.addEventListener('click', async (event) => {
-      const clickableAncestor = event.target.closest('.topEdge, .horizontalEdge');
-      if (!clickableAncestor || !chartElement.contains(clickableAncestor)) {
+      const button = event.target.closest('.request-control');
+      if (!button || !chartElement.contains(button)) {
         return;
       }
-      const nodeElement = clickableAncestor.parentElement;
-      const parentState = oc.getNodeState(nodeElement, 'parent');
-      if (!parentState.exist) {
-        if (getAjaxFlag()) {
+      const node = button.parentElement;
+      const relation = button.dataset.relation;
+      const url = requestUrl(node, relation);
+      if (pendingRequests.has(url) || completedRequests.has(url)) {
+        return;
+      }
+      pendingRequests.add(url);
+      renderRequestButtons(node);
+      node.setAttribute('aria-busy', 'true');
+      const spinner = document.createElement('i');
+      spinner.className = 'oci oci-spinner spinner';
+      node.appendChild(spinner);
+      let failed = false;
+      try {
+        const data = await requestJson(url);
+        if (!oc.chart.contains(node)) {
           return;
         }
-        toggleLoading(clickableAncestor, true);
-        try {
-          const nodeData = nodeElement ? nodeElement.__ocNodeData || nodeElement.dataset : {};
-          const data = await requestJson('/orgchart/ancestors/' + nodeData.id);
-          oc.addAncestors(data, 'n0');
-        } finally {
-          toggleLoading(clickableAncestor, false);
+        if (relation === 'children') {
+          if (data.length) {
+            oc.addDescendants(data, node);
+          }
+        } else if (data) {
+          oc.addAncestors(data, data.id);
+          oc.refreshNodeControls(document.getElementById(data.id));
         }
-      }
-    });
-
-    chartElement.addEventListener('click', async (event) => {
-      const bottomEdge = event.target.closest('.bottomEdge');
-      if (!bottomEdge || !chartElement.contains(bottomEdge)) {
-        return;
-      }
-      const nodeElement = bottomEdge.parentElement;
-      const childrenState = oc.getNodeState(nodeElement, 'children');
-      if (!childrenState.exist) {
-        if (getAjaxFlag()) {
-          return;
-        }
-        toggleLoading(bottomEdge, true);
-        try {
-          const nodeData = nodeElement ? nodeElement.__ocNodeData || nodeElement.dataset : {};
-          const data = await requestJson('/orgchart/descendants/' + nodeData.id);
-          oc.addDescendants(data, nodeElement);
-        } finally {
-          toggleLoading(bottomEdge, false);
+        completedRequests.add(url);
+      } catch (error) {
+        failed = true;
+      } finally {
+        pendingRequests.delete(url);
+        spinner.remove();
+        node.removeAttribute('aria-busy');
+        removeRequestButtons(node);
+        if (node.matches(':hover') || node.contains(document.activeElement)) {
+          renderRequestButtons(node);
+          if (failed) {
+            node.querySelectorAll(':scope > .request-control').forEach((retryButton) => {
+              retryButton.title = 'Request failed. Click to retry.';
+            });
+          }
         }
       }
     });

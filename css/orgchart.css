@@ -547,7 +547,8 @@
 	background-color: rgba(68, 157, 68, 0.6);
 }
 
-.orgchart .node:hover .toggleBtn {
+.orgchart .node:hover > .toggleBtn,
+.orgchart .node.controls-active > .toggleBtn {
 	visibility: visible;
 }
 
@@ -720,6 +721,16 @@
 }
 
 .orgchart .node.compact > .node {
+  display: none;
+}
+
+.orgchart .nodes.compact-family {
+  display: grid;
+  grid-template-columns: repeat(var(--compact-columns, 2), max-content);
+  gap: 10px;
+}
+
+.orgchart .node.compact:not(.looseMode) > .nodes {
   display: none;
 }
 

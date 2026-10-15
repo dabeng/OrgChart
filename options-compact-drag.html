@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OrgChart Compact Drag Options Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container { height: min(620px, calc(100dvh - 110px)); min-height: 320px; }
+    .orgchart { background: #fff; }
+    .demo-notes a { color: #176b55; }
+    .orgchart .node[data-kind="team"] > .title { background-color: #176b55; }
+    .orgchart .node[data-kind="team"] > .content { border-color: #176b55; }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>Compact Team Assignment</h1>
+    <p>Mixed options: compact layout, drag and drop criteria, pan and zoom &middot; <output id="assignment-status" aria-live="polite">Assignments unchanged</output> &middot; <a href="index.html">All demos</a></p>
+  </section>
+  <div id="chart-container"></div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const datasource = {
+        id: 'studio', name: 'Lao Lao', title: 'Studio director', kind: 'director',
+        children: [
+          { id: 'engineering-team', name: 'Engineering', title: 'Delivery team', kind: 'team', children: [
+            { id: 'member-tie', name: 'Tie Hua', title: 'Services engineer', kind: 'member' },
+            { id: 'member-hei', name: 'Hei Hei', title: 'Platform engineer', kind: 'member' },
+            { id: 'member-pang', name: 'Pang Pang', title: 'API engineer', kind: 'member' },
+            { id: 'member-xiang', name: 'Xiang Xiang', title: 'UI engineer', kind: 'member' },
+            { id: 'member-dan', name: 'Dan Dan', title: 'Quality engineer', kind: 'member' },
+            { id: 'member-yu', name: 'Yu Wei', title: 'Data engineer', kind: 'member' },
+            { id: 'member-chun', name: 'Chun Miao', title: 'Release engineer', kind: 'member' },
+            { id: 'member-hong', name: 'Hong Miao', title: 'Security engineer', kind: 'member' }
+          ] },
+          { id: 'product-team', name: 'Product', title: 'Experience team', kind: 'team', children: [
+            { id: 'member-bo', name: 'Bo Miao', title: 'Product owner', kind: 'member' },
+            { id: 'member-jie', name: 'Yu Jie', title: 'UX researcher', kind: 'member' },
+            { id: 'member-li', name: 'Yu Li', title: 'Product designer', kind: 'member' },
+            { id: 'member-miao', name: 'Su Miao', title: 'Content designer', kind: 'member' }
+          ] }
+        ]
+      };
+
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: datasource,
+        nodeContent: 'title',
+        compact: true,
+        draggable: true,
+        pan: true,
+        zoom: true,
+        zoomoutLimit: 0.5,
+        zoominLimit: 2,
+        createNode: (node, data) => {
+          node.dataset.kind = data.kind;
+          node.title = data.name + ' - ' + data.title;
+        },
+        dropCriteria: (draggedNode, dragZone, dropZone) => {
+          return draggedNode.dataset.kind === 'member'
+            && dropZone.dataset.kind === 'team'
+            && dragZone !== dropZone;
+        }
+      });
+
+      oc.chartContainer.addEventListener('nodedrop.orgchart', (event) => {
+        const { draggedNode, dropZone } = event.detail;
+        document.querySelector('#assignment-status').textContent =
+          draggedNode.querySelector('.title').textContent + ' / ' + dropZone.querySelector('.title').textContent;
+      }, true);
+
+      oc.chartContainer.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      }, { passive: false });
+    });
+  </script>
+</body>
+</html>
