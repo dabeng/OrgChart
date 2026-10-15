@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OrgChart Hybrid Navigation Options Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    #chart-container { height: min(620px, calc(100dvh - 110px)); min-height: 320px; }
+    .orgchart { background: #fff; }
+    .demo-notes a { color: #176b55; }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>Hybrid Navigation</h1>
+    <p>Mixed options: hybrid layout, visible depth, sibling toggles, pan, zoom and minimap &middot; <a href="index.html">All demos</a></p>
+  </section>
+  <div id="chart-container"></div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const datasource = {
+        id: 'platform', name: 'Lao Lao', title: 'Platform director',
+        children: [
+          { id: 'engineering', name: 'Su Miao', title: 'Engineering manager', children: [
+            { id: 'services', name: 'Tie Hua', title: 'Services lead', children: [
+              { id: 'api', name: 'Pang Pang', title: 'API engineer' },
+              { id: 'data', name: 'Xiang Xiang', title: 'Data engineer' }
+            ] },
+            { id: 'quality', name: 'Hei Hei', title: 'Quality lead', children: [
+              { id: 'automation', name: 'Dan Dan', title: 'Automation engineer' }
+            ] }
+          ] },
+          { id: 'product', name: 'Bo Miao', title: 'Product manager', children: [
+            { id: 'design', name: 'Yu Jie', title: 'Design lead', children: [
+              { id: 'research', name: 'Yu Li', title: 'UX researcher' },
+              { id: 'experience', name: 'Hong Miao', title: 'Product designer' }
+            ] }
+          ] },
+          { id: 'operations', name: 'Chun Miao', title: 'Operations manager', children: [
+            { id: 'reliability', name: 'Yu Wei', title: 'Reliability lead', children: [
+              { id: 'infrastructure', name: 'Yu Tie', title: 'Infrastructure engineer' }
+            ] }
+          ] }
+        ]
+      };
+
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: datasource,
+        nodeContent: 'title',
+        verticalLevel: 3,
+        visibleLevel: 3,
+        toggleSiblingsResp: true,
+        pan: true,
+        zoom: true,
+        minimap: true,
+        zoomoutLimit: 0.5,
+        zoominLimit: 2
+      });
+
+      oc.chartContainer.addEventListener('touchmove', (event) => {
+        event.preventDefault();
+      }, { passive: false });
+    });
+  </script>
+</body>
+</html>

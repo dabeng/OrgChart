@@ -85,6 +85,63 @@ describe('Demo Rendering and Configuration', () => {
     cy.get('#chart-container .orgchart').should('have.class', 'r2l');
   });
 
+  it('combines hybrid layout, initial depth and minimap navigation', () => {
+    visitChartDemo('options-hybrid-navigation.html');
+    cy.get('#chart-container .node').should('have.length', 14);
+    cy.get('#chart-container .nodes.vertical').should('exist');
+    cy.get('#api').should('not.be.visible');
+    cy.get('#chart-container .orgchart-minimap-node').should('have.length.at.least', 1);
+    cy.get('#services').trigger('mouseenter');
+    cy.get('#services .toggleBtn').click({ force: true });
+    cy.get('#api').should('be.visible');
+  });
+
+  it('combines compact layout with constrained team assignments', () => {
+    visitChartDemo('options-compact-drag.html');
+    cy.get('#chart-container .node.compact').should('exist');
+    cy.get('#studio > .backToLooseSymbol').click();
+    cy.get('#engineering-team > .backToLooseSymbol').click();
+    cy.get('#member-tie').should('have.attr', 'draggable', 'true');
+    cy.window().then((win) => {
+      const dataTransfer = new win.DataTransfer();
+      cy.get('#member-tie').then(($node) => {
+        $node[0].dispatchEvent(new win.DragEvent('dragstart', { bubbles: true, dataTransfer }));
+      });
+      cy.get('#product-team').should('have.class', 'allowedDrop');
+      cy.get('#member-bo').should('not.have.class', 'allowedDrop');
+      cy.get('#studio').should('not.have.class', 'allowedDrop');
+      cy.get('#product-team').then(($node) => {
+        $node[0].dispatchEvent(new win.DragEvent('drop', { bubbles: true, dataTransfer }));
+      });
+    });
+    cy.get('#product-team #member-tie').should('exist');
+    cy.get('#engineering-team #member-tie').should('not.exist');
+    cy.get('#assignment-status').should('have.text', 'Tie Hua / Product');
+  });
+
+  it('combines horizontal layout, custom fields, avatars and icons', () => {
+    visitChartDemo('options-horizontal-template.html');
+    cy.get('#chart-container .orgchart').should('have.class', 'l2r');
+    cy.get('#design-director').should('have.attr', 'data-office', 'Shanghai');
+    cy.get('#design-director .title').should('contain.text', 'Lao Lao');
+    cy.get('#design-director .content').should('have.text', 'Design director');
+    cy.get('#chart-container .avatar').should('have.length', 7);
+    cy.get('#experience-lead > .edge').should('have.class', 'fa-solid');
+  });
+
+  it('combines bottom-to-top layout, custom fields and PDF export', () => {
+    visitChartDemo('options-export-navigation.html');
+    cy.get('#chart-container .orgchart').should('have.class', 'b2t').and('have.class', 'delivery-chart');
+    cy.get('#delivery-director .title').should('have.text', 'Lao Lao');
+    cy.get('#west-manager').should('have.attr', 'data-region', 'west');
+    cy.get('#east-manager').should('have.attr', 'data-region', 'east');
+    cy.get('.oc-export-btn').should('be.visible').and('have.text', 'Export PDF');
+    cy.window().then((win) => {
+      expect(win.html2canvas).to.be.a('function');
+      expect(win.jspdf.jsPDF).to.be.a('function');
+    });
+  });
+
   it('parses the unordered-list datasource', () => {
     visitChartDemo('ul-datasource.html', 'UL Datasource Demo');
     cy.contains('#chart-container .node .title', 'Lao Lao').should('exist');
