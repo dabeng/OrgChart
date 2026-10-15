@@ -10,7 +10,9 @@
     .request-control { position: absolute; width: 16px; height: 16px; padding: 0; border: 0; background: #fff; color: #1677ff; cursor: pointer; }
     .request-control:disabled { cursor: wait; opacity: 0.5; }
     .request-parent { top: -2px; left: calc(50% - 8px); background: transparent; }
-    .request-siblings { left: -2px; top: calc(50% - 8px); background: transparent; }
+    .request-siblings { top: calc(50% - 8px); background: transparent; }
+    .request-siblings-left { left: -2px; }
+    .request-siblings-right { right: -2px; }
     .request-children { bottom: -2px; left: calc(50% - 8px); background: transparent; }
     .request-control > .oci { pointer-events: none; }
     .request-control > .oci::before { border-color: currentColor; }
@@ -76,11 +78,13 @@
     const renderRequestButtons = (node) => {
       [
         { relation: 'parent', icon: 'oci-chevron-up', label: 'Load ancestors' },
-        { relation: 'siblings', icon: 'oci-chevron-left', label: 'Load siblings' },
+        { relation: 'siblings', side: 'left', icon: 'oci-chevron-left', label: 'Load siblings' },
+        { relation: 'siblings', side: 'right', icon: 'oci-chevron-right', label: 'Load siblings' },
         { relation: 'children', icon: 'oci-chevron-down', label: 'Load children' }
-      ].forEach(({ relation, icon, label }) => {
+      ].forEach(({ relation, side, icon, label }) => {
         const url = requestUrl(node, relation);
-        const existingButton = node.querySelector(':scope > .request-' + relation);
+        const controlClass = 'request-' + relation + (side ? '-' + side : '');
+        const existingButton = node.querySelector(':scope > .' + controlClass);
         if (!Object.prototype.hasOwnProperty.call(responseMap, url)
           || completedRequests.has(url) || oc.getNodeState(node, relation).exist) {
           if (existingButton) {
@@ -89,12 +93,17 @@
           return;
         }
         if (existingButton) {
-          existingButton.disabled = pendingRequests.has(url);
+          removingRequestButtons.add(node);
+          try {
+            existingButton.disabled = pendingRequests.has(url);
+          } finally {
+            removingRequestButtons.delete(node);
+          }
           return;
         }
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'request-control request-' + relation;
+        button.className = 'request-control request-' + relation + (side ? ' ' + controlClass : '');
         button.dataset.relation = relation;
         button.title = label;
         button.setAttribute('aria-label', label);
