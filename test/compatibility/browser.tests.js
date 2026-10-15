@@ -13,7 +13,10 @@ describe('orgchart browser option compatibility', function () {
   let page;
 
   before(async function () {
-    browser = await puppeteer.launch({ headless: true });
+    browser = await puppeteer.launch({
+      headless: true,
+      args: process.platform === 'linux' && process.env.GITHUB_ACTIONS === 'true' ? ['--no-sandbox'] : []
+    });
   });
 
   after(async function () {
