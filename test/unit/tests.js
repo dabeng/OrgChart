@@ -276,12 +276,10 @@ describe('orgchart -- unit tests', function () {
       id: 'root',
       title: 'chief',
       name: 'Root',
-      relationship: '001',
       children: [
         {
           id: 'child',
-          name: 'Child',
-          relationship: '100'
+          name: 'Child'
         }
       ]
     });
@@ -682,6 +680,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('hideChildrenEnd() accepts direct animated and node payloads', function () {
+    $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = query('.bottomEdge', $sumiao);
     const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
 
@@ -700,6 +699,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('hideChildrenEnd() accepts wrapped native animated and node payloads', function () {
+    $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = query('.bottomEdge', $sumiao);
     const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
 
@@ -777,6 +777,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('showSiblingsEnd() accepts direct visible and node payloads', function () {
+    $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
     const switchSpy = sinon.spy(oc, 'switchHorizontalArrow');
 
@@ -799,6 +800,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('showSiblingsEnd() accepts wrapped native visible and node payloads', function () {
+    $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
     const switchSpy = sinon.spy(oc, 'switchHorizontalArrow');
 
@@ -1006,6 +1008,7 @@ describe('orgchart -- unit tests', function () {
       });
 
       it('accepts direct node, container, and animated payloads', function () {
+        $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
         const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
         const nodeContainerEl = closestElement($heihei, '.hierarchy');
 
@@ -1029,6 +1032,7 @@ describe('orgchart -- unit tests', function () {
       });
 
       it('accepts wrapped native node, container, and animated payloads', function () {
+        $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
         const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
         const nodeContainerEl = closestElement($heihei, '.hierarchy');
 
@@ -1061,26 +1065,15 @@ describe('orgchart -- unit tests', function () {
     spy.should.have.been.calledWith($sumiao);
   });
 
-  it('nodeEnterLeaveHandler() removes arrow classes from a native node payload on mouseleave', function () {
+  it('nodeEnterLeaveHandler() removes controls from a native node payload on mouseleave', function () {
     const nodeEl = $sumiao;
 
-    Array.from(nodeEl.querySelectorAll('.edge')).forEach(function (edgeEl) {
-      edgeEl.classList.add(
-        oc.options.icons.expandToUp,
-        oc.options.icons.collapseToDown,
-        oc.options.icons.collapseToLeft,
-        oc.options.icons.expandToRight
-      );
-    });
+    nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
+    nodeEl.querySelectorAll('.edge').length.should.equal(4);
 
     oc.nodeEnterLeaveHandler({ type: 'mouseleave', node: nodeEl });
 
-    Array.from(nodeEl.querySelectorAll('.edge')).forEach(function (edgeEl) {
-      edgeEl.classList.contains(oc.options.icons.expandToUp).should.equal(false);
-      edgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(false);
-      edgeEl.classList.contains(oc.options.icons.collapseToLeft).should.equal(false);
-      edgeEl.classList.contains(oc.options.icons.expandToRight).should.equal(false);
-    });
+    nodeEl.querySelectorAll('.edge').length.should.equal(0);
   });
 
   it('nodeEnterLeaveHandler() accepts wrapped native node payloads', function () {
@@ -1098,6 +1091,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('HideFirstParentEnd() accepts a native top edge payload', function () {
+    $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
     const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
     const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
@@ -1113,6 +1107,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('HideFirstParentEnd() accepts a wrapped native top edge payload', function () {
+    $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
     const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
     const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
@@ -1304,6 +1299,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('startLoading() and endLoading() accept a native edge node', function () {
+    $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const edgeEl = query('.bottomEdge', $sumiao);
 
     oc.startLoading(edgeEl).should.be.true;
@@ -1318,6 +1314,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('startLoading() and endLoading() toggle native export buttons', function () {
+    $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const edgeEl = query('.bottomEdge', $sumiao);
     const exportButtonEl = document.createElement('button');
 
@@ -1909,20 +1906,22 @@ describe('orgchart -- unit tests', function () {
     levels[3].map(function (nodeEl) { return nodeEl.id; }).should.deep.equal(['n8', 'n9', 'n10']);
   });
 
-  it('isInAction() accepts a native node and inspects native edge classes', function () {
+  it('isInAction() tracks node interaction independently of arrow classes', function () {
     const nodeEl = $sumiao;
-    const topEdgeEl = nodeEl.querySelector('.topEdge');
 
-    should.exist(topEdgeEl);
-    topEdgeEl.classList.add(oc.options.icons.expandToUp);
+    oc.isInAction(nodeEl).should.equal(false);
+    nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
     oc.isInAction(nodeEl).should.equal(true);
 
-    topEdgeEl.classList.remove(oc.options.icons.expandToUp);
+    nodeEl.querySelector('.topEdge').className = 'edge topEdge';
+    oc.isInAction(nodeEl).should.equal(true);
+    nodeEl.dispatchEvent(new window.MouseEvent('mouseleave'));
     oc.isInAction(nodeEl).should.equal(false);
   });
 
   it('switchHorizontalArrow() accepts a native node and toggles edge classes from native siblings', function () {
     const nodeEl = $sumiao;
+    nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
     const leftEdgeEl = nodeEl.querySelector('.leftEdge');
     const rightEdgeEl = nodeEl.querySelector('.rightEdge');
 
@@ -1944,6 +1943,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('switchVerticalArrow() accepts a native edge element and toggles vertical arrow classes', function () {
+    $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = $sumiao.querySelector('.bottomEdge');
 
     should.exist(bottomEdgeEl);
@@ -2279,7 +2279,7 @@ describe('orgchart -- unit tests', function () {
     });
     const spy = sinon.spy(draggableChart, 'bindDragDrop');
 
-    draggableChart.createNode({ id: 'n11', name: 'Li Xin', relationship: '000', level: 0 });
+    draggableChart.createNode({ id: 'n11', name: 'Li Xin', level: 0 });
 
     spy.should.have.been.called;
     spy.firstCall.args[0].nodeType.should.equal(1);
@@ -2297,12 +2297,12 @@ describe('orgchart -- unit tests', function () {
     let verticalNodesEl;
 
     hierarchyEl.className = 'hierarchy';
-    nodeEl = verticalChart.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 1 });
+    nodeEl = verticalChart.createNode({ id: 'n11', name: 'Parent', level: 1 });
     hierarchyEl.appendChild(nodeEl);
 
     verticalChart.buildInferiorNodes(hierarchyEl, nodeEl, {
       collapsed: true,
-      children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+      children: [{ id: 'n12', name: 'Child' }]
     }, 1);
 
     verticalNodesEl = Array.from(hierarchyEl.children).find(function (childEl) {
@@ -2317,14 +2317,14 @@ describe('orgchart -- unit tests', function () {
 
   it('buildInferiorNodes() keeps compact descendants on the native node element', function () {
     const hierarchyEl = document.createElement('li');
-    const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+    const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 0 });
 
     hierarchyEl.className = 'hierarchy';
     hierarchyEl.appendChild(nodeEl);
 
     oc.buildInferiorNodes(hierarchyEl, nodeEl, {
       compact: true,
-      children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+      children: [{ id: 'n12', name: 'Child' }]
     }, 0);
 
     nodeEl.classList.contains('compact').should.equal(true);
@@ -2339,13 +2339,12 @@ describe('orgchart -- unit tests', function () {
     hierarchyEl.className = 'hierarchy';
 
     oc.buildHierarchy(hierarchyEl, [[
-      { id: 'n11', name: 'Spouse A', relationship: '001', outsider: false },
+      { id: 'n11', name: 'Spouse A', outsider: false },
       {
         id: 'n12',
         name: 'Spouse B',
-        relationship: '001',
         outsider: true,
-        children: [[{ id: 'n13', name: 'Child', relationship: '000' }]]
+        children: [[{ id: 'n13', name: 'Child' }]]
       }
     ]]);
 
@@ -2364,7 +2363,7 @@ describe('orgchart -- unit tests', function () {
     let ancestorNodeEl;
     let originalRootNodeEl;
 
-    oc.addAncestors({ id: 'n0', name: 'Lao Ye', relationship: '001' }, 'n0');
+    oc.addAncestors({ id: 'n0', name: 'Lao Ye' }, 'n0');
 
     ancestorNodeEl = document.getElementById('n0');
     originalRootNodeEl = document.getElementById('n1');

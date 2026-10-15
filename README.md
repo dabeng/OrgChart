@@ -83,7 +83,7 @@ FYI, [How to use jQuery Orchart in React](https://stackblitz.com/edit/vitejs-vit
 
 ![ondemand-loading-data](http://dabeng.github.io/OrgChart/img/ondemand-loading-data.gif)
 
-**Note:** users use should set the relationship property of datasource by themselves. All of these staff are used to generate the correct expanding/collapsing arrows for nodes.
+**Note:** the library manages expand/collapse controls only for loaded nodes. The demo creates separate request buttons and handles loading through application code; no relationship metadata or loading callback option is required.
 
 - [I wanna customize the structure of node](https://dabeng.github.io/OrgChart/option-createNode.html)
 
@@ -257,26 +257,23 @@ var oc = new OrgChart({
   // which will be used as className attribute of node.
   'nodeTitle': 'name', // This property is used to retrieve â€œtitleâ€ value in datasource
   'nodeContent': 'title',// This property is used to retrieve "content" value in datasource
-  'relationship': relationshipValue, // Note: when you activate ondemand loading nodes feature,
-  // you should use json datsource (local or remote) and set this property.
-  // This property implies that whether this node has parent, siblings, children.
-  // relationshipValue is a string composed of three "0/1" identifier.
-  // First character stands for wether current node has parent node;
-  // Scond character stands for wether current node has siblings nodes;
-  // Third character stands for wether current node has children node.
   'children': [ // The property stands for nested nodes.
-    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
+    { 'name': 'Bo Miao', 'title': 'department manager' },
+    { 'name': 'Su Miao', 'title': 'department manager',
       'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '110' }
+        { 'name': 'Tie Hua', 'title': 'senior engineer' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer' }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' }
+    { 'name': 'Yu Jie', 'title': 'department manager' }
   ],
   'otherPro': anyValue // feel free to append any useful properties
 };
 ```
+
+Node relations are derived from the current loaded structure. Expand/collapse and compact-layout controls are created when a node is hovered, focused, or selected by touch, and removed when interaction ends. A control involved in loading is retained until loading finishes. Keyboard users can focus a node and activate its controls with Enter or Space.
+
+The `createNode` callback runs without prebuilt interaction controls; customize icons through `icons` rather than querying initial arrow elements. For on-demand loading, create application-owned request buttons through `createNode` and handle requests with event delegation. Keep their behavior selectors separate from built-in controls, then insert loaded nodes with `addAncestors()`, `addChildren()`, or `addDescendants()`. `getNodeState()` describes loaded relations, not data that may exist on a server. The former relationship field and relation-preprocessing method are no longer supported.
 
 ### Data Props
 <table>

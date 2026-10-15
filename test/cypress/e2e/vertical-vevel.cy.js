@@ -15,24 +15,24 @@ describe('Hybrid(horizontal + vertical) Chart', () => {
   const wudan = '.node:contains("Wu Dan")';
 
   it('toggle the vertical nodes', () => {
-    cy.get(dandan).find('.toggleBtn').click({ force: true });
+    cy.get(dandan).trigger('mouseenter').find('.toggleBtn').click({ force: true });
     cy.get(dandan).find('.toggleBtn').should('have.class', 'oci-minus-square');
     cy.get(erdan).get(sandan).should('be.visible');
     cy.get(sidan).get(wudan).should('not.be.visible');
   
-    cy.get(heihei).find('.toggleBtn').click({ force: true });
+    cy.get(heihei).trigger('mouseenter').find('.toggleBtn').click({ force: true });
     cy.get(heihei).find('.toggleBtn').should('have.class', 'oci-plus-square');
     cy.get(pangpang).get(dandan).get(erdan).get(sandan).should('not.be.visible');
   
-    cy.get(heihei).find('.toggleBtn').click({ force: true });
+    cy.get(heihei).trigger('mouseenter').find('.toggleBtn').click({ force: true });
     cy.get(pangpang).get(dandan).should('be.visible');
   });
 
   it('toggle the vertical nodes by cicking horizontal nodes', () => {
-    cy.get(sumiao).find('.bottomEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.bottomEdge').click();
     cy.get(tiehua).get(heihei).get(pangpang).get(dandan).should('be.visible');
 
-    cy.get(sumiao).find('.bottomEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.bottomEdge').click();
     cy.get(tiehua).get(heihei).should('be.visible');
     cy.get(pangpang).get(dandan).should('not.be.visible');
   });

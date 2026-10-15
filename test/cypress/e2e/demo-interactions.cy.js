@@ -21,7 +21,7 @@ describe('Demo Interactions', () => {
       expect($node[0].nextElementSibling).to.have.class('hidden');
     });
 
-    cy.contains('#chart-container .node .title', 'Hei Hei').closest('.node').find('.bottomEdge').click();
+    cy.contains('#chart-container .node .title', 'Hei Hei').closest('.node').trigger('mouseenter').find('.bottomEdge').click();
     cy.contains('#chart-container .node .title', 'Dan Dan').should('be.visible');
   });
 
@@ -36,7 +36,7 @@ describe('Demo Interactions', () => {
 
   it('expands a selected branch to the configured depth', () => {
     cy.visit('demo/expand-to-given-depth.html');
-    cy.contains('#chart-container .node .title', 'Su Miao').closest('.node').find('.bottomEdge').click();
+    cy.contains('#chart-container .node .title', 'Su Miao').closest('.node').trigger('mouseenter').find('.bottomEdge').click();
     cy.contains('#chart-container .node .title', 'Dan Zai').should('be.visible');
     cy.contains('#chart-container .node .title', 'Er Dan Zai').should('not.be.visible');
     cy.contains('#chart-container .node .title', 'AAA').should('not.be.visible');
@@ -79,7 +79,7 @@ describe('Demo Interactions', () => {
     cy.viewport(500, 720);
     cy.visit('demo/responsive-design.html');
     cy.window().trigger('resize');
-    cy.get('#chart-container .verticalNodes, #chart-container .toggleBtn').should('exist');
+    cy.get('#chart-container .nodes.vertical').should('exist');
   });
 
   it('renders all 10,000 generated nodes', () => {

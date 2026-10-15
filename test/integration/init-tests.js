@@ -33,16 +33,11 @@ describe('orgchart -- integration tests', function () {
     ]
   };
 
-  const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
-    '<div id="n1" class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol">' +
-    '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes">' +
-    '<li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
-    '<div class="title">Bo Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
-    '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci">' +
-    '</i></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
-    '<div class="title">Su Miao</div><i class="edge verticalEdge topEdge oci"></i>' +
-    '<i class="edge horizontalEdge rightEdge oci"></i><i class="edge horizontalEdge leftEdge oci">' +
-    '</i></div></li></ul></li></ul></div>';
+  const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy"><div id="n1" class="node" tabindex="0"><div clas' +
+    's="title"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div></div><ul class="nodes"><li class="hierarc' +
+    'hy"><div id="n2" data-parent="n1" class="node" tabindex="0"><div class="title">Bo Miao</div></div></li><li cla' +
+    'ss="hierarchy"><div id="n3" data-parent="n1" class="node" tabindex="0"><div class="title">Su Miao</div></div><' +
+    '/li></ul></li></ul></div>';
 
   let oc = {};
 
@@ -96,11 +91,10 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('initialize chart with the given vertical level', function () {
-      const fragment = '<li class="hierarchy"><div id="n1" class="node"><div class="title">' +
-        '<i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci">' +
-        '</i></div><ul class="nodes vertical"><li class="hierarchy"><div id="n2" data-parent="n1" class="node">' +
-        '<div class="title">Bo Miao</div></div></li><li class="hierarchy"><div id="n3" data-parent="n1" class="node">' +
-        '<div class="title">Su Miao</div></div></li></ul></li>';
+      const fragment = '<li class="hierarchy"><div id="n1" class="node" tabindex="0"><div class="title"><i class="oci oci-menu parentN' +
+        'odeSymbol"></i>Lao Lao</div></div><ul class="nodes vertical"><li class="hierarchy"><div id="n2" data-parent="n' +
+        '1" class="node" tabindex="0"><div class="title">Bo Miao</div></div></li><li class="hierarchy"><div id="n3" dat' +
+        'a-parent="n1" class="node" tabindex="0"><div class="title">Su Miao</div></div></li></ul></li>';
       oc = new OrgChart({
         chartContainer: '#chart-container',
         'data': ds,
@@ -125,16 +119,13 @@ describe('orgchart -- integration tests', function () {
       };
 
       it('verticalLevel=2 and visibleLevel=1', function () {
-        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
-          '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol">' +
-          '</i>Lao Lao</div><i class="edge verticalEdge bottomEdge oci"></i></div>' +
-          '<ul class="nodes hidden vertical"><li class="hierarchy"><div class="node slide-up">' +
-          '<div class="title">Bo Miao</div></div></li><li class="hierarchy">' +
-          '<div class="node slide-up"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Su Miao</div>' +
-          '<i class="toggleBtn oci"></i></div><ul class="nodes hidden">' +
-          '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div>' +
-          '</div></li><li class="hierarchy"><div class="node slide-up">' +
-          '<div class="title">Hei Hei</div></div></li></ul></li></ul></li></ul></div>';
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy"><div class="node" tabindex="0"><div class="title' +
+          '"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div></div><ul class="nodes hidden vertical"><li class=' +
+          '"hierarchy"><div class="node slide-up" tabindex="0"><div class="title">Bo Miao</div></div></li><li class="hier' +
+          'archy"><div class="node slide-up" tabindex="0"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i' +
+          '>Su Miao</div></div><ul class="nodes hidden"><li class="hierarchy"><div class="node slide-up" tabindex="0"><di' +
+          'v class="title">Tie Hua</div></div></li><li class="hierarchy"><div class="node slide-up" tabindex="0"><div cla' +
+          'ss="title">Hei Hei</div></div></li></ul></li></ul></li></ul></div>';
         oc = new OrgChart({
           chartContainer: '#chart-container',
           'data': ds,
@@ -145,15 +136,13 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=2', function () {
-        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
-          '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div>' +
-          '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
-          '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
-          '<li class="hierarchy"><div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Su Miao</div>' +
-          '<i class="toggleBtn oci"></i></div><ul class="nodes hidden">' +
-          '<li class="hierarchy"><div class="node slide-up"><div class="title">Tie Hua</div></div>' +
-          '</li><li class="hierarchy"><div class="node slide-up"><div class="title">Hei Hei</div>' +
-          '</div></li></ul></li></ul></li></ul></div>';
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy"><div class="node" tabindex="0"><div class="title' +
+          '"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div></div><ul class="nodes vertical"><li class="hierar' +
+          'chy"><div class="node" tabindex="0"><div class="title">Bo Miao</div></div></li><li class="hierarchy"><div clas' +
+          's="node" tabindex="0"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Su Miao</div></div><ul c' +
+          'lass="nodes hidden"><li class="hierarchy"><div class="node slide-up" tabindex="0"><div class="title">Tie Hua</' +
+          'div></div></li><li class="hierarchy"><div class="node slide-up" tabindex="0"><div class="title">Hei Hei</div><' +
+          '/div></li></ul></li></ul></li></ul></div>';
         oc = new OrgChart({
           chartContainer: '#chart-container',
           'data': ds,
@@ -164,15 +153,13 @@ describe('orgchart -- integration tests', function () {
       });
 
       it('verticalLevel=2 and visibleLevel=3', function () {
-        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy">' +
-          '<div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div>' +
-          '<i class="edge verticalEdge bottomEdge oci"></i></div><ul class="nodes vertical">' +
-          '<li class="hierarchy"><div class="node"><div class="title">Bo Miao</div></div></li>' +
-          '<li class="hierarchy"><div class="node"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Su Miao</div>' +
-          '<i class="toggleBtn oci"></i></div><ul class="nodes">' +
-          '<li class="hierarchy"><div class="node"><div class="title">Tie Hua</div></div>' +
-          '</li><li class="hierarchy"><div class="node"><div class="title">Hei Hei</div></div>' +
-          '</li></ul></li></ul></li></ul></div>';
+        const fragment = '<div class="orgchart"><ul class="nodes"><li class="hierarchy"><div class="node" tabindex="0"><div class="title' +
+          '"><i class="oci oci-menu parentNodeSymbol"></i>Lao Lao</div></div><ul class="nodes vertical"><li class="hierar' +
+          'chy"><div class="node" tabindex="0"><div class="title">Bo Miao</div></div></li><li class="hierarchy"><div clas' +
+          's="node" tabindex="0"><div class="title"><i class="oci oci-menu parentNodeSymbol"></i>Su Miao</div></div><ul c' +
+          'lass="nodes"><li class="hierarchy"><div class="node" tabindex="0"><div class="title">Tie Hua</div></div></li><' +
+          'li class="hierarchy"><div class="node" tabindex="0"><div class="title">Hei Hei</div></div></li></ul></li></ul>' +
+          '</li></ul></div>';
         oc = new OrgChart({
           chartContainer: '#chart-container',
           'data': ds,

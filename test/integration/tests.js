@@ -177,7 +177,7 @@ describe('orgchart -- integration tests', function () {
   });
 
   it('addAncestors()', function () {
-    oc.addAncestors({ 'name': 'Lao Ye', 'id': 'n0', 'relationship': '001' }, 'n0');
+    oc.addAncestors({ 'name': 'Lao Ye', 'id': 'n0' }, 'n0');
 
     should.exist(query('#n0'));
     query('#n0').closest('.hierarchy').should.not.equal(query('#n1').closest('.hierarchy'));
@@ -357,6 +357,7 @@ describe('orgchart -- integration tests', function () {
 
   describe('interaction flows', function () {
     it('dispatches hide/show children events through bottom-edge clicks', function () {
+      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const bottomEdge = query('.bottomEdge', $sumiao);
       const firstChildNode = siblingElements($sumiao, '.nodes')[0].querySelector('.node');
       const events = [];
@@ -377,6 +378,7 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('dispatches hide/show siblings events through horizontal-edge clicks', function () {
+      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const leftEdge = query('.leftEdge', $sumiao);
       const firstSiblingNode = query('#n2');
       const events = [];
@@ -397,6 +399,7 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('dispatches hide-parent and enters ancestor-collapsed state through top-edge click', function () {
+      dispatchNativeEvent($heihei, 'mouseenter', { bubbles: false });
       const topEdge = query('.topEdge', $heihei);
       const hideSpy = sinon.spy();
       const currentHierarchy = $heihei.closest('.hierarchy');
@@ -438,6 +441,7 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('toggles children visibility through bottom-edge clicks and transition cleanup', function () {
+      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const childNodesContainer = siblingElements($sumiao, '.nodes')[0];
       const bottomEdge = query('.bottomEdge', $sumiao);
       const childHierarchies = Array.from(childNodesContainer.children).filter(function (childEl) {
@@ -475,6 +479,7 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('toggles sibling visibility through horizontal-edge clicks and transition cleanup', function () {
+      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const leftEdge = query('.leftEdge', $sumiao);
       const siblingHierarchies = Array.from($sumiao.closest('.hierarchy').parentElement.children).filter(function (childEl) {
         return childEl !== $sumiao.closest('.hierarchy') && childEl.classList.contains('hierarchy');
@@ -508,27 +513,25 @@ describe('orgchart -- integration tests', function () {
       oc.getNodeState($sumiao, 'siblings').should.deep.equal({ exist: true, visible: true });
     });
 
-    it('shows directional edge icons on hover and clears them on mouseleave', function () {
+    it('creates directional controls on hover and removes them on mouseleave', function () {
+      queryAll('.edge', $sumiao).length.should.equal(0);
+      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const topEdge = query('.topEdge', $sumiao);
       const bottomEdge = query('.bottomEdge', $sumiao);
       const leftEdge = query('.leftEdge', $sumiao);
       const rightEdge = query('.rightEdge', $sumiao);
 
-      dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       topEdge.classList.contains(oc.options.icons.collapseToDown).should.be.true;
       bottomEdge.classList.contains(oc.options.icons.expandToUp).should.be.true;
       leftEdge.classList.contains(oc.options.icons.expandToRight).should.be.true;
       rightEdge.classList.contains(oc.options.icons.collapseToLeft).should.be.true;
 
       dispatchNativeEvent($sumiao, 'mouseleave', { bubbles: false });
-      topEdge.classList.contains(oc.options.icons.expandToUp).should.be.false;
-      topEdge.classList.contains(oc.options.icons.collapseToDown).should.be.false;
-      bottomEdge.classList.contains(oc.options.icons.expandToUp).should.be.false;
-      bottomEdge.classList.contains(oc.options.icons.collapseToDown).should.be.false;
-      leftEdge.classList.contains(oc.options.icons.expandToRight).should.be.false;
-      leftEdge.classList.contains(oc.options.icons.collapseToLeft).should.be.false;
-      rightEdge.classList.contains(oc.options.icons.expandToRight).should.be.false;
-      rightEdge.classList.contains(oc.options.icons.collapseToLeft).should.be.false;
+      queryAll('.edge', $sumiao).length.should.equal(0);
+      topEdge.isConnected.should.equal(false);
+      bottomEdge.isConnected.should.equal(false);
+      leftEdge.isConnected.should.equal(false);
+      rightEdge.isConnected.should.equal(false);
     });
   });
 
@@ -648,6 +651,7 @@ describe('orgchart -- integration tests', function () {
         visibleLevel: 2
       });
       hybridSumiao = query('#n3', hybridChart.chart);
+      dispatchNativeEvent(hybridSumiao, 'mouseenter', { bubbles: false });
       toggleBtn = query('.toggleBtn', hybridSumiao);
       descendantsWrapper = siblingElements(hybridSumiao, '.nodes')[0];
       childNodes = Array.from(descendantsWrapper.children).filter(function (childEl) {
@@ -852,7 +856,10 @@ describe('orgchart -- integration tests', function () {
           originalEvent: { currentTarget: dropNode }
         });
 
-        query('#n4', hybridChart.chart).querySelector(':scope > .toggleBtn').should.exist;
+        const updatedDropNode = query('#n4', hybridChart.chart);
+        should.not.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
+        dispatchNativeEvent(updatedDropNode, 'mouseenter', { bubbles: false });
+        should.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
         query('#n3', hybridChart.chart).closest('.hierarchy').parentElement.previousElementSibling.id.should.equal('n4');
       } finally {
         global.JSONDigger = originalJSONDigger;
@@ -887,6 +894,7 @@ describe('orgchart -- integration tests', function () {
         }
       });
       compactNode = query('#n2', compactChart.chart);
+      dispatchNativeEvent(compactNode, 'mouseenter', { bubbles: false });
       backToLooseSymbol = query('.backToLooseSymbol', compactNode);
       backToCompactSymbol = query('.backToCompactSymbol', compactNode);
 

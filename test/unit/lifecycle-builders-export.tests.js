@@ -155,8 +155,8 @@ describe('orgchart -- init and builder unit tests', function () {
       chart = new OrgChart({
         chartContainer: '#chart-container',
         data: [[
-          { id: 'n1', name: 'Lao Lao', relationship: '001' },
-          { id: 'n2', name: 'Bo Miao', relationship: '001' }
+          { id: 'n1', name: 'Lao Lao' },
+          { id: 'n2', name: 'Bo Miao' }
         ]]
       });
 
@@ -196,38 +196,24 @@ describe('orgchart -- init and builder unit tests', function () {
       ulElement.remove();
     });
 
-    it('routes plain object data through attachRel() before building', function () {
-      const attachRelSpy = sinon.spy(oc, 'attachRel');
+    it('initializes without generated relationship metadata or attachRel()', function () {
+      const data = {
+        id: 'r1',
+        name: 'Root',
+        children: [{ id: 'c1', name: 'Child' }]
+      };
 
-      oc.init({
-        data: {
-          id: 'r1',
-          name: 'Root',
-          children: [{ id: 'c1', name: 'Child' }]
-        }
-      });
+      oc.init({ data: data });
 
-      attachRelSpy.should.have.been.called;
-      attachRelSpy.firstCall.args[1].should.equal('00');
-      attachRelSpy.restore();
+      data.should.not.have.property('relationship');
+      data.children[0].should.not.have.property('relationship');
+      should.equal(oc.attachRel, undefined);
+      should.exist(query('#r1', oc.chart));
+      should.exist(query('#c1', oc.chart));
     });
 
-    it('keeps explicit relationship data untouched during init()', function () {
-      const attachRelSpy = sinon.spy(oc, 'attachRel');
-
-      oc.init({
-        data: {
-          id: 'r1',
-          name: 'Root',
-          relationship: '001',
-          children: [{ id: 'c1', name: 'Child', relationship: '100' }]
-        }
-      });
-
-      attachRelSpy.should.not.have.been.called;
-      attachRelSpy.restore();
-      query('#r1', oc.chart).should.not.equal(null);
-      query('#c1', oc.chart).should.not.equal(null);
+    it('does not create interaction controls during init()', function () {
+      queryAll('.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol', oc.chart).length.should.equal(0);
     });
 
     it('calls attachExportButton() only when exportButton is enabled', function () {
@@ -301,7 +287,7 @@ describe('orgchart -- init and builder unit tests', function () {
       initSpy.firstCall.args[0].should.have.property('data');
       initSpy.firstCall.args[0].data.id.should.equal('x1');
       initSpy.firstCall.args[0].data.name.should.equal('Reloaded Root');
-      initSpy.firstCall.args[0].data.relationship.should.equal('000');
+      initSpy.firstCall.args[0].data.should.not.have.property('relationship');
       initSpy.firstCall.args[0].data.level.should.equal(1);
       initSpy.restore();
     });
@@ -337,8 +323,8 @@ describe('orgchart -- init and builder unit tests', function () {
     });
   });
 
-  describe('attachRel()', function () {
-    it('assigns root and child relationship flags recursively', function () {
+  describe('layout inheritance', function () {
+    it('builds parent and sibling relations without generating metadata', function () {
       const tree = {
         id: 'n1',
         name: 'Root',
@@ -348,12 +334,12 @@ describe('orgchart -- init and builder unit tests', function () {
         ]
       };
 
-      oc.attachRel(tree, '00');
+      oc.init({ data: tree });
 
-      tree.relationship.should.equal('001');
-      tree.children[0].relationship.should.equal('110');
-      tree.children[1].relationship.should.equal('111');
-      tree.children[1].children[0].relationship.should.equal('100');
+      oc.getParent(query('#n2', oc.chart)).id.should.equal('n1');
+      oc.getSiblings(query('#n2', oc.chart)).map(function (node) { return node.id; }).should.deep.equal(['n3']);
+      tree.should.not.have.property('relationship');
+      tree.children[1].children[0].should.not.have.property('relationship');
     });
 
     it('marks compact nodes when the compact option predicate returns true', function () {
@@ -377,7 +363,7 @@ describe('orgchart -- init and builder unit tests', function () {
         ]
       };
 
-      chart.attachRel(tree, '00');
+      chart.init({ data: tree });
 
       should.equal(tree.compact, undefined);
       tree.children[1].compact.should.equal(true);
@@ -398,7 +384,7 @@ describe('orgchart -- init and builder unit tests', function () {
         ]
       };
 
-      oc.attachRel(tree, '00');
+      oc.init({ data: tree });
 
       tree.children[0].vertical.should.equal(true);
       tree.children[0].children[0].vertical.should.equal(true);
@@ -419,39 +405,37 @@ describe('orgchart -- init and builder unit tests', function () {
         ]
       };
 
-      oc.attachRel(tree, '00');
+      oc.init({ data: tree });
 
       tree.children[0].compact.should.equal(true);
       tree.children[1].associatedCompact.should.equal(true);
       tree.children[0].children[0].associatedCompact.should.equal(true);
     });
 
-    it('returns the same data object after mutating relationships', function () {
+    it('retains the datasource object without synthetic relation flags', function () {
       const tree = { id: 'n1', name: 'Root' };
 
-      oc.attachRel(tree, '00').should.equal(tree);
-      tree.relationship.should.equal('000');
+      oc.init({ data: tree });
+      oc.options.data.should.equal(tree);
+      tree.should.not.have.property('relationship');
     });
   });
 
   describe('createNode()', function () {
-    it('renders the standard title, content, and edges from relationship flags', function () {
+    it('renders title and content without prebuilt interaction controls', function () {
       const nodeEl = oc.createNode({
         id: 'n11',
         name: 'Li Xin',
         title: 'architect',
-        relationship: '111',
-        level: 1
+        level: 1,
+        children: [{ id: 'child', name: 'Child' }]
       });
 
       nodeEl.classList.contains('node').should.equal(true);
       nodeEl.id.should.equal('n11');
       query('.title', nodeEl).textContent.trim().should.equal('Li Xin');
       query('.content', nodeEl).textContent.should.equal('architect');
-      should.exist(query('.topEdge', nodeEl));
-      should.exist(query('.leftEdge', nodeEl));
-      should.exist(query('.rightEdge', nodeEl));
-      should.exist(query('.bottomEdge', nodeEl));
+      queryAll('.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol', nodeEl).length.should.equal(0);
       should.exist(query('.parentNodeSymbol', nodeEl));
     });
 
@@ -459,7 +443,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const data = {
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0,
         children: [{ id: 'n12', name: 'Child' }]
       };
@@ -473,7 +456,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = oc.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0,
         children: [{ id: 'n12', name: 'Child' }]
       });
@@ -493,7 +475,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = chart.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '000',
         level: 2
       });
 
@@ -504,7 +485,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = oc.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '000',
         level: 0,
         className: 'custom-node',
         outsider: true
@@ -525,7 +505,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = chart.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0
       });
 
@@ -542,7 +521,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = chart.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0,
         title: 'architect'
       });
@@ -550,53 +528,54 @@ describe('orgchart -- init and builder unit tests', function () {
       should.equal(query('.content', nodeEl), null);
     });
 
-    it('renders a vertical toggle button at or beyond verticalLevel', function () {
+    it('renders a vertical toggle button on hover at or beyond verticalLevel', function () {
       const chart = new OrgChart({
         chartContainer: '#chart-container',
-        data: JSON.parse(JSON.stringify(ds)),
+        data: { id: 'root', name: 'Root', children: [{ id: 'n11', name: 'Parent', children: [{ id: 'child', name: 'Child' }] }] },
         verticalLevel: 2
       });
-      const nodeEl = chart.createNode({
-        id: 'n11',
-        name: 'Li Xin',
-        relationship: '001',
-        level: 2
-      });
+      const nodeEl = query('#n11', chart.chart);
+
+      should.equal(query('.toggleBtn', nodeEl), null);
+      nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
 
       should.exist(query('.toggleBtn', nodeEl));
       should.equal(query('.bottomEdge', nodeEl), null);
     });
 
-    it('renders a toggle button for explicitly vertical nodes', function () {
-      const nodeEl = oc.createNode({
+    it('renders a toggle button on hover for explicitly vertical nodes', function () {
+      oc.init({ data: {
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
-        level: 0,
-        vertical: true
-      });
+        vertical: true,
+        children: [{ id: 'child', name: 'Child' }]
+      } });
+      const nodeEl = query('#n11', oc.chart);
+
+      nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
 
       should.exist(query('.toggleBtn', nodeEl));
     });
 
-    it('renders a bottom edge for hybrid nodes with children', function () {
-      const nodeEl = oc.createNode({
+    it('renders a bottom edge on hover for hybrid nodes with children', function () {
+      oc.init({ data: {
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
-        level: 0,
-        hybrid: true
-      });
+        hybrid: true,
+        children: [{ id: 'child', name: 'Child' }]
+      } });
+      const nodeEl = query('#n11', oc.chart);
+
+      nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
 
       should.exist(query('.bottomEdge', nodeEl));
       should.equal(query('.toggleBtn', nodeEl), null);
     });
 
-    it('renders compact mode controls and grid columns for compact nodes', function () {
-      const nodeEl = oc.createNode({
+    it('renders compact controls on hover while keeping grid columns stable', function () {
+      oc.init({ data: {
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0,
         compact: true,
         children: [
@@ -604,7 +583,11 @@ describe('orgchart -- init and builder unit tests', function () {
           { id: 'n13', name: 'B' },
           { id: 'n14', name: 'C' }
         ]
-      });
+      } });
+      const nodeEl = query('#n11', oc.chart);
+
+      should.equal(query('.backToLooseSymbol', nodeEl), null);
+      nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
 
       should.exist(query('.backToCompactSymbol', nodeEl));
       should.exist(query('.backToLooseSymbol', nodeEl));
@@ -615,7 +598,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = oc.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '111',
         level: 1,
         associatedCompact: true
       });
@@ -636,7 +618,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeEl = chart.createNode({
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0
       });
 
@@ -659,7 +640,6 @@ describe('orgchart -- init and builder unit tests', function () {
       const nodeData = {
         id: 'n11',
         name: 'Li Xin',
-        relationship: '001',
         level: 0
       };
 
@@ -672,6 +652,89 @@ describe('orgchart -- init and builder unit tests', function () {
     });
   });
 
+  describe('lazy node controls', function () {
+    it('creates only the hovered node controls and removes them on leave', function () {
+      const node = query('#n3', oc.chart);
+      node.dispatchEvent(new window.MouseEvent('mouseenter'));
+
+      queryAll('.edge', oc.chart).length.should.equal(4);
+      node.dispatchEvent(new window.MouseEvent('mouseleave'));
+      queryAll('.edge', oc.chart).length.should.equal(0);
+    });
+
+    it('keeps controls while focused and releases them after blur', function () {
+      const node = query('#n3', oc.chart);
+      node.focus();
+      should.exist(query('.bottomEdge', node));
+      node.dispatchEvent(new window.MouseEvent('mouseleave'));
+      should.exist(query('.bottomEdge', node));
+      node.blur();
+      should.equal(query('.edge', node), null);
+    });
+
+    it('supports keyboard activation of a lazily created control', function () {
+      const node = query('#n3', oc.chart);
+      node.focus();
+      const control = query('.bottomEdge', node);
+      control.getAttribute('role').should.equal('button');
+      control.getAttribute('aria-label').should.equal('Toggle child nodes');
+      control.focus();
+      control.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      query('#n5', oc.chart).classList.contains('slide-up').should.equal(true);
+    });
+
+    it('updates active controls from the current structure after add and remove', function () {
+      const node = query('#n2', oc.chart);
+      node.dispatchEvent(new window.MouseEvent('mouseenter'));
+      should.equal(query('.bottomEdge', node), null);
+      oc.addChildren(node, [{ id: 'added', name: 'Added' }]);
+      should.exist(query('.bottomEdge', node));
+      queryAll('.edge', query('#added', oc.chart)).length.should.equal(0);
+      oc.removeNodes(query('#added', oc.chart));
+      should.equal(query('.bottomEdge', node), null);
+      should.equal(query('.parentNodeSymbol', node), null);
+    });
+
+    it('does not create controls for inactive nodes during mutations', function () {
+      oc.addChildren(query('#n2', oc.chart), [{ id: 'added', name: 'Added' }]);
+      oc.addParent(query('#n1', oc.chart), { id: 'ancestor', name: 'Ancestor' });
+      queryAll('.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol', oc.chart).length.should.equal(0);
+    });
+
+    it('preserves the loading control until completion after mouseleave', function () {
+      const node = query('#n3', oc.chart);
+      node.dispatchEvent(new window.MouseEvent('mouseenter'));
+      const control = query('.bottomEdge', node);
+      oc.startLoading(control).should.equal(true);
+      node.dispatchEvent(new window.MouseEvent('mouseleave'));
+      control.parentElement.should.equal(node);
+      oc.endLoading(control);
+      queryAll('.edge, .spinner', node).length.should.equal(0);
+    });
+
+    it('keeps demo-owned request buttons separate from library controls', function () {
+      const node = query('#n3', oc.chart);
+      const requestButton = document.createElement('button');
+      requestButton.className = 'request-control';
+      node.appendChild(requestButton);
+      node.dispatchEvent(new window.MouseEvent('mouseenter'));
+      node.dispatchEvent(new window.MouseEvent('mouseleave'));
+      requestButton.parentElement.should.equal(node);
+      queryAll('.edge', node).length.should.equal(0);
+    });
+
+    it('does not refresh minimap for transient controls', async function () {
+      oc.setOptions('minimap', true);
+      const refresh = sinon.spy(oc, 'updateMinimap');
+      query('#n3', oc.chart).dispatchEvent(new window.MouseEvent('mouseenter'));
+      query('#n3', oc.chart).dispatchEvent(new window.MouseEvent('mouseleave'));
+      await Promise.resolve();
+      refresh.should.not.have.been.called;
+      refresh.restore();
+      oc.detachMinimap();
+    });
+  });
+
   describe('buildInferiorNodes()', function () {
     it('creates a hidden vertical nodes layer at the vertical cutoff', function () {
       const chart = new OrgChart({
@@ -681,13 +744,13 @@ describe('orgchart -- init and builder unit tests', function () {
         visibleLevel: 1
       });
       const hierarchyEl = document.createElement('li');
-      const nodeEl = chart.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 1 });
+      const nodeEl = chart.createNode({ id: 'n11', name: 'Parent', level: 1 });
 
       hierarchyEl.className = 'hierarchy';
       hierarchyEl.appendChild(nodeEl);
       chart.buildInferiorNodes(hierarchyEl, nodeEl, {
         collapsed: true,
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       }, 1);
 
       should.exist(query(':scope > .nodes.vertical.hidden', hierarchyEl));
@@ -696,13 +759,13 @@ describe('orgchart -- init and builder unit tests', function () {
 
     it('creates a vertical layer for hybrid nodes outside an existing vertical context', function () {
       const hierarchyEl = document.createElement('li');
-      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 0 });
 
       hierarchyEl.className = 'hierarchy';
       hierarchyEl.appendChild(nodeEl);
       oc.buildInferiorNodes(hierarchyEl, nodeEl, {
         hybrid: true,
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       }, 0);
 
       should.exist(query(':scope > .nodes.vertical', hierarchyEl));
@@ -712,7 +775,7 @@ describe('orgchart -- init and builder unit tests', function () {
     it('does not add a second vertical class when already inside a vertical branch', function () {
       const verticalWrapper = document.createElement('ul');
       const hierarchyEl = document.createElement('li');
-      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 1 });
+      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 1 });
       let nodesEl;
 
       verticalWrapper.className = 'nodes vertical';
@@ -723,7 +786,7 @@ describe('orgchart -- init and builder unit tests', function () {
 
       oc.buildInferiorNodes(hierarchyEl, nodeEl, {
         hybrid: true,
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       }, 1);
       nodesEl = query(':scope > .nodes', hierarchyEl);
 
@@ -737,12 +800,12 @@ describe('orgchart -- init and builder unit tests', function () {
         visibleLevel: 0
       });
       const hierarchyEl = document.createElement('li');
-      const nodeEl = chart.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+      const nodeEl = chart.createNode({ id: 'n11', name: 'Parent', level: 0 });
 
       hierarchyEl.className = 'hierarchy';
       hierarchyEl.appendChild(nodeEl);
       chart.buildInferiorNodes(hierarchyEl, nodeEl, {
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       }, 0);
 
       hierarchyEl.classList.contains('isChildrenCollapsed').should.equal(true);
@@ -751,13 +814,13 @@ describe('orgchart -- init and builder unit tests', function () {
 
     it('keeps compact descendants inside the compact node element', function () {
       const hierarchyEl = document.createElement('li');
-      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 0 });
 
       hierarchyEl.className = 'hierarchy';
       hierarchyEl.appendChild(nodeEl);
       oc.buildInferiorNodes(hierarchyEl, nodeEl, {
         compact: true,
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       }, 0);
 
       nodeEl.classList.contains('compact').should.equal(true);
@@ -767,19 +830,18 @@ describe('orgchart -- init and builder unit tests', function () {
 
     it('handles grouped family-tree children arrays', function () {
       const hierarchyEl = document.createElement('li');
-      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 0 });
 
       hierarchyEl.className = 'hierarchy';
       hierarchyEl.appendChild(nodeEl);
       oc.buildInferiorNodes(hierarchyEl, nodeEl, {
         children: [[
-          { id: 'n12', name: 'Spouse A', relationship: '001' },
+          { id: 'n12', name: 'Spouse A' },
           {
             id: 'n13',
             name: 'Spouse B',
-            relationship: '001',
             outsider: true,
-            children: [[{ id: 'n14', name: 'Child', relationship: '000' }]]
+            children: [[{ id: 'n14', name: 'Child' }]]
           }
         ]]
       }, 0);
@@ -803,8 +865,7 @@ describe('orgchart -- init and builder unit tests', function () {
       oc.buildHierarchy(hierarchyEl, {
         id: 'n11',
         name: 'Parent',
-        relationship: '001',
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       });
 
       should.exist(query('#n11', hierarchyEl));
@@ -818,7 +879,7 @@ describe('orgchart -- init and builder unit tests', function () {
       const outerHierarchyEl = document.createElement('li');
       const innerNodesEl = document.createElement('ul');
       const hierarchyEl = document.createElement('li');
-      const data = { id: 'n11', name: 'Parent', relationship: '000' };
+      const data = { id: 'n11', name: 'Parent' };
 
       chartEl.className = 'orgchart';
       outerNodesEl.className = 'nodes';
@@ -839,7 +900,7 @@ describe('orgchart -- init and builder unit tests', function () {
 
     it('preserves an explicit data.level value', function () {
       const hierarchyEl = document.createElement('li');
-      const data = { id: 'n11', name: 'Parent', relationship: '000', level: 7 };
+      const data = { id: 'n11', name: 'Parent', level: 7 };
 
       hierarchyEl.className = 'hierarchy';
       oc.buildHierarchy(hierarchyEl, data);
@@ -850,8 +911,8 @@ describe('orgchart -- init and builder unit tests', function () {
     it('propagates a one-based level into grouped family-tree arrays', function () {
       const hierarchyEl = document.createElement('li');
       const familyData = [[
-        { id: 'n11', name: 'Spouse A', relationship: '001' },
-        { id: 'n12', name: 'Spouse B', relationship: '001', outsider: true }
+        { id: 'n11', name: 'Spouse A' },
+        { id: 'n12', name: 'Spouse B', outsider: true }
       ]];
 
       hierarchyEl.className = 'hierarchy';
@@ -866,9 +927,9 @@ describe('orgchart -- init and builder unit tests', function () {
 
       hierarchyEl.className = 'hierarchy';
       oc.buildHierarchy(hierarchyEl, [[
-        { id: 'n11', name: 'Spouse A', relationship: '001', outsider: false },
-        { id: 'n12', name: 'Spouse B', relationship: '001', outsider: true },
-        { id: 'n13', name: 'Spouse C', relationship: '001', outsider: true }
+        { id: 'n11', name: 'Spouse A', outsider: false },
+        { id: 'n12', name: 'Spouse B', outsider: true },
+        { id: 'n13', name: 'Spouse C', outsider: true }
       ]]);
 
       queryAll(':scope > .spouse', hierarchyEl).length.should.equal(3);
@@ -883,8 +944,8 @@ describe('orgchart -- init and builder unit tests', function () {
 
       hierarchyEl.className = 'hierarchy';
       oc.buildHierarchy(hierarchyEl, [[
-        { id: 'n11', name: 'Spouse A', relationship: '001', outsider: false },
-        { id: 'n12', name: 'Spouse B', relationship: '001', outsider: true }
+        { id: 'n11', name: 'Spouse A', outsider: false },
+        { id: 'n12', name: 'Spouse B', outsider: true }
       ]]);
 
       queryAll('.node', hierarchyEl).map(function (nodeEl) {
@@ -897,7 +958,7 @@ describe('orgchart -- init and builder unit tests', function () {
 
       hierarchyEl.className = 'hierarchy';
       oc.buildHierarchy(hierarchyEl, {
-        children: [{ id: 'n12', name: 'Child', relationship: '000' }]
+        children: [{ id: 'n12', name: 'Child' }]
       });
 
       should.equal(query('.node', hierarchyEl).id, 'n12');
@@ -930,7 +991,7 @@ describe('orgchart -- init and builder unit tests', function () {
 
     it('appends new child hierarchies into an existing child nodes container', function () {
       const hierarchyEl = document.createElement('li');
-      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', relationship: '001', level: 0 });
+      const nodeEl = oc.createNode({ id: 'n11', name: 'Parent', level: 0 });
       const nodesEl = document.createElement('ul');
 
       hierarchyEl.className = 'hierarchy';
@@ -938,8 +999,8 @@ describe('orgchart -- init and builder unit tests', function () {
       hierarchyEl.appendChild(nodeEl);
       hierarchyEl.appendChild(nodesEl);
       oc.buildChildNode(hierarchyEl, [
-        { id: 'n12', name: 'Child A', relationship: '000' },
-        { id: 'n13', name: 'Child B', relationship: '000' }
+        { id: 'n12', name: 'Child A' },
+        { id: 'n13', name: 'Child B' }
       ]);
 
       queryAll(':scope > .hierarchy', nodesEl).length.should.equal(2);
@@ -963,12 +1024,12 @@ describe('orgchart -- init and builder unit tests', function () {
       query(':scope > .nodes > .hierarchy > #n0', oc.chart).should.not.equal(null);
     });
 
-    it('defaults the new parent relationship to 001 when absent', function () {
+    it('does not generate relation metadata for a new parent', function () {
       const currentRootEl = query('#n1', oc.chart);
 
       oc.buildParentNode(currentRootEl, { id: 'n0', name: 'Ancestor' });
 
-      getState(query('#n0', oc.chart), 'nodeData').relationship.should.equal('001');
+      getState(query('#n0', oc.chart), 'nodeData').should.not.have.property('relationship');
     });
   });
 

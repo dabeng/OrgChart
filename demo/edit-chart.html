@@ -215,7 +215,6 @@
         }
         oc.addSiblings(selectedNode, nodeVals.map((item) => ({
           'name': item,
-          'relationship': '110',
           'id': getId()
         })));
         return;
@@ -223,16 +222,13 @@
 
       const childLevel = selectedNode.nextElementSibling;
       if (!childLevel || !childLevel.classList.contains('nodes')) {
-        const relationship = nodeVals.length > 1 ? '110' : '100';
         oc.addChildren(selectedNode, nodeVals.map((item) => ({
           'name': item,
-          'relationship': relationship,
           'id': getId()
         })));
       } else {
         oc.addSiblings(childLevel.querySelector('.node'), nodeVals.map((item) => ({
           'name': item,
-          'relationship': '110',
           'id': getId()
         })));
       }

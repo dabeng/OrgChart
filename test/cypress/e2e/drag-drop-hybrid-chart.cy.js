@@ -15,8 +15,9 @@ describe('Hybrid Drag and Drop Chart', () => {
 
     cy.get(sanYue).should(($node) => {
       expect($node.siblings('.nodes').find('.node:contains("San Dan")')).to.exist;
-      expect($node.find('.toggleBtn')).to.exist;
     });
+    cy.get(sanYue).find('.toggleBtn').should('not.exist');
+    cy.get(sanYue).trigger('mouseenter').find('.toggleBtn').should('exist');
   });
 
 });

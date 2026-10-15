@@ -129,6 +129,7 @@ describe('orgchart browser option compatibility', function () {
           const child = chart.chart.querySelector('#child-one');
           const grandchild = chart.chart.querySelector('#grandchild');
           const initiallyHidden = child.getClientRects().length === 0 || getComputedStyle(child).opacity === '0';
+          parent.dispatchEvent(new MouseEvent('mouseenter'));
           const button = parent.querySelector(':scope > .bottomEdge, :scope > .toggleBtn, :scope > .backToLooseSymbol');
           if (button) {
             button.click();
@@ -153,6 +154,7 @@ describe('orgchart browser option compatibility', function () {
           const chart = window.compatFamilyChart;
           const parent = chart.chart.querySelector('#parent-two');
           const ownChild = chart.chart.querySelector('#second-child');
+          parent.dispatchEvent(new MouseEvent('mouseenter'));
           parent.querySelector(':scope > .bottomEdge, :scope > .backToLooseSymbol').click();
           await Promise.all(ownChild.getAnimations().map(function (animation) { return animation.finished; }));
           return {
@@ -413,12 +415,14 @@ describe('orgchart browser option compatibility', function () {
     await page.evaluate(function () {
       const chart = window.compatCompactChart;
       const root = chart.chart.querySelector('#root');
+      root.dispatchEvent(new MouseEvent('mouseenter'));
       if (!chart.getNodeState(root, 'children').visible) {
         root.querySelector(':scope > .bottomEdge').click();
       }
     });
     await page.waitForFunction(function () { return !window.compatCompactChart.chart.querySelector('.sliding'); });
     await page.evaluate(function () {
+      window.compatCompactChart.chart.querySelector('#manager').dispatchEvent(new MouseEvent('mouseenter'));
       window.compatCompactChart.chart.querySelector('#manager > .backToLooseSymbol').click();
     });
   }
@@ -499,7 +503,9 @@ describe('orgchart browser option compatibility', function () {
       await mountCompactChart({ mode: 'literal', visibleLevel: true });
       const result = await page.evaluate(function () {
         const chart = window.compatCompactChart;
+        chart.chart.querySelector('#root').dispatchEvent(new MouseEvent('mouseenter'));
         chart.chart.querySelector('#root > .backToLooseSymbol').click();
+        chart.chart.querySelector('#manager').dispatchEvent(new MouseEvent('mouseenter'));
         chart.chart.querySelector('#manager > .backToLooseSymbol').click();
         const source = chart.chart.querySelector('#child-0');
         return { draggable: source.draggable, visible: getComputedStyle(source).opacity !== '0' && source.getClientRects().length > 0 };
@@ -630,9 +636,11 @@ describe('orgchart browser option compatibility', function () {
             const root = chart.chart.querySelector('#root');
             const manager = chart.chart.querySelector('#manager');
             const child = chart.chart.querySelector('#child-0');
+            root.dispatchEvent(new MouseEvent('mouseenter'));
             const rootButton = root.querySelector(':scope > .backToLooseSymbol, :scope > .bottomEdge, :scope > .toggleBtn');
             rootButton.click();
             manager.dispatchEvent(new Event('transitionend', { bubbles: true }));
+            manager.dispatchEvent(new MouseEvent('mouseenter'));
             const managerButton = manager.querySelector(':scope > .backToLooseSymbol, :scope > .bottomEdge, :scope > .toggleBtn');
             managerButton.click();
             child.dispatchEvent(new Event('transitionend', { bubbles: true }));
@@ -667,9 +675,11 @@ describe('orgchart browser option compatibility', function () {
       await mountCompactChart({ mode: 'boolean', hybrid: true, visibleLevel: 2 });
       const result = await page.evaluate(async function () {
         const chart = window.compatCompactChart;
+        chart.chart.querySelector('#root').dispatchEvent(new MouseEvent('mouseenter'));
         chart.chart.querySelector('#root > .backToLooseSymbol').click();
         const manager = chart.chart.querySelector('#manager');
         const source = chart.chart.querySelector('#child-0');
+        manager.dispatchEvent(new MouseEvent('mouseenter'));
         const bottomEdge = manager.querySelector(':scope > .bottomEdge');
         const initiallyHidden = source.getClientRects().length === 0 || getComputedStyle(source).opacity === '0';
         bottomEdge.click();
@@ -753,6 +763,7 @@ describe('orgchart browser option compatibility', function () {
       await mountCompactChart({ mode: 'boolean', verticalLevel: 3, visibleLevel: true });
       const result = await page.evaluate(function () {
         const chart = window.compatCompactChart;
+        chart.chart.querySelector('#root').dispatchEvent(new MouseEvent('mouseenter'));
         chart.chart.querySelector('#root > .backToLooseSymbol').click();
         chart.chart.querySelector('#root > .backToCompactSymbol').click();
         return chart.chart.querySelector('#child-0').getClientRects().length;
@@ -910,6 +921,7 @@ describe('orgchart browser option compatibility', function () {
         },
         toggleSiblingsResp: true, minimap: true
       });
+      chart.chart.querySelector('#middle').dispatchEvent(new MouseEvent('mouseenter'));
       chart.chart.querySelector('#middle .leftEdge').dispatchEvent(new MouseEvent('click', { bubbles: true }));
       chart.chart.querySelector('#first').dispatchEvent(new Event('transitionend', { bubbles: true }));
       await new Promise(requestAnimationFrame);

@@ -266,6 +266,7 @@ describe('orgchart option compatibility', function () {
                 chai.expect(scaleSpy.callCount).to.equal(expectedOptions.zoom ? 1 : 0);
 
                 if (!currentChart.getNodeState(rootNode, 'children').visible) {
+                  dispatchMouse(rootNode, 'mouseenter');
                   dispatchMouse(rootNode.querySelector('.bottomEdge'), 'click');
                   finishTransition(firstNode);
                 }
@@ -587,6 +588,7 @@ describe('orgchart option compatibility', function () {
     const secondContainer = document.createElement('div');
     document.getElementById('chart-host').appendChild(secondContainer);
     const secondChart = mount({ exportButton: true, chartClass: 'second' }, secondContainer);
+    firstChart.chart.querySelector('#root').dispatchEvent(new window.MouseEvent('mouseenter'));
     const edge = firstChart.chart.querySelector('#root > .bottomEdge');
 
     firstChart.startLoading(edge);
@@ -604,6 +606,7 @@ describe('orgchart option compatibility', function () {
       }
     });
     const title = chart.chart.querySelector('#root > .title');
+    chart.chart.querySelector('#root').dispatchEvent(new window.MouseEvent('mouseenter'));
     const edge = chart.chart.querySelector('#root > .bottomEdge');
 
     chart.startLoading(edge);

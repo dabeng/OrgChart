@@ -243,27 +243,24 @@ var oc = new OrgChart({
   // 來檢索數據源，然後渲染默認結構樣式的節點的上半部分
   'nodeContent': 'title', // 可選屬性。插件會以該屬性的值爲屬性，
   // 來檢索數據源，然後渲染默認結構樣式的節點的下半部分
-  'relationship': relationshipValue, // 注意：當你激活按需載入節點特性時
-  // 你應該使用JSON數據源（不論本地或遠程）並設置本屬性
-  // 本屬性標識當前節點是否具有父節點，兄弟節點，子節點
-  // relationshipValue的值是由“0”或“1”組成的長度爲3的字符串
-  // 第1個字符代表當前節點是否具有父節點
-  // 第2個字符代表當前節點是否具有兄弟節點
-  // 第三個字符代表當前節點是否具有孩子節點
   'children': [ // The property stands for nested nodes.
-    { 'name': 'Bo Miao', 'title': 'department manager', 'relationship': '110' },
-    { 'name': 'Su Miao', 'title': 'department manager', 'relationship': '111',
+    { 'name': 'Bo Miao', 'title': 'department manager' },
+    { 'name': 'Su Miao', 'title': 'department manager',
       'children': [
-        { 'name': 'Tie Hua', 'title': 'senior engineer', 'relationship': '110' },
-        { 'name': 'Hei Hei', 'title': 'senior engineer', 'relationship': '110' }
+        { 'name': 'Tie Hua', 'title': 'senior engineer' },
+        { 'name': 'Hei Hei', 'title': 'senior engineer' }
       ]
     },
-    { 'name': 'Yu Jie', 'title': 'department manager', 'relationship': '110' }
+    { 'name': 'Yu Jie', 'title': 'department manager' }
   ],
   'otherPro': anyValue // 數據源中可以追加任意其他字段，只要你覺得
   // 在之後的渲染和操作組織結構圖時派得上用場
 };
 ```
+
+節點關係直接依據目前已載入的結構判斷。展開摺疊和緊湊佈局切換按鈕在節點懸浮、聚焦或觸控選取時才建立，互動結束後回收；參與載入的按鈕保留至載入完成。鍵盤使用者可以聚焦節點，再用 Enter 或空白鍵啟動按鈕。
+
+`createNode` 回呼執行時沒有預先建立的互動按鈕，請透過 `icons` 自訂圖示，不要查詢初始化時的箭頭元素。按需載入由 demo 或業務層透過 `createNode` 建立獨立請求按鈕，並使用事件委派處理請求；請求按鈕應使用與內建控制項不同的行為選擇器。載入後呼叫 `addAncestors()`、`addChildren()` 或 `addDescendants()` 加入實際節點，不需要關係中繼資料或新的載入回呼選項。`getNodeState()` 只描述已載入的關係，不推斷伺服器尚未載入的資料。舊的關係屬性和關係預處理方法不再支援。
 
 ### 選項
 <table>

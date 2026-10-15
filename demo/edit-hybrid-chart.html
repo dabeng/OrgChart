@@ -217,16 +217,15 @@
             alert('You are not allowed to directly add sibling nodes to root node');
             return;
           }
-          oc.addSiblings(selectedNode, nodeVals.map((item) => ({ 'name': item, 'relationship': '110', 'id': getId() })));
+          oc.addSiblings(selectedNode, nodeVals.map((item) => ({ 'name': item, 'id': getId() })));
           return;
         }
 
         const childLevel = selectedNode.nextElementSibling;
         if (!childLevel || !childLevel.classList.contains('nodes')) {
-          const rel = nodeVals.length > 1 ? '110' : '100';
-          oc.addChildren(selectedNode, nodeVals.map((item) => ({ 'name': item, 'relationship': rel, 'id': getId() })));
+          oc.addChildren(selectedNode, nodeVals.map((item) => ({ 'name': item, 'id': getId() })));
         } else {
-          oc.addSiblings(childLevel.querySelector('.node'), nodeVals.map((item) => ({ 'name': item, 'relationship': '110', 'id': getId() })));
+          oc.addSiblings(childLevel.querySelector('.node'), nodeVals.map((item) => ({ 'name': item, 'id': getId() })));
         }
       });
 

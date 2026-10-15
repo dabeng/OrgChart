@@ -102,18 +102,17 @@
     return options;
   }
 
-  function prepareNodeData(data, resetRelationships) {
+  function prepareNodeData(data, resetLayout) {
     if (Array.isArray(data)) {
-      let hasCompact = false;
       data.forEach(function (item) {
-        hasCompact = prepareNodeData(item, resetRelationships) || hasCompact;
+        prepareNodeData(item, resetLayout);
       });
-      return hasCompact;
+      return;
     }
     if (!isPlainObject(data)) {
-      return false;
+      return;
     }
-    const layoutKeys = ['compact', 'associatedCompact', 'vertical', 'relationship', 'level', 'parentId'];
+    const layoutKeys = ['compact', 'associatedCompact', 'vertical', 'level', 'parentId'];
     let layout = nodeLayoutStore.get(data);
     if (!layout) {
       layout = {};
@@ -124,8 +123,7 @@
       });
       nodeLayoutStore.set(data, layout);
     }
-    if (resetRelationships) {
-      delete layout.relationship;
+    if (resetLayout) {
       delete layout.level;
       delete layout.parentId;
     }
@@ -136,11 +134,9 @@
         delete data[key];
       }
     });
-    let hasCompact = !!data.compact;
     (data.children || []).forEach(function (child) {
-      hasCompact = prepareNodeData(child, resetRelationships) || hasCompact;
+      prepareNodeData(child, resetLayout);
     });
-    return hasCompact;
   }
 
   function usesCompactLayout(data, options, level) {
@@ -682,6 +678,10 @@
           Array.from(chartElement.querySelectorAll('.node.focused')).forEach(function (focusedNodeEl) {
             focusedNodeEl.classList.remove('focused');
           });
+          const activeElement = getDocument().activeElement;
+          if (activeElement && chartElement.contains(activeElement) && activeElement.closest('.node')) {
+            activeElement.blur();
+          }
         }
       });
       if (typeof getWindow().MutationObserver !== 'undefined') {
@@ -689,7 +689,7 @@
       }
       const isListElementData = isElement(data) && data.tagName === 'UL';
       const datasource = isListElementData ? this.buildJsonDS(data.firstElementChild) : data;
-      const hasCompactData = prepareNodeData(datasource);
+      prepareNodeData(datasource);
       setState(chartElement, 'datasource', datasource);
       this.options.data = datasource;
       this.opts.data = datasource;
@@ -706,11 +706,7 @@
         rootElement = rootHierarchyElement;
       }
 
-      if (datasource.relationship && !hasCompactData && !this.options.compact) {
-        this.buildHierarchy(rootElement, datasource);
-      } else {
-        this.buildHierarchy(rootElement, this.attachRel(datasource, '00'));
-      }
+      this.buildHierarchy(rootElement, datasource);
 
       if (chartContainerElement) {
         chartContainerElement.appendChild(chartElement);
@@ -920,13 +916,33 @@
       getWindow().addEventListener('resize', minimapViewportChangeBoundHandler);
 
       if (typeof getWindow().MutationObserver !== 'undefined') {
-        minimapMutationObserver = new (getWindow().MutationObserver)(function () {
-          orgChart.updateMinimap(true);
+        minimapMutationObserver = new (getWindow().MutationObserver)(function (mutations) {
+          const controlsSelector = '.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol';
+          const needsRefresh = mutations.some(function (mutation) {
+            if (mutation.type === 'childList') {
+              return Array.from(mutation.addedNodes).concat(Array.from(mutation.removedNodes)).some(function (node) {
+                return node.nodeType !== 1 || !node.matches(controlsSelector);
+              });
+            }
+            if (mutation.target.matches(controlsSelector)) {
+              return false;
+            }
+            const layoutClasses = function (value) {
+              return (value || '').split(/\s+/).filter(function (className) {
+                return className && className !== 'controls-active' && className !== 'focused';
+              }).sort().join(' ');
+            };
+            return layoutClasses(mutation.oldValue) !== layoutClasses(mutation.target.className);
+          });
+          if (needsRefresh) {
+            orgChart.updateMinimap(true);
+          }
         });
         minimapMutationObserver.observe(chartElement, {
           childList: true,
           subtree: true,
           attributes: true,
+          attributeOldValue: true,
           attributeFilter: ['class']
         });
       }
@@ -1629,12 +1645,7 @@
       }) || null;
 
       jsonNodeData = {
-        'name': ((liElement.childNodes && liElement.childNodes[0]) ? liElement.childNodes[0].textContent : '').trim(),
-        'relationship': (liElement.parentElement && liElement.parentElement.parentElement && liElement.parentElement.parentElement.tagName === 'LI' ? '1' : '0')
-          + (liElement.parentElement ? Array.from(liElement.parentElement.children).filter(function (siblingEl) {
-              return siblingEl !== liElement && siblingEl.tagName === 'LI';
-            }).length ? 1 : 0 : 0)
-          + (childListElement ? 1 : 0)
+        'name': ((liElement.childNodes && liElement.childNodes[0]) ? liElement.childNodes[0].textContent : '').trim()
       };
       forEachValue(getDatasetSnapshot(liElement), function(key, value) {
         jsonNodeData[key] = value;
@@ -1653,44 +1664,6 @@
 
       return jsonNodeData;
     },
-    // process datasource and add necessary information
-    attachRel: function (data, flags) {
-      const orgChart = this;
-      if (Array.isArray(data)) {
-        data.forEach(function (group) {
-          if (Array.isArray(group)) {
-            group.forEach(function (member) { orgChart.attachRel(member, flags); });
-          } else {
-            orgChart.attachRel(group, flags);
-          }
-        });
-        return data;
-      }
-      data.relationship = flags + (data.children && data.children.length > 0 ? 1 : 0);
-      if ((this.options.compact === true && data.children && data.children.length)
-        || (typeof this.options.compact === 'function' && this.options.compact(data))) {
-        data.compact = true;
-      }
-      if (data.children) {
-        const childMembers = data.children.flat();
-        childMembers.forEach(function(item) {
-          if (data.hybrid || data.vertical) { // identify all the descendant nodes except the root node of hybrid structure
-            item.vertical = true;
-          } else if (data.compact && item.children) { // identify all the compact ancestor nodes
-            item.compact = true;
-          } else if (data.compact && !item.children) { // identify all the compact descendant nodes
-            item.associatedCompact = true;
-          }
-        });
-        if (Array.isArray(data.children[0])) {
-          orgChart.attachRel(data.children, '1' + (data.children.length > 1 ? 1 : 0));
-        } else {
-          data.children.forEach(function (item) { orgChart.attachRel(item, '1' + (data.children.length > 1 ? 1 : 0)); });
-        }
-      }
-      return data;
-    },
-    //
     loopChart: function (chartEl, includeNodeData) {
       const orgChart = this;
       const chartElement = getElement(chartEl);
@@ -2471,6 +2444,7 @@
       edgeElement.classList.add('hidden');
       nodeElement = edgeElement.parentElement;
       if (nodeElement) {
+        setState(nodeElement, 'loadingEdge', edgeElement);
         nodeElement.insertAdjacentHTML('beforeend', `<i class="${this.options.icons.theme} ${this.options.icons.spinner} spinner"></i>`);
         spinnerElement = Array.from(nodeElement.children || []).find(function (childEl) {
           return childEl.classList && childEl.classList.contains('spinner');
@@ -2512,6 +2486,12 @@
             childEl.removeAttribute('style');
           }
         });
+        setState(nodeElement, 'loadingEdge', null);
+        if (this.isInAction(nodeElement)) {
+          this.nodeEnterLeaveHandler({ type: 'mouseenter', node: nodeElement });
+        } else {
+          this.removeNodeControls(nodeElement);
+        }
       }
       setState(chartElement, 'inAjax', false);
       Array.from(getDocument().querySelectorAll('.oc-export-btn')).filter(function (exportButtonEl) {
@@ -2523,21 +2503,110 @@
     // whether the cursor is hovering over the node
     isInAction: function (nodeEl) {
       const nodeElement = getElement(nodeEl);
-      const edgeClassName = Array.from(nodeElement ? nodeElement.children : []).filter(function (childEl) {
-        return childEl.classList && childEl.classList.contains('edge');
-      }).map(function (edgeEl) {
-        return edgeEl.className;
-      }).join(' ');
-
-      // TODO: 展开/折叠的按钮不止4个箭头，还有toggleBtn
-      return [
-        this.options.icons.expandToUp,
-        this.options.icons.collapseToDown,
-        this.options.icons.collapseToLeft,
-        this.options.icons.expandToRight
-      ].some(function (icon) {
-        return edgeClassName.indexOf(icon) > -1;
+      return !!nodeElement && nodeElement.classList.contains('controls-active');
+    },
+    renderNodeControls: function (nodeEl) {
+      const nodeElement = getElement(nodeEl);
+      if (!nodeElement || !this.isInAction(nodeElement) || getState(nodeElement, 'loadingEdge')
+        || getState(nodeElement, 'updatingControls')) {
+        return;
+      }
+      const data = getState(nodeElement, 'sourceData') || {};
+      const opts = this.options;
+      const icons = opts.icons;
+      const hasChildren = this.getNodeState(nodeElement, 'children').exist;
+      const isVertical = data.vertical || (opts.verticalLevel && data.level >= opts.verticalLevel)
+        || !!nodeElement.closest('.nodes.vertical');
+      const controls = [];
+      if (isVertical) {
+        if (hasChildren) {
+          controls.push(`<i class="toggleBtn ${icons.theme}"></i>`);
+        }
+      } else if (data.hybrid) {
+        if (hasChildren) {
+          controls.push(`<i class="edge verticalEdge bottomEdge ${icons.theme}"></i>`);
+        }
+      } else if (usesCompactLayout(data, opts, data.level)) {
+        if (hasChildren) {
+          const isLoose = nodeElement.classList.contains('looseMode');
+          controls.push(`<i class="${icons.theme} ${icons.backToCompact} backToCompactSymbol${isLoose ? '' : ' hidden'}"></i>`);
+          controls.push(`<i class="${icons.theme} ${icons.backToLoose} backToLooseSymbol${isLoose ? ' hidden' : ''}"></i>`);
+        }
+      } else if (!data.associatedCompact) {
+        if (this.getNodeState(nodeElement, 'parent').exist) {
+          controls.push(`<i class="edge verticalEdge topEdge ${icons.theme}"></i>`);
+        }
+        if (this.getNodeState(nodeElement, 'siblings').exist) {
+          controls.push(`<i class="edge horizontalEdge rightEdge ${icons.theme}"></i>`);
+          controls.push(`<i class="edge horizontalEdge leftEdge ${icons.theme}"></i>`);
+        }
+        if (hasChildren) {
+          controls.push(`<i class="edge verticalEdge bottomEdge ${icons.theme}"></i>`);
+        }
+      }
+      const controlClasses = ['topEdge', 'bottomEdge', 'leftEdge', 'rightEdge', 'toggleBtn', 'backToCompactSymbol', 'backToLooseSymbol'];
+      const newControls = createNodesFromHtml(controls.join(''));
+      const desiredClasses = newControls.map(function (control) {
+        return controlClasses.find(function (className) { return control.classList.contains(className); });
       });
+      setState(nodeElement, 'updatingControls', true);
+      try {
+        Array.from(nodeElement.children).filter(function (child) {
+          return controlClasses.some(function (className) { return child.classList.contains(className); })
+            && !desiredClasses.some(function (className) { return child.classList.contains(className); });
+        }).forEach(function (control) { control.remove(); });
+        newControls.forEach(function (control, index) {
+          const existingControl = nodeElement.querySelector(':scope > .' + desiredClasses[index]);
+          const label = desiredClasses[index] === 'topEdge' ? 'Toggle parent nodes'
+            : desiredClasses[index] === 'leftEdge' || desiredClasses[index] === 'rightEdge' ? 'Toggle sibling nodes'
+            : desiredClasses[index] === 'backToCompactSymbol' ? 'Use compact layout'
+            : desiredClasses[index] === 'backToLooseSymbol' ? 'Expand compact layout' : 'Toggle child nodes';
+          if (existingControl) {
+            existingControl.className = control.className;
+          } else {
+            control.tabIndex = 0;
+            control.setAttribute('role', 'button');
+            control.setAttribute('aria-label', label);
+            control.title = label;
+            nodeElement.appendChild(control);
+          }
+        });
+      } finally {
+        setState(nodeElement, 'updatingControls', false);
+      }
+    },
+    removeNodeControls: function (nodeEl) {
+      const nodeElement = getElement(nodeEl);
+      if (!nodeElement || getState(nodeElement, 'updatingControls')) {
+        return;
+      }
+      setState(nodeElement, 'updatingControls', true);
+      try {
+        Array.from(nodeElement.children).filter(function (child) {
+          return child.matches('.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol')
+            && child !== getState(nodeElement, 'loadingEdge');
+        }).forEach(function (control) { control.remove(); });
+      } finally {
+        setState(nodeElement, 'updatingControls', false);
+      }
+    },
+    refreshNodeControls: function (nodeEl) {
+      const nodeElement = getElement(nodeEl);
+      if (nodeElement) {
+        const titleElement = nodeElement.querySelector(':scope > .title');
+        const symbol = titleElement ? titleElement.querySelector('.parentNodeSymbol') : null;
+        const hasChildren = this.getNodeState(nodeElement, 'children').exist;
+        if (titleElement && hasChildren && !symbol) {
+          titleElement.insertAdjacentHTML('afterbegin', `<i class="${this.options.icons.theme} ${this.options.icons.parentNode} parentNodeSymbol"></i>`);
+        } else if (!hasChildren && symbol) {
+          symbol.remove();
+        }
+      }
+      if (this.chart) {
+        Array.from(this.chart.querySelectorAll('.node.controls-active')).forEach(function (activeNode) {
+          this.nodeEnterLeaveHandler({ type: 'mouseenter', node: activeNode });
+        }, this);
+      }
     },
     //
     switchVerticalArrow: function (arrowEl) {
@@ -2615,61 +2684,42 @@
       const nativeEvent = event.originalEvent || event;
       const eventType = nativeEvent.type;
       const nodeElement = event.node || nativeEvent.currentTarget;
-      const childElements = Array.from(nodeElement ? nodeElement.children : []);
-      const isVerticalNode = !!(nodeElement && nodeElement.closest('.nodes.vertical'));
-      const toggleBtnElement = childElements.find(function (childEl) {
-        return childEl.classList && childEl.classList.contains('toggleBtn');
-      }) || null;
-      const topEdgeElement = childElements.find(function (childEl) {
-        return childEl.classList && childEl.classList.contains('topEdge');
-      }) || null;
-      const rightEdgeElement = childElements.find(function (childEl) {
-        return childEl.classList && childEl.classList.contains('rightEdge');
-      }) || null;
-      const bottomEdgeElement = childElements.find(function (childEl) {
-        return childEl.classList && childEl.classList.contains('bottomEdge');
-      }) || null;
-      const leftEdgeElement = childElements.find(function (childEl) {
-        return childEl.classList && childEl.classList.contains('leftEdge');
-      }) || null;
-      let isExpanded = false;
-      if (isVerticalNode) {
-        if (eventType === 'mouseenter') {
-          if (toggleBtnElement) {
-            isExpanded = this.getNodeState(nodeElement, 'children').visible;
-            toggleBtnElement.classList.toggle(this.options.icons.collapsed, !isExpanded);
-            toggleBtnElement.classList.toggle(this.options.icons.expanded, isExpanded);
-          }
-        } else if (toggleBtnElement) {
-          toggleBtnElement.classList.remove(this.options.icons.collapsed, this.options.icons.expanded);
+      if (!nodeElement || getState(nodeElement, 'updatingControls')) {
+        return;
+      }
+      if (eventType === 'mouseleave' || eventType === 'focusout') {
+        const activeElement = getDocument().activeElement;
+        if ((eventType === 'mouseleave' && activeElement && activeElement.closest('.node') === nodeElement)
+          || (eventType === 'focusout' && ((nativeEvent.relatedTarget && nodeElement.contains(nativeEvent.relatedTarget))
+            || nodeElement.matches(':hover')))) {
+          return;
         }
-      } else {
-        if (eventType === 'mouseenter') {
-          if (topEdgeElement) {
-            isExpanded = this.getNodeState(nodeElement, 'parent').visible;
-            topEdgeElement.classList.toggle(this.options.icons.expandToUp, !isExpanded);
-            topEdgeElement.classList.toggle(this.options.icons.collapseToDown, isExpanded);
-          }
-          if (bottomEdgeElement) {
-            isExpanded = this.getNodeState(nodeElement, 'children').visible;
-            bottomEdgeElement.classList.toggle(this.options.icons.collapseToDown, !isExpanded);
-            bottomEdgeElement.classList.toggle(this.options.icons.expandToUp, isExpanded);
-          }
-          if (leftEdgeElement || rightEdgeElement) {
-            this.switchHorizontalArrow(nodeElement);
-          }
-        } else {
-          childElements.forEach(function (childEl) {
-            if (childEl.classList && childEl.classList.contains('edge')) {
-              childEl.classList.remove(
-                this.options.icons.expandToUp,
-                this.options.icons.collapseToDown,
-                this.options.icons.collapseToLeft,
-                this.options.icons.expandToRight
-              );
-            }
-          }, this);
-        }
+        nodeElement.classList.remove('controls-active');
+        this.removeNodeControls(nodeElement);
+        return;
+      }
+      nodeElement.classList.add('controls-active');
+      this.renderNodeControls(nodeElement);
+      const toggle = nodeElement.querySelector(':scope > .toggleBtn');
+      const topEdge = nodeElement.querySelector(':scope > .topEdge');
+      const bottomEdge = nodeElement.querySelector(':scope > .bottomEdge');
+      if (toggle) {
+        const expanded = this.getNodeState(nodeElement, 'children').visible;
+        toggle.classList.toggle(this.options.icons.collapsed, !expanded);
+        toggle.classList.toggle(this.options.icons.expanded, expanded);
+      }
+      if (topEdge) {
+        const expanded = this.getNodeState(nodeElement, 'parent').visible;
+        topEdge.classList.toggle(this.options.icons.expandToUp, !expanded);
+        topEdge.classList.toggle(this.options.icons.collapseToDown, expanded);
+      }
+      if (bottomEdge) {
+        const expanded = this.getNodeState(nodeElement, 'children').visible;
+        bottomEdge.classList.toggle(this.options.icons.collapseToDown, !expanded);
+        bottomEdge.classList.toggle(this.options.icons.expandToUp, expanded);
+      }
+      if (nodeElement.querySelector(':scope > .horizontalEdge')) {
+        this.switchHorizontalArrow(nodeElement);
       }
     },
     //
@@ -2689,6 +2739,10 @@
         focusedEl.classList.remove('focused');
       });
       nodeElement.classList.add('focused');
+      if (!this.isInAction(nodeElement)) {
+        nodeElement.focus({ preventScroll: true });
+        this.nodeEnterLeaveHandler({ type: 'mouseenter', node: nodeElement });
+      }
     },
     addAncestors: function (data, parentId) {
       const rootHierarchyElement = this.chart ? this.chart.querySelector(':scope > .nodes > .hierarchy') : null;
@@ -2718,6 +2772,7 @@
       if (targetSiblingsContainerElement && targetSiblingsContainerElement !== ancestorWrapperElement.parentElement) {
         targetSiblingsContainerElement.appendChild(ancestorWrapperElement);
       }
+      this.refreshNodeControls(targetParentNodeElement);
     },
     addDescendants:function (data, parentEl) {
       const orgChart = this;
@@ -2746,8 +2801,9 @@
     //
     HideFirstParentEnd: function (event) {
       const nativeEvent = event.originalEvent || event;
-      const topEdgeElement = getElement(event.topEdge || nativeEvent.topEdge);
-      const nodeElement = topEdgeElement ? topEdgeElement.parentElement : null;
+      const previousEdge = getElement(event.topEdge || nativeEvent.topEdge);
+      const nodeElement = getElement(event.node || nativeEvent.node) || (previousEdge ? previousEdge.parentElement : null);
+      const topEdgeElement = nodeElement ? nodeElement.querySelector(':scope > .topEdge') : null;
 
       if (this.isInAction(nodeElement)) {
         this.switchVerticalArrow(topEdgeElement);
@@ -2773,7 +2829,7 @@
           this.hideParent(nodeElement);
           if (parentEl) {
             parentEl.addEventListener('transitionend', function (transitionEvent) {
-              transitionEvent.topEdge = topEdgeElement;
+              transitionEvent.node = nodeElement;
               orgChart.HideFirstParentEnd(transitionEvent);
             }, { once: true });
           }
@@ -3338,7 +3394,6 @@
         } else {
           dropNodeData.children = [draggedNodeCopy];
         }
-		orgChart.attachRel(datasource, '00');
         orgChart.init({ 'data': datasource });
       } else {
         if (sourceData && parentData && targetData && parentData.children
@@ -3362,33 +3417,11 @@
         }) || null;
         // firstly, deal with the hierarchy of drop zone
         if (!dropChildrenContainerEl) { // if the drop zone is a leaf node
-          dropZoneEl.insertAdjacentHTML('beforeend', `<i class="edge verticalEdge bottomEdge ${this.options.icons.theme}"></i>`);
           dropZoneEl.insertAdjacentHTML('afterend', '<ul class="nodes"></ul>');
           dropChildrenContainerEl = dropZoneEl.nextElementSibling;
-          Array.from(draggedEl.querySelectorAll('.horizontalEdge')).forEach(function (edgeEl) {
-            edgeEl.remove();
-          });
           dropChildrenContainerEl.appendChild(draggedHierarchyEl);
-          const titleEl = Array.from(dropZoneEl.children || []).find(function (childEl) {
-            return childEl.classList && childEl.classList.contains('title');
-          }) || null;
-          if (titleEl) {
-            titleEl.insertAdjacentHTML('afterbegin', `<i class="${this.options.icons.theme} ${chartOptions.icons.parentNode} parentNodeSymbol"></i>`);
-          }
         } else {
-          const horizontalEdges = `<i class="edge horizontalEdge rightEdge ${this.options.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${this.options.icons.theme}"></i>`;
-          if (!draggedEl.querySelector('.horizontalEdge')) {
-            draggedEl.insertAdjacentHTML('beforeend', horizontalEdges);
-          }
           dropChildrenContainerEl.appendChild(draggedHierarchyEl);
-          const dropSiblingNodeEls = Array.from(dropChildrenContainerEl.children || []).filter(function (childEl) {
-            return childEl !== draggedHierarchyEl && childEl.classList && childEl.classList.contains('hierarchy');
-          }).map(function (siblingHierarchyEl) {
-            return siblingHierarchyEl.querySelector('.node');
-          }).filter(Boolean);
-          if (dropSiblingNodeEls.length === 1) {
-            dropSiblingNodeEls[0].insertAdjacentHTML('beforeend', horizontalEdges);
-          }
         }
         // secondly, deal with the hierarchy of dragged node
         draggedParentChildrenContainerEl = Array.from(draggedParentNodeEl && draggedParentNodeEl.parentElement ? draggedParentNodeEl.parentElement.children : []).find(function (childEl) {
@@ -3399,17 +3432,7 @@
               return childEl.classList && childEl.classList.contains('hierarchy');
             })
           : [];
-        if (remainingHierarchyEls.length === 1) { // if there is only one sibling node left
-          const remainingNodeEl = remainingHierarchyEls[0].querySelector('.node');
-          if (remainingNodeEl) {
-            Array.from(remainingNodeEl.querySelectorAll('.horizontalEdge')).forEach(function (edgeEl) {
-              edgeEl.remove();
-            });
-          }
-        } else if (remainingHierarchyEls.length === 0) {
-          Array.from(draggedParentNodeEl.querySelectorAll('.bottomEdge, .parentNodeSymbol')).forEach(function (edgeEl) {
-            edgeEl.remove();
-          });
+        if (remainingHierarchyEls.length === 0) {
           if (draggedParentChildrenContainerEl) {
             draggedParentChildrenContainerEl.remove();
           }
@@ -3420,6 +3443,8 @@
           childNode.classList.remove('slide-up', 'sliding');
           childNode.closest('.hierarchy').classList.remove('isCollapsedDescendant');
         });
+        this.refreshNodeControls(draggedParentNodeEl);
+        this.refreshNodeControls(dropZoneEl);
         this.updateMinimap(true);
       }
     },
@@ -3633,7 +3658,10 @@
     createNode: function (data) {
       const opts = this.options;
       const level = data.level;
-      const flags = data.relationship || '';
+      if ((opts.compact === true && data.children && data.children.length)
+        || (typeof opts.compact === 'function' && opts.compact(data))) {
+        data.compact = true;
+      }
       const isCompactLayout = usesCompactLayout(data, opts, level);
       const nodeClassName = [
         'node',
@@ -3644,7 +3672,7 @@
       const titleMarkupParts = [];
       const contentMarkupParts = [];
       const nodeMarkupParts = [];
-      const shouldAddParentSymbol = Number(flags.substr(2, 1));
+      const shouldAddParentSymbol = !!(data.children && data.children.length);
 
       if (data.children && data[opts.nodeId]) {
         forEachValue(data.children, function (index, child) {
@@ -3665,32 +3693,6 @@
           contentMarkupParts.push(`<div class="content">${data[opts.nodeContent] || ''}</div>`);
         }
         nodeMarkupParts.push(contentMarkupParts.join(''));
-      }
-
-      if ((opts.verticalLevel && level >= opts.verticalLevel) || data.vertical) {
-        if (shouldAddParentSymbol) {
-          nodeMarkupParts.push(`<i class="toggleBtn ${opts.icons.theme}"></i>`);
-        }
-      } else if (data.hybrid) {
-        if (shouldAddParentSymbol) {
-          nodeMarkupParts.push(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`);
-        }
-      } else if (isCompactLayout) {
-        if (shouldAddParentSymbol) {
-          nodeMarkupParts.push(`<i class="${opts.icons.theme} ${opts.icons.backToCompact} backToCompactSymbol hidden"></i>`);
-          nodeMarkupParts.push(`<i class="${opts.icons.theme} ${opts.icons.backToLoose} backToLooseSymbol"></i>`);
-        }
-      } else if (!data.associatedCompact) {
-        if (Number(flags.substr(0, 1))) {
-          nodeMarkupParts.push(`<i class="edge verticalEdge topEdge ${opts.icons.theme}"></i>`);
-        }
-        if (Number(flags.substr(1, 1))) {
-          nodeMarkupParts.push(`<i class="edge horizontalEdge rightEdge ${opts.icons.theme}"></i>`);
-          nodeMarkupParts.push(`<i class="edge horizontalEdge leftEdge ${opts.icons.theme}"></i>`);
-        }
-        if (shouldAddParentSymbol) {
-          nodeMarkupParts.push(`<i class="edge verticalEdge bottomEdge ${opts.icons.theme}"></i>`);
-        }
       }
 
       // construct the content of node
@@ -3719,6 +3721,7 @@
         nodeElement.setAttribute('data-parent', data.parentId);
       }
       nodeElement.className = nodeClassName;
+      nodeElement.tabIndex = 0;
       nodeElement.insertAdjacentHTML('beforeend', nodeMarkupParts.join(''));
       //
       const storedNodeData = mergeObjects({}, data);
@@ -3732,7 +3735,24 @@
 
       nodeElement.addEventListener('mouseenter', this.nodeEnterLeaveHandler.bind(this));
       nodeElement.addEventListener('mouseleave', this.nodeEnterLeaveHandler.bind(this));
+      nodeElement.addEventListener('focusin', function (event) {
+        if (event.target.closest('.node') === nodeElement) {
+          this.nodeEnterLeaveHandler(event);
+        }
+      }.bind(this));
+      nodeElement.addEventListener('focusout', function (event) {
+        if (event.target.closest('.node') === nodeElement) {
+          this.nodeEnterLeaveHandler(event);
+        }
+      }.bind(this));
       nodeElement.addEventListener('click', this.nodeClickHandler.bind(this));
+      nodeElement.addEventListener('keydown', function (event) {
+        const control = event.target.closest('.edge, .toggleBtn, .backToCompactSymbol, .backToLooseSymbol');
+        if (control && control.parentElement === nodeElement && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          control.click();
+        }
+      });
       routeNodeClick('.topEdge', this.topEdgeClickHandler);
       routeNodeClick('.bottomEdge', this.bottomEdgeClickHandler);
       routeNodeClick('.leftEdge, .rightEdge', this.hEdgeClickHandler);
@@ -3766,6 +3786,16 @@
       if (!hierarchyElement) {
         return;
       }
+
+      data.children.flat().forEach(function (child) {
+        if (data.hybrid || data.vertical) {
+          child.vertical = true;
+        } else if (data.compact && child.children) {
+          child.compact = true;
+        } else if (data.compact) {
+          child.associatedCompact = true;
+        }
+      });
 
       if ((opts.verticalLevel && (level + 1) >= opts.verticalLevel) || data.hybrid || data.vertical) {
         nodesLayerElement = getDocument().createElement('ul');
@@ -3901,7 +3931,7 @@
           });
         });
       } else {
-        if (Object.keys(data).length > 2) { // TODO: 应该用更好的方式来判断是否是供父一级节点创建的信息
+        if (Object.keys(data).some(function (key) { return key !== 'children' && key !== 'level'; })) {
           nodeElement = this.createNode(data);
           hierarchyElement.appendChild(nodeElement);
         }
@@ -3940,8 +3970,6 @@
     // exposed method
     addChildren: function (nodeEl, data) {
       const nodeElement = getElement(nodeEl);
-      let titleElement;
-      let bottomEdgeElement;
 
       if (!nodeElement) {
         return;
@@ -3961,27 +3989,7 @@
       }
 
       this.buildChildNode(nodeElement.closest('.hierarchy'), data);
-      if (!nodeElement.querySelector('.parentNodeSymbol')) {
-        titleElement = Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('title');
-        }) || null;
-        if (titleElement) {
-          titleElement.insertAdjacentHTML('afterbegin', `<i class="${this.options.icons.theme} ${this.options.icons.parentNode} parentNodeSymbol"></i>`);
-        }
-      }
-      if (nodeElement.closest('.nodes.vertical')) {
-        if (!nodeElement.querySelector(':scope > .toggleBtn')) {
-          nodeElement.insertAdjacentHTML('beforeend', `<i class="toggleBtn ${this.options.icons.theme}"></i>`);
-        }
-      } else if (!nodeElement.querySelector(':scope > .bottomEdge')) {
-        nodeElement.insertAdjacentHTML('beforeend', `<i class="edge verticalEdge bottomEdge ${this.options.icons.theme}"></i>`);
-      }
-      if (this.isInAction(nodeElement)) {
-        bottomEdgeElement = Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('bottomEdge');
-        }) || null;
-        this.switchVerticalArrow(bottomEdgeElement);
-      }
+      this.refreshNodeControls(nodeElement);
     },
     // build the parent node of specific node
     buildParentNode: function (currentRootEl, data) {
@@ -3997,7 +4005,6 @@
         return;
       }
 
-      data.relationship = data.relationship || '001';
       currentRootListElement = currentRootElement.closest('ul');
       currentRootHierarchyElement = currentRootElement.closest('.hierarchy');
       parentHierarchyElement = currentRootListElement ? currentRootListElement.closest('.hierarchy') : null;
@@ -4028,8 +4035,6 @@
     // exposed method
     addParent: function (currentRootEl, data) {
       const currentRootElement = getElement(currentRootEl);
-      let titleElement;
-      let topEdgeElement;
 
       if (!currentRootElement) {
         return;
@@ -4074,20 +4079,7 @@
         getState(currentRootElement, 'nodeData').parentId = currentData.parentId;
         currentRootElement.setAttribute('data-parent', currentData.parentId);
       }
-      if (!currentRootElement.querySelector(':scope > .topEdge')) {
-        titleElement = Array.from(currentRootElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('title');
-        }) || null;
-        if (titleElement) {
-          titleElement.insertAdjacentHTML('afterend', `<i class="edge verticalEdge topEdge ${this.options.icons.theme}"></i>`);
-        }
-      }
-      if (this.isInAction(currentRootElement)) {
-        topEdgeElement = Array.from(currentRootElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('topEdge');
-        }) || null;
-        this.switchVerticalArrow(topEdgeElement);
-      }
+      this.refreshNodeControls(this.getParent(currentRootElement));
     },
     // build the sibling nodes of specific node
     buildSiblingNode: function (nodeChartEl, data) {
@@ -4188,7 +4180,6 @@
     addSiblings: function (nodeEl, data) {
       const nodeElement = getElement(nodeEl);
       let nodesContainerElement;
-      let topEdgeElement;
 
       if (!nodeElement) {
         return;
@@ -4232,34 +4223,13 @@
       if (nodesContainerElement) {
         setState(nodesContainerElement, 'siblingsLoaded', true);
       }
-      if (!Array.from(nodeElement.children || []).some(function (childEl) {
-        return childEl.classList && childEl.classList.contains('leftEdge');
-      })) {
-        topEdgeElement = Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('topEdge');
-        }) || null;
-        if (topEdgeElement) {
-          topEdgeElement.insertAdjacentHTML('afterend', `<i class="edge horizontalEdge rightEdge ${this.options.icons.theme}"></i><i class="edge horizontalEdge leftEdge ${this.options.icons.theme}"></i>`);
-        }
-      }
-      if (this.isInAction(nodeElement)) {
-        this.switchHorizontalArrow(nodeElement);
-        topEdgeElement = Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('topEdge');
-        }) || null;
-        if (topEdgeElement && topEdgeElement.classList) {
-          topEdgeElement.classList.remove(this.options.icons.expandToUp);
-          topEdgeElement.classList.add(this.options.icons.collapseToDown);
-        }
-      }
+      this.refreshNodeControls(this.getParent(nodeElement));
     },
     // remove node and its descendent nodes
     removeNodes: function (nodeEl) {
       const nodeElement = getElement(nodeEl);
       let hierarchyElement;
       let wrapperElement;
-      let remainingNodeElement;
-      let parentNodeElement;
 
       if (!nodeElement) {
         return;
@@ -4303,23 +4273,10 @@
       if (wrapperElement.parentElement && wrapperElement.parentElement.classList && wrapperElement.parentElement.classList.contains('hierarchy')) {
         if (this.getNodeState(nodeElement, 'siblings').exist) {
           hierarchyElement.remove();
-          if (wrapperElement.children.length === 1) {
-            remainingNodeElement = wrapperElement.querySelector('.node');
-            if (remainingNodeElement) {
-              Array.from(remainingNodeElement.querySelectorAll('.horizontalEdge')).forEach(function (edgeEl) {
-                edgeEl.remove();
-              });
-            }
-          }
         } else {
-          parentNodeElement = wrapperElement.parentElement.querySelector(':scope > .node');
-          if (parentNodeElement) {
-            Array.from(parentNodeElement.querySelectorAll('.bottomEdge, .parentNodeSymbol')).forEach(function (edgeEl) {
-              edgeEl.remove();
-            });
-          }
           wrapperElement.remove();
         }
+        this.refreshNodeControls(parentElement);
       } else { // if $node is root node
         const chartElement = wrapperElement.closest('.orgchart');
         if (chartElement) {

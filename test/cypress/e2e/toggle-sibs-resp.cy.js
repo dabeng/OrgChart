@@ -13,19 +13,19 @@ describe('Toggle sibling nodes respectively', () => {
   });
 
   it('toggle the left side sibling nodes of sumiao', () => {
-    cy.get(sumiao).find('.leftEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.leftEdge').click();
     cy.get(bomiao).get(renwu).get(lixin).should('not.be.visible');
 
-    cy.get(sumiao).find('.leftEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.leftEdge').click();
     cy.get(bomiao).should('be.visible');
     cy.get(renwu).get(lixin).should('not.be.visible');
   });
 
   it('toggle the right side sibling nodes of sumiao', () => {
-    cy.get(sumiao).find('.rightEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.rightEdge').click();
     cy.get(hongmiao).get(xingan).get(yidian).should('not.be.visible');
 
-    cy.get(sumiao).find('.rightEdge').click();
+    cy.get(sumiao).trigger('mouseenter').find('.rightEdge').click();
     cy.get(hongmiao).should('be.visible');
     cy.get(xingan).get(yidian).should('not.be.visible');
   });

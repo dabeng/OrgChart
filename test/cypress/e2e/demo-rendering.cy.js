@@ -17,6 +17,7 @@ describe('Demo Rendering and Configuration', () => {
 
   it('renders custom control icons', () => {
     visitChartDemo('custom-icons.html', 'Custom Icons Demo');
+    cy.get('#chart-container .nodes.vertical .node').filter(':has(.parentNodeSymbol)').first().trigger('mouseenter');
     cy.get('#chart-container .node .toggleBtn').should('have.class', 'fa-solid');
   });
 
@@ -32,7 +33,7 @@ describe('Demo Rendering and Configuration', () => {
 
   it('renders hybrid nodes from node data', () => {
     visitChartDemo('data-prop-hybrid.html', 'Hybrid Nodes Demo');
-    cy.get('#chart-container .verticalNodes, #chart-container .toggleBtn').should('exist');
+    cy.get('#chart-container .nodes.vertical').should('exist');
   });
 
   it('renders the PNG export control', () => {
@@ -99,7 +100,9 @@ describe('Demo Rendering and Configuration', () => {
   it('combines compact layout with constrained team assignments', () => {
     visitChartDemo('options-compact-drag.html');
     cy.get('#chart-container .node.compact').should('exist');
+    cy.get('#studio').trigger('mouseenter');
     cy.get('#studio > .backToLooseSymbol').click();
+    cy.get('#engineering-team').trigger('mouseenter');
     cy.get('#engineering-team > .backToLooseSymbol').click();
     cy.get('#member-tie').should('have.attr', 'draggable', 'true');
     cy.window().then((win) => {
@@ -126,6 +129,7 @@ describe('Demo Rendering and Configuration', () => {
     cy.get('#design-director .title').should('contain.text', 'Lao Lao');
     cy.get('#design-director .content').should('have.text', 'Design director');
     cy.get('#chart-container .avatar').should('have.length', 7);
+    cy.get('#experience-lead').trigger('mouseenter');
     cy.get('#experience-lead > .edge').should('have.class', 'fa-solid');
   });
 

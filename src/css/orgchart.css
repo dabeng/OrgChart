@@ -547,7 +547,8 @@
 	background-color: rgba(68, 157, 68, 0.6);
 }
 
-.orgchart .node:hover .toggleBtn {
+.orgchart .node:hover > .toggleBtn,
+.orgchart .node.controls-active > .toggleBtn {
 	visibility: visible;
 }
 
