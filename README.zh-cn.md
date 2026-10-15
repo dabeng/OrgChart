@@ -1,4 +1,4 @@
-![OrgChart](http://dabeng.github.io/OrgChart/img/heading.jpg)
+![OrgChart](http://dabeng.github.io/OrgChart/img/cover.png)
 
 # Read this in other languages: [繁體中文](https://github.com/dabeng/OrgChart/blob/master/README.zh-tw.md), [English](https://github.com/dabeng/OrgChart/blob/master/README.md)
 
