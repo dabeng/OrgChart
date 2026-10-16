@@ -84,6 +84,10 @@
         && !Object.prototype.hasOwnProperty.call(overrides, 'draggable')) {
         options.draggable = overrides.drag;
       }
+      if (Object.prototype.hasOwnProperty.call(overrides, 'visibleLevel')
+        && overrides.visibleLevel === true) {
+        options.visibleLevel = defaults.visibleLevel;
+      }
     });
     options.visibleLevel = options.visibleLevel === true ? defaults.visibleLevel
       : options.visibleLevel === false ? 1 : Number(options.visibleLevel);
