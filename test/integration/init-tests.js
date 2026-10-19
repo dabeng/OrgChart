@@ -59,6 +59,132 @@ describe('orgchart -- integration tests', function () {
       container.innerHTML.should.equal(fragment);
     });
 
+    it('initializes the same chart from unordered flat parent_id rows without modifying them', function () {
+      const rows = [
+        { id: 'n2', name: 'Bo Miao', parent_id: 'n1' },
+        { id: 'n1', name: 'Lao Lao', parent_id: null },
+        { id: 'n3', name: 'Su Miao', parent_id: 'n1' }
+      ];
+      const original = JSON.stringify(rows);
+      oc = new OrgChart({ chartContainer: container, data: rows });
+
+      container.innerHTML.should.equal(fragment);
+      JSON.stringify(rows).should.equal(original);
+      oc.getChildren(query('#n1', oc.chart)).map(function (node) { return node.id; }).should.deep.equal(['n2', 'n3']);
+    });
+
+    it('preserves custom flat datasource fields and node identifiers', function () {
+      oc = new OrgChart({
+        chartContainer: container,
+        nodeId: 'key',
+        nodeTitle: 'label',
+        nodeContent: 'role',
+        data: [
+          { key: 2, parent_id: '1', label: 'Engineer', role: 'Platform' },
+          { key: 1, parent_id: null, label: 'Director', role: 'Operations' }
+        ]
+      });
+
+      query('[id="1"] .title', oc.chart).textContent.should.equal('Director');
+      query('[id="2"] .content', oc.chart).textContent.should.equal('Platform');
+      oc.getParent(query('[id="2"]', oc.chart)).id.should.equal('1');
+      oc.setOptions({ direction: 'l2r' });
+      oc.getParent(query('[id="2"]', oc.chart)).id.should.equal('1');
+      oc.chart.classList.contains('l2r').should.be.true;
+    });
+
+    it('rejects flat datasource cycles before replacing an existing chart', function () {
+      oc = new OrgChart({ chartContainer: container, data: ds });
+      const chart = oc.chart;
+
+      (() => oc.init({ data: [
+        { id: 'root', name: 'Root', parent_id: null },
+        { id: 'a', name: 'A', parent_id: 'b' },
+        { id: 'b', name: 'B', parent_id: 'a' }
+      ] })).should.throw('Flat datasource contains a cycle');
+
+      oc.chart.should.equal(chart);
+      container.innerHTML.should.equal(fragment);
+    });
+
+    it('supports zero IDs and an omitted root parent_id in flat datasource rows', function () {
+      oc = new OrgChart({ chartContainer: container, data: [
+        { id: 1, parent_id: 0, name: 'Child' },
+        { id: 0, name: 'Root' }
+      ] });
+
+      query('[id="0"] .title', oc.chart).textContent.should.equal('Root');
+      query('[id="1"]', oc.chart).getAttribute('data-parent').should.equal('0');
+      oc.getParent(query('[id="1"]', oc.chart)).id.should.equal('0');
+    });
+
+    it('renders no nodes for an empty flat datasource', function () {
+      oc = new OrgChart({ chartContainer: container, data: [] });
+
+      queryAll('.node', oc.chart).should.have.lengthOf(0);
+    });
+
+    [
+      { direction: 't2b' },
+      { direction: 'b2t' },
+      { direction: 'l2r' },
+      { direction: 'r2l' },
+      { verticalLevel: 2, visibleLevel: 1 },
+      { compact: true, visibleLevel: 2 }
+    ].forEach(function (options) {
+      it('renders flat and nested datasource identically with ' + JSON.stringify(options), function () {
+        oc = new OrgChart(Object.assign({ chartContainer: container, data: {
+          id: 'root', name: 'Root', children: [
+            { id: 'a', name: 'A', children: [{ id: 'child', name: 'Child' }] },
+            { id: 'b', name: 'B' }
+          ]
+        } }, options));
+        const markup = oc.chart.outerHTML;
+
+        oc.init({ data: [
+          { id: 'child', parent_id: 'a', name: 'Child' },
+          { id: 'a', parent_id: 'root', name: 'A' },
+          { id: 'b', parent_id: 'root', name: 'B' },
+          { id: 'root', parent_id: null, name: 'Root' }
+        ] });
+
+        oc.chart.outerHTML.should.equal(markup);
+      });
+    });
+
+    it('retains edits to a normalized flat datasource when options change and accepts replacement rows', function () {
+      const rows = [
+        { id: 'n1', name: 'Root', parent_id: null },
+        { id: 'n2', name: 'Child', parent_id: 'n1' }
+      ];
+      oc = new OrgChart({ chartContainer: container, data: rows });
+      oc.addChildren(query('#n2', oc.chart), [{ id: 'n3', name: 'Grandchild' }]);
+      oc.setOptions({ compact: true, direction: 'r2l' });
+
+      oc.getParent(query('#n3', oc.chart)).id.should.equal('n2');
+      rows.should.have.lengthOf(2);
+      should.not.exist(rows[1].children);
+
+      oc.init({ data: [{ id: 'replacement', name: 'Replacement', parent_id: null }] });
+      queryAll('.node', oc.chart).should.have.lengthOf(1);
+      should.exist(query('#replacement', oc.chart));
+    });
+
+    [
+      { name: 'duplicate IDs', rows: [{ id: 1, parent_id: null }, { id: '1', parent_id: 1 }], error: 'Duplicate node ID' },
+      { name: 'missing parents', rows: [{ id: 1, parent_id: null }, { id: 2, parent_id: 99 }], error: 'Missing parent' },
+      { name: 'multiple roots', rows: [{ id: 1, parent_id: null }, { id: 2, parent_id: null }], error: 'exactly one root' },
+      { name: 'no root', rows: [{ id: 1, parent_id: 1 }], error: 'exactly one root' },
+      { name: 'missing IDs', rows: [{ name: 'Root', parent_id: null }], error: 'node ID' },
+      { name: 'invalid rows', rows: [null], error: 'node ID' },
+      { name: 'non-finite IDs', rows: [{ id: NaN, parent_id: null }], error: 'node ID' }
+    ].forEach(function (scenario) {
+      it('rejects ' + scenario.name + ' in a flat datasource', function () {
+        (() => new OrgChart({ chartContainer: container, data: scenario.rows })).should.throw(scenario.error);
+        queryAll('.orgchart', container).should.have.lengthOf(0);
+      });
+    });
+
     it('initialize chart with <ul> datasource', function () {
       const ulElement = createElementFromHtml(
         '<ul id="ul-data">' +

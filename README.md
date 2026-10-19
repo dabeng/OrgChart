@@ -65,6 +65,8 @@ FYI, [How to use jQuery Orchart in React](https://stackblitz.com/edit/vitejs-vit
 
 - [using local datasource](https://dabeng.github.io/OrgChart/local-datasource.html)
 
+- [using flat rows with parent_id](https://dabeng.github.io/OrgChart/flat-datasource.html)
+
 - [I wanna pan&zoom the orgchart](https://dabeng.github.io/OrgChart/pan-zoom.html)
 
 - I wanna align orgchart with different orientation**(this feature comes from [the good idea of fvlima and badulesia :blush:](https://github.com/dabeng/OrgChart/issues/5))
@@ -220,6 +222,10 @@ var datascource = [
 ];
 ```
 
+- [Build the same family tree from flat records](https://dabeng.github.io/OrgChart/family-tree-with-flat-datasource.html)
+
+This demo adds `family_id` to each flat record to identify a spouse group, while `parent_id` points to the parent record that owns that group's descendants. Members of a group share the same `parent_id`; root groups use `null`. The page converts these rows into the existing grouped family-tree datasource before creating OrgChart. This conversion is demo-local: `family_id` is not a built-in data property or option, and `parent_id` alone does not encode spouse relationships.
+
 - [I want to add property tags to family tree](https://dabeng.github.io/OrgChart/familytree-custom-properties.html)
 
 ![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
@@ -273,6 +279,25 @@ var oc = new OrgChart({
 };
 ```
 
+#### Flat Arrays with parent_id
+
+Pass database rows directly as a one-dimensional array; no external converter is required:
+
+```js
+const oc = new OrgChart({
+  chartContainer: '#chart-container',
+  data: [
+    { id: 1, name: 'ELECTRONICS', parent_id: null },
+    { id: 2, name: 'TELEVISIONS', parent_id: 1 },
+    { id: 3, name: 'LCD', parent_id: 2 }
+  ]
+});
+```
+
+Each nonempty array must have exactly one root, identified by `parent_id: null` or an omitted `parent_id`. IDs use the `nodeId` option (default `id`); numeric and string forms of the same ID match, and zero is valid. Rows may appear in any order; siblings retain their input order. Duplicate IDs, missing parents, missing/invalid IDs and cycles throw an error. An empty array renders no nodes.
+
+OrgChart copies each row and derives `children` from `parent_id`, retaining other fields for `nodeTitle`, `nodeContent` and `createNode`. The original rows are not modified. Internally the datasource becomes a nested tree; editing, option changes and `getHierarchy()` use that tree, not a synchronized flat-table export. Existing two-dimensional family-tree arrays remain supported. See the [complete demo](demo/flat-datasource.html).
+
 Node relations are derived from the current loaded structure. Expand/collapse and compact-layout controls are created when a node is hovered, focused, or selected by touch, and removed when interaction ends. A control involved in loading is retained until loading finishes. Keyboard users can focus a node and activate its controls with Enter or Space.
 
 The `createNode` callback runs without prebuilt interaction controls; customize icons through `icons` rather than querying initial arrow elements. For on-demand loading, create application-owned request buttons through `createNode` and handle requests with event delegation. Keep their behavior selectors separate from built-in controls, then insert loaded nodes with `addAncestors()`, `addChildren()`, or `addDescendants()`. `getNodeState()` describes loaded relations, not data that may exist on a server. The former relationship field and relation-preprocessing method are no longer supported.
@@ -287,6 +312,11 @@ The `createNode` callback runs without prebuilt interaction controls; customize 
     </tr>
   </thead>
   <tbody>
+    <tr>
+      <td>parent_id</td>
+      <td>string / number / null</td>
+      <td>Only for flat array datasources. Identifies the parent record using the field configured by nodeId (default: id). Set it to null or omit it for the root node. See <a href="#flat-arrays-with-parent_id">Flat Arrays with parent_id</a>.</td>
+    </tr>
     <tr>
       <td>hybrid</td>
       <td>truthy value</td>
@@ -317,7 +347,7 @@ The `createNode` callback runs without prebuilt interaction controls; customize 
       <td>object / array / HTMLUListElement</td>
       <td>yes</td>
       <td></td>
-      <td>Datasource: a JSON tree object, grouped family-tree arrays, or an HTML ul element. UL data is normalized internally so later option changes retain edits.</td>
+      <td>Datasource: a JSON tree object, flat parent_id rows, grouped family-tree arrays, or an HTML ul element. Flat rows and UL data are normalized internally so later option changes retain edits.</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -519,7 +549,7 @@ Create an instance with `new OrgChart(options)`. Its `chartContainer` and `chart
 const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
 ```
 
-The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `updateMinimap`, `addAncestors`, `addDescendants`, `addParent`, `addSiblings`, `addChildren`, `removeNodes`, `getHierarchy`, `getNodeState`, `getParent`, `getChildren`, `getSiblings`, `getRelatedNodes`, `hideParent`, `showParent`, `hideChildren`, `showChildren`, `hideSiblings`, `showSiblings`, `setChartScale`, `export`, `exportPNG`, and `exportPDF`. Arguments that refer to nodes or charts are native `HTMLElement` instances.
+The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `updateMinimap`, `addAncestors`, `addDescendants`, `addParent`, `addSiblings`, `addChildren`, `removeNodes`, `getHierarchy`, `getFlatDatasource`, `getNodeState`, `getParent`, `getChildren`, `getSiblings`, `getRelatedNodes`, `hideParent`, `showParent`, `hideChildren`, `showChildren`, `hideSiblings`, `showSiblings`, `setChartScale`, `export`, `exportPNG`, and `exportPDF`. Arguments that refer to nodes or charts are native `HTMLElement` instances.
 
 #### API reference
 | Call | Parameters | Return value and behavior |
@@ -533,6 +563,7 @@ The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `upda
 | `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | Rendered `.node` and an array of sibling or child data. | Adds rendered nodes; no return value. |
 | `oc.removeNodes(node)` | Rendered `.node` to remove. | Removes the node and its descendants; no return value. |
 | `oc.getHierarchy(includeNodeData)` | Optional boolean, default `false`. | Returns a hierarchy object for tree sources or grouped arrays for family sources; returns an error string when the chart or required node ids are unavailable. |
+| `oc.getFlatDatasource()` | None. | Returns node data as flat records with current parent_id references, null for roots, and generated family_id values for grouped family sources. Validation errors match getHierarchy(). |
 | `oc.getNodeState(node, relation)` | Rendered `.node`; `relation` is `parent`, `children`, or `siblings`. | Returns `{ exist, visible }`. |
 | `oc.getParent(node)` | Rendered `.node`. | Returns its parent `.node`, or `null`. |
 | `oc.getChildren(node)`<br>`oc.getSiblings(node)` | Rendered `.node`. | Returns an array of direct child or sibling `.node` elements. |
@@ -746,6 +777,15 @@ This method is designed to get the hierarchy relationships of orgchart for furth
     <td>This optional parameter determines whether include the nodeData items in the generated JSON object in addition to the id and children</td>
   </tr>
 </table>
+
+#### getFlatDatasource()
+Returns a fresh flat-array snapshot of all loaded nodes, including collapsed or hidden descendants, in depth-first order. It includes the node fields from `getHierarchy(true)`, recalculates `parent_id` using the configured `nodeId`, and omits `children`, `level` and the internal `parentId`. Root records have `parent_id: null`; exporting does not change the chart data. Missing charts, nodes or required IDs return the same error strings as `getHierarchy()`.
+
+```js
+const records = oc.getFlatDatasource();
+```
+
+For ordinary trees, pass the returned array as `data` to render the structure again. Grouped family sources additionally receive shared `family_id` values such as `family-1`; these describe the current export's groups, replace any previous `family_id` values, and are not persistent household identifiers. Reconstruct a family chart with the converter in the [flat family-tree demo](demo/family-tree-with-flat-datasource.html), rather than passing those rows directly as a single-root flat datasource. See the [getFlatDatasource demo](demo/get-flat-datasource.html) for repeated exports after node moves.
 
 #### hideParent(node)
 This method allows you to hide programatically the parent node of any specific node(.node element), if it has.

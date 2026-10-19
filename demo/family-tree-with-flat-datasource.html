@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OrgChart Family Tree with Flat Datasource Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart { background: #fff; }
+    #chart-container {
+      height: 850px;
+    }
+    .orgchart .node {
+      padding: 3px 8px;
+    }
+    .orgchart .node .avatar {
+      border-radius: 60px;
+      box-shadow: rgba(99, 99, 99, 0.8) 0px 2px 8px 0px;
+    }
+    .orgchart .couple:has(> .nodes) > .node:first-child::after {
+      top: 148px;
+    }
+    .orgchart .couple::after {
+      top: 148px;
+      width: 30px;
+      left: calc(50% - 15px);
+    }
+    .orgchart .couple:first-child:not(:only-child)::before {
+      width: calc(100% - 74px);
+      left: 74px;
+    }
+    .orgchart .hierarchy.couple:only-child::before {
+      width: 152px;
+      left: calc(50% - 76px);
+    }
+    .orgchart .couple:last-child:not(:only-child)::before {
+      width: calc(50% + 76px);
+    }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>Family Tree with Flat Datasource Demo</h1>
+    <p>This demo recreates the original four-generation family tree from flat, database-style records, preserving the same people, portraits, spouse groups, and descendant relationships.</p>
+    <p>Each record uses <code>id</code> to identify a person, <code>parent_id</code> to connect a family group to its parent member, and <code>family_id</code> to group spouses. The page converts these records into OrgChart's grouped family-tree datasource before rendering.</p>
+  </section>
+  <div id="chart-container"></div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const datasource = [
+        { id: '8', parent_id: null, family_id: 'grandparents', name: 'Lao Ye', title: 'Grandfather', gender: 'male' },
+        { id: '1', parent_id: null, family_id: 'grandparents', name: 'Lao Lao', title: 'Grandmother', gender: 'female', outsider: true },
+        { id: '2', parent_id: '1', family_id: 'bo', name: 'Bo miao', title: 'Aunt', gender: 'female' },
+        { id: '3', parent_id: '1', family_id: 'parents', name: 'Su Miao', title: 'Mother', gender: 'female' },
+        { id: '9', parent_id: '1', family_id: 'parents', name: 'Tie Hua', title: 'Father', gender: 'male', outsider: true },
+        { id: '10', parent_id: '1', family_id: 'hong', name: 'Hong miao', title: 'Aunt', gender: 'female' },
+        { id: '12', parent_id: '3', family_id: 'own', name: 'Pang Pang', title: 'Wife', gender: 'female', outsider: true },
+        { id: '5', parent_id: '3', family_id: 'own', name: 'Hei Hei', title: 'Me', gender: 'male' },
+        { id: '7', parent_id: '12', family_id: 'dan', name: 'Dan Dan', title: 'Daughter', gender: 'female' },
+        { id: '6', parent_id: '12', family_id: 'er', name: 'Er Dan', title: 'Daughter', gender: 'female' }
+      ];
+
+      const people = new Map(datasource.map(person => [String(person.id), Object.assign({}, person)]));
+      const families = new Map();
+      datasource.forEach(person => {
+        if (!families.has(person.family_id)) {
+          families.set(person.family_id, []);
+        }
+        families.get(person.family_id).push(people.get(String(person.id)));
+      });
+
+      const familyTree = [];
+      families.forEach(members => {
+        const parentId = members[0].parent_id;
+        if (parentId === null || parentId === undefined) {
+          familyTree.push(members);
+        } else {
+          const parent = people.get(String(parentId));
+          parent.children = parent.children || [];
+          parent.children.push(members);
+        }
+      });
+
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: familyTree,
+        nodeContent: 'title',
+        nodeId: 'id',
+        createNode: function (node, data) {
+          node.insertAdjacentHTML('afterbegin', `<img class="avatar" src="https://dabeng.github.io/OrgChart/img/avatar/${data.id}.jpg" crossorigin="anonymous" />`);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

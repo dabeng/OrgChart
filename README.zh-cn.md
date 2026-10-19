@@ -62,6 +62,8 @@ $ npm install orgchart
 
 - [本地数据源](https://dabeng.github.io/OrgChart/local-datasource.html)
 
+- [带 parent_id 的平面数组数据源](https://dabeng.github.io/OrgChart/flat-datasource.html)
+
 - [我想平移/缩放组织结构图，像在地图应用上那样](https://dabeng.github.io/OrgChart/pan-zoom.html)
 
 - 我想以不同的方向布局组织结构图(感谢 [fvlima 和 badulesia 的好点子 :blush:](https://github.com/dabeng/OrgChart/issues/5))
@@ -206,6 +208,10 @@ var datascource = [
 ];
 ```
 
+- [使用平面记录构建相同的家谱](https://dabeng.github.io/OrgChart/family-tree-with-flat-datasource.html)
+
+此示例在每条平面记录中增加 `family_id` 来标识配偶组，`parent_id` 指向承接该组的父辈成员记录。同组成员使用相同的 `parent_id`，根组设为 `null`。页面在创建 OrgChart 前，将这些记录转换为已有的家谱分组数据源。转换仅在 demo 中实现：`family_id` 不是组件的内置数据属性或选项，仅靠 `parent_id` 无法表达配偶关系。
+
 - [我想往族谱里追加一些自定义的标识](https://dabeng.github.io/OrgChart/familytree-custom-properties.html)
 
 ![familytree-custom-properties](http://dabeng.github.io/OrgChart/img/familytree-custom-properties.png)
@@ -260,9 +266,46 @@ var oc = new OrgChart({
 };
 ```
 
+#### 带 parent_id 的平面数组
+
+可以直接传入数据库查询得到的一维记录数组，无需额外转换工具：
+
+```js
+const oc = new OrgChart({
+  chartContainer: '#chart-container',
+  data: [
+    { id: 1, name: 'ELECTRONICS', parent_id: null },
+    { id: 2, name: 'TELEVISIONS', parent_id: 1 },
+    { id: 3, name: 'LCD', parent_id: 2 }
+  ]
+});
+```
+
+非空数组必须恰好有一个根节点，其 `parent_id` 为 `null` 或省略。ID 字段由 `nodeId` 选项指定，默认为 `id`；同一 ID 的数字和字符串形式可以匹配，数值 `0` 也是有效 ID。父记录不必排在子记录前面，同级节点保留输入顺序。重复 ID、缺失父节点、缺失或无效 ID、循环关系会抛出错误；空数组不渲染节点。
+
+组件会复制每条记录，根据 `parent_id` 生成 `children`，其他字段仍可用于 `nodeTitle`、`nodeContent` 和 `createNode`，不会修改原始记录。内部数据源会归一化为嵌套树；节点编辑、选项更新和 `getHierarchy()` 都使用这棵树，不会同步回写为平面表格。原有二维家谱数组保持兼容。参见[完整示例](demo/flat-datasource.html)。
+
 节点关系直接依据当前已加载的结构判断。展开折叠和紧凑布局切换按钮在节点悬浮、聚焦或触屏选中时才创建，交互结束后回收；参与加载的按钮保留至加载完成。键盘用户可以聚焦节点，再用 Enter 或空格激活按钮。
 
 `createNode` 回调执行时没有预建的交互按钮，请通过 `icons` 定制图标，不要查询初始化时的箭头元素。按需加载由 demo 或业务层通过 `createNode` 创建独立请求按钮，并使用事件委托处理请求；请求按钮应使用与内置控件不同的行为选择器。加载后调用 `addAncestors()`、`addChildren()` 或 `addDescendants()` 加入真实节点，不需要关系元数据或新的加载回调选项。`getNodeState()` 只描述已加载的关系，不推断服务端尚未加载的数据。旧的关系属性和关系预处理方法不再支持。
+
+### 数据属性
+<table>
+  <thead>
+    <tr>
+      <th>名称</th>
+      <th>类型</th>
+      <th>描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>parent_id</td>
+      <td>string / number / null</td>
+      <td>仅用于平面数组数据源，指向父记录的 ID，ID 字段由 nodeId 指定，默认为 id。根节点设为 null 或省略此字段。参见<a href="#带-parent_id-的平面数组">带 parent_id 的平面数组</a>。</td>
+    </tr>
+  </tbody>
+</table>
 
 ### 选项
 <table>
@@ -281,7 +324,7 @@ var oc = new OrgChart({
       <td>object / array / HTMLUListElement</td>
       <td>是</td>
       <td></td>
-      <td>数据源可以是 JSON 树对象、家谱分组数组或 HTML ul 元素。UL 数据会在内部规范化，后续修改选项时仍会保留编辑结果。</td>
+      <td>数据源可以是 JSON 树对象、带 parent_id 的平面记录数组、家谱分组数组或 HTML ul 元素。平面数组和 UL 数据会在内部规范化，后续修改选项时仍会保留编辑结果。</td>
     </tr>
     <tr>
       <td>pan</td>
@@ -483,7 +526,7 @@ var oc = new OrgChart({
 const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
 ```
 
-公开 API 包括：`init`、`setOptions`、`attachMinimap`、`detachMinimap`、`updateMinimap`、`addAncestors`、`addDescendants`、`addParent`、`addSiblings`、`addChildren`、`removeNodes`、`getHierarchy`、`getNodeState`、`getParent`、`getChildren`、`getSiblings`、`getRelatedNodes`、`hideParent`、`showParent`、`hideChildren`、`showChildren`、`hideSiblings`、`showSiblings`、`setChartScale`、`export`、`exportPNG` 和 `exportPDF`。其中节点和图表参数均为原生 `HTMLElement`。
+公开 API 包括：`init`、`setOptions`、`attachMinimap`、`detachMinimap`、`updateMinimap`、`addAncestors`、`addDescendants`、`addParent`、`addSiblings`、`addChildren`、`removeNodes`、`getHierarchy`、`getFlatDatasource`、`getNodeState`、`getParent`、`getChildren`、`getSiblings`、`getRelatedNodes`、`hideParent`、`showParent`、`hideChildren`、`showChildren`、`hideSiblings`、`showSiblings`、`setChartScale`、`export`、`exportPNG` 和 `exportPDF`。其中节点和图表参数均为原生 `HTMLElement`。
 
 #### API 参考
 | 调用 | 参数 | 返回值与调用行为 |
@@ -497,6 +540,7 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
 | `oc.addSiblings(node, data)`<br>`oc.addChildren(node, data)` | 已渲染的 `.node` 和兄弟节点或子节点数据数组。 | 增加渲染节点；无返回值。 |
 | `oc.removeNodes(node)` | 要删除的已渲染 `.node`。 | 删除该节点及其后代；无返回值。 |
 | `oc.getHierarchy(includeNodeData)` | 可选布尔值，默认 `false`。 | 树数据返回层级对象，家谱数据返回分组数组；图表或必要节点 id 不可用时返回错误字符串。 |
+| `oc.getFlatDatasource()` | 无。 | 返回包含节点数据和当前 parent_id 的平面记录数组，根节点为 null；家谱分组额外生成 family_id。错误返回与 getHierarchy() 一致。 |
 | `oc.getNodeState(node, relation)` | 已渲染 `.node`；`relation` 为 `parent`、`children` 或 `siblings`。 | 返回 `{ exist, visible }`。 |
 | `oc.getParent(node)` | 已渲染 `.node`。 | 返回父 `.node`，不存在时返回 `null`。 |
 | `oc.getChildren(node)`<br>`oc.getSiblings(node)` | 已渲染 `.node`。 | 返回直接子节点或兄弟节点 `.node` 元素数组。 |
@@ -711,6 +755,15 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
     <td>如果传入的该参数为true，那么导出的层次结构对象中就加入nodeData数据。</td>
   </tr>
 </table>
+
+#### getFlatDatasource()
+按深度优先顺序返回全部已加载节点的平面数组快照，包括已折叠或隐藏的后代。节点字段与 `getHierarchy(true)` 相同，根据配置的 `nodeId` 重新计算 `parent_id`，并移除 `children`、`level` 和内部字段 `parentId`。根记录的 `parent_id` 为 `null`，导出不会修改图表数据。图表、节点或必要 ID 缺失时，返回与 `getHierarchy()` 相同的错误字符串。
+
+```js
+const records = oc.getFlatDatasource();
+```
+
+普通树的返回数组可以直接作为 `data` 重新渲染。家谱数据会额外生成同组共享的 `family_id`，例如 `family-1`；它们描述本次导出的分组，会替换原有 `family_id`，不是持久化的家庭标识。重建家谱时应使用[平面家谱示例](demo/family-tree-with-flat-datasource.html)中的转换代码，而不是把记录直接作为单根平面数据源传入。参见 [getFlatDatasource 示例](demo/get-flat-datasource.html)，查看节点移动后的重复导出。
 
 #### hideParent(node)
 隐藏指定节点的父节点。当然其兄弟节点及祖先节点也一并隐藏了。

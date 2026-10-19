@@ -80,3 +80,79 @@ describe('Local Datasource', () => {
 
 });
 
+describe('Parent ID Datasource', () => {
+  beforeEach(() => {
+    cy.visit('demo/flat-datasource.html');
+  });
+
+  it('renders all database rows in their parent_id hierarchy', () => {
+    cy.get('#chart-container .node').should('have.length', 10);
+    cy.get('[id="1"] .title').should('have.text', 'ELECTRONICS');
+    cy.get('.node[data-parent="1"]').then(($nodes) => {
+      expect(Array.from($nodes, (node) => node.id)).to.deep.equal(['2', '6']);
+    });
+    cy.get('.node[data-parent="2"]').should('have.length', 3);
+    cy.get('.node[data-parent="6"]').should('have.length', 3);
+    cy.get('[id="8"]').should('have.attr', 'data-parent', '7');
+    cy.get('.node .title').each(($title) => {
+      expect($title[0].scrollWidth).to.be.at.most($title[0].clientWidth);
+    });
+    cy.screenshot('flat-datasource-desktop');
+  });
+
+  it('collapses and expands the root children', () => {
+    cy.get('[id="1"]').trigger('mouseenter').find('.bottomEdge').click();
+    cy.get('[id="2"]').should('not.be.visible');
+    cy.get('[id="6"]').should('not.be.visible');
+    cy.get('[id="8"]').should('not.be.visible');
+
+    cy.get('[id="1"]').trigger('mouseenter').find('.bottomEdge').click();
+    cy.get('[id="2"]').should('be.visible');
+    cy.get('[id="6"]').should('be.visible');
+  });
+
+  it('collapses and expands a branch without affecting the other branch', () => {
+    cy.get('[id="6"]').trigger('mouseenter').find('.bottomEdge').click();
+    cy.get('[id="7"]').should('not.be.visible');
+    cy.get('[id="8"]').should('not.be.visible');
+    cy.get('[id="3"]').should('be.visible');
+
+    cy.get('[id="6"]').trigger('mouseenter').find('.bottomEdge').click();
+    cy.get('[id="7"]').should('be.visible');
+    cy.get('[id="9"]').should('be.visible');
+    cy.get('[id="10"]').should('be.visible');
+  });
+
+  it('hides and reveals the parent of a nested node', () => {
+    cy.get('[id="7"]').trigger('mouseenter').find('.topEdge').click();
+    cy.get('[id="6"]').should('not.be.visible');
+    cy.get('[id="1"]').should('not.be.visible');
+    cy.get('[id="9"]').should('not.be.visible');
+
+    cy.get('[id="7"]').trigger('mouseenter').find('.topEdge').click();
+    cy.get('[id="6"]').should('be.visible');
+    cy.get('[id="1"]').should('not.be.visible');
+  });
+
+  ['leftEdge', 'rightEdge'].forEach((edge) => {
+    it('toggles sibling branches with the ' + edge, () => {
+      cy.get('[id="6"]').trigger('mouseenter').find('.' + edge).click();
+      cy.get('[id="2"]').should('not.be.visible');
+      cy.get('[id="7"]').should('be.visible');
+
+      cy.get('[id="6"]').trigger('mouseenter').find('.' + edge).click();
+      cy.get('[id="2"]').should('be.visible');
+    });
+  });
+
+  it('supports keyboard expand and collapse on a narrow viewport', () => {
+    cy.viewport(390, 844);
+    cy.get('[id="1"]').focus();
+    cy.get('[id="1"] > .bottomEdge').focus().trigger('keydown', { key: 'Enter' });
+    cy.get('[id="6"]').should('not.be.visible');
+    cy.get('[id="1"] > .bottomEdge').focus().trigger('keydown', { key: 'Enter' });
+    cy.get('[id="6"]').should('be.visible');
+    cy.screenshot('flat-datasource-mobile');
+  });
+});
+

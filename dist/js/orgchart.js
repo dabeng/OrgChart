@@ -84,6 +84,10 @@
         && !Object.prototype.hasOwnProperty.call(overrides, 'draggable')) {
         options.draggable = overrides.drag;
       }
+      if (Object.prototype.hasOwnProperty.call(overrides, 'visibleLevel')
+        && overrides.visibleLevel === true) {
+        options.visibleLevel = defaults.visibleLevel;
+      }
     });
     options.visibleLevel = options.visibleLevel === true ? defaults.visibleLevel
       : options.visibleLevel === false ? 1 : Number(options.visibleLevel);
@@ -100,6 +104,60 @@
       throw new RangeError('direction must be t2b, b2t, l2r, or r2l');
     }
     return options;
+  }
+
+  function normalizeDatasource(data, nodeId) {
+    if (!Array.isArray(data) || Array.isArray(data[0])) {
+      return data;
+    }
+    if (!data.length) {
+      return {};
+    }
+    const nodes = new Map();
+    const roots = [];
+    data.forEach(function (row) {
+      const id = row && row[nodeId];
+      if (!isPlainObject(row) || (typeof id !== 'string' && typeof id !== 'number')
+        || id === '' || (typeof id === 'number' && !Number.isFinite(id))) {
+        throw new TypeError('Flat datasource rows must have a nonempty string or finite numeric node ID');
+      }
+      const key = String(id);
+      if (nodes.has(key)) {
+        throw new Error('Duplicate node ID in flat datasource: ' + key);
+      }
+      nodes.set(key, Object.assign({}, row, { children: [] }));
+    });
+    data.forEach(function (row) {
+      const node = nodes.get(String(row[nodeId]));
+      if (row.parent_id === null || row.parent_id === undefined) {
+        roots.push(node);
+      } else {
+        const parent = nodes.get(String(row.parent_id));
+        if (!parent) {
+          throw new Error('Missing parent in flat datasource: ' + row.parent_id);
+        }
+        parent.children.push(node);
+      }
+    });
+    if (roots.length !== 1) {
+      throw new Error('Flat datasource must contain exactly one root');
+    }
+    const pending = [roots[0]];
+    let visitedCount = 0;
+    while (pending.length) {
+      const node = pending.pop();
+      visitedCount += 1;
+      node.children.forEach(function (child) {
+        pending.push(child);
+      });
+      if (!node.children.length) {
+        delete node.children;
+      }
+    }
+    if (visitedCount !== nodes.size) {
+      throw new Error('Flat datasource contains a cycle');
+    }
+    return roots[0];
   }
 
   function prepareNodeData(data, resetLayout) {
@@ -652,6 +710,8 @@
     //
     init: function (opts) {
       const options = mergeChartOptions(this.defaultOptions, this.opts, opts);
+      const data = normalizeDatasource(options.data, options.nodeId);
+      options.data = data;
       this.opts = options;
       this.options = options;
       // build the org-chart
@@ -672,7 +732,6 @@
         this.unbindZoom();
         this.chart.remove();
       }
-      const data = this.options.data;
       chartElement = getDocument().createElement('div');
       chartElement.className = 'orgchart' + (this.options.chartClass !== '' ? ' ' + this.options.chartClass : '') + (this.options.direction !== 't2b' ? ' ' + this.options.direction : '');
       setState(chartElement, 'options', this.options);
@@ -704,7 +763,7 @@
       rootNodesContainerElement.className = 'nodes';
       chartElement.appendChild(rootNodesContainerElement);
 
-      if (!isListElementData && Array.isArray(data)) {
+      if (!isListElementData && Array.isArray(datasource)) {
         rootElement = rootNodesContainerElement;
       } else {
         rootHierarchyElement = getDocument().createElement('li');
@@ -1749,6 +1808,39 @@
         return exportFamily(datasource);
       }
       return this.loopChart(chartElement, includeNodeData);
+    },
+    getFlatDatasource: function () {
+      const hierarchy = this.getHierarchy(true);
+      if (typeof hierarchy === 'string') {
+        return hierarchy;
+      }
+      const records = [];
+      const nodeId = this.options.nodeId;
+      let familyIndex = 0;
+      const flatten = function (data, parentId, familyId) {
+        if (Array.isArray(data)) {
+          data.forEach(function (group) {
+            const groupId = 'family-' + (++familyIndex);
+            group.forEach(function (member) {
+              flatten(member, parentId, groupId);
+            });
+          });
+          return;
+        }
+        const record = Object.assign({}, data, { parent_id: parentId });
+        delete record.children;
+        delete record.level;
+        delete record.parentId;
+        if (familyId !== undefined) {
+          record.family_id = familyId;
+        }
+        records.push(record);
+        (data.children || []).forEach(function (child) {
+          flatten(Array.isArray(child) ? [child] : child, data[nodeId], undefined);
+        });
+      };
+      flatten(hierarchy, null, undefined);
+      return records;
     },
     // detect the exist/display state of related node
     getNodeState: function (nodeEl, relation) {
@@ -3658,8 +3750,9 @@
       const contentMarkupParts = [];
       const nodeMarkupParts = [];
       const shouldAddParentSymbol = !!(data.children && data.children.length);
+      const hasNodeId = !!data[opts.nodeId] || data[opts.nodeId] === 0;
 
-      if (data.children && data[opts.nodeId]) {
+      if (data.children && hasNodeId) {
         forEachValue(data.children, function (index, child) {
           child.parentId = data[opts.nodeId]
         });
@@ -3699,10 +3792,10 @@
       if (opts.draggable) {
         nodeElement.setAttribute('draggable', 'true');
       }
-      if (data[opts.nodeId]) {
+      if (hasNodeId) {
         nodeElement.id = data[opts.nodeId];
       }
-      if (data.parentId) {
+      if (data.parentId || data.parentId === 0) {
         nodeElement.setAttribute('data-parent', data.parentId);
       }
       nodeElement.className = nodeClassName;

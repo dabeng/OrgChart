@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OrgChart getFlatDatasource Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .flat-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1rem;
+      margin: 0.5rem;
+    }
+    #chart-container {
+      min-width: 0;
+      margin: 0;
+    }
+    .flat-output {
+      min-width: 0;
+    }
+    .output-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .output-toolbar h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    #btn-export-flat {
+      padding: 0.5rem 0.75rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    #flat-datasource-output {
+      box-sizing: border-box;
+      max-height: 780px;
+      margin: 0;
+      padding: 0.75rem;
+      overflow: auto;
+      border: 1px solid #d5dbe3;
+      border-radius: 4px;
+      background: #f7fafc;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    @media (max-width: 760px) {
+      .flat-workspace {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>getFlatDatasource Demo</h1>
+    <p>This demo builds a chart from nested list markup and exports its current node data as flat records with parent_id references. Rearrange a branch and export again to capture the updated parent relationships.</p>
+  </section>
+  <ul id="ul-data" style="display: none;">
+    <li data-id="n1">Lao Lao
+      <ul>
+        <li data-id="n2">Bo Miao</li>
+        <li data-id="n3">Su Miao
+          <ul>
+            <li data-id="n4">Tie Hua</li>
+            <li data-id="n5">Hei Hei
+              <ul>
+                <li data-id="n6">Pang Pang</li>
+                <li data-id="n7">Xiang Xiang</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <div class="flat-workspace">
+    <div id="chart-container"></div>
+    <section class="flat-output" aria-label="Flat datasource output">
+      <div class="output-toolbar">
+        <h2>Flat Records</h2>
+        <button id="btn-export-flat" type="button">Export Flat Datasource</button>
+      </div>
+      <pre id="flat-datasource-output" aria-live="polite"></pre>
+    </section>
+  </div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: document.getElementById('ul-data'),
+        draggable: true
+      });
+      const exportDatasource = () => {
+        const records = oc.getFlatDatasource();
+        document.getElementById('flat-datasource-output').textContent = typeof records === 'string'
+          ? records
+          : JSON.stringify(records, null, 2);
+      };
+
+      document.getElementById('btn-export-flat').addEventListener('click', exportDatasource);
+      exportDatasource();
+    });
+  </script>
+</body>
+</html>

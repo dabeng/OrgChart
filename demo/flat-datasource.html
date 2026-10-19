@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OrgChart Parent ID Datasource Demo</title>
+  <link rel="icon" href="img/logo.png">
+  <link rel="stylesheet" href="css/orgchart.css">
+  <link rel="stylesheet" href="css/style.css">
+  <style type="text/css">
+    .orgchart .node { width: 220px; }
+    .orgchart .node .title { width: 100%; }
+  </style>
+</head>
+<body>
+  <section class="demo-notes">
+    <h1>Electronics</h1>
+  </section>
+  <div id="chart-container"></div>
+  <script type="text/javascript" src="js/orgchart.js"></script>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', () => {
+      const datasource = [
+        { id: 1, name: 'ELECTRONICS', parent_id: null },
+        { id: 2, name: 'TELEVISIONS', parent_id: 1 },
+        { id: 3, name: 'TUBE', parent_id: 2 },
+        { id: 4, name: 'LCD', parent_id: 2 },
+        { id: 5, name: 'PLASMA', parent_id: 2 },
+        { id: 6, name: 'PORTABLE ELECTRONICS', parent_id: 1 },
+        { id: 7, name: 'MP3 PLAYERS', parent_id: 6 },
+        { id: 8, name: 'FLASH', parent_id: 7 },
+        { id: 9, name: 'CD PLAYERS', parent_id: 6 },
+        { id: 10, name: '2 WAY RADIOS', parent_id: 6 }
+      ];
+
+      const oc = new OrgChart({
+        chartContainer: '#chart-container',
+        data: datasource
+      });
+    });
+  </script>
+</body>
+</html>

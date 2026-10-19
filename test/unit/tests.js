@@ -303,6 +303,100 @@ describe('orgchart -- unit tests', function () {
     oc2.getHierarchy().should.include('Error');
   });
 
+  it('getFlatDatasource() exports node fields and current parent IDs without mutating the source', function () {
+    const data = {
+      id: 0, name: 'Root', role: 'Director', children: [
+        { id: 2, name: 'Child', role: 'Engineer', parent_id: 'outdated' }
+      ]
+    };
+    oc.init({ data: data });
+    const before = JSON.stringify(data);
+
+    oc.getFlatDatasource().should.deep.equal([
+      { id: 0, name: 'Root', role: 'Director', parent_id: null },
+      { id: 2, name: 'Child', role: 'Engineer', parent_id: 0 }
+    ]);
+    JSON.stringify(data).should.equal(before);
+  });
+
+  it('getFlatDatasource() includes collapsed descendants and supports custom nodeId round trips', function () {
+    oc.init({
+      nodeId: 'key', nodeTitle: 'label', visibleLevel: 1,
+      data: { key: 'root', label: 'Root', children: [
+        { key: 'child', label: 'Child', children: [{ key: 'grandchild', label: 'Grandchild' }] }
+      ] }
+    });
+    const records = oc.getFlatDatasource();
+
+    records.map(function (record) { return record.key; }).should.deep.equal(['root', 'child', 'grandchild']);
+    records.map(function (record) { return record.parent_id; }).should.deep.equal([null, 'root', 'child']);
+    records[1].label.should.equal('Child');
+    const hierarchy = oc.getHierarchy();
+    oc.init({ data: records });
+    oc.getHierarchy().should.deep.equal(hierarchy);
+  });
+
+  it('getFlatDatasource() exports normalized list markup', function () {
+    const list = document.createElement('ul');
+    list.innerHTML = '<li data-id="root">Root<ul><li data-id="child" data-title="Engineer">Child</li></ul></li>';
+    oc.init({ data: list });
+
+    oc.getFlatDatasource().should.deep.equal([
+      { id: 'root', name: 'Root', parent_id: null },
+      { id: 'child', name: 'Child', title: 'Engineer', parent_id: 'root' }
+    ]);
+  });
+
+  it('getFlatDatasource() reflects additions, removals and repeated drag/drop exports', async function () {
+    oc.init({ data: {
+      id: 'root', name: 'Root', children: [
+        { id: 'source', name: 'Source', children: [{ id: 'moved', name: 'Moved' }] },
+        { id: 'target', name: 'Target' },
+        { id: 'removed', name: 'Removed' }
+      ]
+    } });
+    oc.addChildren(query('#source', oc.chart), [{ id: 'added', name: 'Added' }]);
+    oc.removeNodes(query('#removed', oc.chart));
+    oc.getFlatDatasource().find(function (record) { return record.id === 'moved'; }).parent_id.should.equal('source');
+
+    setState(oc.chart, 'dragged', query('#moved', oc.chart));
+    const target = query('#target', oc.chart);
+    target.classList.add('allowedDrop');
+    await oc.dropHandler({ dropZone: target });
+
+    const records = oc.getFlatDatasource();
+    records.find(function (record) { return record.id === 'moved'; }).parent_id.should.equal('target');
+    records.find(function (record) { return record.id === 'added'; }).parent_id.should.equal('source');
+    should.not.exist(records.find(function (record) { return record.id === 'removed'; }));
+    records.should.have.lengthOf(5);
+  });
+
+  it('getFlatDatasource() generates shared family IDs and preserves each spouse child owner', function () {
+    oc.init({ data: [[
+      { id: 'parent', name: 'Parent', children: [[{ id: 'child', name: 'Child' }]] },
+      { id: 'partner', name: 'Partner', children: [[{ id: 'other-child', name: 'Other Child' }]] }
+    ]] });
+    const records = oc.getFlatDatasource();
+    const parent = records.find(function (record) { return record.id === 'parent'; });
+    const partner = records.find(function (record) { return record.id === 'partner'; });
+
+    partner.family_id.should.equal(parent.family_id);
+    should.equal(parent.parent_id, null);
+    should.equal(partner.parent_id, null);
+    records.find(function (record) { return record.id === 'child'; }).parent_id.should.equal('parent');
+    records.find(function (record) { return record.id === 'other-child'; }).parent_id.should.equal('partner');
+    new Set(records.map(function (record) { return record.family_id; })).size.should.equal(3);
+  });
+
+  it('getFlatDatasource() returns the same validation errors as getHierarchy()', function () {
+    oc.init({ data: { name: 'Missing ID' } });
+    oc.getFlatDatasource().should.equal(oc.getHierarchy());
+    oc.chart.innerHTML = '';
+    oc.getFlatDatasource().should.equal(oc.getHierarchy());
+    oc.chart = null;
+    oc.getFlatDatasource().should.equal(oc.getHierarchy());
+  });
+
   it('triggerShowEvent() accepts a native node', function () {
     const eventSpy = sinon.spy();
 
