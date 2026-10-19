@@ -32,7 +32,6 @@ describe('orgchart browser option compatibility', function () {
     await page.addStyleTag({ path: path.join(repositoryRoot, 'src/css/orgchart.css') });
     await page.addStyleTag({ content: '#chart-container { position: relative; width: 640px; max-width: calc(100vw - 16px); height: 280px; overflow: auto; } .orgchart.r2l { left: 260px; }' });
     await page.addScriptTag({ path: path.join(repositoryRoot, 'src/js/orgchart.js') });
-    await page.addScriptTag({ path: path.join(repositoryRoot, 'node_modules/json-digger/dist/json-digger.js') });
   });
 
   afterEach(async function () {

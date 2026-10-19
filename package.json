@@ -33,7 +33,7 @@
     "tree-like",
     "tree-view"
   ],
-  "author": "dabeng <dabeng413@gmail.com>",
+  "author": "dabeng <xinguan413@163.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dabeng/OrgChart/issues"
@@ -41,7 +41,6 @@
   "homepage": "https://github.com/dabeng/OrgChart#readme",
   "dependencies": {
     "html2canvas": "^1.4.1",
-    "json-digger": "^2.0.2",
     "jspdf": "^4.2.1"
   },
   "devDependencies": {

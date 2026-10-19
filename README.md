@@ -35,6 +35,8 @@ Users could find the related CDN support for OrgChart's CSS and JavaScript.
 
 ## Installation
 Of course, you can directly use the standalone build by including dist/js/orgchart.js and dist/css/orgchart.css in your webapps.
+Rendering, editing and node drag/drop are built in; no additional tree-processing library is required. Load `html2canvas` only for image/PDF export, and load `jsPDF` additionally for PDF export.
+
 ### Install with Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies

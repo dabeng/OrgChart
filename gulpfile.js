@@ -63,8 +63,7 @@ gulp.task('addAssets', gulp.series('integration-tests', function () {
   const jsFiles = gulp.src([
       paths.srcJS,
       'node_modules/html2canvas/dist/html2canvas.min.js',
-      'node_modules/jspdf/dist/jspdf.umd.min.js',
-      'node_modules/json-digger/dist/json-digger.js'
+      'node_modules/jspdf/dist/jspdf.umd.min.js'
     ])
     .pipe(gulp.dest(paths.demoJSFolder));
 

@@ -1658,15 +1658,6 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('dropHandler() accepts a native drop zone for node drags', async function () {
-    const originalJSONDigger = global.JSONDigger;
-
-    global.JSONDigger = function () {
-      return {
-        findOneNode: function () {
-          return null;
-        }
-      };
-    };
     setState(oc.chart, 'dragged', $bomiao);
     addClasses($hongmiao, 'allowedDrop');
 
@@ -1674,20 +1665,11 @@ describe('orgchart -- unit tests', function () {
 
     queryAll('#n2', firstSibling($hongmiao, '.nodes')).should.lengthOf(1);
     childElements(firstSibling($laolao, '.nodes'), '.hierarchy').should.lengthOf(2);
-    global.JSONDigger = originalJSONDigger;
   });
 
   it('dropHandler() keeps nodedrop payloads as native nodes', async function () {
-    const originalJSONDigger = global.JSONDigger;
     const spy = sinon.spy();
 
-    global.JSONDigger = function () {
-      return {
-        findOneNode: function () {
-          return null;
-        }
-      };
-    };
     oc.chart.addEventListener('nodedrop.orgchart', spy);
     setState(oc.chart, 'dragged', $bomiao);
     addClasses($hongmiao, 'allowedDrop');
@@ -1699,19 +1681,9 @@ describe('orgchart -- unit tests', function () {
     spy.firstCall.args[0].detail.draggedNode.should.equal($bomiao);
     spy.firstCall.args[0].detail.dragZone.should.equal($laolao);
     spy.firstCall.args[0].detail.dropZone.should.equal($hongmiao);
-    global.JSONDigger = originalJSONDigger;
   });
 
   it('dropHandler() removes source child container when dragged node was the only child', async function () {
-    const originalJSONDigger = global.JSONDigger;
-
-    global.JSONDigger = function () {
-      return {
-        findOneNode: function () {
-          return null;
-        }
-      };
-    };
     setState(oc.chart, 'dragged', $dandan);
     addClasses($hongmiao, 'allowedDrop');
 
@@ -1720,7 +1692,6 @@ describe('orgchart -- unit tests', function () {
     queryAll('#n8', firstSibling($hongmiao, '.nodes')).should.lengthOf(1);
     siblingElements($tiehua, '.nodes').should.lengthOf(0);
     childElements($tiehua, '.bottomEdge, .parentNodeSymbol').should.lengthOf(0);
-    global.JSONDigger = originalJSONDigger;
   });
 
   it('touchmoveHandler() passes a native dragged node payload to filterAllowedDropNodes()', function () {

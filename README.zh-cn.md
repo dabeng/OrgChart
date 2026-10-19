@@ -32,6 +32,8 @@
 [![cdnjs](https://img.shields.io/cdnjs/v/orgchart)](https://cdnjs.com/libraries/orgchart) https://cdnjs.com/libraries/orgchart
 
 ## 安装
+图表渲染、编辑和节点拖拽均为内置功能，无需额外的树处理库。只有导出图片或 PDF 时才需要加载 `html2canvas`，导出 PDF 还需加载 `jsPDF`。
+
 ### Bower
 ```
 # From version 1.0.2 on, users can install orgchart and add it to bower.json dependencies

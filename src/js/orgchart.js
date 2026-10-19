@@ -164,6 +164,13 @@
     return location;
   }
 
+  function hasHybridNodes(data) {
+    if (Array.isArray(data)) {
+      return data.some(hasHybridNodes);
+    }
+    return !!data && (data.hybrid === true || (Array.isArray(data.children) && data.children.some(hasHybridNodes)));
+  }
+
   function forEachValue(collection, callback) {
     if (Array.isArray(collection) || isNodeList(collection)) {
       for (let index = 0; index < collection.length; index += 1) {
@@ -3306,7 +3313,6 @@
     // when user drops the node, it will be removed from original parent node and be added to new parent node
     dropHandler: async function (event) {
       const nativeEvent = event.originalEvent || event;
-      const orgChart = this;
       const chartElement = this.chart;
       const dropZoneEl = event.dropZone || nativeEvent.currentTarget;
       const draggedEl = chartElement ? getElement(getState(chartElement, 'dragged')) : null;
@@ -3359,7 +3365,7 @@
         return;
       }
       const needsRebuild = Array.isArray(datasource) || this.options.compact || chartOptions.verticalLevel
-        || chartElement.querySelector('.node.compact, .nodes.vertical');
+        || chartElement.querySelector('.node.compact, .nodes.vertical') || hasHybridNodes(datasource);
       if (needsRebuild && sourceLocation && sourceLocation.list && targetData) {
         sourceLocation.list.splice(sourceLocation.index, 1);
         if (!sourceLocation.list.length && sourceLocation.outerList) {
@@ -3376,77 +3382,56 @@
         rebuildFromData(this, targetData);
         return;
       }
-      // special process for hybrid chart
-      const dataDigger = new JSONDigger(datasource, chartOptions.nodeId, 'children');
-      const hybridNodeData = dataDigger.findOneNode({ 'hybrid': true });
-      if (chartOptions.verticalLevel > 1 || hybridNodeData) {
-        const draggedNodeId = getState(draggedEl, 'nodeData')[chartOptions.nodeId];
-        const dropNodeId = getState(dropZoneEl, 'nodeData')[chartOptions.nodeId];
-        const draggedNodeData = dataDigger.findNodeById(draggedNodeId);
-        const dropNodeData = dataDigger.findNodeById(dropNodeId);
-        if (!draggedNodeData || !dropNodeData) {
-          return;
+      if (sourceData && parentData && targetData && parentData.children
+        && parentData.children.indexOf(sourceData) !== -1) {
+        parentData.children.splice(parentData.children.indexOf(sourceData), 1);
+        if (!parentData.children.length) {
+          delete parentData.children;
         }
-        const draggedNodeCopy = Object.assign({}, draggedNodeData);
-        dataDigger.removeNode(draggedNodeId);
-        if (dropNodeData.children) {
-          dropNodeData.children.push(draggedNodeCopy);
-        } else {
-          dropNodeData.children = [draggedNodeCopy];
+        if (!targetData.children) {
+          targetData.children = [];
         }
-        orgChart.init({ 'data': datasource });
-      } else {
-        if (sourceData && parentData && targetData && parentData.children
-          && parentData.children.indexOf(sourceData) !== -1) {
-          parentData.children.splice(parentData.children.indexOf(sourceData), 1);
-          if (!parentData.children.length) {
-            delete parentData.children;
-          }
-          if (!targetData.children) {
-            targetData.children = [];
-          }
-          targetData.children.push(sourceData);
-          sourceData.parentId = targetData[chartOptions.nodeId];
-          getState(draggedEl, 'nodeData').parentId = sourceData.parentId;
-          draggedEl.setAttribute('data-parent', sourceData.parentId);
-        }
-        // The folowing code snippets are used to process horizontal chart
-        draggedHierarchyEl = draggedEl.closest('.hierarchy');
-        dropChildrenContainerEl = Array.from(dropZoneEl.parentElement ? dropZoneEl.parentElement.children : []).find(function (childEl) {
-          return childEl !== dropZoneEl && childEl.classList && childEl.classList.contains('nodes');
-        }) || null;
-        // firstly, deal with the hierarchy of drop zone
-        if (!dropChildrenContainerEl) { // if the drop zone is a leaf node
-          dropZoneEl.insertAdjacentHTML('afterend', '<ul class="nodes"></ul>');
-          dropChildrenContainerEl = dropZoneEl.nextElementSibling;
-          dropChildrenContainerEl.appendChild(draggedHierarchyEl);
-        } else {
-          dropChildrenContainerEl.appendChild(draggedHierarchyEl);
-        }
-        // secondly, deal with the hierarchy of dragged node
-        draggedParentChildrenContainerEl = Array.from(draggedParentNodeEl && draggedParentNodeEl.parentElement ? draggedParentNodeEl.parentElement.children : []).find(function (childEl) {
-          return childEl !== draggedParentNodeEl && childEl.classList && childEl.classList.contains('nodes');
-        }) || null;
-        remainingHierarchyEls = draggedParentChildrenContainerEl
-          ? Array.from(draggedParentChildrenContainerEl.children || []).filter(function (childEl) {
-              return childEl.classList && childEl.classList.contains('hierarchy');
-            })
-          : [];
-        if (remainingHierarchyEls.length === 0) {
-          if (draggedParentChildrenContainerEl) {
-            draggedParentChildrenContainerEl.remove();
-          }
-        }
-        dropChildrenContainerEl.classList.remove('hidden');
-        dropZoneEl.closest('.hierarchy').classList.remove('isChildrenCollapsed');
-        this.getChildren(dropZoneEl).forEach(function (childNode) {
-          childNode.classList.remove('slide-up', 'sliding');
-          childNode.closest('.hierarchy').classList.remove('isCollapsedDescendant');
-        });
-        this.refreshNodeControls(draggedParentNodeEl);
-        this.refreshNodeControls(dropZoneEl);
-        this.updateMinimap(true);
+        targetData.children.push(sourceData);
+        sourceData.parentId = targetData[chartOptions.nodeId];
+        getState(draggedEl, 'nodeData').parentId = sourceData.parentId;
+        draggedEl.setAttribute('data-parent', sourceData.parentId);
       }
+      // The folowing code snippets are used to process horizontal chart
+      draggedHierarchyEl = draggedEl.closest('.hierarchy');
+      dropChildrenContainerEl = Array.from(dropZoneEl.parentElement ? dropZoneEl.parentElement.children : []).find(function (childEl) {
+        return childEl !== dropZoneEl && childEl.classList && childEl.classList.contains('nodes');
+      }) || null;
+      // firstly, deal with the hierarchy of drop zone
+      if (!dropChildrenContainerEl) { // if the drop zone is a leaf node
+        dropZoneEl.insertAdjacentHTML('afterend', '<ul class="nodes"></ul>');
+        dropChildrenContainerEl = dropZoneEl.nextElementSibling;
+        dropChildrenContainerEl.appendChild(draggedHierarchyEl);
+      } else {
+        dropChildrenContainerEl.appendChild(draggedHierarchyEl);
+      }
+      // secondly, deal with the hierarchy of dragged node
+      draggedParentChildrenContainerEl = Array.from(draggedParentNodeEl && draggedParentNodeEl.parentElement ? draggedParentNodeEl.parentElement.children : []).find(function (childEl) {
+        return childEl !== draggedParentNodeEl && childEl.classList && childEl.classList.contains('nodes');
+      }) || null;
+      remainingHierarchyEls = draggedParentChildrenContainerEl
+        ? Array.from(draggedParentChildrenContainerEl.children || []).filter(function (childEl) {
+            return childEl.classList && childEl.classList.contains('hierarchy');
+          })
+        : [];
+      if (remainingHierarchyEls.length === 0) {
+        if (draggedParentChildrenContainerEl) {
+          draggedParentChildrenContainerEl.remove();
+        }
+      }
+      dropChildrenContainerEl.classList.remove('hidden');
+      dropZoneEl.closest('.hierarchy').classList.remove('isChildrenCollapsed');
+      this.getChildren(dropZoneEl).forEach(function (childNode) {
+        childNode.classList.remove('slide-up', 'sliding');
+        childNode.closest('.hierarchy').classList.remove('isCollapsedDescendant');
+      });
+      this.refreshNodeControls(draggedParentNodeEl);
+      this.refreshNodeControls(dropZoneEl);
+      this.updateMinimap(true);
     },
     //
     touchstartHandler: function (event) {

@@ -776,7 +776,6 @@ describe('orgchart -- integration tests', function () {
     });
 
     it('dispatches nodedrop and moves the dragged node through native drag/drop events', async function () {
-      const originalJSONDigger = global.JSONDigger;
       const draggableChart = new OrgChart({
         chartContainer: '#chart-container',
         data: ds,
@@ -787,13 +786,6 @@ describe('orgchart -- integration tests', function () {
       const rootChildrenContainer = siblingElements(query('#n1', draggableChart.chart), '.nodes')[0];
       const dropSpy = sinon.spy();
 
-      global.JSONDigger = function () {
-        return {
-          findOneNode: function () {
-            return null;
-          }
-        };
-      };
       draggableChart.chart.addEventListener('nodedrop.orgchart', dropSpy);
 
       dispatchEventWithProperties(draggableBomiao, 'dragstart', {
@@ -820,12 +812,9 @@ describe('orgchart -- integration tests', function () {
       }).map(function (hierarchyEl) {
         return query('.node', hierarchyEl).id;
       }).should.deep.equal(['n3', 'n4']);
-
-      global.JSONDigger = originalJSONDigger;
     });
 
     it('adds a vertical toggle when hybrid drag and drop gives a leaf node children', async function () {
-      const originalJSONDigger = global.JSONDigger;
       const hybridData = {
         id: 'n1',
         name: 'Root',
@@ -847,23 +836,55 @@ describe('orgchart -- integration tests', function () {
       const draggedNode = query('#n3', hybridChart.chart);
       const dropNode = query('#n4', hybridChart.chart);
 
-      global.JSONDigger = require('json-digger');
-      try {
-        setState(hybridChart.chart, 'dragged', draggedNode);
-        dropNode.classList.add('allowedDrop');
-        await hybridChart.dropHandler({
-          dropZone: dropNode,
-          originalEvent: { currentTarget: dropNode }
-        });
+      setState(hybridChart.chart, 'dragged', draggedNode);
+      dropNode.classList.add('allowedDrop');
+      await hybridChart.dropHandler({
+        dropZone: dropNode,
+        originalEvent: { currentTarget: dropNode }
+      });
 
-        const updatedDropNode = query('#n4', hybridChart.chart);
-        should.not.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
-        dispatchNativeEvent(updatedDropNode, 'mouseenter', { bubbles: false });
-        should.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
-        query('#n3', hybridChart.chart).closest('.hierarchy').parentElement.previousElementSibling.id.should.equal('n4');
-      } finally {
-        global.JSONDigger = originalJSONDigger;
-      }
+      const updatedDropNode = query('#n4', hybridChart.chart);
+      should.not.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
+      dispatchNativeEvent(updatedDropNode, 'mouseenter', { bubbles: false });
+      should.exist(updatedDropNode.querySelector(':scope > .toggleBtn'));
+      query('#n3', hybridChart.chart).closest('.hierarchy').parentElement.previousElementSibling.id.should.equal('n4');
+    });
+
+    it('moves a subtree to a hybrid leaf with a custom nodeId and preserves its data references', async function () {
+      const movedData = { key: 'moved', name: 'Moved', children: [{ key: 'child', name: 'Child' }] };
+      const sourceParent = { key: 'source', name: 'Source', children: [movedData] };
+      const targetData = { key: 'target', name: 'Target', hybrid: true };
+      const chart = new OrgChart({
+        chartContainer: '#chart-container',
+        nodeId: 'key',
+        data: { key: 'root', name: 'Root', children: [sourceParent, targetData] },
+        draggable: true
+      });
+
+      setState(chart.chart, 'dragged', query('#moved', chart.chart));
+      const dropNode = query('#target', chart.chart);
+      dropNode.classList.add('allowedDrop');
+      await chart.dropHandler({ dropZone: dropNode });
+
+      should.not.exist(sourceParent.children);
+      targetData.children.should.have.lengthOf(1);
+      targetData.children[0].should.equal(movedData);
+      getState(query('#moved', chart.chart), 'sourceData').should.equal(movedData);
+      chart.getParent(query('#moved', chart.chart)).id.should.equal('target');
+      chart.getParent(query('#child', chart.chart)).id.should.equal('moved');
+      dispatchNativeEvent(query('#target', chart.chart), 'mouseenter', { bubbles: false });
+      should.exist(query('#target > .bottomEdge', chart.chart));
+      query('#moved', chart.chart).closest('.nodes').classList.contains('vertical').should.be.true;
+
+      setState(chart.chart, 'dragged', query('#moved', chart.chart));
+      const returnNode = query('#source', chart.chart);
+      returnNode.classList.add('allowedDrop');
+      await chart.dropHandler({ dropZone: returnNode });
+
+      should.not.exist(targetData.children);
+      sourceParent.children[0].should.equal(movedData);
+      chart.getParent(query('#moved', chart.chart)).id.should.equal('source');
+      queryAll('#child', chart.chart).should.have.lengthOf(1);
     });
   });
 

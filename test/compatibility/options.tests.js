@@ -161,7 +161,6 @@ describe('orgchart option compatibility', function () {
   let createdCharts;
   let captureSpy;
   let originalHtml2canvas;
-  let originalJSONDigger;
 
   function mount(options, targetContainer) {
     chart = new OrgChart(targetContainer || container, Object.assign({ data: createData() }, options));
@@ -174,8 +173,6 @@ describe('orgchart option compatibility', function () {
     container = document.getElementById('chart-container');
     createdCharts = [];
     originalHtml2canvas = global.html2canvas;
-    originalJSONDigger = global.JSONDigger;
-    global.JSONDigger = require('json-digger');
     captureSpy = sinon.spy(function (element, options) {
       return Promise.resolve({
         width: 640 * options.scale,
@@ -201,7 +198,6 @@ describe('orgchart option compatibility', function () {
       }
     });
     global.html2canvas = originalHtml2canvas;
-    global.JSONDigger = originalJSONDigger;
     sinon.restore();
     document.body.innerHTML = '';
     chart = null;
