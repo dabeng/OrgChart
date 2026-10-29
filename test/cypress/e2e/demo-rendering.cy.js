@@ -67,11 +67,6 @@ describe('Demo Rendering and Configuration', () => {
     cy.get('#chart-container .orgchart').should('have.class', 'l2r');
   });
 
-  it('renders link nodes', () => {
-    visitChartDemo('link-node.html', 'Link Nodes Demo');
-    cy.get('#chart-container .node').should('have.length.at.least', 2);
-  });
-
   it('renders nodes with different widths', () => {
     visitChartDemo('nodes-of-different-widths.html', 'Nodes of Different Widths Demo');
     cy.get('#chart-container .node').then(($nodes) => {

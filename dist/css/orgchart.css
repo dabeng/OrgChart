@@ -205,6 +205,11 @@
 }
 
 /* 一夫一妻情况下的连线 */
+.orgchart .hierarchy.spouse::after,
+.orgchart .hierarchy.spouse > .node.sliding {
+  transition: transform 0.3s, opacity 0.3s;
+}
+
 .orgchart .couple {
   white-space: nowrap;
 }
@@ -229,6 +234,22 @@
   left: calc(50% - 10px); /* half of hierarchy - node's padding width - node's border with */
 }
 
+.orgchart .couple:has(> .node.hidden)::after,
+.orgchart .couple:has(> .node.hidden) > .node::after {
+  content: none;
+}
+
+.orgchart .couple:has(> .node.hidden):has(> .nodes:not(.hidden)):not(.isChildrenCollapsed) > .node:not(.hidden)::after {
+  content: "";
+  position: absolute;
+  top: auto;
+  bottom: -12px;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 10px;
+  background-color: rgba(217, 83, 79, 0.8);
+}
+
 .orgchart .hierarchy:first-child::before,
 .orgchart .hierarchy.isSiblingsCollapsed.left-sibs::before {
   left: calc(50% - 1px);
@@ -251,6 +272,7 @@
 .orgchart .isSiblingsCollapsed.left-sibs:last-child:before,
 .orgchart .isCollapsedSibling::before,
 .orgchart .isCollapsedSibling .hierarchy::before,
+.orgchart .hierarchy.couple.isChildrenCollapsed > .node:first-child::after,
 .orgchart .hierarchy.isChildrenCollapsed:not(.couple) > .node:has(+ .nodes)::after,
 .orgchart .isCollapsedDescendant::before,
 .orgchart .isCollapsedDescendant > .node::before,
@@ -599,39 +621,51 @@
   padding: 0.5rem 1rem;
 }
 
-.orgchart .slide-down {
+.orgchart .slide-down,
+.orgchart .hierarchy.spouse:has(> .node.slide-down)::after {
   opacity: 0;
   transform: translateY(40px);
 }
 
-.orgchart.l2r .node.slide-down, .orgchart.r2l .node.slide-down {
+.orgchart.l2r .node.slide-down, .orgchart.r2l .node.slide-down,
+.orgchart.l2r .hierarchy.spouse:has(> .node.slide-down)::after,
+.orgchart.r2l .hierarchy.spouse:has(> .node.slide-down)::after {
   transform: translateY(130px);
 }
 
-.orgchart .slide-up {
+.orgchart .slide-up,
+.orgchart .hierarchy.spouse:has(> .node.slide-up)::after {
   opacity: 0;
   transform: translateY(-40px);
 }
 
-.orgchart.l2r .node.slide-up, .orgchart.r2l .node.slide-up {
+.orgchart.l2r .node.slide-up, .orgchart.r2l .node.slide-up,
+.orgchart.l2r .hierarchy.spouse:has(> .node.slide-up)::after,
+.orgchart.r2l .hierarchy.spouse:has(> .node.slide-up)::after {
   transform: translateY(-130px);
 }
 
-.orgchart .slide-right {
+.orgchart .slide-right,
+.orgchart .hierarchy.spouse:has(> .node.slide-right)::after {
   opacity: 0;
   transform: translateX(130px);
 }
 
-.orgchart.l2r .node.slide-right, .orgchart.r2l .node.slide-right {
+.orgchart.l2r .node.slide-right, .orgchart.r2l .node.slide-right,
+.orgchart.l2r .hierarchy.spouse:has(> .node.slide-right)::after,
+.orgchart.r2l .hierarchy.spouse:has(> .node.slide-right)::after {
   transform: translateX(40px);
 }
 
-.orgchart .slide-left {
+.orgchart .slide-left,
+.orgchart .hierarchy.spouse:has(> .node.slide-left)::after {
   opacity: 0;
   transform: translateX(-130px);
 }
 
-.orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left {
+.orgchart.l2r .node.slide-left, .orgchart.r2l .node.slide-left,
+.orgchart.l2r .hierarchy.spouse:has(> .node.slide-left)::after,
+.orgchart.r2l .hierarchy.spouse:has(> .node.slide-left)::after {
   transform: translateX(-40px);
 }
 

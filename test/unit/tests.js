@@ -2007,6 +2007,35 @@ describe('orgchart -- unit tests', function () {
     rightEdgeEl.classList.contains(oc.options.icons.expandToRight).should.equal(true);
   });
 
+  it('switchHorizontalArrow() reflects spouse visibility in a family tree on hover', function () {
+    const familyChart = new OrgChart({
+      chartContainer: '#chart-container',
+      data: [[
+        { id: 'n11', name: 'Lao Ye' },
+        { id: 'n12', name: 'Lao Lao', outsider: true }
+      ]]
+    });
+    const nodeEl = familyChart.chart.querySelector('#n11');
+    const spouseEl = familyChart.chart.querySelector('#n12');
+
+    nodeEl.dispatchEvent(new window.MouseEvent('mouseenter'));
+    const leftEdgeEl = nodeEl.querySelector('.leftEdge');
+    const rightEdgeEl = nodeEl.querySelector('.rightEdge');
+
+    leftEdgeEl.classList.contains(familyChart.options.icons.expandToRight).should.equal(true);
+    leftEdgeEl.classList.contains(familyChart.options.icons.collapseToLeft).should.equal(false);
+    rightEdgeEl.classList.contains(familyChart.options.icons.collapseToLeft).should.equal(true);
+    rightEdgeEl.classList.contains(familyChart.options.icons.expandToRight).should.equal(false);
+
+    spouseEl.classList.add('hidden');
+    familyChart.switchHorizontalArrow(nodeEl);
+
+    leftEdgeEl.classList.contains(familyChart.options.icons.expandToRight).should.equal(false);
+    leftEdgeEl.classList.contains(familyChart.options.icons.collapseToLeft).should.equal(true);
+    rightEdgeEl.classList.contains(familyChart.options.icons.collapseToLeft).should.equal(false);
+    rightEdgeEl.classList.contains(familyChart.options.icons.expandToRight).should.equal(true);
+  });
+
   it('switchVerticalArrow() accepts a native edge element and toggles vertical arrow classes', function () {
     $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = $sumiao.querySelector('.bottomEdge');

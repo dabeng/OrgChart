@@ -68,6 +68,23 @@
     return null;
   }
 
+  function getChildControlNode(nodeElement) {
+    const familyElement = nodeElement.parentElement;
+    if (getChildNodesContainer(nodeElement) || !familyElement || !familyElement.classList.contains('couple')) {
+      return nodeElement;
+    }
+    const containers = Array.from(familyElement.children).filter(function (element) {
+      return element.classList.contains('nodes');
+    });
+    if (containers.length !== 1) {
+      return nodeElement;
+    }
+    const parentData = getState(containers[0], 'parentData');
+    return Array.from(familyElement.children).find(function (element) {
+      return element.classList.contains('node') && getState(element, 'sourceData') === parentData;
+    }) || nodeElement;
+  }
+
   function mergeObjects() {
     return Object.assign.apply(Object, [{}].concat(Array.from(arguments)));
   }
@@ -2090,6 +2107,9 @@
           }) || null : null;
           this.switchVerticalArrow(bottomEdgeElement);
       }
+      if (nodeElement && nodeElement.parentElement && nodeElement.parentElement.classList.contains('couple')) {
+        this.refreshNodeControls(nodeElement);
+      }
     },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function (nodeEl) {
@@ -2165,6 +2185,9 @@
           return childEl.classList && childEl.classList.contains('bottomEdge');
         }) || null : null;
         this.switchVerticalArrow(bottomEdgeElement);
+      }
+      if (nodeElement && nodeElement.parentElement && nodeElement.parentElement.classList.contains('couple')) {
+        this.refreshNodeControls(nodeElement);
       }
     },
     // show the children nodes of the specified node
@@ -2270,8 +2293,8 @@
       });
       siblingElements.forEach(function (siblingElement) {
         Array.from(siblingElement.querySelectorAll('.node')).filter(function (siblingNodeEl) {
-          return orgChart.isVisibleNode(null, siblingNodeEl);
-        }).slice(1)
+          return siblingNodeEl.parentElement !== siblingElement && orgChart.isVisibleNode(null, siblingNodeEl);
+        })
           .forEach(function (siblingNodeEl) {
             siblingNodeEl.classList.remove('slide-left', 'slide-right');
             if (!orgChart.options.compact) {
@@ -2282,6 +2305,10 @@
           descendantEl.classList.add('hidden');
         });
         siblingElement.classList.add('hidden');
+      });
+
+      getElements(event.siblingNodes || nativeEvent.siblingNodes).forEach(function (siblingNodeEl) {
+        siblingNodeEl.classList.add('hidden');
       });
 
       if (this.isInAction(nodeElement)) {
@@ -2387,12 +2414,25 @@
         }, this);
       }
 
+      const siblingNodeElements = this.getSiblings(nodeElement).filter(function (siblingNodeEl) {
+        const isPrevious = !!(siblingNodeEl.compareDocumentPosition(nodeElement) & Node.DOCUMENT_POSITION_FOLLOWING);
+        return siblingNodeEl.parentElement === nodeContainerElement
+          && orgChart.getNodeState(siblingNodeEl).visible
+          && (!direction || (direction === 'left' ? isPrevious : !isPrevious));
+      });
+      siblingNodeElements.forEach(function (siblingNodeEl) {
+        const isPrevious = !!(siblingNodeEl.compareDocumentPosition(nodeElement) & Node.DOCUMENT_POSITION_FOLLOWING);
+        siblingNodeEl.classList.add('sliding', isPrevious ? 'slide-right' : 'slide-left');
+      });
+      animatedNodeElements = animatedNodeElements.concat(siblingNodeElements);
+
       if (animatedNodeElements[0]) {
         animatedNodeElements[0].addEventListener('transitionend', function (event) {
           event.node = nodeElement;
           event.nodeContainer = nodeContainerElement;
           event.direction = direction;
           event.animatedNodes = animatedNodeElements;
+          event.siblingNodes = siblingNodeElements;
           orgChart.hideSiblingsEnd(event);
         }, { once: true });
       }
@@ -2507,11 +2547,19 @@
         }
       }
       // lastly, show the sibling nodes with animation
+      const siblingNodeElements = this.getSiblings(nodeElement).filter(function (siblingNodeEl) {
+        const isPrevious = !!(siblingNodeEl.compareDocumentPosition(nodeElement) & Node.DOCUMENT_POSITION_FOLLOWING);
+        return siblingNodeEl.parentElement === nodeContainerElement
+          && (!direction || (direction === 'left' ? isPrevious : !isPrevious));
+      });
+      siblingNodeElements.forEach(function (siblingNodeEl) {
+        siblingNodeEl.classList.remove('hidden');
+      });
       visibleNodeElements = siblingElements.flatMap(function (siblingEl) {
         return Array.from(siblingEl.querySelectorAll('.node'));
       }, this).filter(function (visibleNodeEl, index) {
         return this.isVisibleNode(index, visibleNodeEl);
-      }, this);
+      }, this).concat(siblingNodeElements);
       this.repaint(visibleNodeElements[0]);
       visibleNodeElements.forEach(function (visibleNodeEl) {
         visibleNodeEl.classList.add('sliding');
@@ -2639,7 +2687,7 @@
           controls.push(`<i class="edge horizontalEdge rightEdge ${icons.theme}"></i>`);
           controls.push(`<i class="edge horizontalEdge leftEdge ${icons.theme}"></i>`);
         }
-        if (hasChildren) {
+        if (this.getNodeState(getChildControlNode(nodeElement), 'children').exist) {
           controls.push(`<i class="edge verticalEdge bottomEdge ${icons.theme}"></i>`);
         }
       }
@@ -2691,16 +2739,20 @@
     },
     refreshNodeControls: function (nodeEl) {
       const nodeElement = getElement(nodeEl);
-      if (nodeElement) {
-        const titleElement = nodeElement.querySelector(':scope > .title');
+      const familyElement = nodeElement ? nodeElement.parentElement : null;
+      const relatedNodes = familyElement && familyElement.classList.contains('couple')
+        ? Array.from(familyElement.children).filter(function (element) { return element.classList.contains('node'); })
+        : nodeElement ? [nodeElement] : [];
+      relatedNodes.forEach(function (relatedNode) {
+        const titleElement = relatedNode.querySelector(':scope > .title');
         const symbol = titleElement ? titleElement.querySelector('.parentNodeSymbol') : null;
-        const hasChildren = this.getNodeState(nodeElement, 'children').exist;
+        const hasChildren = this.getNodeState(getChildControlNode(relatedNode), 'children').exist;
         if (titleElement && hasChildren && !symbol) {
           titleElement.insertAdjacentHTML('afterbegin', `<i class="${this.options.icons.theme} ${this.options.icons.parentNode} parentNodeSymbol"></i>`);
         } else if (!hasChildren && symbol) {
           symbol.remove();
         }
-      }
+      }, this);
       if (this.chart) {
         Array.from(this.chart.querySelectorAll('.node.controls-active')).forEach(function (activeNode) {
           this.nodeEnterLeaveHandler({ type: 'mouseenter', node: activeNode });
@@ -2728,8 +2780,6 @@
       let rightEdgeElement;
       let previousSiblingElement;
       let nextSiblingElement;
-      let siblingElements;
-      let sibsVisible;
 
       if (!nodeElement) {
         return;
@@ -2756,12 +2806,7 @@
           rightEdgeElement.classList.toggle(opts.icons.collapseToLeft, !nextSiblingElement.classList.contains('hidden'));
         }
       } else {
-        siblingElements = hierarchyElement && hierarchyElement.parentElement
-          ? Array.from(hierarchyElement.parentElement.children).filter(function (childEl) {
-              return childEl !== hierarchyElement;
-            })
-          : [];
-        sibsVisible = siblingElements.length ? !siblingElements[0].classList.contains('hidden') : false;
+        const sibsVisible = this.getNodeState(nodeElement, 'siblings').visible;
         if (leftEdgeElement) {
           leftEdgeElement.classList.toggle(opts.icons.expandToRight, sibsVisible);
           leftEdgeElement.classList.toggle(opts.icons.collapseToLeft, !sibsVisible);
@@ -2813,7 +2858,7 @@
         topEdge.classList.toggle(this.options.icons.collapseToDown, expanded);
       }
       if (bottomEdge) {
-        const expanded = this.getNodeState(nodeElement, 'children').visible;
+        const expanded = this.getNodeState(getChildControlNode(nodeElement), 'children').visible;
         bottomEdge.classList.toggle(this.options.icons.collapseToDown, !expanded);
         bottomEdge.classList.toggle(this.options.icons.expandToUp, expanded);
       }
@@ -2943,19 +2988,20 @@
     bottomEdgeClickHandler: function (event) {
       const nativeEvent = event.originalEvent || event;
       const nodeElement = event.node || nativeEvent.currentTarget;
-      const childrenState = this.getNodeState(nodeElement, 'children');
+      const childControlNode = getChildControlNode(nodeElement);
+      const childrenState = this.getNodeState(childControlNode, 'children');
       let childNodesContainerElement;
       let childNodeElements;
       if (childrenState.exist) {
-        childNodesContainerElement = getChildNodesContainer(nodeElement);
-        childNodeElements = childNodesContainerElement ? this.getChildren(nodeElement) : [];
+        childNodesContainerElement = getChildNodesContainer(childControlNode);
+        childNodeElements = childNodesContainerElement ? this.getChildren(childControlNode) : [];
         if (childNodeElements.some(function (childNodeEl) { return childNodeEl.classList.contains('sliding'); })) { return; }
         // hide the descendant nodes of the specified node
         if (childrenState.visible) {
-          this.hideChildren(nodeElement);
+          this.hideChildren(childControlNode);
           this.triggerHideEvent(nodeElement, 'children');
         } else { // show the descendants
-          this.showChildren(nodeElement);
+          this.showChildren(childControlNode);
           this.triggerShowEvent(nodeElement, 'children');
         }
       }
@@ -2978,7 +3024,9 @@
               return childEl !== hierarchyElement;
             })
           : [];
-        if (siblingElements.some(function (siblingEl) {
+        if (this.getSiblings(nodeElement).some(function (siblingEl) {
+          return siblingEl.classList.contains('sliding');
+        }) || siblingElements.some(function (siblingEl) {
           return siblingEl.querySelector('.sliding');
         })) { return; }
         if (opts.toggleSiblingsResp) {
@@ -4007,6 +4055,9 @@
               }
             }
           });
+          if (familyNodes.length === 2 && !orgChart.options.nodeTemplate) {
+            orgChart.refreshNodeControls(nodeElement);
+          }
         });
       } else {
         if (Object.keys(data).some(function (key) { return key !== 'children' && key !== 'level'; })) {

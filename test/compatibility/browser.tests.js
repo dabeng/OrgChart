@@ -168,6 +168,111 @@ describe('orgchart browser option compatibility', function () {
       });
     });
 
+    [1280, 390].forEach(function (width) {
+      it('family spouses share child controls with keyboard support at width ' + width, async function () {
+        await page.setViewport({ width: width, height: 800 });
+        await mountFamilyChart();
+        await page.hover('#parent-two');
+        await page.focus('#parent-two > .bottomEdge');
+        await page.keyboard.press('Enter');
+        await page.waitForFunction(function () {
+          return !!document.getElementById('child-one').closest('.hidden');
+        });
+        const collapsed = await page.evaluate(function () {
+          return {
+            bothParentsVisible: ['parent-one', 'parent-two'].every(function (id) {
+              return !document.getElementById(id).closest('.hidden');
+            }),
+            peerArrow: document.querySelector('#parent-two > .bottomEdge').classList.contains(window.compatFamilyChart.options.icons.collapseToDown)
+          };
+        });
+        chai.expect(collapsed).to.deep.equal({ bothParentsVisible: true, peerArrow: true });
+
+        await page.hover('#parent-one');
+        await page.click('#parent-one > .bottomEdge');
+        await page.waitForFunction(function () {
+          const child = document.getElementById('child-one');
+          return !child.closest('.hidden') && !child.classList.contains('sliding');
+        });
+        await page.hover('#parent-two');
+        const restored = await page.evaluate(function () {
+          const chart = window.compatFamilyChart;
+          return {
+            peerArrow: document.querySelector('#parent-two > .bottomEdge').classList.contains(chart.options.icons.expandToUp),
+            childOwner: chart.getParent(document.getElementById('child-one')).id,
+            peerChildren: chart.getChildren(document.getElementById('parent-two')).length,
+            nodeCount: chart.chart.querySelectorAll('.node').length
+          };
+        });
+        chai.expect(restored).to.deep.equal({ peerArrow: true, childOwner: 'parent-one', peerChildren: 0, nodeCount: 6 });
+      });
+    });
+
+    ['children', 'siblings'].forEach(function (relation) {
+      it('family spouse connector animation follows nodes when toggling ' + relation, async function () {
+        await mountFamilyChart();
+        await page.hover('#child-one');
+        const result = await page.evaluate(async function (relatedNodes) {
+          const chart = window.compatFamilyChart;
+          const node = chart.chart.querySelector('#child-one');
+          const family = node.closest('.hierarchy');
+          const selectedNode = chart.chart.querySelector(relatedNodes === 'children' ? '#parent-one' : '#child-two');
+          selectedNode.dispatchEvent(new MouseEvent('mouseenter'));
+          const button = selectedNode.querySelector(relatedNodes === 'children' ? ':scope > .bottomEdge' : ':scope > .leftEdge');
+          const sampleTransition = async function () {
+            getComputedStyle(node).opacity;
+            getComputedStyle(family, '::after').opacity;
+            const connectorAnimations = family.getAnimations({ subtree: true }).filter(function (animation) {
+              return animation.effect.target === family;
+            });
+            const animations = node.getAnimations().concat(connectorAnimations);
+            const sampleTime = node.getAnimations()[0].effect.getComputedTiming().duration / 2;
+            animations.forEach(function (animation) {
+              animation.pause();
+              animation.currentTime = sampleTime;
+            });
+            const nodeStyle = getComputedStyle(node);
+            const connectorStyle = getComputedStyle(family, '::after');
+            const sample = {
+              nodeOpacity: Number(nodeStyle.opacity),
+              connectorOpacity: Number(connectorStyle.opacity),
+              nodeTransform: nodeStyle.transform,
+              connectorTransform: connectorStyle.transform
+            };
+            const completed = new Promise(function (resolve) {
+              node.addEventListener('transitionend', resolve, { once: true });
+            });
+            animations.forEach(function (animation) { animation.finish(); });
+            await completed;
+            return sample;
+          };
+
+          getComputedStyle(family, '::after').opacity;
+          button.click();
+          const hiding = await sampleTransition();
+          const hidden = !!node.closest('.hidden');
+          button.click();
+          const showing = await sampleTransition();
+          return {
+            hiding: hiding,
+            hidden: hidden,
+            showing: showing,
+            visible: !node.closest('.hidden'),
+            finalOpacity: getComputedStyle(family, '::after').opacity
+          };
+        }, relation);
+
+        [result.hiding, result.showing].forEach(function (sample) {
+          chai.expect(sample.nodeOpacity).to.be.greaterThan(0).and.lessThan(1);
+          chai.expect(sample.connectorOpacity).to.be.closeTo(sample.nodeOpacity, 0.001);
+          chai.expect(sample.connectorTransform).to.equal(sample.nodeTransform);
+        });
+        chai.expect(result.hidden).to.equal(true);
+        chai.expect(result.visible).to.equal(true);
+        chai.expect(result.finalOpacity).to.equal('1');
+      });
+    });
+
     it('family sibling queries include all nodes with the same chart parent', async function () {
       await mountFamilyChart();
       const siblings = await page.evaluate(function () {

@@ -513,6 +513,177 @@ describe('orgchart -- integration tests', function () {
       oc.getNodeState($sumiao, 'siblings').should.deep.equal({ exist: true, visible: true });
     });
 
+    it('restores all spouses in a sibling family after collapsing from Bo Miao', function () {
+      const familyChart = new OrgChart({
+        chartContainer: '#chart-container',
+        data: [[
+          { id: 'n11', name: 'Lao Ye' },
+          {
+            id: 'n12', name: 'Lao Lao', outsider: true,
+            children: [
+              [{ id: 'n13', name: 'Bo Miao' }],
+              [
+                {
+                  id: 'n14', name: 'Su Miao',
+                  children: [[{ id: 'n17', name: 'Child' }]]
+                },
+                { id: 'n15', name: 'Tie Hua', outsider: true }
+              ],
+              [{ id: 'n16', name: 'Hong Miao' }]
+            ]
+          }
+        ]]
+      });
+      const nodeEl = query('#n13', familyChart.chart);
+      const motherEl = query('#n14', familyChart.chart);
+      const fatherEl = query('#n15', familyChart.chart);
+      const childEl = query('#n17', familyChart.chart);
+      dispatchNativeEvent(nodeEl, 'mouseenter', { bubbles: false });
+      const edgeEl = query('.rightEdge', nodeEl);
+
+      dispatchNativeEvent(edgeEl, 'click');
+      dispatchNativeEvent(motherEl, 'transitionend');
+      familyChart.getNodeState(motherEl).visible.should.be.false;
+      familyChart.getNodeState(fatherEl).visible.should.be.false;
+
+      dispatchNativeEvent(edgeEl, 'click');
+      dispatchNativeEvent(motherEl, 'transitionend');
+      [motherEl, fatherEl].forEach(function (spouseEl) {
+        familyChart.getNodeState(spouseEl).visible.should.be.true;
+        ['sliding', 'slide-up', 'slide-left', 'slide-right'].forEach(function (className) {
+          spouseEl.classList.contains(className).should.be.false;
+        });
+      });
+      familyChart.getNodeState(childEl).visible.should.be.false;
+
+      dispatchNativeEvent(motherEl, 'mouseenter', { bubbles: false });
+      dispatchNativeEvent(query('.bottomEdge', motherEl), 'click');
+      dispatchNativeEvent(childEl, 'transitionend');
+      familyChart.getNodeState(childEl).visible.should.be.true;
+    });
+
+    ['n11', 'n12'].forEach(function (ownerId) {
+      it('shares the sole family child control without changing its owner ' + ownerId, function () {
+        const familyChart = new OrgChart({
+          chartContainer: '#chart-container',
+          data: [[
+            { id: 'n11', name: 'Lao Ye' },
+            { id: 'n12', name: 'Lao Lao', outsider: true }
+          ].map(function (member) {
+            if (member.id === ownerId) {
+              member.children = [[{ id: 'n13', name: 'Child' }]];
+            }
+            return member;
+          })]
+        });
+        const ownerEl = query('#' + ownerId, familyChart.chart);
+        const partnerEl = query(ownerId === 'n11' ? '#n12' : '#n11', familyChart.chart);
+        const childEl = query('#n13', familyChart.chart);
+        const hierarchy = cloneValue(familyChart.getHierarchy());
+        const hideSpy = sinon.spy(familyChart, 'hideChildren');
+        [ownerEl, partnerEl].forEach(function (nodeEl) {
+          queryAll(':scope > .title .parentNodeSymbol', nodeEl).should.have.lengthOf(1);
+        });
+        queryAll('.parentNodeSymbol', childEl).should.have.lengthOf(0);
+        dispatchNativeEvent(ownerEl, 'mouseenter', { bubbles: false });
+        dispatchNativeEvent(partnerEl, 'mouseenter', { bubbles: false });
+        const ownerButton = query('.bottomEdge', ownerEl);
+        const partnerButton = query('.bottomEdge', partnerEl);
+        should.exist(ownerButton);
+        should.exist(partnerButton);
+
+        dispatchNativeEvent(partnerButton, 'click');
+        dispatchNativeEvent(ownerButton, 'click');
+        hideSpy.should.have.been.calledOnce;
+        dispatchNativeEvent(childEl, 'transitionend');
+        familyChart.getNodeState(childEl).visible.should.be.false;
+        [ownerButton, partnerButton].forEach(function (button) {
+          button.classList.contains(familyChart.options.icons.collapseToDown).should.be.true;
+          button.classList.contains(familyChart.options.icons.expandToUp).should.be.false;
+        });
+        [ownerEl, partnerEl].forEach(function (nodeEl) {
+          queryAll(':scope > .title .parentNodeSymbol', nodeEl).should.have.lengthOf(1);
+        });
+
+        dispatchNativeEvent(ownerButton, 'click');
+        dispatchNativeEvent(childEl, 'transitionend');
+        familyChart.getNodeState(childEl).visible.should.be.true;
+        [ownerButton, partnerButton].forEach(function (button) {
+          button.classList.contains(familyChart.options.icons.expandToUp).should.be.true;
+          button.classList.contains(familyChart.options.icons.collapseToDown).should.be.false;
+        });
+        familyChart.getChildren(partnerEl).should.have.lengthOf(0);
+        familyChart.getParent(childEl).should.equal(ownerEl);
+        familyChart.getHierarchy().should.deep.equal(hierarchy);
+        familyChart.chart.querySelectorAll('#n13').length.should.equal(1);
+
+        familyChart.refreshNodeControls(ownerEl);
+        familyChart.refreshNodeControls(partnerEl);
+        [ownerEl, partnerEl].forEach(function (nodeEl) {
+          queryAll(':scope > .title .parentNodeSymbol', nodeEl).should.have.lengthOf(1);
+        });
+        familyChart.removeNodes(childEl);
+        [query('#n11', familyChart.chart), query('#n12', familyChart.chart)].forEach(function (nodeEl) {
+          queryAll(':scope > .title .parentNodeSymbol', nodeEl).should.have.lengthOf(0);
+          should.not.exist(query(':scope > .bottomEdge', nodeEl));
+        });
+        familyChart.addChildren(query('#' + ownerId, familyChart.chart), [{ id: 'n14', name: 'New child' }]);
+        [query('#n11', familyChart.chart), query('#n12', familyChart.chart)].forEach(function (nodeEl) {
+          queryAll(':scope > .title .parentNodeSymbol', nodeEl).should.have.lengthOf(1);
+        });
+      });
+    });
+
+    ['n11', 'n12'].forEach(function (nodeId) {
+      ['leftEdge', 'rightEdge'].forEach(function (edgeClass) {
+        it('toggles family spouse visibility from ' + nodeId + ' through ' + edgeClass + ' clicks', function () {
+          const familyChart = new OrgChart({
+            chartContainer: '#chart-container',
+            data: [[
+              { id: 'n11', name: 'Lao Ye' },
+              {
+                id: 'n12', name: 'Lao Lao', outsider: true,
+                children: [[{ id: 'n13', name: 'Child' }]]
+              }
+            ]]
+          });
+          const nodeEl = query('#' + nodeId, familyChart.chart);
+          const spouseEl = query(nodeId === 'n11' ? '#n12' : '#n11', familyChart.chart);
+          const childEl = query('#n13', familyChart.chart);
+          dispatchNativeEvent(nodeEl, 'mouseenter', { bubbles: false });
+          const edgeEl = query('.' + edgeClass, nodeEl);
+          const hideSpy = sinon.spy(familyChart, 'hideSiblings');
+          const showSpy = sinon.spy(familyChart, 'showSiblings');
+
+          dispatchNativeEvent(edgeEl, 'click');
+          spouseEl.classList.contains('sliding').should.be.true;
+          dispatchNativeEvent(edgeEl, 'click');
+          hideSpy.should.have.been.calledOnce;
+          dispatchNativeEvent(spouseEl, 'transitionend');
+
+          spouseEl.classList.contains('hidden').should.be.true;
+          spouseEl.classList.contains('sliding').should.be.false;
+          familyChart.getNodeState(nodeEl).visible.should.be.true;
+          familyChart.getNodeState(childEl).visible.should.be.true;
+          familyChart.getNodeState(nodeEl, 'siblings').visible.should.be.false;
+          query('.leftEdge', nodeEl).classList.contains(familyChart.options.icons.collapseToLeft).should.be.true;
+          query('.rightEdge', nodeEl).classList.contains(familyChart.options.icons.expandToRight).should.be.true;
+
+          dispatchNativeEvent(edgeEl, 'click');
+          spouseEl.classList.contains('hidden').should.be.false;
+          spouseEl.classList.contains('sliding').should.be.true;
+          dispatchNativeEvent(edgeEl, 'click');
+          showSpy.should.have.been.calledOnce;
+          dispatchNativeEvent(spouseEl, 'transitionend');
+
+          spouseEl.classList.contains('sliding').should.be.false;
+          familyChart.getNodeState(nodeEl, 'siblings').visible.should.be.true;
+          query('.leftEdge', nodeEl).classList.contains(familyChart.options.icons.expandToRight).should.be.true;
+          query('.rightEdge', nodeEl).classList.contains(familyChart.options.icons.collapseToLeft).should.be.true;
+        });
+      });
+    });
+
     it('creates directional controls on hover and removes them on mouseleave', function () {
       queryAll('.edge', $sumiao).length.should.equal(0);
       dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });

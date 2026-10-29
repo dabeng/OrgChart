@@ -151,8 +151,10 @@ describe('Family Tree with Flat Datasource', () => {
     cy.get('[id="7"] .title').should('have.text', 'Dan Dan');
     cy.get('.avatar').should('have.length', 10).each(($image) => {
       cy.wrap($image).should(($portrait) => {
-        expect($portrait[0].complete).to.equal(true);
-        expect($portrait[0].naturalWidth).to.be.greaterThan(0);
+        const portrait = $portrait[0];
+        expect(portrait.getAttribute('src')).to.equal('img/avatar/' + portrait.closest('.node').id + '.jpg');
+        expect(portrait.complete).to.equal(true);
+        expect(portrait.naturalWidth).to.be.greaterThan(0);
       });
     });
     cy.screenshot('family-tree-with-flat-datasource-desktop');

@@ -12,6 +12,7 @@
     "integration-tests": "gulp integration-tests",
     "compatibility-tests": "mocha test/compatibility/*.tests.js",
     "e2e-tests": "gulp e2e-tests",
+    "e2e-tests:family-tree": "gulp family-tree-e2e-tests",
     "addAssets": "gulp addAssets",
     "build": "gulp build",
     "start": "gulp serve",

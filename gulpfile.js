@@ -85,6 +85,18 @@ gulp.task('e2e-tests', gulp.series('addAssets', function () {
   });
 }));
 
+gulp.task('family-tree-e2e-tests', gulp.series('addAssets', function () {
+  return cypress.run({
+    spec: 'test/cypress/e2e/family-tree.cy.js',
+    reporter: 'dot',
+    config: { trashAssetsBeforeRuns: false }
+  }).then(function (results) {
+    if (results.status === 'failed' || results.totalFailed > 0) {
+      throw new Error(results.message || 'Family tree e2e tests failed: ' + results.totalFailed);
+    }
+  });
+}));
+
 gulp.task('test', gulp.series('compatibility-tests', 'e2e-tests'));
 
 gulp.task('cleanupJS', function() {

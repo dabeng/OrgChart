@@ -245,6 +245,12 @@ Enable the `minimap` option to display an overview navigator. Drag its viewport 
 - run ```npm run build``` to generate production js&css files of plugin
 - run ```npm start``` to start up local web server to host all the demos
 
+### family tree regression tests
+
+Run `npm run e2e-tests:family-tree` to run the unit and integration gates, synchronize demo assets, and execute the dedicated Cypress suite for `demo/family-tree.html`. No separate development server is needed. The command exits with a failure if any family tree test fails. The suite is also included in the existing `npm test` and `npm run e2e-tests` commands.
+
+The 70 end-to-end cases cover desktop (1200px) and narrow (390px) viewports: initial members, portraits and parent symbols; shared child controls from either spouse; both horizontal edges; ancestor chains; single-spouse descendant connectors; complete spouse restoration after hiding sibling families; nested branch recovery; keyboard and focus behavior; rapid and repeated operations; and spouse connector opacity and movement at intermediate animation frames. Avatar requests are served from repository images, and tests wait for actual state changes rather than fixed delays. Screenshots are saved under `test/cypress/screenshots/family-tree.cy.js`.
+
 ## Usage
 
 ### Instantiation Statement
