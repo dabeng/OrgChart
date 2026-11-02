@@ -34,12 +34,51 @@ describe('Demo Interactions', () => {
     cy.contains('#chart-container .node .title', 'Futsal').should('exist');
   });
 
-  it('expands a selected branch to the configured depth', () => {
-    cy.visit('demo/expand-to-given-depth.html');
-    cy.contains('#chart-container .node .title', 'Su Miao').closest('.node').trigger('mouseenter').find('.bottomEdge').click();
-    cy.contains('#chart-container .node .title', 'Dan Zai').should('be.visible');
-    cy.contains('#chart-container .node .title', 'Er Dan Zai').should('not.be.visible');
-    cy.contains('#chart-container .node .title', 'AAA').should('not.be.visible');
+  [1200, 390].forEach((width) => {
+    it(`restores depth-limited branch connectors after repeated collapse at width ${width}`, () => {
+      const descendants = ['Tie Hua', 'Hei Hei', 'Pang Pang', 'Dan Zai'];
+      const assertExpandedBranch = () => {
+        descendants.forEach((name) => {
+          cy.contains('#chart-container .node .title', name).closest('.node').should('be.visible').should(($node) => {
+            const node = $node[0];
+            const hierarchy = node.closest('.hierarchy');
+            const win = node.ownerDocument.defaultView;
+            expect(hierarchy).not.to.have.class('isCollapsedDescendant');
+            expect(win.getComputedStyle(hierarchy, '::before').content).to.equal('""');
+            expect(win.getComputedStyle(node, '::before').content).to.equal('""');
+            if (name === 'Dan Zai' || name === 'Hei Hei') {
+              expect(win.getComputedStyle(node, '::after').content).to.equal(name === 'Dan Zai' ? 'none' : '""');
+            }
+          });
+        });
+        ['Er Dan Zai', 'AAA', 'BBB'].forEach((name) => {
+          cy.contains('#chart-container .node .title', name).should('not.be.visible');
+        });
+      };
+
+      cy.viewport(width, 844);
+      cy.visit('demo/expand-to-given-depth.html');
+      cy.contains('#chart-container .node .title', 'Su Miao').closest('.node').as('selectedNode');
+      cy.get('@selectedNode').trigger('mouseenter').find('.bottomEdge').click();
+      cy.get('#chart-container .node.sliding').should('not.exist');
+      assertExpandedBranch();
+
+      [1, 2].forEach(() => {
+        cy.contains('#chart-container .node .title', 'Dan Zai').closest('.node').trigger('mouseenter').find('.bottomEdge').click();
+        cy.get('#chart-container .node.sliding').should('not.exist');
+        ['Er Dan Zai', 'AAA', 'BBB'].forEach((name) => {
+          cy.contains('#chart-container .node .title', name).should('be.visible');
+        });
+        cy.get('@selectedNode').trigger('mouseenter').find('.bottomEdge').click();
+        cy.get('#chart-container .node.sliding').should('not.exist');
+        descendants.concat(['Er Dan Zai', 'AAA', 'BBB']).forEach((name) => {
+          cy.contains('#chart-container .node .title', name).should('not.be.visible');
+        });
+        cy.get('@selectedNode').trigger('mouseenter').find('.bottomEdge').click();
+        cy.get('#chart-container .node.sliding').should('not.exist');
+        assertExpandedBranch();
+      });
+    });
   });
 
   it('filters matching nodes and clears the filter result', () => {
