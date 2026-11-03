@@ -13,7 +13,7 @@
 <body>
   <section class="demo-notes">
     <h1>Expand to Given Depth Demo</h1>
-    <p>This demo expands descendants from a selected node down to a specified depth instead of fully opening the branch.</p>
+    <p>Expanding a collapsed node reveals up to two levels of descendants: its children and grandchildren. The expanded node itself is not counted in this depth.</p>
   </section>
   <div id="chart-container"></div>
   <script type="text/javascript" src="js/orgchart.js"></script>
@@ -50,13 +50,14 @@
       ]
     };
 
-    const showDescendents = function(node, visibleLevel) {
-      if (visibleLevel <= 1) {
-        return false;
-      }
+    const expandDescendantsToDepth = function(node, depth) {
       const hierarchy = node.closest('.hierarchy');
       const childrenLayer = hierarchy ? hierarchy.querySelector(':scope > .nodes') : null;
       if (!childrenLayer) {
+        return false;
+      }
+      if (depth <= 0) {
+        hierarchy.classList.toggle('isChildrenCollapsed', childrenLayer.classList.contains('hidden'));
         return false;
       }
       childrenLayer.classList.remove('hidden');
@@ -64,8 +65,9 @@
       Array.from(childrenLayer.children).forEach((childHierarchy) => {
         const childNode = childHierarchy.querySelector(':scope > .node');
         if (childNode) {
+          childHierarchy.classList.remove('isCollapsedDescendant');
           childNode.classList.remove('slide-up');
-          showDescendents(childNode, visibleLevel - 1);
+          expandDescendantsToDepth(childNode, depth - 1);
         }
       });
     };
@@ -78,7 +80,7 @@
       'createNode': function(node) {
         node.addEventListener('click', (event) => {
           if (event.target.matches('.bottomEdge.oci-chevron-down, .toggleBtn.oci-plus-square, .toggleBtn.oci-chevron-down')) {
-            showDescendents(node, 3);
+            expandDescendantsToDepth(node, 2);
           }
         });
       }
