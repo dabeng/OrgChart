@@ -51,7 +51,6 @@
     "del": "^9.0.1",
     "gulp": "^5.0.1",
     "gulp-clean-css": "^4.3.0",
-    "gulp-csslint": "^1.0.1",
     "gulp-eslint": "^6.0.0",
     "gulp-inject": "^5.0.5",
     "gulp-jest": "^4.0.4",
@@ -69,6 +68,7 @@
     "ordered-read-streams": "^2.0.0",
     "puppeteer": "^25.14.0",
     "sinon": "^22.1.0",
-    "sinon-chai": "^4.0.1"
+    "sinon-chai": "^4.0.1",
+    "stylelint": "^17.16.0"
   }
 }

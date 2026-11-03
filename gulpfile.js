@@ -5,7 +5,6 @@ const uglify = require('gulp-uglify');
 const rename = require("gulp-rename");
 const eslint = require('gulp-eslint');
 const merge = require('ordered-read-streams');
-const csslint = require('gulp-csslint');
 const cleanCSS = require('gulp-clean-css');
 const sourcemaps = require('gulp-sourcemaps');
 const cypress = require('cypress');
@@ -123,16 +122,29 @@ gulp.task('cleanupCSS', function() {
   return deletePaths([paths.distCSSFolder + '/**']);
 });
 
-gulp.task('csslint', function() {
-  return gulp.src(paths.srcCSS)
-    .pipe(csslint({
-      'adjoining-classes': false,
-      'box-sizing': false,
-      'box-model': false,
-      'fallback-colors': false,
-      'order-alphabetical': false
-    }))
-    .pipe(csslint.formatter());
+gulp.task('csslint', async function() {
+  const { default: stylelint } = await import('stylelint');
+  const result = await stylelint.lint({
+    files: paths.srcCSS,
+    formatter: 'string',
+    config: {
+      rules: {
+        'at-rule-no-unknown': true,
+        'block-no-empty': true,
+        'color-no-invalid-hex': true,
+        'property-no-unknown': true,
+        'selector-pseudo-class-no-unknown': true,
+        'selector-pseudo-element-no-unknown': true,
+        'unit-no-unknown': true
+      }
+    }
+  });
+  if (result.report) {
+    process.stdout.write(result.report);
+  }
+  if (result.errored) {
+    throw new Error('CSS lint failed');
+  }
 });
 
 gulp.task('css', gulp.series('cleanupCSS', 'csslint', function () {
