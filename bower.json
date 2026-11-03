@@ -1,6 +1,6 @@
 {
   "name": "orgchart",
-  "version": "6.0.0",
+  "version": "8.0.0",
   "homepage": "https://github.com/dabeng/OrgChart",
   "authors": [
     "dabeng <xinguan413@163.com>"
@@ -28,6 +28,6 @@
   ],
   "dependencies": {
     "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1"
+    "jspdf": "^4.2.1"
   }
 }
