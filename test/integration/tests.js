@@ -356,6 +356,82 @@ describe('orgchart -- integration tests', function () {
   });
 
   describe('interaction flows', function () {
+    it('routes content hover to its node without clearing controls on internal movement', function () {
+      const node = query('#n3', oc.chart);
+      const content = document.createElement('div');
+      content.className = 'content';
+      node.appendChild(content);
+      content.dispatchEvent(new window.MouseEvent('mouseenter', { bubbles: true }));
+      node.classList.contains('controls-active').should.equal(true);
+      query('.bottomEdge', node).should.exist;
+      content.dispatchEvent(new window.MouseEvent('mouseleave', { bubbles: true, relatedTarget: query('.title', node) }));
+      node.classList.contains('controls-active').should.equal(true);
+      content.dispatchEvent(new window.MouseEvent('mouseleave', { bubbles: true }));
+      node.classList.contains('controls-active').should.equal(false);
+    });
+
+    it('keeps exported layout metadata synchronized after a deeper horizontal drop', async function () {
+      const moved = query('#n5', oc.chart);
+      const target = query('#n9', oc.chart);
+      oc.filterAllowedDropNodes(moved);
+      await oc.dropHandler({ dropZone: target });
+      getState(moved, 'nodeData').level.should.equal(5);
+      getState(query('#n8', oc.chart), 'nodeData').level.should.equal(6);
+      getState(moved, 'nodeData').parentId.should.equal('n9');
+      oc.getFlatDatasource().find(function (record) { return record.id === 'n5'; }).parent_id.should.equal('n9');
+    });
+
+    it('resolves all parents through an index without whole-chart queries', function () {
+      const nodes = queryAll('.node', oc.chart);
+      const querySpy = sinon.spy(oc.chart, 'querySelectorAll');
+      try {
+        nodes.slice(1).forEach(function (node) { should.exist(oc.getParent(node)); });
+        querySpy.should.not.have.been.called;
+      } finally {
+        querySpy.restore();
+      }
+    });
+
+    it('ignores bubbled and unrelated transitions and completes cancellation once', function () {
+      const child = oc.getChildren($sumiao)[0];
+      oc.hideChildren($sumiao);
+      dispatchNativeEvent(query('.title', child), 'transitionend');
+      dispatchEventWithProperties(child, 'transitionend', { propertyName: 'background-color' });
+      child.classList.contains('sliding').should.be.true;
+      child.closest('.nodes').classList.contains('hidden').should.be.false;
+      dispatchEventWithProperties(child, 'transitioncancel', { propertyName: 'transform' });
+      child.classList.contains('sliding').should.be.false;
+      child.closest('.nodes').classList.contains('hidden').should.be.true;
+      getState(oc.chart, 'pendingTransitions').size.should.equal(0);
+    });
+
+    it('finishes zero-duration transitions without browser events', async function () {
+      const child = oc.getChildren($sumiao)[0];
+      child.style.transitionDuration = '0s';
+      oc.hideChildren($sumiao);
+      await Promise.resolve();
+      child.classList.contains('sliding').should.be.false;
+      child.closest('.nodes').classList.contains('hidden').should.be.true;
+      oc.showChildren($sumiao);
+      await Promise.resolve();
+      child.classList.contains('sliding').should.be.false;
+      child.closest('.nodes').classList.contains('hidden').should.be.false;
+    });
+
+    it('cancels pending transition callbacks on destroy()', async function () {
+      const child = oc.getChildren($sumiao)[0];
+      child.style.transitionDuration = '0s';
+      oc.hideChildren($sumiao);
+      const finish = sinon.spy(oc, 'hideChildrenEnd');
+      try {
+        oc.destroy();
+        await Promise.resolve();
+        finish.should.not.have.been.called;
+      } finally {
+        finish.restore();
+      }
+    });
+
     it('dispatches hide/show children events through bottom-edge clicks', function () {
       dispatchNativeEvent($sumiao, 'mouseenter', { bubbles: false });
       const bottomEdge = query('.bottomEdge', $sumiao);
@@ -1032,15 +1108,20 @@ describe('orgchart -- integration tests', function () {
         draggable: true
       });
 
+      const internalMoved = getState(query('#moved', chart.chart), 'sourceData');
+      const internalSource = getState(query('#source', chart.chart), 'sourceData');
+      const internalTarget = getState(query('#target', chart.chart), 'sourceData');
       setState(chart.chart, 'dragged', query('#moved', chart.chart));
       const dropNode = query('#target', chart.chart);
       dropNode.classList.add('allowedDrop');
       await chart.dropHandler({ dropZone: dropNode });
 
-      should.not.exist(sourceParent.children);
-      targetData.children.should.have.lengthOf(1);
-      targetData.children[0].should.equal(movedData);
-      getState(query('#moved', chart.chart), 'sourceData').should.equal(movedData);
+      should.not.exist(internalSource.children);
+      internalTarget.children.should.have.lengthOf(1);
+      internalTarget.children[0].should.equal(internalMoved);
+      getState(query('#moved', chart.chart), 'sourceData').should.equal(internalMoved);
+      sourceParent.children[0].should.equal(movedData);
+      should.not.exist(targetData.children);
       chart.getParent(query('#moved', chart.chart)).id.should.equal('target');
       chart.getParent(query('#child', chart.chart)).id.should.equal('moved');
       dispatchNativeEvent(query('#target', chart.chart), 'mouseenter', { bubbles: false });
@@ -1052,8 +1133,8 @@ describe('orgchart -- integration tests', function () {
       returnNode.classList.add('allowedDrop');
       await chart.dropHandler({ dropZone: returnNode });
 
-      should.not.exist(targetData.children);
-      sourceParent.children[0].should.equal(movedData);
+      should.not.exist(internalTarget.children);
+      internalSource.children[0].should.equal(internalMoved);
       chart.getParent(query('#moved', chart.chart)).id.should.equal('source');
       queryAll('#child', chart.chart).should.have.lengthOf(1);
     });

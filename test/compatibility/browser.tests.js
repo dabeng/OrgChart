@@ -41,6 +41,72 @@ describe('orgchart browser option compatibility', function () {
   });
 
   describe('family datasource compatibility', function () {
+    [1280, 390].forEach(function (width) {
+      it('source review regressions preserve custom geometry, clipping and reduced-motion controls at width ' + width, async function () {
+        await page.setViewport({ width: width, height: 844 });
+        await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+        const result = await page.evaluate(async function () {
+          const container = document.getElementById('chart-container');
+          const chart = new OrgChart(container, { nodeContent: 'title', minimap: true, data: [[
+            { id: 'root', name: 'Root', title: 'Root role', children: [[{ id: 'child', name: 'Child', title: 'Long content '.repeat(40) }]] },
+            { id: 'partner', name: 'Partner', title: 'Partner role' }
+          ]] });
+          chart.chart.style.setProperty('--oc-node-width', '200px');
+          chart.chart.style.setProperty('--oc-row-height', '28px');
+          chart.chart.style.setProperty('--oc-line-color', 'rgb(20, 120, 80)');
+          const root = chart.chart.querySelector('#root');
+          const child = chart.chart.querySelector('#child');
+          root.dispatchEvent(new MouseEvent('mouseenter'));
+          root.querySelector(':scope > .bottomEdge').click();
+          await Promise.resolve();
+          const collapsed = !!child.closest('.hidden');
+          root.querySelector(':scope > .bottomEdge').click();
+          await Promise.resolve();
+          await new Promise(function (resolve) { requestAnimationFrame(function () { requestAnimationFrame(resolve); }); });
+          const content = child.querySelector('.content');
+          const title = root.querySelector('.title');
+          const result = {
+            collapsed: collapsed, restored: !child.closest('.hidden') && !child.classList.contains('sliding'),
+            titleWidth: title.offsetWidth, rowHeight: title.offsetHeight,
+            color: getComputedStyle(title).backgroundColor,
+            connectorTop: getComputedStyle(root.parentElement, '::after').top,
+            clipped: getComputedStyle(content).overflow === 'hidden' && content.scrollWidth > content.clientWidth,
+            previewNodes: container.querySelectorAll('.orgchart-minimap-node').length
+          };
+          chart.destroy();
+          return result;
+        });
+        chai.expect(result).to.deep.equal({ collapsed: true, restored: true, titleWidth: 200, rowHeight: 28,
+          color: 'rgb(20, 120, 80)', connectorTop: '32px', clipped: true, previewNodes: 3 });
+      });
+
+      it('source review regressions keep touch previews compact and cancel them at width ' + width, async function () {
+        await page.setViewport({ width: width, height: 844 });
+        const result = await page.evaluate(async function () {
+          const chart = new OrgChart(document.getElementById('chart-container'), { compact: true, draggable: true,
+            data: { id: 'root', name: 'Root', children: Array.from({ length: 100 }, function (unused, index) {
+              return { id: 'child-' + index, name: 'Child' };
+            }) } });
+          const root = chart.chart.querySelector('#root');
+          chart.backToLooseHandler({ compactNode: root });
+          const rect = root.getBoundingClientRect();
+          const event = { touches: [{ clientX: rect.left + 10, clientY: rect.top + 10 }] };
+          chart.touchDragImage = chart.createDragImage(event, root);
+          const image = chart.touchDragImage;
+          chart.moveDragImage({ touches: [{ clientX: 90, clientY: 110 }] }, image);
+          chart.moveDragImage({ touches: [{ clientX: 100, clientY: 120 }] }, image);
+          await new Promise(requestAnimationFrame);
+          const result = { descendants: image.querySelectorAll('.node, .nodes').length, width: image.offsetWidth,
+            position: image.style.position, transform: image.style.transform };
+          root.dispatchEvent(new Event('touchcancel', { bubbles: true }));
+          result.removed = !image.isConnected && chart.touchDragFrame === null;
+          chart.destroy();
+          return result;
+        });
+        chai.expect(result).to.deep.equal({ descendants: 0, width: 140, position: 'fixed', transform: 'translate(90px, 110px)', removed: true });
+      });
+    });
+
     async function mountFamilyChart(configuration) {
       await page.evaluate(function (settings) {
         const nodeId = settings.nodeId || 'key';
@@ -454,7 +520,7 @@ describe('orgchart browser option compatibility', function () {
                 window.html2canvas = function () { return Promise.resolve({ width: 640, height: 320 }); };
                 chart.exportPNG = chart.exportPDF = function (canvas, filename) { exported = filename === 'Workflow'; };
                 chart.exportButtonElement.click();
-                await Promise.resolve();
+                await chart.exportState.promise;
                 assert(exported, 'export routing failed', mask);
               }
               chart.unbindPan();
@@ -886,8 +952,9 @@ describe('orgchart browser option compatibility', function () {
           return node.getAnimations().length === 0;
         });
       });
-      const result = await page.evaluate(function () {
+      const result = await page.evaluate(async function () {
         const chart = window.compatCompactChart;
+        await new Promise(function (resolve) { requestAnimationFrame(function () { requestAnimationFrame(resolve); }); });
         return {
           visible: Array.from(chart.chart.querySelectorAll('.node')).filter(function (node) {
             return node.getClientRects().length > 0 && getComputedStyle(node).opacity !== '0';
@@ -1031,7 +1098,7 @@ describe('orgchart browser option compatibility', function () {
       chart.chart.querySelector('#middle').dispatchEvent(new MouseEvent('mouseenter'));
       chart.chart.querySelector('#middle .leftEdge').dispatchEvent(new MouseEvent('click', { bubbles: true }));
       chart.chart.querySelector('#first').dispatchEvent(new Event('transitionend', { bubbles: true }));
-      await new Promise(requestAnimationFrame);
+      await new Promise(function (resolve) { requestAnimationFrame(function () { requestAnimationFrame(resolve); }); });
       return {
         visible: Array.from(chart.chart.querySelectorAll('.node')).filter(function (nodeElement) { return nodeElement.getClientRects().length > 0; }).length,
         minimap: container.querySelectorAll('.orgchart-minimap-node').length
@@ -1042,7 +1109,7 @@ describe('orgchart browser option compatibility', function () {
   });
 
   it('pan + minimap keeps the viewport synchronized on the first movement', async function () {
-    const result = await page.evaluate(function () {
+    const result = await page.evaluate(async function () {
       const container = document.getElementById('chart-container');
       const chart = new OrgChart(container, {
         data: {
@@ -1054,6 +1121,7 @@ describe('orgchart browser option compatibility', function () {
       const viewport = container.querySelector('.orgchart-minimap-viewport');
       chart.chart.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 100, clientY: 100 }));
       chart.chart.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 70, clientY: 80 }));
+      await new Promise(requestAnimationFrame);
       const after = viewport.style.transform;
       chart.updateMinimap();
       return { after: after, expected: viewport.style.transform, chartTransform: chart.chart.style.transform };
@@ -1216,6 +1284,7 @@ describe('orgchart browser option compatibility', function () {
                   chart.export();
                 }
               });
+              await chart.exportState.promise;
               const pixelCounts = configuration.colors.map(function () { return 0; });
               const colorIndexes = new Map(configuration.colors.map(function (color, index) {
                 return [color[0] * 65536 + color[1] * 256 + color[2], index];

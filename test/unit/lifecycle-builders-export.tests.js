@@ -66,6 +66,48 @@ describe('orgchart -- init and builder unit tests', function () {
   });
 
   describe('constructor() and init()', function () {
+    it('destroy() releases chart resources and restores host styles idempotently', function () {
+      $container.style.overflow = 'clip';
+      $container.style.position = 'static';
+      oc.init({ pan: true, zoom: true, minimap: true, exportButton: true });
+      const oldChart = oc.chart;
+      const panEnd = getState(oldChart, 'panEndBoundHandler');
+      const zoomMove = getState(oldChart, 'zoomingBoundHandler');
+      const resize = getState(oldChart, 'minimapViewportChangeBoundHandler');
+      const observer = getState(oldChart, 'minimapMutationObserver');
+      const disconnect = sinon.spy(observer, 'disconnect');
+      const documentRemove = sinon.spy(document, 'removeEventListener');
+      const windowRemove = sinon.spy(window, 'removeEventListener');
+      try {
+        oc.destroy().should.equal(oc);
+        oc.destroy().should.equal(oc);
+        should.equal(oc.chart, null);
+        oldChart.isConnected.should.be.false;
+        queryAll('.orgchart-minimap, .oc-export-btn').should.have.lengthOf(0);
+        $container.style.overflow.should.equal('clip');
+        $container.style.position.should.equal('static');
+        documentRemove.should.have.been.calledWith('mouseup', panEnd);
+        documentRemove.should.have.been.calledWith('touchmove', zoomMove);
+        windowRemove.should.have.been.calledWith('resize', resize);
+        disconnect.should.have.been.calledOnce;
+      } finally {
+        documentRemove.restore();
+        windowRemove.restore();
+        disconnect.restore();
+      }
+    });
+
+    it('removing the root uses destroy() and disabling pan restores original overflow', function () {
+      $container.style.overflow = 'clip';
+      oc.setOptions('pan', true);
+      oc.setOptions('pan', false);
+      $container.style.overflow.should.equal('clip');
+      oc.setOptions({ pan: true, minimap: true, exportButton: true });
+      oc.removeNodes(query('#n1', oc.chart));
+      should.equal(oc.chart, null);
+      queryAll('.orgchart-minimap, .oc-export-btn').should.have.lengthOf(0);
+    });
+
     it('supports invoking OrgChart without new', function () {
       const chart = OrgChart({
         chartContainer: '#chart-container',
@@ -288,7 +330,8 @@ describe('orgchart -- init and builder unit tests', function () {
       initSpy.firstCall.args[0].data.id.should.equal('x1');
       initSpy.firstCall.args[0].data.name.should.equal('Reloaded Root');
       initSpy.firstCall.args[0].data.should.not.have.property('relationship');
-      initSpy.firstCall.args[0].data.level.should.equal(1);
+      should.not.exist(initSpy.firstCall.args[0].data.level);
+      oc.options.data.level.should.equal(1);
       initSpy.restore();
     });
 
@@ -366,8 +409,9 @@ describe('orgchart -- init and builder unit tests', function () {
       chart.init({ data: tree });
 
       should.equal(tree.compact, undefined);
-      tree.children[1].compact.should.equal(true);
-      tree.children[1].children[0].associatedCompact.should.equal(true);
+      chart.options.data.children[1].compact.should.equal(true);
+      chart.options.data.children[1].children[0].associatedCompact.should.equal(true);
+      should.not.exist(tree.children[1].compact);
     });
 
     it('marks all descendants vertical under a hybrid node', function () {
@@ -386,8 +430,9 @@ describe('orgchart -- init and builder unit tests', function () {
 
       oc.init({ data: tree });
 
-      tree.children[0].vertical.should.equal(true);
-      tree.children[0].children[0].vertical.should.equal(true);
+      oc.options.data.children[0].vertical.should.equal(true);
+      oc.options.data.children[0].children[0].vertical.should.equal(true);
+      should.not.exist(tree.children[0].vertical);
     });
 
     it('marks compact descendants and compact leaves differently', function () {
@@ -407,21 +452,34 @@ describe('orgchart -- init and builder unit tests', function () {
 
       oc.init({ data: tree });
 
-      tree.children[0].compact.should.equal(true);
-      tree.children[1].associatedCompact.should.equal(true);
-      tree.children[0].children[0].associatedCompact.should.equal(true);
+      oc.options.data.children[0].compact.should.equal(true);
+      oc.options.data.children[1].associatedCompact.should.equal(true);
+      oc.options.data.children[0].children[0].associatedCompact.should.equal(true);
+      should.not.exist(tree.children[0].compact);
     });
 
-    it('retains the datasource object without synthetic relation flags', function () {
+    it('owns a datasource copy without synthetic relation flags', function () {
       const tree = { id: 'n1', name: 'Root' };
 
       oc.init({ data: tree });
-      oc.options.data.should.equal(tree);
+      oc.options.data.should.not.equal(tree);
+      oc.options.data.id.should.equal(tree.id);
+      should.not.exist(tree.level);
       tree.should.not.have.property('relationship');
     });
   });
 
   describe('createNode()', function () {
+    it('renders default fields as text and keeps nodeTemplate as an explicit HTML hook', function () {
+      const label = '<span data-marker>Literal label</span>';
+      oc.init({ data: { id: 'safe', name: label, title: label }, nodeContent: 'title' });
+      query('#safe > .title', oc.chart).textContent.should.equal(label);
+      query('#safe > .content', oc.chart).textContent.should.equal(label);
+      should.not.exist(query('[data-marker]', oc.chart));
+      oc.init({ nodeTemplate: function () { return '<strong data-marker>Template</strong>'; } });
+      should.exist(query('#safe > strong[data-marker]', oc.chart));
+    });
+
     it('renders title and content without prebuilt interaction controls', function () {
       const nodeEl = oc.createNode({
         id: 'n11',
@@ -608,7 +666,7 @@ describe('orgchart -- init and builder unit tests', function () {
       should.equal(query('.bottomEdge', nodeEl), null);
     });
 
-    it('marks a created node draggable and initializes touch drag state when draggable is enabled', function () {
+    it('marks a created node draggable without rebinding delegated handlers', function () {
       const chart = new OrgChart({
         chartContainer: '#chart-container',
         data: JSON.parse(JSON.stringify(ds)),
@@ -622,8 +680,7 @@ describe('orgchart -- init and builder unit tests', function () {
       });
 
       nodeEl.getAttribute('draggable').should.equal('true');
-      bindSpy.should.have.been.calledOnce;
-      bindSpy.firstCall.args[0].should.equal(nodeEl);
+      bindSpy.should.not.have.been.called;
       chart.touchHandled.should.equal(false);
       chart.touchMoved.should.equal(false);
       should.equal(chart.touchTargetNode, null);
@@ -1064,6 +1121,51 @@ describe('orgchart -- init and builder unit tests', function () {
   });
 
   describe('export helpers', function () {
+    it('export() rejects on render failure, cleans its mask and permits retry', async function () {
+      const original = window.html2canvas;
+      const error = new Error('Render failed');
+      const png = sinon.stub(oc, 'exportPNG');
+      const errors = sinon.spy();
+      oc.chart.addEventListener('export-error.orgchart', errors);
+      window.html2canvas = sinon.stub().rejects(error);
+      try {
+        const result = oc.export();
+        result.should.be.instanceOf(Promise);
+        await result.then(function () { throw new Error('Expected rejection'); }, function (actual) {
+          actual.should.equal(error);
+        });
+        query('.mask', $container).classList.contains('hidden').should.be.true;
+        $container.classList.contains('canvasContainer').should.be.false;
+        errors.should.have.been.calledOnce;
+        window.html2canvas = sinon.stub().resolves({});
+        await oc.export();
+        png.should.have.been.calledOnce;
+      } finally {
+        window.html2canvas = original;
+        png.restore();
+      }
+    });
+
+    it('export() cleans up when the download throws or the chart is destroyed', async function () {
+      const original = window.html2canvas;
+      const png = sinon.stub(oc, 'exportPNG').throws(new Error('Download failed'));
+      window.html2canvas = sinon.stub().resolves({});
+      try {
+        await oc.export().catch(function (error) { error.message.should.equal('Download failed'); });
+        $container.classList.contains('canvasContainer').should.be.false;
+        query('.mask', $container).classList.contains('hidden').should.be.true;
+        png.resetHistory();
+        const result = oc.export();
+        oc.destroy();
+        await result.catch(function (error) { error.message.should.contain('destroyed'); });
+        png.should.not.have.been.called;
+        should.not.exist(query('.mask', $container));
+      } finally {
+        window.html2canvas = original;
+        png.restore();
+      }
+    });
+
     it('exportPDF() uses the jsPDF constructor for wide canvases', function () {
       const originalJsPDF = global.jsPDF;
       const originalWindowJsPDF = window.jsPDF;

@@ -2365,7 +2365,7 @@ describe('orgchart -- unit tests', function () {
     spy.should.have.been.calledWith(oc.chart, 1.2, { x: 50, y: 60 });
   });
 
-  it('createNode() passes a native node to bindDragDrop() when draggable is enabled', function () {
+  it('init() binds drag/drop once to the chart rather than each created node', function () {
     const draggableChart = new OrgChart({
       chartContainer: '#chart-container',
       data: ds,
@@ -2373,10 +2373,12 @@ describe('orgchart -- unit tests', function () {
     });
     const spy = sinon.spy(draggableChart, 'bindDragDrop');
 
+    draggableChart.init();
     draggableChart.createNode({ id: 'n11', name: 'Li Xin', level: 0 });
 
-    spy.should.have.been.called;
-    spy.firstCall.args[0].nodeType.should.equal(1);
+    spy.should.have.been.calledOnce;
+    spy.firstCall.args[0].should.equal(draggableChart.chart);
+    spy.restore();
   });
 
   it('buildInferiorNodes() accepts native hierarchy and node elements for vertical children', function () {

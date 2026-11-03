@@ -51,6 +51,94 @@ describe('orgchart -- integration tests', function () {
   });
 
   describe('init()', function () {
+    it('accepts standard CSS pseudo-classes and leaves selector attribute strings intact', function () {
+      container.innerHTML = '<div data-label=":first"></div><div></div>';
+      const first = container.firstElementChild;
+      const last = container.lastElementChild;
+      ['#chart-container > div:first-child', '#chart-container > div:first-of-type', '#chart-container > div[data-label=":first"]']
+        .forEach(function (selector) {
+          const chart = new OrgChart(selector, { data: { id: 'root', name: 'Root' } });
+          chart.chartContainer.should.equal(first);
+          chart.destroy();
+        });
+      const chart = new OrgChart('#chart-container > div:last-child', { data: { id: 'root', name: 'Root' } });
+      chart.chartContainer.should.equal(last);
+      chart.destroy();
+    });
+
+    describe('datasource isolation', function () {
+      it('updates only a compact branch and preserves focus, selection and viewport', function () {
+        const created = [];
+        oc = new OrgChart(container, {
+          data: { id: 'root', name: 'Root', children: [
+            { id: 'branch', name: 'Branch', compact: true, children: [{ id: 'leaf', name: 'Leaf' }] },
+            { id: 'unrelated', name: 'Unrelated' }
+          ] },
+          createNode: function (node) { created.push(node.id); }
+        });
+        const chart = oc.chart;
+        const unrelated = query('#unrelated', chart);
+        const branch = query('#branch', chart);
+        branch.classList.add('focused', 'selected');
+        branch.focus();
+        oc.backToLooseHandler({ compactNode: branch });
+        chart.style.transform = 'matrix(1.2, 0, 0, 1.2, 40, 20)';
+        container.scrollLeft = 12;
+        container.scrollTop = 23;
+        created.length = 0;
+        const added = Object.freeze({ id: 'added', name: 'Added' });
+        oc.addChildren(branch, [added]);
+
+        oc.chart.should.equal(chart);
+        query('#unrelated', oc.chart).should.equal(unrelated);
+        query('#branch', oc.chart).should.equal(branch);
+        branch.classList.contains('focused').should.be.true;
+        branch.classList.contains('selected').should.be.true;
+        branch.classList.contains('looseMode').should.be.true;
+        document.activeElement.should.equal(branch);
+        chart.style.transform.should.equal('matrix(1.2, 0, 0, 1.2, 40, 20)');
+        container.scrollLeft.should.equal(12);
+        container.scrollTop.should.equal(23);
+        created.should.deep.equal(['leaf', 'added']);
+        should.not.exist(added.level);
+        oc.getChildren(branch).map(function (node) { return node.id; }).should.deep.equal(['leaf', 'added']);
+      });
+
+      it('restores focus to a rebuilt descendant', function () {
+        oc = new OrgChart(container, { data: { id: 'root', name: 'Root', compact: true,
+          children: [{ id: 'leaf', name: 'Leaf' }] } });
+        const root = query('#root', oc.chart);
+        oc.backToLooseHandler({ compactNode: root });
+        query('#leaf', oc.chart).focus();
+        oc.addChildren(root, [{ id: 'added', name: 'Added' }]);
+        document.activeElement.should.equal(query('#leaf', oc.chart));
+      });
+
+      it('keeps shared nested data and compact controls independent across instances', function () {
+        const data = { id: 'root', name: 'Root', children: [{ id: 'child', name: 'Child' }] };
+        const original = JSON.stringify(data);
+        const compactChart = new OrgChart(container, { data: data, compact: true });
+        const root = query('#root', compactChart.chart);
+        compactChart.nodeEnterLeaveHandler({ type: 'mouseenter', node: root });
+        new OrgChart(container, { data: data });
+        compactChart.nodeEnterLeaveHandler({ type: 'mouseenter', node: root });
+
+        JSON.stringify(data).should.equal(original);
+        should.exist(query(':scope > .backToLooseSymbol', root));
+        should.not.exist(query(':scope > .bottomEdge', root));
+      });
+
+      it('accepts frozen nested datasource records', function () {
+        const child = Object.freeze({ id: 'child', name: 'Child' });
+        const data = Object.freeze({ id: 'root', name: 'Root', children: Object.freeze([child]) });
+        oc = new OrgChart(container, { data: data, compact: true });
+
+        queryAll('.node', oc.chart).should.have.lengthOf(2);
+        should.not.exist(data.level);
+        should.not.exist(child.parentId);
+      });
+    });
+
     it('initialize chart with json datasource', function () {
       oc = new OrgChart({
         chartContainer: '#chart-container',
@@ -416,10 +504,10 @@ describe('orgchart -- integration tests', function () {
       });
       const spy = sinon.spy(oc, 'bindDragDrop');
       oc.init({ 'draggable': true });
-      spy.should.have.been.callCount(3);
-      spy.getCall(0).args[0].id.should.equal('n1');
-      spy.getCall(1).args[0].id.should.equal('n2');
-      spy.getCall(2).args[0].id.should.equal('n3');
+      spy.should.have.been.calledOnce;
+      spy.firstCall.args[0].should.equal(oc.chart);
+      queryAll('.node[draggable="true"]', oc.chart).should.have.lengthOf(3);
+      spy.restore();
     });
 
     it('reinitialize chart with pan feature', function () {

@@ -293,7 +293,7 @@ describe('orgchart option compatibility', function () {
                 } else {
                   currentChart.export();
                 }
-                await Promise.resolve();
+                await currentChart.exportState.promise;
                 chai.expect(captureSpy.callCount).to.equal(1);
                 chai.expect(captureSpy.firstCall.args[0]).to.equal(currentChart.chart);
                 chai.expect(captureSpy.firstCall.args[1].scale).to.equal(expectedOptions.exportScale);
@@ -490,14 +490,14 @@ describe('orgchart option compatibility', function () {
     });
   });
 
-  it('pan + minimap refreshes the viewport on the first mouse move', function () {
+  it('pan + minimap schedules the viewport on the first mouse move', function () {
     mount({ pan: true, minimap: true });
-    const updateSpy = sinon.spy(chart, 'updateMinimap');
+    const scheduleSpy = sinon.spy(chart, 'scheduleMinimapUpdate');
 
     dispatchMouse(chart.chart, 'mousedown', 100, 100);
     dispatchMouse(chart.chart, 'mousemove', 70, 80);
 
-    chai.expect(updateSpy.callCount).to.equal(1);
+    chai.expect(scheduleSpy.callCount).to.equal(1);
   });
 
   it('zoom + visibleLevel handles one wheel event once after init', function () {

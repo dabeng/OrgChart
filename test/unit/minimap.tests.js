@@ -95,6 +95,41 @@ describe('orgchart minimap unit tests', function () {
     chai.expect(query('.orgchart-minimap', container)).to.equal(null);
   });
 
+  it('does not measure layout when minimap is disabled', function () {
+    const chartRect = sinon.spy(chart.chart, 'getBoundingClientRect');
+    const hostRect = sinon.spy(container, 'getBoundingClientRect');
+    restorableDoubles.push(chartRect, hostRect);
+    chart.updateMinimap(true);
+    chart.scheduleMinimapUpdate(true);
+    chai.expect(chartRect.called).to.equal(false);
+    chai.expect(hostRect.called).to.equal(false);
+  });
+
+  it('coalesces frame updates, preserves refresh requests and cancels on detach', function () {
+    chart.setOptions('minimap', true);
+    const originalRequest = window.requestAnimationFrame;
+    const originalCancel = window.cancelAnimationFrame;
+    const callbacks = [];
+    window.requestAnimationFrame = sinon.spy(function (callback) { callbacks.push(callback); return callbacks.length; });
+    window.cancelAnimationFrame = sinon.spy();
+    const update = sinon.spy(chart, 'updateMinimap');
+    try {
+      chart.scheduleMinimapUpdate();
+      chart.scheduleMinimapUpdate(true);
+      chart.scheduleMinimapUpdate();
+      chai.expect(window.requestAnimationFrame.callCount).to.equal(1);
+      callbacks[0]();
+      chai.expect(update.calledOnceWithExactly(true)).to.equal(true);
+      chart.scheduleMinimapUpdate(true);
+      chart.detachMinimap();
+      chai.expect(window.cancelAnimationFrame.calledWith(2)).to.equal(true);
+    } finally {
+      update.restore();
+      window.requestAnimationFrame = originalRequest;
+      window.cancelAnimationFrame = originalCancel;
+    }
+  });
+
   it('mounts a minimap overlay when minimap is enabled', function () {
     chart.init({
       data: JSON.parse(JSON.stringify(ds)),

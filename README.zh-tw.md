@@ -532,12 +532,22 @@ const oc = new OrgChart({
 const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
 ```
 
-公開 API 包括：`init`、`setOptions`、`attachMinimap`、`detachMinimap`、`updateMinimap`、`addAncestors`、`addDescendants`、`addParent`、`addSiblings`、`addChildren`、`removeNodes`、`getHierarchy`、`getFlatDatasource`、`getNodeState`、`getParent`、`getChildren`、`getSiblings`、`getRelatedNodes`、`hideParent`、`showParent`、`hideChildren`、`showChildren`、`hideSiblings`、`showSiblings`、`setChartScale`、`export`、`exportPNG` 和 `exportPDF`。其中節點和圖表參數均為原生 `HTMLElement`。
+公開 API 包括：`init`、`destroy`、`setOptions`、`attachMinimap`、`detachMinimap`、`updateMinimap`、`addAncestors`、`addDescendants`、`addParent`、`addSiblings`、`addChildren`、`removeNodes`、`getHierarchy`、`getFlatDatasource`、`getNodeState`、`getParent`、`getChildren`、`getSiblings`、`getRelatedNodes`、`hideParent`、`showParent`、`hideChildren`、`showChildren`、`hideSiblings`、`showSiblings`、`setChartScale`、`export`、`exportPNG` 和 `exportPDF`。其中節點和圖表參數均為原生 `HTMLElement`。
+
+#### 資料與生命週期契約
+初始化和編輯先複製節點記錄及子節點陣列，再加入內部版面資訊，不修改原始資料。`createNode` 接收實例擁有的資料記錄。請透過 `getHierarchy(true)` 或 `getFlatDatasource()` 取得目前編輯結果，不要依賴原始輸入物件變化。預設標題和內容按文字渲染；HTML 應放在明確可信或經過淨化的 `nodeTemplate` 中。
+
+緊湊和家譜編輯盡可能只更新受影響分支，並保留選取、鍵盤焦點、展開和視口位置。重建分支中的節點可能被替換，應重新取得這些元素；子樹更新不會替換無關分支。替換根資料或修改配置仍會重建圖表。移除圖表容器前呼叫 `destroy()`，釋放全域監聽器、Observer、待完成動畫、拖曳預覽和產生的控制項。刪除樹根節點使用相同清理流程。
+
+可在 `.orgchart` 上覆寫 `--oc-node-width`、`--oc-row-height`、`--oc-line-color`、`--oc-hover-color`、`--oc-control-color` 和 `--oc-control-hover-color`，自訂預設模板及其關聯幾何。`--oc-duration` 控制分支過渡；減少動態效果偏好會關閉過渡，且不會阻塞狀態清理。導覽和 Observer 引起的小地圖刷新按影格合併；公開 `updateMinimap()` 仍同步執行。
+
+獨立腳本內部按生命週期、小地圖、視口、資料查詢、可見性、拖曳、渲染編輯和匯出劃分職責模組。這些內部模組不是新增公開 API；載入和發佈仍使用一個腳本和一個樣式表。
 
 #### API 參考
 | 呼叫 | 參數 | 回傳值與呼叫行為 |
 | --- | --- | --- |
 | `oc.init(options)` | 部分選項物件；傳入 `data` 可替換資料來源。 | 重新建立圖表並回傳 `oc`。 |
+| `oc.destroy()` | 無。 | 釋放圖表資源和產生的控制項，恢復接管的容器樣式，將 `chart` 設為 `null`，回傳 `oc`；可重複呼叫。 |
 | `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | 部分選項物件，或選項名稱及對應值。 | 原地更新導覽與匯出設定；資料、版面配置或節點渲染設定會重建圖表；回傳 `oc`。 |
 | `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` 可選；傳入 `true` 會重繪節點預覽。 | 建立、移除或刷新小地圖。一般啟用應使用 `setOptions('minimap', value)`。 |
 | `oc.addAncestors(data, parentId)` | 祖先資料，以及接收原根節點的祖先節點 id。 | 插入祖先層級；無回傳值。 |
@@ -554,7 +564,7 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
 | `oc.hideParent(node)` / `oc.showParent(node)`<br>`oc.hideChildren(node)` / `oc.showChildren(node)` | 已渲染 `.node`。 | 透過圖表過渡隱藏或顯示關聯分支；無回傳值。 |
 | `oc.hideSiblings(node, direction)`<br>`oc.showSiblings(node, direction)` | 已渲染 `.node`；可選 `direction` 為 `left` 或 `right`。 | 隱藏或顯示指定一側的兄弟節點；省略方向時處理全部兄弟節點；無回傳值。 |
 | `oc.setChartScale(chart, multiplier, zoomAnchor)` | 通常傳入 `oc.chart`；正數的相對縮放倍數；可選視口座標 `{ x, y }`。 | 在配置的縮放範圍內縮放，提供 `zoomAnchor` 時固定該點。 |
-| `oc.export(filename, extension)` | 可選檔案名稱和 `png` 或 `pdf` 副檔名。 | 按配置預設值開始匯出；無法匯出時回傳 `false`。 |
+| `oc.export(filename, extension)` | 可選檔案名稱和 `png` 或 `pdf` 副檔名。 | 回傳 Promise，下載後完成並提供渲染 canvas；不可用或忙碌時回傳 `false`。錯誤使 Promise 拒絕，並觸發帶 `detail.error` 的 `export-error.orgchart`；成功和失敗都會清理遮罩。需要 html2canvas；PDF 還需要 jsPDF。 |
 | `oc.exportPNG(canvas, filename)`<br>`oc.exportPDF(canvas, filename, exportScale)` | 已準備的 canvas、檔案名稱；PDF 縮放預設 `1`。 | 將傳入 canvas 直接下載為 PNG 或 PDF；通常應呼叫 `export()`。 |
 
 #### init(newOptions)

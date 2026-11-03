@@ -555,12 +555,22 @@ Create an instance with `new OrgChart(options)`. Its `chartContainer` and `chart
 const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource });
 ```
 
-The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `updateMinimap`, `addAncestors`, `addDescendants`, `addParent`, `addSiblings`, `addChildren`, `removeNodes`, `getHierarchy`, `getFlatDatasource`, `getNodeState`, `getParent`, `getChildren`, `getSiblings`, `getRelatedNodes`, `hideParent`, `showParent`, `hideChildren`, `showChildren`, `hideSiblings`, `showSiblings`, `setChartScale`, `export`, `exportPNG`, and `exportPDF`. Arguments that refer to nodes or charts are native `HTMLElement` instances.
+The public API is: `init`, `destroy`, `setOptions`, `attachMinimap`, `detachMinimap`, `updateMinimap`, `addAncestors`, `addDescendants`, `addParent`, `addSiblings`, `addChildren`, `removeNodes`, `getHierarchy`, `getFlatDatasource`, `getNodeState`, `getParent`, `getChildren`, `getSiblings`, `getRelatedNodes`, `hideParent`, `showParent`, `hideChildren`, `showChildren`, `hideSiblings`, `showSiblings`, `setChartScale`, `export`, `exportPNG`, and `exportPDF`. Arguments that refer to nodes or charts are native `HTMLElement` instances.
+
+#### Data and lifecycle contracts
+Initialization and editing copy node records and child arrays before adding internal layout metadata. Original datasource records are not modified; `createNode` receives the instance-owned record. Obtain current edits through `getHierarchy(true)` or `getFlatDatasource()`, rather than inspecting the original input. Default title/content fields render as text; HTML belongs in an explicitly trusted or sanitized `nodeTemplate`.
+
+Compact and family edits update affected branches where possible, preserving selection, keyboard focus, expansion and viewport position. Nodes within a rebuilt branch can be replaced, so reacquire those elements afterward; unrelated branches remain intact during subtree updates. Root replacement and configuration changes still rebuild the chart. Call `destroy()` before removing a chart container to release global listeners, observers, pending transitions, drag previews and generated controls. Removing a tree root invokes the same cleanup.
+
+Override `--oc-node-width`, `--oc-row-height`, `--oc-line-color`, `--oc-hover-color`, `--oc-control-color` and `--oc-control-hover-color` on `.orgchart` to customize the default template and associated geometry. `--oc-duration` controls branch transitions; reduced-motion preferences disable them without blocking state cleanup. Navigation and observer-driven minimap refreshes are coalesced per frame; public `updateMinimap()` remains synchronous.
+
+The standalone script groups implementation methods by lifecycle, minimap, viewport, datasource queries, visibility, drag/drop, rendering/editing and export responsibilities. These internal groups are not additional public APIs; loading and publishing still use one script and one stylesheet.
 
 #### API reference
 | Call | Parameters | Return value and behavior |
 | --- | --- | --- |
 | `oc.init(options)` | Partial options object; use `data` to replace the data source. | Rebuilds the chart and returns `oc`. |
+| `oc.destroy()` | None. | Releases chart resources and generated controls, restores managed host styles, sets `chart` to `null`, and returns `oc`; safe to call repeatedly. |
 | `oc.setOptions(options)`<br>`oc.setOptions(name, value)` | Partial options object, or an option name and value. | Applies navigation/export settings in place; rebuilds for data, layout or node-rendering settings; returns `oc`. |
 | `oc.attachMinimap()`<br>`oc.detachMinimap()`<br>`oc.updateMinimap(forceRefresh)` | `forceRefresh` is optional; `true` redraws preview nodes. | Creates, removes, or refreshes the minimap. Prefer `setOptions('minimap', value)` for normal enablement. |
 | `oc.addAncestors(data, parentId)` | Ancestor data and the id of the ancestor node that receives the existing root. | Inserts ancestor hierarchy; no return value. |
@@ -577,7 +587,7 @@ The public API is: `init`, `setOptions`, `attachMinimap`, `detachMinimap`, `upda
 | `oc.hideParent(node)` / `oc.showParent(node)`<br>`oc.hideChildren(node)` / `oc.showChildren(node)` | Rendered `.node`. | Hides or reveals the related branch with the chart transition; no return value. |
 | `oc.hideSiblings(node, direction)`<br>`oc.showSiblings(node, direction)` | Rendered `.node`; optional `direction` is `left` or `right`. | Hides or reveals siblings on one side, or all siblings when omitted; no return value. |
 | `oc.setChartScale(chart, multiplier, zoomAnchor)` | Usually pass `oc.chart`; positive relative scale multiplier; optional viewport point `{ x, y }`. | Scales within configured zoom limits and keeps `zoomAnchor` fixed when supplied. |
-| `oc.export(filename, extension)` | Optional filename and `png` or `pdf` extension. | Starts export using configured defaults; returns `false` if the chart cannot be exported. |
+| `oc.export(filename, extension)` | Optional filename and `png` or `pdf` extension. | Returns a Promise resolving to the rendered canvas after download, or `false` when unavailable/busy. Errors reject the Promise and dispatch `export-error.orgchart` with `detail.error`; success and failure both clear the mask. Requires html2canvas, and jsPDF for PDF. |
 | `oc.exportPNG(canvas, filename)`<br>`oc.exportPDF(canvas, filename, exportScale)` | Prepared canvas; filename; PDF scale defaults to `1`. | Downloads the supplied canvas directly as PNG or PDF; normally call `export()` instead. |
 
 #### init(newOptions)
