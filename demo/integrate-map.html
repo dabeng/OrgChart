@@ -15,14 +15,17 @@
     }
 
     #chart-container {
-      position: absolute;
-      top: 10px;
-      left:40px;
+      position: relative;
       height: auto;
       max-height: 330px;
-      width: calc(100% - 80px);
       z-index: 1;
       border-color: rgba(217, 83, 79, 0.9);
+    }
+
+    .demo-notes {
+      position: relative;
+      z-index: 1;
+      max-width: 420px;
     }
 
     .orgchart {
@@ -31,7 +34,7 @@
   </style>
 </head>
 <body id="pageBody">
-  <section class="demo-notes demo-notes--overlay">
+  <section class="demo-notes">
     <h1>Map Integration Demo</h1>
     <p>This demo overlays the org chart on a map and recenters the map view when users click a node with geographic coordinates.</p>
   </section>

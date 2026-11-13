@@ -707,7 +707,7 @@ describe('orgchart -- unit tests', function () {
 
   it('showParentEnd()', function () {
     const spy = sinon.spy(oc, 'showParentEnd');
-    const spy2 = sinon.spy(oc, 'isInAction');
+    const spy2 = sinon.spy(oc, 'refreshNodeControls');
     const spy3 = sinon.spy(oc, 'switchVerticalArrow');
 
     addClasses($sumiao, 'sliding');
@@ -762,7 +762,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('hideChildrenEnd()', function () {
-    const spy2 = sinon.spy(oc, 'isInAction');
+    const spy2 = sinon.spy(oc, 'refreshNodeControls');
     const spy3 = sinon.spy(oc, 'switchVerticalArrow');
 
     addClasses($tiehua, 'sliding slide-up');
@@ -776,7 +776,7 @@ describe('orgchart -- unit tests', function () {
   it('hideChildrenEnd() accepts direct animated and node payloads', function () {
     $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = query('.bottomEdge', $sumiao);
-    const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
+    const verticalSpy = sinon.spy(oc, 'refreshNodeControls');
 
     removeClasses($tiehua, 'hidden');
     addClasses($tiehua, 'sliding');
@@ -787,7 +787,11 @@ describe('orgchart -- unit tests', function () {
 
     $tiehua.classList.contains('sliding').should.equal(false);
     closestElement($tiehua, '.nodes').classList.contains('hidden').should.equal(true);
-    verticalSpy.should.have.been.calledWith(bottomEdgeEl);
+    verticalSpy.should.have.been.calledWith($sumiao);
+    bottomEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
+    bottomEdgeEl.classList.contains(oc.options.icons.expandToUp).should.equal(false);
+    oc.hideChildrenEnd({ animatedNodes: [$tiehua], node: $sumiao });
+    bottomEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
 
     verticalSpy.restore();
   });
@@ -795,7 +799,7 @@ describe('orgchart -- unit tests', function () {
   it('hideChildrenEnd() accepts wrapped native animated and node payloads', function () {
     $sumiao.dispatchEvent(new window.MouseEvent('mouseenter'));
     const bottomEdgeEl = query('.bottomEdge', $sumiao);
-    const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
+    const verticalSpy = sinon.spy(oc, 'refreshNodeControls');
 
     removeClasses($tiehua, 'hidden');
     addClasses($tiehua, 'sliding');
@@ -811,7 +815,9 @@ describe('orgchart -- unit tests', function () {
 
     $tiehua.classList.contains('sliding').should.equal(false);
     closestElement($tiehua, '.nodes').classList.contains('hidden').should.equal(true);
-    verticalSpy.should.have.been.calledWith(bottomEdgeEl);
+    verticalSpy.should.have.been.calledWith($sumiao);
+    bottomEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
+    bottomEdgeEl.classList.contains(oc.options.icons.expandToUp).should.equal(false);
 
     verticalSpy.restore();
   });
@@ -836,7 +842,7 @@ describe('orgchart -- unit tests', function () {
   });
 
   it('showChildrenEnd()', function () {
-    const spy2 = sinon.spy(oc, 'isInAction');
+    const spy2 = sinon.spy(oc, 'refreshNodeControls');
     const spy3 = sinon.spy(oc, 'switchVerticalArrow');
 
     addClasses($tiehua, 'sliding');
@@ -1187,13 +1193,17 @@ describe('orgchart -- unit tests', function () {
   it('HideFirstParentEnd() accepts a native top edge payload', function () {
     $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
-    const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
+    const verticalSpy = sinon.spy(oc, 'refreshNodeControls');
     const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
 
     topEdgeEl.classList.add(oc.options.icons.expandToUp);
     oc.HideFirstParentEnd({ topEdge: topEdgeEl });
 
-    verticalSpy.should.have.been.calledWith(topEdgeEl);
+    verticalSpy.should.have.been.calledWith($heihei);
+    topEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
+    topEdgeEl.classList.contains(oc.options.icons.expandToUp).should.equal(false);
+    oc.HideFirstParentEnd({ topEdge: topEdgeEl });
+    topEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
     horizontalSpy.should.have.been.calledWith($heihei);
 
     verticalSpy.restore();
@@ -1203,7 +1213,7 @@ describe('orgchart -- unit tests', function () {
   it('HideFirstParentEnd() accepts a wrapped native top edge payload', function () {
     $heihei.dispatchEvent(new window.MouseEvent('mouseenter'));
     const topEdgeEl = query('.topEdge', $heihei);
-    const verticalSpy = sinon.spy(oc, 'switchVerticalArrow');
+    const verticalSpy = sinon.spy(oc, 'refreshNodeControls');
     const horizontalSpy = sinon.spy(oc, 'switchHorizontalArrow');
 
     topEdgeEl.classList.add(oc.options.icons.expandToUp);
@@ -1213,7 +1223,9 @@ describe('orgchart -- unit tests', function () {
       }
     });
 
-    verticalSpy.should.have.been.calledWith(topEdgeEl);
+    verticalSpy.should.have.been.calledWith($heihei);
+    topEdgeEl.classList.contains(oc.options.icons.collapseToDown).should.equal(true);
+    topEdgeEl.classList.contains(oc.options.icons.expandToUp).should.equal(false);
     horizontalSpy.should.have.been.calledWith($heihei);
 
     verticalSpy.restore();

@@ -245,6 +245,14 @@ Enable the `minimap` option to display an overview navigator. Drag its viewport 
 - run ```npm run build``` to generate production js&css files of plugin
 - run ```npm start``` to start up local web server to host all the demos
 
+### expand/collapse regression tests
+
+Run `npm run e2e-tests:collapse` to run the unit/integration gates, synchronize demo assets, and verify all 46 chart demos at 1200px and 390px. Chrome must be installed; set `CYPRESS_BROWSER` to select another installed Cypress browser. No separate server is needed. The 95 cases also run through `npm test` and `npm run e2e-tests`. Browser startup errors and failed assertions fail the command.
+
+The matrix discovers HTML pages from the demo directory and checks them against the index links, so new demos cannot silently escape coverage. It selects available parent, child, left/right sibling, vertical and compact controls for each layout and initial expansion state. Two toggle cycles cover pointer, Enter and Space activation, rapid repeat clicks, leave/re-enter during animation, final visibility, hidden descendants, arrow classes and hover-only controls. Real CSS transitions are sampled at 25% and 75% to verify intermediate opacity, movement and direction, then completed to check cleanup. Existing family-tree and depth-limit suites additionally check connector geometry and nested branch recovery.
+
+External avatars use repository images, the obsolete Promise polyfill is omitted in modern test browsers, and the map provider API is replaced with a test double. OrgChart rendering and interaction code is not mocked; these checks do not verify third-party map tiles or map animations. Failure screenshots are saved under `test/cypress/screenshots/demo-collapse.cy.js`.
+
 ### family tree regression tests
 
 Run `npm run e2e-tests:family-tree` to run the unit and integration gates, synchronize demo assets, and execute the dedicated Cypress suite for `demo/family-tree.html`. No separate development server is needed. The command exits with a failure if any family tree test fails. The suite is also included in the existing `npm test` and `npm run e2e-tests` commands.

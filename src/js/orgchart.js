@@ -2287,17 +2287,11 @@
       const nativeEvent = event.originalEvent || event;
       const animatedNodeElement = getElement(event.animatedNode || nativeEvent.animatedNode || nativeEvent.target);
       const nodeElement = getElement(event.node || nativeEvent.node);
-      let topEdgeElement;
 
       if (animatedNodeElement && animatedNodeElement.classList) {
         animatedNodeElement.classList.remove('sliding');
       }
-      if (this.isInAction(nodeElement)) {
-        topEdgeElement = nodeElement ? Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('topEdge');
-        }) || null : null;
-        this.switchVerticalArrow(topEdgeElement);
-      }
+      this.refreshNodeControls(nodeElement);
     },
     // show the parent node of the specified node
     showParent: function (nodeEl) {
@@ -2353,7 +2347,6 @@
       const nativeEvent = event.originalEvent || event;
       const nodeElement = getElement(event.node || nativeEvent.node);
       const animatedNodeElements = event.animatedNodes || nativeEvent.animatedNodes;
-        let bottomEdgeElement;
 
         getElements(animatedNodeElements).forEach(function (animatedNodeEl) {
           let lowerNodesElement;
@@ -2368,15 +2361,7 @@
             lowerNodesElement.classList.add('hidden');
           }
         });
-        if (this.isInAction(nodeElement)) {
-          bottomEdgeElement = nodeElement ? Array.from(nodeElement.children || []).find(function (childEl) {
-            return childEl.classList && childEl.classList.contains('bottomEdge');
-          }) || null : null;
-          this.switchVerticalArrow(bottomEdgeElement);
-      }
-      if (nodeElement && nodeElement.parentElement && nodeElement.parentElement.classList.contains('couple')) {
-        this.refreshNodeControls(nodeElement);
-      }
+      this.refreshNodeControls(nodeElement);
     },
     // recursively hide the descendant nodes of the specified node
     hideChildren: function (nodeEl) {
@@ -2440,22 +2425,13 @@
       const nativeEvent = event.originalEvent || event;
       const nodeElement = getElement(event.node || nativeEvent.node);
       const animatedNodeElements = event.animatedNodes || nativeEvent.animatedNodes;
-      let bottomEdgeElement;
 
       getElements(animatedNodeElements).forEach(function (animatedNodeEl) {
         if (animatedNodeEl.classList) {
           animatedNodeEl.classList.remove('sliding');
         }
       });
-      if (this.isInAction(nodeElement)) {
-        bottomEdgeElement = nodeElement ? Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('bottomEdge');
-        }) || null : null;
-        this.switchVerticalArrow(bottomEdgeElement);
-      }
-      if (nodeElement && nodeElement.parentElement && nodeElement.parentElement.classList.contains('couple')) {
-        this.refreshNodeControls(nodeElement);
-      }
+      this.refreshNodeControls(nodeElement);
     },
     // show the children nodes of the specified node
     showChildren: function (nodeEl) {
@@ -2709,23 +2685,13 @@
       const nativeEvent = event.originalEvent || event;
       const nodeElement = getElement(event.node || nativeEvent.node);
       const visibleNodeElements = event.visibleNodes || nativeEvent.visibleNodes;
-      let topEdgeElement;
 
       getElements(visibleNodeElements).forEach(function (visibleNodeEl) {
         if (visibleNodeEl.classList) {
           visibleNodeEl.classList.remove('sliding');
         }
       });
-      if (this.isInAction(nodeElement)) {
-        this.switchHorizontalArrow(nodeElement);
-        topEdgeElement = nodeElement ? Array.from(nodeElement.children || []).find(function (childEl) {
-          return childEl.classList && childEl.classList.contains('topEdge');
-        }) || null : null;
-        if (topEdgeElement && topEdgeElement.classList) {
-          topEdgeElement.classList.remove(this.options.icons.expandToUp);
-          topEdgeElement.classList.add(this.options.icons.collapseToDown);
-        }
-      }
+      this.refreshNodeControls(nodeElement);
     },
     //
     showRelatedParentEnd: function(event) {
@@ -3254,8 +3220,7 @@
       const topEdgeElement = nodeElement ? nodeElement.querySelector(':scope > .topEdge') : null;
 
       if (this.isInAction(nodeElement)) {
-        this.switchVerticalArrow(topEdgeElement);
-        this.switchHorizontalArrow(nodeElement);
+        this.refreshNodeControls(nodeElement);
       }
     },
     // actions on clinking top edge of a node
@@ -3271,7 +3236,7 @@
       if (parentState.exist) {
         parentSliding = !!(parentEl && parentEl.classList && parentEl.classList.contains('sliding'));
         parentHiding = !!(parentEl && parentEl.classList && parentEl.classList.contains('slide-down'));
-        if (parentSliding && !parentHiding) { return; }
+        if (parentSliding) { return; }
         // hide the ancestor nodes and sibling nodes of the specified node
         if (parentState.visible && !parentHiding) {
           this.hideParent(nodeElement);
@@ -3460,6 +3425,7 @@
           verticalNodeEl.classList.remove('sliding');
         }
       });
+      this.refreshNodeControls(event.node || nativeEvent.node);
     },
     //
     collapseVNodesEnd: function (event) {
@@ -3478,6 +3444,7 @@
           verticalNodesWrapperElement.classList.add('hidden');
         }
       });
+      this.refreshNodeControls(event.node || nativeEvent.node);
     },
     // event handler for toggle buttons in Hybrid(horizontal + vertical) OrgChart
     toggleVNodes: function (event) {
@@ -3508,6 +3475,7 @@
         });
         if (childNodeElements[0]) {
           waitForTransition(childNodeElements[0], function (transitionEvent) {
+            transitionEvent.node = toggleBtnEl.parentElement;
             transitionEvent.vNodes = childNodeElements;
             orgChart.expandVNodesEnd(transitionEvent);
           });
@@ -3518,6 +3486,7 @@
         });
         if (descendantNodeElements[0]) {
           waitForTransition(descendantNodeElements[0], function (transitionEvent) {
+            transitionEvent.node = toggleBtnEl.parentElement;
             transitionEvent.vNodes = descendantNodeElements;
             orgChart.collapseVNodesEnd(transitionEvent);
           });

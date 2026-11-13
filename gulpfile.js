@@ -81,6 +81,25 @@ gulp.task('visual-regression', function () {
 gulp.task('e2e-tests', gulp.series('addAssets', function () {
   return cypress.run({
     spec: 'test/cypress/e2e/**/*.cy.js',
+    browser: process.env.CYPRESS_BROWSER || 'chrome',
+    config: { trashAssetsBeforeRuns: false }
+  }).then(function (results) {
+    if (results.status === 'failed' || results.totalFailed > 0) {
+      throw new Error(results.message || 'E2E tests failed: ' + results.totalFailed);
+    }
+  });
+}));
+
+gulp.task('collapse-e2e-tests', gulp.series('addAssets', function () {
+  return cypress.run({
+    spec: 'test/cypress/e2e/demo-collapse.cy.js',
+    browser: process.env.CYPRESS_BROWSER || 'chrome',
+    reporter: 'dot',
+    config: { trashAssetsBeforeRuns: false }
+  }).then(function (results) {
+    if (results.status === 'failed' || results.totalFailed > 0) {
+      throw new Error(results.message || 'Collapse e2e tests failed: ' + results.totalFailed);
+    }
   });
 }));
 

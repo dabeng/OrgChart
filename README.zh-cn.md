@@ -231,6 +231,14 @@ var datascource = [
 - 运行命令`npm run build`来生成生产版本的js,css文件。
 - 运行命令`npm start`来启动本地web server，在这个地址http://localhost:3000 上查看满足不同场景需求的Demo。
 
+### 展开折叠回归测试
+
+运行 `npm run e2e-tests:collapse`，依次执行单元和集成测试、同步示例资源，再验证全部 46 个组织图示例在 1200px 和 390px 下的行为。需要安装 Chrome；可通过 `CYPRESS_BROWSER` 选择其他已安装且受 Cypress 支持的浏览器。无需单独启动服务器。共 95 项测试，也包含在 `npm test` 和 `npm run e2e-tests` 中。浏览器启动失败或断言失败都会使命令失败。
+
+矩阵从示例目录自动发现 HTML 页面，并与首页链接核对，避免新增示例遗漏测试。按每种布局和初始展开状态选择实际存在的父、子、左右兄弟、垂直和紧凑布局控件。两轮切换覆盖鼠标、Enter 和空格操作、快速重复点击、动画中移出再移入、最终可见性、后代隐藏、箭头类名及仅悬停显示控件。真实 CSS 动画在 25% 和 75% 处采样，检查中间透明度、位移和方向，再完成动画并检查清理。现有家谱和深度限制专项测试额外检查连接线几何关系与嵌套分支恢复。
+
+外部头像使用仓库图片，现代测试浏览器不加载过时的 Promise 补丁，地图提供方 API 使用测试替身。OrgChart 渲染和交互逻辑不打桩；这些检查不验证第三方地图瓦片或地图动画。失败截图保存在 `test/cypress/screenshots/demo-collapse.cy.js`。
+
 ### 家谱回归测试
 
 运行 `npm run e2e-tests:family-tree`，依次执行单元测试和集成测试、同步示例资源，再运行针对 `demo/family-tree.html` 的独立 Cypress 测试套件。无需单独启动开发服务器。任何家谱测试失败时，该命令都会以失败状态退出。这套测试也包含在现有的 `npm test` 和 `npm run e2e-tests` 命令中。
