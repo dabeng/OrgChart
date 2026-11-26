@@ -1,0 +1,45 @@
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write      # OIDC / provenance 必需
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      # 关键：确保 npm 版本支持 Trusted Publishing（最低 11.5.1）
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and test
+        run: npm run build
+
+      # 可选：打印 OIDC claims，用于和 npm 侧 Trusted Publisher 配置比对，验证完可删
+      - name: Show OIDC claims
+        run: |
+          echo "ref:            ${{ github.ref }}"
+          echo "repository:     ${{ github.repository }}"
+          echo "workflow_ref:   ${{ github.workflow_ref }}"
+          echo "run_id:         ${{ github.run_id }}"
+
+      # 注意：这里绝对不能有 env: NODE_AUTH_TOKEN
+      - name: Publish package
+        run: npm publish --access public --provenance
