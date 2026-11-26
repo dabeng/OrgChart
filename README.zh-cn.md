@@ -545,6 +545,25 @@ const oc = new OrgChart({ chartContainer: '#chartContainerId', data: datasource 
 #### 数据与生命周期契约
 初始化和编辑先复制节点记录及子节点数组，再添加内部布局信息，不修改原始数据。`createNode` 接收实例拥有的数据记录。请通过 `getHierarchy(true)` 或 `getFlatDatasource()` 获取当前编辑结果，不要依赖原始输入对象变化。默认标题和内容按文本渲染；HTML 应放在明确可信或经过净化的 `nodeTemplate` 中。
 
+从 v8 开始，标题字段中的 `<a>` 字符串会原样显示。要保留默认节点布局和控件，请将标题文字存为纯文本，再用 `createNode` 创建链接：
+
+```js
+new OrgChart({
+  chartContainer: '#chart-container',
+  data: { id: 'root', name: 'some text' },
+  createNode: function (node, data) {
+    if (data.id !== 'root') return;
+    const title = node.querySelector(':scope > .title');
+    const link = node.ownerDocument.createElement('a');
+    link.href = 'something.html';
+    link.textContent = data.name;
+    title.replaceChild(link, title.lastChild);
+  }
+});
+```
+
+链接可以正常跳转，无需自定义点击处理函数。如果 URL 来自不可信的数据，请先验证再赋给 `href`。
+
 紧凑和家谱编辑尽可能只更新受影响分支，并保留选中、键盘焦点、展开和视口位置。重建分支中的节点可能被替换，应重新查询这些元素；子树更新不会替换无关分支。替换根数据或修改配置仍会重建图表。移除图表容器前调用 `destroy()`，释放全局监听器、Observer、待完成动画、拖拽预览和生成的控件。删除树根节点使用相同清理流程。
 
 可在 `.orgchart` 上覆盖 `--oc-node-width`、`--oc-row-height`、`--oc-line-color`、`--oc-hover-color`、`--oc-control-color` 和 `--oc-control-hover-color`，定制默认模板及其关联几何。`--oc-duration` 控制分支过渡；减少动态效果偏好会关闭过渡，且不会阻塞状态清理。导航和 Observer 引起的小地图刷新按帧合并；公开 `updateMinimap()` 仍同步执行。

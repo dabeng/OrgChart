@@ -568,6 +568,25 @@ The public API is: `init`, `destroy`, `setOptions`, `attachMinimap`, `detachMini
 #### Data and lifecycle contracts
 Initialization and editing copy node records and child arrays before adding internal layout metadata. Original datasource records are not modified; `createNode` receives the instance-owned record. Obtain current edits through `getHierarchy(true)` or `getFlatDatasource()`, rather than inspecting the original input. Default title/content fields render as text; HTML belongs in an explicitly trusted or sanitized `nodeTemplate`.
 
+Since v8, an `<a>` string in a title field is displayed literally. To keep the default node layout and controls, store the label as plain text and build the link in `createNode`:
+
+```js
+new OrgChart({
+  chartContainer: '#chart-container',
+  data: { id: 'root', name: 'some text' },
+  createNode: function (node, data) {
+    if (data.id !== 'root') return;
+    const title = node.querySelector(':scope > .title');
+    const link = node.ownerDocument.createElement('a');
+    link.href = 'something.html';
+    link.textContent = data.name;
+    title.replaceChild(link, title.lastChild);
+  }
+});
+```
+
+The link navigates normally without a custom click handler. If the URL comes from untrusted data, validate it before assigning `href`.
+
 Compact and family edits update affected branches where possible, preserving selection, keyboard focus, expansion and viewport position. Nodes within a rebuilt branch can be replaced, so reacquire those elements afterward; unrelated branches remain intact during subtree updates. Root replacement and configuration changes still rebuild the chart. Call `destroy()` before removing a chart container to release global listeners, observers, pending transitions, drag previews and generated controls. Removing a tree root invokes the same cleanup.
 
 Override `--oc-node-width`, `--oc-row-height`, `--oc-line-color`, `--oc-hover-color`, `--oc-control-color` and `--oc-control-hover-color` on `.orgchart` to customize the default template and associated geometry. `--oc-duration` controls branch transitions; reduced-motion preferences disable them without blocking state cleanup. Navigation and observer-driven minimap refreshes are coalesced per frame; public `updateMinimap()` remains synchronous.

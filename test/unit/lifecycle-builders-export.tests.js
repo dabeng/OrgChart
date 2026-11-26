@@ -471,13 +471,35 @@ describe('orgchart -- init and builder unit tests', function () {
 
   describe('createNode()', function () {
     it('renders default fields as text and keeps nodeTemplate as an explicit HTML hook', function () {
-      const label = '<span data-marker>Literal label</span>';
+      const label = '<a href="something.html" data-marker>Literal label</a>';
       oc.init({ data: { id: 'safe', name: label, title: label }, nodeContent: 'title' });
       query('#safe > .title', oc.chart).textContent.should.equal(label);
       query('#safe > .content', oc.chart).textContent.should.equal(label);
       should.not.exist(query('[data-marker]', oc.chart));
       oc.init({ nodeTemplate: function () { return '<strong data-marker>Template</strong>'; } });
       should.exist(query('#safe > strong[data-marker]', oc.chart));
+    });
+
+    it('supports title links added by the createNode callback without canceling navigation', function () {
+      oc.init({
+        data: { id: 'root', name: 'some text', children: [{ id: 'child', name: 'Child' }] },
+        createNode: function (node, data) {
+          if (data.id !== 'root') return;
+          const title = node.querySelector(':scope > .title');
+          const link = node.ownerDocument.createElement('a');
+          link.href = '#child';
+          link.textContent = data.name;
+          title.replaceChild(link, title.lastChild);
+        }
+      });
+
+      const link = query('#root > .title > a', oc.chart);
+      link.textContent.should.equal('some text');
+      link.getAttribute('href').should.equal('#child');
+      should.exist(query('#root > .title > .parentNodeSymbol', oc.chart));
+      should.not.exist(query('#child > .title > a', oc.chart));
+      const browser = link.ownerDocument.defaultView;
+      link.dispatchEvent(new browser.MouseEvent('click', { bubbles: true, cancelable: true })).should.equal(true);
     });
 
     it('renders title and content without prebuilt interaction controls', function () {
