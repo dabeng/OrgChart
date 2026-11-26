@@ -32,6 +32,11 @@ jobs:
       - name: Install Chrome for Puppeteer
         run: npx puppeteer browsers install chrome
 
+      - name: Install and verify Cypress
+        run: |
+          npx cypress install
+          npx cypress verify
+
       - name: Build and test
         run: npm run build
 
